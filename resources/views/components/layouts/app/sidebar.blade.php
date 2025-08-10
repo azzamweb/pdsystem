@@ -19,7 +19,7 @@
                 <flux:navlist.group :heading="__('Master Data')" class="grid">
                     <flux:navlist.item icon="users" :href="route('users.index')" :current="request()->routeIs('users.*')" wire:navigate>{{ __('Data Pegawai') }}</flux:navlist.item>
                     <flux:navlist.item icon="building-office" :href="route('units.index')" :current="request()->routeIs('units.*')" wire:navigate>{{ __('Data Unit') }}</flux:navlist.item>
-                    <flux:navlist.item icon="shield-check" :href="route('ranks.index')" :current="request()->routeIs('ranks.*')" wire:navigate>{{ __('Data Pangkat') }}</flux:navlist.item>
+                    
                     <flux:navlist.item icon="briefcase" :href="route('positions.index')" :current="request()->routeIs('positions.*')" wire:navigate>{{ __('Data Jabatan') }}</flux:navlist.item>
                 </flux:navlist.group>
             </flux:navlist>
@@ -27,13 +27,11 @@
             <flux:spacer />
 
             <flux:navlist variant="outline">
-                <flux:navlist.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank">
-                {{ __('Repository') }}
-                </flux:navlist.item>
+                <flux:navlist.group :heading="__('Configuration')" class="grid">
 
-                <flux:navlist.item icon="book-open-text" href="https://laravel.com/docs/starter-kits#livewire" target="_blank">
-                {{ __('Documentation') }}
-                </flux:navlist.item>
+                <flux:navlist.item :href="route('settings.organization')" icon="building-office-2" wire:navigate>{{ __('Organisasi') }}</flux:navlist.item>
+                <flux:navlist.item icon="shield-check" :href="route('ranks.index')" :current="request()->routeIs('ranks.*')" wire:navigate>{{ __('Data Pangkat') }}</flux:navlist.item>
+        </flux:navlist.group>
             </flux:navlist>
 
             <!-- Desktop User Menu -->
@@ -68,7 +66,7 @@
 
                     <flux:menu.radio.group>
                         <flux:menu.item :href="route('settings.profile')" icon="cog" wire:navigate>{{ __('Settings') }}</flux:menu.item>
-                        <flux:menu.item :href="route('settings.organization')" icon="building-office-2" wire:navigate>{{ __('Organisasi') }}</flux:menu.item>
+                        {{-- <flux:menu.item :href="route('settings.organization')" icon="building-office-2" wire:navigate>{{ __('Organisasi') }}</flux:menu.item> --}}
                     </flux:menu.radio.group>
 
                     <flux:menu.separator />
