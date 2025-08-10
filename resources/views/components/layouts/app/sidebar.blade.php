@@ -15,6 +15,13 @@
                 <flux:navlist.group :heading="__('Platform')" class="grid">
                     <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
                 </flux:navlist.group>
+
+                <flux:navlist.group :heading="__('Master Data')" class="grid">
+                    <flux:navlist.item icon="users" :href="route('users.index')" :current="request()->routeIs('users.*')" wire:navigate>{{ __('Data Pegawai') }}</flux:navlist.item>
+                    <flux:navlist.item icon="building-office" :href="route('units.index')" :current="request()->routeIs('units.*')" wire:navigate>{{ __('Data Unit') }}</flux:navlist.item>
+                    <flux:navlist.item icon="shield-check" :href="route('ranks.index')" :current="request()->routeIs('ranks.*')" wire:navigate>{{ __('Data Pangkat') }}</flux:navlist.item>
+                    <flux:navlist.item icon="briefcase" :href="route('positions.index')" :current="request()->routeIs('positions.*')" wire:navigate>{{ __('Data Jabatan') }}</flux:navlist.item>
+                </flux:navlist.group>
             </flux:navlist>
 
             <flux:spacer />
@@ -61,6 +68,7 @@
 
                     <flux:menu.radio.group>
                         <flux:menu.item :href="route('settings.profile')" icon="cog" wire:navigate>{{ __('Settings') }}</flux:menu.item>
+                        <flux:menu.item :href="route('settings.organization')" icon="building-office-2" wire:navigate>{{ __('Organisasi') }}</flux:menu.item>
                     </flux:menu.radio.group>
 
                     <flux:menu.separator />
@@ -111,6 +119,7 @@
 
                     <flux:menu.radio.group>
                         <flux:menu.item :href="route('settings.profile')" icon="cog" wire:navigate>{{ __('Settings') }}</flux:menu.item>
+                        <flux:menu.item :href="route('settings.organization')" icon="building-office-2" wire:navigate>{{ __('Organisasi') }}</flux:menu.item>
                     </flux:menu.radio.group>
 
                     <flux:menu.separator />
@@ -127,6 +136,7 @@
 
         {{ $slot }}
 
+        @livewireScripts
         @fluxScripts
     </body>
 </html>
