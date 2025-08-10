@@ -24,6 +24,10 @@ class DatabaseSeeder extends Seeder
             CitiesSeeder::class,
             DistrictsSeeder::class,
             OrgPlacesSeeder::class,
+            
+            // Transport & Route seeders
+            TransportModesSeeder::class,
+            TravelRoutesSeeder::class,
         ]);
     }
 }

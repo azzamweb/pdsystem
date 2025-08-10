@@ -36,11 +36,17 @@ use App\Livewire\Units\Index as UnitIndex;
 use App\Livewire\Users\Create as UserCreate;
 use App\Livewire\Users\Edit as UserEdit;
 use App\Livewire\Users\Index as UserIndex;
+use App\Livewire\TransportModes\Create as TransportModeCreate;
+use App\Livewire\TransportModes\Edit as TransportModeEdit;
+use App\Livewire\TransportModes\Index as TransportModeIndex;
+use App\Livewire\TravelRoutes\Create as TravelRouteCreate;
+use App\Livewire\TravelRoutes\Edit as TravelRouteEdit;
+use App\Livewire\TravelRoutes\Index as TravelRouteIndex;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('home');
 
 Route::middleware('guest')->group(function () {
     Route::get('login', Login::class)->name('login');
@@ -93,6 +99,16 @@ Route::middleware('auth')->group(function () {
     Route::get('org-places', OrgPlaceIndex::class)->name('org-places.index');
     Route::get('org-places/create', OrgPlaceCreate::class)->name('org-places.create');
     Route::get('org-places/{orgPlace}/edit', OrgPlaceEdit::class)->name('org-places.edit');
+
+    // Transport Mode CRUD
+    Route::get('transport-modes', TransportModeIndex::class)->name('transport-modes.index');
+    Route::get('transport-modes/create', TransportModeCreate::class)->name('transport-modes.create');
+    Route::get('transport-modes/{transportMode}/edit', TransportModeEdit::class)->name('transport-modes.edit');
+
+    // Travel Route CRUD
+    Route::get('travel-routes', TravelRouteIndex::class)->name('travel-routes.index');
+    Route::get('travel-routes/create', TravelRouteCreate::class)->name('travel-routes.create');
+    Route::get('travel-routes/{travelRoute}/edit', TravelRouteEdit::class)->name('travel-routes.edit');
 
     // Settings
     Route::get('settings/profile', Profile::class)->name('profile.show');

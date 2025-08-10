@@ -29,6 +29,8 @@
                     <flux:navlist.item icon="building-office" :href="route('cities.index')" :current="request()->routeIs('cities.*')" wire:navigate>{{ __('Data Kota/Kabupaten') }}</flux:navlist.item>
                     <flux:navlist.item icon="map-pin" :href="route('districts.index')" :current="request()->routeIs('districts.*')" wire:navigate>{{ __('Data Kecamatan') }}</flux:navlist.item>
                     <flux:navlist.item icon="building-office-2" :href="route('org-places.index')" :current="request()->routeIs('org-places.*')" wire:navigate>{{ __('Data Kedudukan') }}</flux:navlist.item>
+                    <flux:navlist.item icon="truck" :href="route('transport-modes.index')" :current="request()->routeIs('transport-modes.*')" wire:navigate>{{ __('Data Moda Transportasi') }}</flux:navlist.item>
+                    <flux:navlist.item icon="map" :href="route('travel-routes.index')" :current="request()->routeIs('travel-routes.*')" wire:navigate>{{ __('Data Rute Perjalanan') }}</flux:navlist.item>
                 </flux:navlist.group>
             </flux:navlist>
 
