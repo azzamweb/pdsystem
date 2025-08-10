@@ -28,6 +28,9 @@ class DatabaseSeeder extends Seeder
             // Transport & Route seeders
             TransportModesSeeder::class,
             TravelRoutesSeeder::class,
+            
+            // Travel Grade seeders
+            TravelGradesSeeder::class,
         ]);
     }
 }

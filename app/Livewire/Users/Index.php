@@ -32,7 +32,7 @@ class Index extends Component
 
     public function render()
     {
-        $users = User::with(['unit', 'position.echelon', 'rank'])
+        $users = User::with(['unit', 'position.echelon', 'rank', 'travelGradeMap.travelGrade'])
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('name', 'like', '%' . $this->search . '%')

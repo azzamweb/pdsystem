@@ -31,6 +31,8 @@
                     <flux:navlist.item icon="building-office-2" :href="route('org-places.index')" :current="request()->routeIs('org-places.*')" wire:navigate>{{ __('Data Kedudukan') }}</flux:navlist.item>
                     <flux:navlist.item icon="truck" :href="route('transport-modes.index')" :current="request()->routeIs('transport-modes.*')" wire:navigate>{{ __('Data Moda Transportasi') }}</flux:navlist.item>
                     <flux:navlist.item icon="map" :href="route('travel-routes.index')" :current="request()->routeIs('travel-routes.*')" wire:navigate>{{ __('Data Rute Perjalanan') }}</flux:navlist.item>
+                    <flux:navlist.item icon="star" :href="route('travel-grades.index')" :current="request()->routeIs('travel-grades.*')" wire:navigate>{{ __('Data Tingkatan Perjalanan') }}</flux:navlist.item>
+                    <flux:navlist.item icon="users" :href="route('user-travel-grade-maps.index')" :current="request()->routeIs('user-travel-grade-maps.*')" wire:navigate>{{ __('Mapping Tingkatan Pegawai') }}</flux:navlist.item>
                 </flux:navlist.group>
             </flux:navlist>
 

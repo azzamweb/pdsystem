@@ -67,6 +67,9 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             Pangkat
                         </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            Tingkatan Perjalanan
+                        </th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             Aksi
                         </th>
@@ -100,6 +103,15 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
                                 {{ $user->rank?->fullName() ?? '-' }}
                             </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
+                                @if($user->travelGradeMap?->travelGrade)
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+                                        {{ $user->travelGradeMap->travelGrade->name }}
+                                    </span>
+                                @else
+                                    <span class="text-gray-400">-</span>
+                                @endif
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex items-center justify-end space-x-2">
                                     <a href="{{ route('users.edit', $user) }}"
@@ -125,7 +137,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                            <td colspan="8" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
                                 @if($search)
                                     Tidak ada pegawai yang ditemukan dengan kata kunci "{{ $search }}"
                                 @else

@@ -5,6 +5,8 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
@@ -127,5 +129,21 @@ class User extends Authenticatable
     public function echelon(): ?Echelon
     {
         return $this->position?->echelon;
+    }
+
+    /**
+     * Relationship with Travel Grade through mapping
+     */
+    public function travelGradeMap(): HasOne
+    {
+        return $this->hasOne(UserTravelGradeMap::class);
+    }
+
+    /**
+     * Get travel grade through mapping
+     */
+    public function travelGrade(): HasOneThrough
+    {
+        return $this->hasOneThrough(TravelGrade::class, UserTravelGradeMap::class, 'user_id', 'id', 'id', 'travel_grade_id');
     }
 }

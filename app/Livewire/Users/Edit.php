@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Unit;
 use App\Models\Position;
 use App\Models\Rank;
+use App\Models\TravelGrade;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -35,6 +36,7 @@ class Edit extends Component
     public $birth_date = '';
     public $gender = '';
     public $is_signer = false;
+    public $travel_grade_id = '';
 
     // Mutators to handle empty strings for foreign key fields
     public function setUnitIdProperty($value)
@@ -50,6 +52,11 @@ class Edit extends Component
     public function setRankIdProperty($value)
     {
         $this->rank_id = $value === '' ? null : $value;
+    }
+
+    public function setTravelGradeIdProperty($value)
+    {
+        $this->travel_grade_id = $value === '' ? null : $value;
     }
 
 
@@ -77,6 +84,9 @@ class Edit extends Component
         $this->birth_date = $user->birth_date?->format('Y-m-d');
         $this->gender = $user->gender;
         $this->is_signer = $user->is_signer;
+        
+        // Set travel grade mapping
+        $this->travel_grade_id = $user->travelGradeMap?->travel_grade_id;
     }
 
     protected function rules()
@@ -102,6 +112,7 @@ class Edit extends Component
             'birth_date' => 'nullable|date',
             'gender' => 'nullable|in:L,P',
             'is_signer' => 'boolean',
+            'travel_grade_id' => 'nullable|exists:travel_grades,id',
         ];
     }
 
@@ -110,7 +121,7 @@ class Edit extends Component
         $validated = $this->validate();
         
         // Convert empty strings to null for foreign key fields
-        $foreignKeys = ['unit_id', 'position_id', 'rank_id'];
+        $foreignKeys = ['unit_id', 'position_id', 'rank_id', 'travel_grade_id'];
         foreach ($foreignKeys as $key) {
             if (isset($validated[$key]) && $validated[$key] === '') {
                 $validated[$key] = null;
@@ -118,6 +129,18 @@ class Edit extends Component
         }
         
         $this->user->update($validated);
+        
+        // Handle travel grade mapping
+        if ($this->travel_grade_id) {
+            // Update or create mapping
+            $this->user->travelGradeMap()->updateOrCreate(
+                ['user_id' => $this->user->id],
+                ['travel_grade_id' => $this->travel_grade_id]
+            );
+        } else {
+            // Remove mapping if travel_grade_id is null
+            $this->user->travelGradeMap()->delete();
+        }
         
         session()->flash('message', 'Data pegawai berhasil diperbarui.');
         
@@ -135,7 +158,8 @@ class Edit extends Component
             ->select('positions.*')
             ->get();
         $ranks = Rank::orderBy('code', 'desc')->get(); // Pangkat tertinggi (IV/e) first
+        $travelGrades = TravelGrade::orderBy('name')->get();
 
-        return view('livewire.users.edit', compact('units', 'positions', 'ranks'));
+        return view('livewire.users.edit', compact('units', 'positions', 'ranks', 'travelGrades'));
     }
 }

@@ -42,6 +42,10 @@ use App\Livewire\TransportModes\Index as TransportModeIndex;
 use App\Livewire\TravelRoutes\Create as TravelRouteCreate;
 use App\Livewire\TravelRoutes\Edit as TravelRouteEdit;
 use App\Livewire\TravelRoutes\Index as TravelRouteIndex;
+use App\Livewire\TravelGrades\Create as TravelGradeCreate;
+use App\Livewire\TravelGrades\Edit as TravelGradeEdit;
+use App\Livewire\TravelGrades\Index as TravelGradeIndex;
+use App\Livewire\UserTravelGradeMaps\Index as UserTravelGradeMapIndex;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -109,6 +113,14 @@ Route::middleware('auth')->group(function () {
     Route::get('travel-routes', TravelRouteIndex::class)->name('travel-routes.index');
     Route::get('travel-routes/create', TravelRouteCreate::class)->name('travel-routes.create');
     Route::get('travel-routes/{travelRoute}/edit', TravelRouteEdit::class)->name('travel-routes.edit');
+
+    // Travel Grade CRUD
+    Route::get('travel-grades', TravelGradeIndex::class)->name('travel-grades.index');
+    Route::get('travel-grades/create', TravelGradeCreate::class)->name('travel-grades.create');
+    Route::get('travel-grades/{travelGrade}/edit', TravelGradeEdit::class)->name('travel-grades.edit');
+
+    // User Travel Grade Mapping
+    Route::get('user-travel-grade-maps', UserTravelGradeMapIndex::class)->name('user-travel-grade-maps.index');
 
     // Settings
     Route::get('settings/profile', Profile::class)->name('profile.show');
