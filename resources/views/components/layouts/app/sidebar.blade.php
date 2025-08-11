@@ -34,15 +34,7 @@
                     
                 </flux:navlist.group>
 
-                <flux:navlist.group :heading="__('Referensi Tarif')" class="grid">
-                   
-                                <flux:navlist.item icon="star" :href="route('travel-grades.index')" :current="request()->routeIs('travel-grades.*')" wire:navigate>{{ __('Data Tingkatan Perjalanan') }}</flux:navlist.item>
-                <flux:navlist.item icon="users" :href="route('user-travel-grade-maps.index')" :current="request()->routeIs('user-travel-grade-maps.*')" wire:navigate>{{ __('Mapping Tingkatan Pegawai') }}</flux:navlist.item>
-                <flux:navlist.item icon="currency-dollar" :href="route('perdiem-rates.index')" :current="request()->routeIs('perdiem-rates.*')" wire:navigate>{{ __('Data Tarif Uang Harian') }}</flux:navlist.item>
-                <flux:navlist.item icon="home" :href="route('lodging-caps.index')" :current="request()->routeIs('lodging-caps.*')" wire:navigate>{{ __('Data Batas Tarif Penginapan') }}</flux:navlist.item>
-                <flux:navlist.item icon="presentation-chart-line" :href="route('representation-rates.index')" :current="request()->routeIs('representation-rates.*')" wire:navigate>{{ __('Data Tarif Representasi') }}</flux:navlist.item>
-                
-            </flux:navlist.group>
+                                <flux:navlist.item icon="calculator" :href="route('reference-rates.index')" :current="request()->routeIs('reference-rates.*')" wire:navigate>{{ __('Referensi Tarif') }}</flux:navlist.item>
             </flux:navlist>
 
             <flux:spacer />

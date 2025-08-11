@@ -2,7 +2,15 @@
     <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div class="px-4 py-6 sm:px-0">
             <div class="flex justify-between items-center mb-6">
-                <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Data Tarif Uang Harian</h1>
+                <div class="flex items-center space-x-4">
+                    <a href="{{ route('reference-rates.index') }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        Kembali ke Referensi Tarif
+                    </a>
+                    <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Data Tarif Uang Harian</h1>
+                </div>
                 <a href="{{ route('perdiem-rates.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                     Tambah Tarif
                 </a>

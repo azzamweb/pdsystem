@@ -55,6 +55,7 @@ use App\Livewire\LodgingCaps\Index as LodgingCapIndex;
 use App\Livewire\RepresentationRates\Create as RepresentationRateCreate;
 use App\Livewire\RepresentationRates\Edit as RepresentationRateEdit;
 use App\Livewire\RepresentationRates\Index as RepresentationRateIndex;
+use App\Livewire\ReferenceRates\Index as ReferenceRatesIndex;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -140,6 +141,9 @@ Route::middleware('auth')->group(function () {
     Route::get('lodging-caps', LodgingCapIndex::class)->name('lodging-caps.index');
     Route::get('lodging-caps/create', LodgingCapCreate::class)->name('lodging-caps.create');
     Route::get('lodging-caps/{lodgingCap}/edit', LodgingCapEdit::class)->name('lodging-caps.edit');
+
+    // Reference Rates Index
+    Route::get('reference-rates', ReferenceRatesIndex::class)->name('reference-rates.index');
 
     // Representation Rate CRUD
     Route::get('representation-rates', RepresentationRateIndex::class)->name('representation-rates.index');
