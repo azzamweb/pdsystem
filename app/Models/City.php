@@ -44,6 +44,22 @@ class City extends Model
     }
 
     /**
+     * Get airfare references where this city is origin
+     */
+    public function originAirfares(): HasMany
+    {
+        return $this->hasMany(AirfareRef::class, 'origin_city_id');
+    }
+
+    /**
+     * Get airfare references where this city is destination
+     */
+    public function destinationAirfares(): HasMany
+    {
+        return $this->hasMany(AirfareRef::class, 'destination_city_id');
+    }
+
+    /**
      * Get full name with type and code
      */
     public function getFullNameAttribute(): string

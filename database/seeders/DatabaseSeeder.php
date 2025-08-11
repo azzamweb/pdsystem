@@ -40,6 +40,9 @@ class DatabaseSeeder extends Seeder
             
             // Representation Rate seeders
             RepresentationRatesSeeder::class,
+            
+            // Airfare Reference seeders
+            AirfareRefsSeeder::class,
         ]);
     }
 }

@@ -56,6 +56,9 @@ use App\Livewire\RepresentationRates\Create as RepresentationRateCreate;
 use App\Livewire\RepresentationRates\Edit as RepresentationRateEdit;
 use App\Livewire\RepresentationRates\Index as RepresentationRateIndex;
 use App\Livewire\ReferenceRates\Index as ReferenceRatesIndex;
+use App\Livewire\AirfareRefs\Create as AirfareRefCreate;
+use App\Livewire\AirfareRefs\Edit as AirfareRefEdit;
+use App\Livewire\AirfareRefs\Index as AirfareRefIndex;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -144,6 +147,11 @@ Route::middleware('auth')->group(function () {
 
     // Reference Rates Index
     Route::get('reference-rates', ReferenceRatesIndex::class)->name('reference-rates.index');
+
+    // Airfare Reference CRUD
+    Route::get('airfare-refs', AirfareRefIndex::class)->name('airfare-refs.index');
+    Route::get('airfare-refs/create', AirfareRefCreate::class)->name('airfare-refs.create');
+    Route::get('airfare-refs/{airfareRef}/edit', AirfareRefEdit::class)->name('airfare-refs.edit');
 
     // Representation Rate CRUD
     Route::get('representation-rates', RepresentationRateIndex::class)->name('representation-rates.index');

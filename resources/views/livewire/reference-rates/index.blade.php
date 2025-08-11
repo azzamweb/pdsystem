@@ -102,28 +102,51 @@
                         </div>
                     </div>
 
-                    <!-- Data Tarif Representasi -->
-                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
-                        <div class="flex items-center">
-                            <div class="flex-shrink-0">
-                                <div class="w-8 h-8 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center">
-                                    <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                            <div class="ml-4">
-                                <h3 class="text-lg font-medium text-gray-900 dark:text-white">
-                                    <a href="{{ route('representation-rates.index') }}" class="hover:text-blue-600 dark:hover:text-blue-400">
-                                        Data Tarif Representasi
-                                    </a>
-                                </h3>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">
-                                    Kelola tarif representasi untuk Bupati dan Eselon II
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+                                                  <!-- Data Tarif Representasi -->
+                              <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                                  <div class="flex items-center">
+                                      <div class="flex-shrink-0">
+                                          <div class="w-8 h-8 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center">
+                                              <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                              </svg>
+                                          </div>
+                                      </div>
+                                      <div class="ml-4">
+                                          <h3 class="text-lg font-medium text-gray-900 dark:text-white">
+                                              <a href="{{ route('representation-rates.index') }}" class="hover:text-blue-600 dark:hover:text-blue-400">
+                                                  Data Tarif Representasi
+                                              </a>
+                                          </h3>
+                                          <p class="text-sm text-gray-500 dark:text-gray-400">
+                                              Kelola tarif representasi untuk Bupati dan Eselon II
+                                          </p>
+                                      </div>
+                                  </div>
+                              </div>
+
+                              <!-- Data Referensi Tiket Pesawat -->
+                              <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                                  <div class="flex items-center">
+                                      <div class="flex-shrink-0">
+                                          <div class="w-8 h-8 bg-red-100 dark:bg-red-900 rounded-lg flex items-center justify-center">
+                                              <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                                              </svg>
+                                          </div>
+                                      </div>
+                                      <div class="ml-4">
+                                          <h3 class="text-lg font-medium text-gray-900 dark:text-white">
+                                              <a href="{{ route('airfare-refs.index') }}" class="hover:text-blue-600 dark:hover:text-blue-400">
+                                                  Data Referensi Tiket Pesawat
+                                              </a>
+                                          </h3>
+                                          <p class="text-sm text-gray-500 dark:text-gray-400">
+                                              Kelola referensi harga tiket pesawat untuk RAB/anggaran
+                                          </p>
+                                      </div>
+                                  </div>
+                              </div>
                 </div>
             </div>
         </div>
