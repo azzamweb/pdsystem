@@ -46,6 +46,15 @@ use App\Livewire\TravelGrades\Create as TravelGradeCreate;
 use App\Livewire\TravelGrades\Edit as TravelGradeEdit;
 use App\Livewire\TravelGrades\Index as TravelGradeIndex;
 use App\Livewire\UserTravelGradeMaps\Index as UserTravelGradeMapIndex;
+use App\Livewire\PerdiemRates\Create as PerdiemRateCreate;
+use App\Livewire\PerdiemRates\Edit as PerdiemRateEdit;
+use App\Livewire\PerdiemRates\Index as PerdiemRateIndex;
+use App\Livewire\LodgingCaps\Create as LodgingCapCreate;
+use App\Livewire\LodgingCaps\Edit as LodgingCapEdit;
+use App\Livewire\LodgingCaps\Index as LodgingCapIndex;
+use App\Livewire\RepresentationRates\Create as RepresentationRateCreate;
+use App\Livewire\RepresentationRates\Edit as RepresentationRateEdit;
+use App\Livewire\RepresentationRates\Index as RepresentationRateIndex;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -121,6 +130,21 @@ Route::middleware('auth')->group(function () {
 
     // User Travel Grade Mapping
     Route::get('user-travel-grade-maps', UserTravelGradeMapIndex::class)->name('user-travel-grade-maps.index');
+
+    // Perdiem Rate CRUD
+    Route::get('perdiem-rates', PerdiemRateIndex::class)->name('perdiem-rates.index');
+    Route::get('perdiem-rates/create', PerdiemRateCreate::class)->name('perdiem-rates.create');
+    Route::get('perdiem-rates/{perdiemRate}/edit', PerdiemRateEdit::class)->name('perdiem-rates.edit');
+
+    // Lodging Cap CRUD
+    Route::get('lodging-caps', LodgingCapIndex::class)->name('lodging-caps.index');
+    Route::get('lodging-caps/create', LodgingCapCreate::class)->name('lodging-caps.create');
+    Route::get('lodging-caps/{lodgingCap}/edit', LodgingCapEdit::class)->name('lodging-caps.edit');
+
+    // Representation Rate CRUD
+    Route::get('representation-rates', RepresentationRateIndex::class)->name('representation-rates.index');
+    Route::get('representation-rates/create', RepresentationRateCreate::class)->name('representation-rates.create');
+    Route::get('representation-rates/{representationRate}/edit', RepresentationRateEdit::class)->name('representation-rates.edit');
 
     // Settings
     Route::get('settings/profile', Profile::class)->name('profile.show');

@@ -21,6 +21,22 @@ class Province extends Model
     }
 
     /**
+     * Get perdiem rates for this province
+     */
+    public function perdiemRates(): HasMany
+    {
+        return $this->hasMany(PerdiemRate::class);
+    }
+
+    /**
+     * Get lodging caps for this province
+     */
+    public function lodgingCaps(): HasMany
+    {
+        return $this->hasMany(LodgingCap::class);
+    }
+
+    /**
      * Get full name with code
      */
     public function getFullNameAttribute(): string

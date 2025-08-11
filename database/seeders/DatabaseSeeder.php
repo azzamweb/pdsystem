@@ -31,6 +31,15 @@ class DatabaseSeeder extends Seeder
             
             // Travel Grade seeders
             TravelGradesSeeder::class,
+            
+            // Perdiem Rate seeders
+            PerdiemRatesSeeder::class,
+            
+            // Lodging Cap seeders
+            LodgingCapsSeeder::class,
+            
+            // Representation Rate seeders
+            RepresentationRatesSeeder::class,
         ]);
     }
 }
