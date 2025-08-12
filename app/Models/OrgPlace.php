@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class OrgPlace extends Model
 {
@@ -64,5 +65,21 @@ class OrgPlace extends Model
         }
         
         return $name;
+    }
+
+    /**
+     * Get intra province transport references where this place is origin
+     */
+    public function originTransportRefs(): HasMany
+    {
+        return $this->hasMany(IntraProvinceTransportRef::class, 'origin_place_id');
+    }
+
+    /**
+     * Get intra district transport references where this place is origin
+     */
+    public function originDistrictTransportRefs(): HasMany
+    {
+        return $this->hasMany(IntraDistrictTransportRef::class, 'origin_place_id');
     }
 }

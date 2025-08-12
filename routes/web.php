@@ -59,6 +59,12 @@ use App\Livewire\ReferenceRates\Index as ReferenceRatesIndex;
 use App\Livewire\AirfareRefs\Create as AirfareRefCreate;
 use App\Livewire\AirfareRefs\Edit as AirfareRefEdit;
 use App\Livewire\AirfareRefs\Index as AirfareRefIndex;
+use App\Livewire\IntraProvinceTransportRefs\Create as IntraProvinceTransportRefCreate;
+use App\Livewire\IntraProvinceTransportRefs\Edit as IntraProvinceTransportRefEdit;
+use App\Livewire\IntraProvinceTransportRefs\Index as IntraProvinceTransportRefIndex;
+use App\Livewire\IntraDistrictTransportRefs\Create as IntraDistrictTransportRefCreate;
+use App\Livewire\IntraDistrictTransportRefs\Edit as IntraDistrictTransportRefEdit;
+use App\Livewire\IntraDistrictTransportRefs\Index as IntraDistrictTransportRefIndex;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -152,6 +158,16 @@ Route::middleware('auth')->group(function () {
     Route::get('airfare-refs', AirfareRefIndex::class)->name('airfare-refs.index');
     Route::get('airfare-refs/create', AirfareRefCreate::class)->name('airfare-refs.create');
     Route::get('airfare-refs/{airfareRef}/edit', AirfareRefEdit::class)->name('airfare-refs.edit');
+
+    // Intra Province Transport Reference CRUD
+    Route::get('intra-province-transport-refs', IntraProvinceTransportRefIndex::class)->name('intra-province-transport-refs.index');
+    Route::get('intra-province-transport-refs/create', IntraProvinceTransportRefCreate::class)->name('intra-province-transport-refs.create');
+    Route::get('intra-province-transport-refs/{transportRef}/edit', IntraProvinceTransportRefEdit::class)->name('intra-province-transport-refs.edit');
+
+    // Intra District Transport Reference CRUD
+    Route::get('intra-district-transport-refs', IntraDistrictTransportRefIndex::class)->name('intra-district-transport-refs.index');
+    Route::get('intra-district-transport-refs/create', IntraDistrictTransportRefCreate::class)->name('intra-district-transport-refs.create');
+    Route::get('intra-district-transport-refs/{transportRef}/edit', IntraDistrictTransportRefEdit::class)->name('intra-district-transport-refs.edit');
 
     // Representation Rate CRUD
     Route::get('representation-rates', RepresentationRateIndex::class)->name('representation-rates.index');
