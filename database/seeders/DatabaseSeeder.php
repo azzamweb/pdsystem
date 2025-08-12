@@ -43,12 +43,6 @@ class DatabaseSeeder extends Seeder
             
             // Airfare Reference seeders
             AirfareRefsSeeder::class,
-            
-            // Intra Province Transport Reference seeders
-            IntraProvinceTransportRefsSeeder::class,
-            
-            // Intra District Transport Reference seeders
-            IntraDistrictTransportRefsSeeder::class,
         ]);
     }
 }

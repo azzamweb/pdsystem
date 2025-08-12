@@ -31,14 +31,6 @@ class District extends Model
     }
 
     /**
-     * Get intra district transport references where this district is destination
-     */
-    public function destinationTransportRefs(): HasMany
-    {
-        return $this->hasMany(IntraDistrictTransportRef::class, 'destination_district_id');
-    }
-
-    /**
      * Get full name with code
      */
     public function getFullNameAttribute(): string

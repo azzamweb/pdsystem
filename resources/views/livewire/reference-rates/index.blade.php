@@ -147,53 +147,6 @@
                                       </div>
                                   </div>
                               </div>
-
-                              <!-- Data Referensi Transportasi Dalam Provinsi Riau -->
-                              <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
-                                  <div class="flex items-center">
-                                      <div class="flex-shrink-0">
-                                          <div class="w-8 h-8 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center">
-                                              <svg class="w-5 h-5 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
-                                              </svg>
-                                          </div>
-                                      </div>
-                                      <div class="ml-4">
-                                          <h3 class="text-lg font-medium text-gray-900 dark:text-white">
-                                              <a href="{{ route('intra-province-transport-refs.index') }}" class="hover:text-blue-600 dark:hover:text-blue-400">
-                                                  Data Referensi Transportasi Dalam Provinsi Riau
-                                              </a>
-                                          </h3>
-                                          <p class="text-sm text-gray-500 dark:text-gray-400">
-                                              Kelola referensi tarif transportasi darat umum dalam provinsi
-                                          </p>
-                                      </div>
-                                  </div>
-                              </div>
-
-                              <!-- Data Referensi Transportasi Dalam Kecamatan -->
-                              <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
-                                  <div class="flex items-center">
-                                      <div class="flex-shrink-0">
-                                          <div class="w-8 h-8 bg-teal-100 dark:bg-teal-900 rounded-lg flex items-center justify-center">
-                                              <svg class="w-5 h-5 text-teal-600 dark:text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                              </svg>
-                                          </div>
-                                      </div>
-                                      <div class="ml-4">
-                                          <h3 class="text-lg font-medium text-gray-900 dark:text-white">
-                                              <a href="{{ route('intra-district-transport-refs.index') }}" class="hover:text-blue-600 dark:hover:text-blue-400">
-                                                  Data Referensi Transportasi Dalam Kecamatan
-                                              </a>
-                                          </h3>
-                                          <p class="text-sm text-gray-500 dark:text-gray-400">
-                                              Kelola referensi tarif transportasi dari tempat kerja ke ibukota kecamatan
-                                          </p>
-                                      </div>
-                                  </div>
-                              </div>
                 </div>
             </div>
         </div>
