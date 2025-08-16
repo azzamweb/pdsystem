@@ -59,6 +59,18 @@ use App\Livewire\ReferenceRates\Index as ReferenceRatesIndex;
 use App\Livewire\AirfareRefs\Create as AirfareRefCreate;
 use App\Livewire\AirfareRefs\Edit as AirfareRefEdit;
 use App\Livewire\AirfareRefs\Index as AirfareRefIndex;
+use App\Livewire\IntraProvinceTransportRefs\Create as IntraProvinceTransportRefCreate;
+use App\Livewire\IntraProvinceTransportRefs\Edit as IntraProvinceTransportRefEdit;
+use App\Livewire\IntraProvinceTransportRefs\Index as IntraProvinceTransportRefIndex;
+use App\Livewire\IntraDistrictTransportRefs\Create as IntraDistrictTransportRefCreate;
+use App\Livewire\IntraDistrictTransportRefs\Edit as IntraDistrictTransportRefEdit;
+use App\Livewire\IntraDistrictTransportRefs\Index as IntraDistrictTransportRefIndex;
+use App\Livewire\OfficialVehicleTransportRefs\Create as OfficialVehicleTransportRefCreate;
+use App\Livewire\OfficialVehicleTransportRefs\Edit as OfficialVehicleTransportRefEdit;
+use App\Livewire\OfficialVehicleTransportRefs\Index as OfficialVehicleTransportRefIndex;
+use App\Livewire\AtCostComponents\Create as AtCostComponentCreate;
+use App\Livewire\AtCostComponents\Edit as AtCostComponentEdit;
+use App\Livewire\AtCostComponents\Index as AtCostComponentIndex;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -157,6 +169,26 @@ Route::middleware('auth')->group(function () {
     Route::get('representation-rates', RepresentationRateIndex::class)->name('representation-rates.index');
     Route::get('representation-rates/create', RepresentationRateCreate::class)->name('representation-rates.create');
     Route::get('representation-rates/{representationRate}/edit', RepresentationRateEdit::class)->name('representation-rates.edit');
+
+    // Intra Province Transport Reference CRUD
+    Route::get('intra-province-transport-refs', IntraProvinceTransportRefIndex::class)->name('intra-province-transport-refs.index');
+    Route::get('intra-province-transport-refs/create', IntraProvinceTransportRefCreate::class)->name('intra-province-transport-refs.create');
+    Route::get('intra-province-transport-refs/{transportRef}/edit', IntraProvinceTransportRefEdit::class)->name('intra-province-transport-refs.edit');
+
+    // Intra District Transport Reference CRUD
+    Route::get('intra-district-transport-refs', IntraDistrictTransportRefIndex::class)->name('intra-district-transport-refs.index');
+    Route::get('intra-district-transport-refs/create', IntraDistrictTransportRefCreate::class)->name('intra-district-transport-refs.create');
+    Route::get('intra-district-transport-refs/{transportRef}/edit', IntraDistrictTransportRefEdit::class)->name('intra-district-transport-refs.edit');
+
+    // Official Vehicle Transport Reference CRUD
+    Route::get('official-vehicle-transport-refs', OfficialVehicleTransportRefIndex::class)->name('official-vehicle-transport-refs.index');
+    Route::get('official-vehicle-transport-refs/create', OfficialVehicleTransportRefCreate::class)->name('official-vehicle-transport-refs.create');
+    Route::get('official-vehicle-transport-refs/{transportRef}/edit', OfficialVehicleTransportRefEdit::class)->name('official-vehicle-transport-refs.edit');
+
+    // At-Cost Components CRUD
+    Route::get('at-cost-components', AtCostComponentIndex::class)->name('at-cost-components.index');
+    Route::get('at-cost-components/create', AtCostComponentCreate::class)->name('at-cost-components.create');
+    Route::get('at-cost-components/{component}/edit', AtCostComponentEdit::class)->name('at-cost-components.edit');
 
     // Settings
     Route::get('settings/profile', Profile::class)->name('profile.show');

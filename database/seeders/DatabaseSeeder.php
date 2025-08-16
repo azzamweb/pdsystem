@@ -41,6 +41,18 @@ class DatabaseSeeder extends Seeder
             // Representation Rate seeders
             RepresentationRatesSeeder::class,
             
+            // Intra Province Transport Reference seeders
+            IntraProvinceTransportRefsSeeder::class,
+            
+            // Intra District Transport Reference seeders
+            IntraDistrictTransportRefsSeeder::class,
+            
+            // Official Vehicle Transport Reference seeders
+            OfficialVehicleTransportRefsSeeder::class,
+            
+            // At-Cost Components seeders
+            AtCostComponentsSeeder::class,
+            
             // Airfare Reference seeders
             AirfareRefsSeeder::class,
         ]);
