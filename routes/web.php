@@ -72,6 +72,11 @@ use App\Livewire\AtCostComponents\Create as AtCostComponentCreate;
 use App\Livewire\AtCostComponents\Edit as AtCostComponentEdit;
 use App\Livewire\AtCostComponents\Index as AtCostComponentIndex;
 use Illuminate\Support\Facades\Route;
+use App\Livewire\DocNumberFormats\Index as DocNumberFormatIndex;
+use App\Livewire\DocNumberFormats\Create as DocNumberFormatCreate;
+use App\Livewire\DocNumberFormats\Edit as DocNumberFormatEdit;
+use App\Livewire\NumberSequences\Index as NumberSequenceIndex;
+use App\Livewire\DocumentNumbers\Index as DocumentNumberIndex;
 
 Route::get('/', function () {
     return view('welcome');
@@ -196,6 +201,16 @@ Route::middleware('auth')->group(function () {
     Route::get('settings/appearance', Appearance::class)->name('appearance.show');
     Route::get('settings/delete-user', DeleteUserForm::class)->name('delete-user.show');
     Route::get('settings/organization', OrganizationSettings::class)->name('organization.show');
+
+    // Format Penomoran Dokumen CRUD
+    Route::get('doc-number-formats', DocNumberFormatIndex::class)->name('doc-number-formats.index');
+    Route::get('doc-number-formats/create', DocNumberFormatCreate::class)->name('doc-number-formats.create');
+    Route::get('doc-number-formats/{format}/edit', DocNumberFormatEdit::class)->name('doc-number-formats.edit');
+
+    // Number Sequence
+    Route::get('number-sequences', NumberSequenceIndex::class)->name('number-sequences.index');
+    // Document Numbers (Audit Trail)
+    Route::get('document-numbers', DocumentNumberIndex::class)->name('document-numbers.index');
 });
 
 require __DIR__.'/auth.php';

@@ -44,6 +44,9 @@
 
                 <flux:navlist.item :href="route('organization.show')" icon="building-office-2" wire:navigate>{{ __('Organisasi') }}</flux:navlist.item>
                 <flux:navlist.item icon="shield-check" :href="route('ranks.index')" :current="request()->routeIs('ranks.*')" wire:navigate>{{ __('Data Pangkat') }}</flux:navlist.item>
+                <flux:navlist.item icon="hashtag" :href="route('doc-number-formats.index')" :current="request()->routeIs('doc-number-formats.*')" wire:navigate>{{ __('Format Penomoran Dokumen') }}</flux:navlist.item>
+                <flux:navlist.item icon="hashtag" :href="route('number-sequences.index')" :current="request()->routeIs('number-sequences.*')" wire:navigate>{{ __('Number Sequence') }}</flux:navlist.item>
+                <flux:navlist.item icon="document-text" :href="route('document-numbers.index')" :current="request()->routeIs('document-numbers.*')" wire:navigate>{{ __('Riwayat Nomor Dokumen') }}</flux:navlist.item>
         </flux:navlist.group>
             </flux:navlist>
 
