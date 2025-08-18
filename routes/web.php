@@ -77,6 +77,10 @@ use App\Livewire\DocNumberFormats\Create as DocNumberFormatCreate;
 use App\Livewire\DocNumberFormats\Edit as DocNumberFormatEdit;
 use App\Livewire\NumberSequences\Index as NumberSequenceIndex;
 use App\Livewire\DocumentNumbers\Index as DocumentNumberIndex;
+use App\Livewire\NotaDinas\Index as NotaDinasIndex;
+use App\Livewire\NotaDinas\Create as NotaDinasCreate;
+use App\Livewire\NotaDinas\Edit as NotaDinasEdit;
+use App\Livewire\NotaDinas\Show as NotaDinasShow;
 
 Route::get('/', function () {
     return view('welcome');
@@ -211,6 +215,12 @@ Route::middleware('auth')->group(function () {
     Route::get('number-sequences', NumberSequenceIndex::class)->name('number-sequences.index');
     // Document Numbers (Audit Trail)
     Route::get('document-numbers', DocumentNumberIndex::class)->name('document-numbers.index');
+
+    // Nota Dinas CRUD
+    Route::get('nota-dinas', NotaDinasIndex::class)->name('nota-dinas.index');
+    Route::get('nota-dinas/create', NotaDinasCreate::class)->name('nota-dinas.create');
+    Route::get('nota-dinas/{notaDinas}/edit', NotaDinasEdit::class)->name('nota-dinas.edit');
+    Route::get('nota-dinas/{notaDinas}', NotaDinasShow::class)->name('nota-dinas.show');
 });
 
 require __DIR__.'/auth.php';

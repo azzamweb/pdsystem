@@ -17,7 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('current_value');
             $table->timestamp('last_generated_at')->nullable();
             $table->timestamps();
-            $table->unique(['doc_type', 'unit_scope_id', 'year_scope', 'month_scope']);
+            $table->unique(['doc_type', 'unit_scope_id', 'year_scope', 'month_scope'], 'uniq_numseq_doc_unit_year_month');
         });
     }
 

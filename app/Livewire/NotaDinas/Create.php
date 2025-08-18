@@ -1,0 +1,156 @@
+<?php
+
+namespace App\Livewire\NotaDinas;
+
+use App\Models\NotaDinas;
+use App\Models\NotaDinasParticipant;
+use App\Models\User;
+use App\Models\Unit;
+use App\Models\City;
+use App\Services\DocumentNumberService;
+use Livewire\Component;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Rule;
+use Illuminate\Support\Facades\DB;
+
+#[Layout('components.layouts.app')]
+class Create extends Component
+{
+    #[Rule('required|exists:units,id')]
+    public $requesting_unit_id = '';
+    #[Rule('required|exists:users,id')]
+    public $to_user_id = '';
+    #[Rule('required|exists:users,id')]
+    public $from_user_id = '';
+    #[Rule('required|exists:cities,id')]
+    public $destination_city_id = '';
+    #[Rule('nullable|string|max:255')]
+    public $doc_no = '';
+    public $number_is_manual = false;
+    public $number_manual_reason = '';
+    #[Rule('required|in:Penting,Segera,Biasa,Rahasia')]
+    public $sifat = 'Penting';
+    #[Rule('required|date')]
+    public $nd_date = '';
+    #[Rule('required|string|max:255')]
+    public $hal = '';
+    #[Rule('required|string')]
+    public $dasar = '';
+    #[Rule('required|string')]
+    public $maksud = '';
+    #[Rule('required|integer|min:1')]
+    public $lampiran_count = 1;
+    #[Rule('required|date')]
+    public $start_date = '';
+    #[Rule('required|date|after_or_equal:start_date')]
+    public $end_date = '';
+    #[Rule('required|array|min:1')]
+    public $participants = [];
+    #[Rule('required|in:DRAFT,SUBMITTED')]
+    public $status = 'DRAFT';
+    public $tembusan = '';
+    public $notes = '';
+
+    public function save()
+    {
+        try {
+            $rules = [
+                'requesting_unit_id' => 'required|exists:units,id',
+                'to_user_id' => 'required|exists:users,id',
+                'from_user_id' => 'required|exists:users,id',
+                'destination_city_id' => 'required|exists:cities,id',
+                'sifat' => 'required|in:Penting,Segera,Biasa,Rahasia',
+                'nd_date' => 'required|date',
+                'hal' => 'required|string|max:255',
+                'dasar' => 'required|string',
+                'maksud' => 'required|string',
+                'lampiran_count' => 'required|integer|min:1',
+                'start_date' => 'required|date',
+                'end_date' => 'required|date|after_or_equal:start_date',
+                'participants' => 'required|array|min:1',
+                'participants.*' => 'exists:users,id',
+                'status' => 'required|in:DRAFT,SUBMITTED',
+                'tembusan' => 'nullable|string',
+                'notes' => 'nullable|string',
+            ];
+            if ($this->number_is_manual) {
+                $rules['doc_no'] = 'required|string|unique:nota_dinas,doc_no';
+                $rules['number_manual_reason'] = 'required|string|max:255';
+            } else {
+                $rules['doc_no'] = 'nullable|string';
+                $rules['number_manual_reason'] = 'nullable|string|max:255';
+            }
+            $this->validate($rules);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            $this->addError('general', 'Validasi gagal: ' . implode(' ', $e->validator->errors()->all()));
+            return;
+        }
+        DB::beginTransaction();
+        try {
+            $days_count = (\Carbon\Carbon::parse($this->start_date)->diffInDays(\Carbon\Carbon::parse($this->end_date))) + 1;
+            $doc_no = $this->doc_no;
+            $number_is_manual = $this->number_is_manual;
+            $number_manual_reason = $this->number_manual_reason;
+            $format_id = null;
+            $sequence_id = null;
+            if (!$this->number_is_manual) {
+                $numberResult = DocumentNumberService::generate('ND', $this->requesting_unit_id, $this->nd_date, [], auth()->id());
+                $doc_no = $numberResult['number'];
+                $format_id = $numberResult['format']->id;
+                $sequence_id = $numberResult['sequence']->id;
+            } else {
+                DocumentNumberService::override('ND', null, $doc_no, $number_manual_reason, auth()->id(), []);
+            }
+            $nd = NotaDinas::create([
+                'doc_no' => $doc_no,
+                'number_is_manual' => $number_is_manual,
+                'number_manual_reason' => $number_manual_reason,
+                'number_format_id' => $format_id,
+                'number_sequence_id' => $sequence_id,
+                'number_scope_unit_id' => $this->requesting_unit_id,
+                'to_user_id' => $this->to_user_id,
+                'from_user_id' => $this->from_user_id,
+                'tembusan' => $this->tembusan,
+                'nd_date' => $this->nd_date,
+                'sifat' => $this->sifat,
+                'lampiran_count' => $this->lampiran_count,
+                'hal' => $this->hal,
+                'dasar' => $this->dasar,
+                'maksud' => $this->maksud,
+                'destination_city_id' => $this->destination_city_id,
+                'start_date' => $this->start_date,
+                'end_date' => $this->end_date,
+                'days_count' => $days_count,
+                'requesting_unit_id' => $this->requesting_unit_id,
+                'status' => $this->status,
+                'created_by' => auth()->id(),
+                'notes' => $this->notes,
+            ]);
+            foreach ($this->participants as $userId) {
+                NotaDinasParticipant::create([
+                    'nota_dinas_id' => $nd->id,
+                    'user_id' => $userId,
+                ]);
+            }
+            DB::commit();
+            session()->flash('message', 'Nota Dinas berhasil dibuat.');
+            return $this->redirect(route('nota-dinas.index'));
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $this->addError('general', 'Gagal menyimpan Nota Dinas: ' . $e->getMessage());
+            session()->flash('error', 'Gagal menyimpan Nota Dinas: ' . $e->getMessage());
+        }
+    }
+
+    public function render()
+    {
+        $units = Unit::orderBy('name')->get();
+        $users = User::orderBy('name')->get();
+        $cities = City::orderBy('name')->get();
+        return view('livewire.nota-dinas.create', [
+            'units' => $units,
+            'users' => $users,
+            'cities' => $cities,
+        ]);
+    }
+}

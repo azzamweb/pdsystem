@@ -19,9 +19,8 @@ return new class extends Migration
             $table->foreignId('to_user_id')->constrained('users');
             $table->foreignId('from_user_id')->constrained('users');
             $table->text('tembusan')->nullable();
-            $table->date('spt_request_date');
             $table->date('nd_date');
-            $table->string('sifat')->nullable();
+            $table->string('sifat')->nullable(); // dropdown di UI
             $table->integer('lampiran_count');
             $table->string('hal');
             $table->text('dasar');
@@ -31,7 +30,6 @@ return new class extends Migration
             $table->date('end_date');
             $table->smallInteger('days_count');
             $table->foreignId('requesting_unit_id')->constrained('units');
-            $table->foreignId('signer_user_id')->constrained('users');
             $table->enum('status', ['DRAFT','SUBMITTED','APPROVED','REJECTED']);
             $table->foreignId('created_by')->constrained('users');
             $table->foreignId('approved_by')->nullable()->constrained('users');

@@ -62,13 +62,23 @@ class DocumentNumberService
             $seqValue = 1;
         } else {
             $seqValue = $sequence->current_value + 1;
-            $sequence->update([
-                'current_value' => $seqValue,
-                'last_generated_at' => now(),
-            ]);
         }
-        // 4. Build nomor
-        $number = self::buildNumber($format, $seqValue, $unitScopeId, $date);
+        // 4. Build nomor dan pastikan unik
+        $maxRetry = 10;
+        $retry = 0;
+        do {
+            $number = self::buildNumber($format, $seqValue, $unitScopeId, $date);
+            $exists = DocumentNumber::where('doc_type', $docType)->where('number', $number)->exists();
+            if ($exists) {
+                $seqValue++;
+                $retry++;
+            }
+        } while ($exists && $retry < $maxRetry);
+        // Update sequence ke nilai terakhir
+        $sequence->update([
+            'current_value' => $seqValue,
+            'last_generated_at' => now(),
+        ]);
         // 5. Simpan audit trail
         $audit = DocumentNumber::create([
             'doc_type' => $docType,
@@ -79,7 +89,7 @@ class DocumentNumberService
             'old_number' => null,
             'format_id' => $format->id,
             'sequence_id' => $sequence->id,
-            'meta' => $meta,
+            'meta' => json_encode($meta),
             'created_at' => now(),
         ]);
         return [
@@ -104,7 +114,7 @@ class DocumentNumberService
             'old_number' => $meta['old_number'] ?? null,
             'format_id' => $meta['format_id'] ?? null,
             'sequence_id' => $meta['sequence_id'] ?? null,
-            'meta' => array_merge($meta, ['manual_reason' => $reason]),
+            'meta' => json_encode(array_merge($meta, ['manual_reason' => $reason])),
             'created_at' => now(),
         ]);
         return $audit;

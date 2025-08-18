@@ -55,6 +55,8 @@ class DatabaseSeeder extends Seeder
             
             // Airfare Reference seeders
             AirfareRefsSeeder::class,
+            NotaDinasSeeder::class,
+            DocNumberFormatSeeder::class,
         ]);
     }
 }
