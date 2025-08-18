@@ -22,6 +22,34 @@
         </div>
     @endif
 
+    @if (!empty($this->overlapDetails))
+        <div class="mb-4 p-4 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded-lg dark:bg-yellow-900 dark:border-yellow-700 dark:text-yellow-200">
+            <div class="font-semibold mb-2">Terdapat pegawai yang tanggalnya beririsan dengan Nota Dinas lain:</div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-xs">
+                    <thead>
+                        <tr>
+                            <th class="px-2 py-1 text-left">Pegawai</th>
+                            <th class="px-2 py-1 text-left">Nomor ND</th>
+                            <th class="px-2 py-1 text-left">Perihal</th>
+                            <th class="px-2 py-1 text-left">Tanggal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($this->overlapDetails as $ov)
+                            <tr>
+                                <td class="px-2 py-1">{{ $ov['user'] }}</td>
+                                <td class="px-2 py-1 font-mono">{{ $ov['doc_no'] }}</td>
+                                <td class="px-2 py-1">{{ $ov['hal'] }}</td>
+                                <td class="px-2 py-1">{{ $ov['start_date'] ? \Carbon\Carbon::parse($ov['start_date'])->format('d/m/Y') : '-' }} - {{ $ov['end_date'] ? \Carbon\Carbon::parse($ov['end_date'])->format('d/m/Y') : '-' }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    @endif
+
     <!-- Form -->
     <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
         <form wire:submit="save" class="space-y-6 p-6">
@@ -52,3 +80,24 @@
         </form>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('livewire:init', () => {
+        Livewire.on('showOverlapAlert', (details) => {
+            let html = `<div class='overflow-x-auto'><table class='min-w-full text-xs'><thead><tr><th class='px-2 py-1 text-left'>Pegawai</th><th class='px-2 py-1 text-left'>Nomor ND</th><th class='px-2 py-1 text-left'>Perihal</th><th class='px-2 py-1 text-left'>Tanggal</th></tr></thead><tbody>`;
+            details.forEach(ov => {
+                html += `<tr><td class='px-2 py-1'>${ov['user']}</td><td class='px-2 py-1 font-mono'>${ov['doc_no']}</td><td class='px-2 py-1'>${ov['hal']}</td><td class='px-2 py-1'>${ov['start_date'] ? moment(ov['start_date']).format('DD/MM/YYYY') : '-'} - ${ov['end_date'] ? moment(ov['end_date']).format('DD/MM/YYYY') : '-'}</td></tr>`;
+            });
+            html += '</tbody></table></div>';
+            Swal.fire({
+                icon: 'warning',
+                title: 'Terdapat pegawai yang tanggalnya beririsan dengan Nota Dinas lain',
+                html: html,
+                confirmButtonText: 'Tutup',
+                width: 600
+            });
+        });
+    });
+</script>

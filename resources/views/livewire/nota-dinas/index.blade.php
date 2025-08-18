@@ -50,6 +50,8 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Unit</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tujuan</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Peserta</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Lama</th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Aksi</th>
                     </tr>
                 </thead>
@@ -64,6 +66,23 @@
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $nd->status === 'DRAFT' ? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300' : ($nd->status === 'SUBMITTED' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : ($nd->status === 'APPROVED' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200')) }}">
                                     {{ $nd->status }}
                                 </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-700 dark:text-gray-300">
+                                <div class="flex flex-col gap-1">
+                                    @foreach($nd->participants as $p)
+                                        <span class="inline-block bg-gray-100 dark:bg-gray-700 rounded px-2 py-0.5 text-xs">{{ $p->user->name ?? '-' }}</span>
+                                    @endforeach
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-700 dark:text-gray-300">
+                                <div>
+                                    <div>{{ $nd->days_count }} hari</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                                        {{ $nd->start_date ? \Carbon\Carbon::parse($nd->start_date)->format('d/m/Y') : '-' }}
+                                        &ndash;
+                                        {{ $nd->end_date ? \Carbon\Carbon::parse($nd->end_date)->format('d/m/Y') : '-' }}
+                                    </div>
+                                </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex items-center justify-end space-x-2">

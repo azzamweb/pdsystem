@@ -25,13 +25,14 @@ class Index extends Component
 
     public function render()
     {
-        $notaDinas = NotaDinas::with(['requestingUnit', 'destinationCity'])
+        $notaDinas = NotaDinas::with(['requestingUnit', 'destinationCity', 'participants.user'])
             ->when($this->search, function($q) {
                 $q->where('doc_no', 'like', '%'.$this->search.'%')
                   ->orWhereHas('requestingUnit', function($q2) { $q2->where('name', 'like', '%'.$this->search.'%'); })
                   ->orWhereHas('destinationCity', function($q2) { $q2->where('name', 'like', '%'.$this->search.'%'); })
                   ->orWhere('status', 'like', '%'.$this->search.'%');
             })
+            ->orderByDesc('doc_no')
             ->orderByDesc('nd_date')
             ->paginate(10);
         return view('livewire.nota-dinas.index', [

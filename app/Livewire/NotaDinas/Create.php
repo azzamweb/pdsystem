@@ -50,6 +50,7 @@ class Create extends Component
     public $status = 'DRAFT';
     public $tembusan = '';
     public $notes = '';
+    public $overlapDetails = [];
 
     public function save()
     {
@@ -87,6 +88,40 @@ class Create extends Component
         }
         DB::beginTransaction();
         try {
+            // Validasi overlap peserta
+            $overlapDetails = [];
+            foreach ($this->participants as $userId) {
+                $overlaps = NotaDinasParticipant::where('user_id', $userId)
+                    ->whereHas('notaDinas', function($q) {
+                        $q->where(function($q2) {
+                            $q2->where('start_date', '<=', $this->end_date)
+                                ->where('end_date', '>=', $this->start_date);
+                        });
+                    })
+                    ->with(['notaDinas' => function($q) {
+                        $q->select('id', 'doc_no', 'hal', 'start_date', 'end_date');
+                    }])
+                    ->get();
+                if ($overlaps->count() > 0) {
+                    $user = User::find($userId);
+                    foreach ($overlaps as $ov) {
+                        $overlapDetails[] = [
+                            'user' => $user ? $user->name : $userId,
+                            'doc_no' => $ov->notaDinas->doc_no ?? '-',
+                            'hal' => $ov->notaDinas->hal ?? '-',
+                            'start_date' => $ov->notaDinas->start_date ?? null,
+                            'end_date' => $ov->notaDinas->end_date ?? null,
+                        ];
+                    }
+                }
+            }
+            if (!empty($overlapDetails)) {
+                $this->dispatch('showOverlapAlert', $overlapDetails);
+                $this->addError('participants', 'Terdapat pegawai yang tanggalnya beririsan dengan Nota Dinas lain.');
+                return;
+            } else {
+                $this->overlapDetails = [];
+            }
             $days_count = (\Carbon\Carbon::parse($this->start_date)->diffInDays(\Carbon\Carbon::parse($this->end_date))) + 1;
             $doc_no = $this->doc_no;
             $number_is_manual = $this->number_is_manual;

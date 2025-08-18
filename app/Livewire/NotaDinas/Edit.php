@@ -51,6 +51,7 @@ class Edit extends Component
     public $number_is_manual = false;
     public $number_manual_reason = '';
     public $manual_doc_no = '';
+    public $overlapDetails = [];
 
     public function mount(NotaDinas $notaDinas)
     {
@@ -95,6 +96,41 @@ class Edit extends Component
                     'format_id' => $this->notaDinas->number_format_id,
                     'sequence_id' => $this->notaDinas->number_sequence_id,
                 ]);
+            }
+            // Validasi overlap peserta (kecuali ND ini sendiri)
+            $overlapDetails = [];
+            foreach ($this->participants as $userId) {
+                $overlaps = NotaDinasParticipant::where('user_id', $userId)
+                    ->whereHas('notaDinas', function($q) {
+                        $q->where('id', '!=', $this->notaDinas->id)
+                            ->where(function($q2) {
+                                $q2->where('start_date', '<=', $this->end_date)
+                                    ->where('end_date', '>=', $this->start_date);
+                            });
+                    })
+                    ->with(['notaDinas' => function($q) {
+                        $q->select('id', 'doc_no', 'hal', 'start_date', 'end_date');
+                    }])
+                    ->get();
+                if ($overlaps->count() > 0) {
+                    $user = User::find($userId);
+                    foreach ($overlaps as $ov) {
+                        $overlapDetails[] = [
+                            'user' => $user ? $user->name : $userId,
+                            'doc_no' => $ov->notaDinas->doc_no ?? '-',
+                            'hal' => $ov->notaDinas->hal ?? '-',
+                            'start_date' => $ov->notaDinas->start_date ?? null,
+                            'end_date' => $ov->notaDinas->end_date ?? null,
+                        ];
+                    }
+                }
+            }
+            if (!empty($overlapDetails)) {
+                $this->dispatch('showOverlapAlert', $overlapDetails);
+                $this->addError('participants', 'Terdapat pegawai yang tanggalnya beririsan dengan Nota Dinas lain.');
+                return;
+            } else {
+                $this->overlapDetails = [];
             }
             $this->notaDinas->update([
                 'doc_no' => $doc_no,
