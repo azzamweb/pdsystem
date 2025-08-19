@@ -81,6 +81,15 @@ use App\Livewire\NotaDinas\Index as NotaDinasIndex;
 use App\Livewire\NotaDinas\Create as NotaDinasCreate;
 use App\Livewire\NotaDinas\Edit as NotaDinasEdit;
 use App\Livewire\NotaDinas\Show as NotaDinasShow;
+use App\Livewire\Spt\Index as SptIndex;
+use App\Livewire\Spt\Create as SptCreate;
+use App\Livewire\Spt\Edit as SptEdit;
+use App\Livewire\Spt\Show as SptShow;
+use App\Livewire\Sppd\Index as SppdIndex;
+use App\Livewire\Sppd\Create as SppdCreate;
+use App\Livewire\Sppd\Edit as SppdEdit;
+use App\Livewire\Sppd\Show as SppdShow;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -221,6 +230,18 @@ Route::middleware('auth')->group(function () {
     Route::get('nota-dinas/create', NotaDinasCreate::class)->name('nota-dinas.create');
     Route::get('nota-dinas/{notaDinas}/edit', NotaDinasEdit::class)->name('nota-dinas.edit');
     Route::get('nota-dinas/{notaDinas}', NotaDinasShow::class)->name('nota-dinas.show');
+
+    // SPT CRUD
+    Route::get('spt', SptIndex::class)->name('spt.index');
+    Route::get('spt/create', SptCreate::class)->name('spt.create');
+    Route::get('spt/{spt}/edit', SptEdit::class)->name('spt.edit');
+    Route::get('spt/{spt}', SptShow::class)->name('spt.show');
+
+    // SPPD CRUD
+    Route::get('sppd', SppdIndex::class)->name('sppd.index');
+    Route::get('sppd/create', SppdCreate::class)->name('sppd.create');
+    Route::get('sppd/{sppd}/edit', SppdEdit::class)->name('sppd.edit');
+    Route::get('sppd/{sppd}', SppdShow::class)->name('sppd.show');
 });
 
 require __DIR__.'/auth.php';
