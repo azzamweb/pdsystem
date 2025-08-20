@@ -175,7 +175,15 @@ class Edit extends Component
     public function render()
     {
         $units = Unit::orderBy('name')->get();
-        $users = User::orderBy('name')->get();
+        $users = User::query()
+            ->leftJoin('positions', 'positions.id', '=', 'users.position_id')
+            ->leftJoin('echelons', 'echelons.id', '=', 'positions.echelon_id')
+            ->leftJoin('ranks', 'ranks.id', '=', 'users.rank_id')
+            ->orderByRaw('COALESCE(echelons.id, 999999) ASC')
+            ->orderByRaw('COALESCE(ranks.id, 0) DESC')
+            ->orderBy('users.name')
+            ->select('users.*')
+            ->get();
         $cities = City::orderBy('name')->get();
         return view('livewire.nota-dinas.edit', [
             'units' => $units,
