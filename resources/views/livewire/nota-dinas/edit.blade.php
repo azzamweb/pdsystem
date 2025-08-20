@@ -3,7 +3,7 @@
     <div class="flex items-center justify-between">
         <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Edit Nota Dinas</h1>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Edit data Nota Dinas</p>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Form pengubahan Nota Dinas</p>
         </div>
         <div class="flex items-center space-x-3">
             <a href="{{ route('nota-dinas.index') }}"
@@ -16,9 +16,25 @@
         </div>
     </div>
 
+    @if (session('error'))
+        <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg dark:bg-red-900 dark:border-red-700 dark:text-red-300">
+            {{ session('error') }}
+        </div>
+    @endif
+
     @if ($errors->has('general'))
         <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg dark:bg-red-900 dark:border-red-700 dark:text-red-300">
             {{ $errors->first('general') }}
+        </div>
+    @endif
+
+    @if ($errors->any() && !$errors->has('general'))
+        <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg dark:bg-red-900 dark:border-red-700 dark:text-red-300">
+            <ul class="list-disc pl-5">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
         </div>
     @endif
 
@@ -53,7 +69,7 @@
     <!-- Form -->
     <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
         <form wire:submit="save" class="space-y-6 p-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1>
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nomor Nota Dinas</label>
                     <div class="flex items-center space-x-2 mt-1">
