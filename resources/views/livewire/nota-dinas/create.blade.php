@@ -83,7 +83,7 @@
                     <select wire:model="to_user_id" id="to_user_id" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                         <option value="">Pilih Pegawai</option>
                         @foreach($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                            <option value="{{ $user->id }}">{{ $user->fullNameWithTitles() }} ({{ trim(($user->position?->name ?? '') . ' ' . ($user->unit?->name ?? '')) ?: '-' }})</option>
                         @endforeach
                     </select>
                     @error('to_user_id')<p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>@enderror
@@ -93,7 +93,7 @@
                     <select wire:model="from_user_id" id="from_user_id" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                         <option value="">Pilih Pegawai</option>
                         @foreach($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                            <option value="{{ $user->id }}">{{ $user->fullNameWithTitles() }} ({{ trim(($user->position?->name ?? '') . ' ' . ($user->unit?->name ?? '')) ?: '-' }})</option>
                         @endforeach
                     </select>
                     @error('from_user_id')<p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>@enderror
@@ -160,12 +160,31 @@
                 </div>
                 <div class="md:col-span-2">
                     <label for="participants" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Peserta (Pegawai yang bepergian) <span class="text-red-500">*</span></label>
-                    <select wire:model="participants" id="participants" multiple class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                        @foreach($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
-                        @endforeach
-                    </select>
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Pilih satu atau lebih pegawai yang akan bepergian</p>
+                    <div x-data="{ q: '', selected: @entangle('participants') }" class="mt-1">
+                        <input type="text" x-model="q" placeholder="Cari nama / jabatan / unit..." class="mb-2 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                        <div class="overflow-y-auto overscroll-y-contain border border-gray-200 dark:border-gray-700 rounded-md divide-y divide-gray-100 dark:divide-gray-700" x-ref="list" style="height:200px;">
+                            @foreach($users as $user)
+                                @php
+                                    $label = $user->fullNameWithTitles() . ' (' . trim(($user->position->name ?? '') . ' ' . ($user->unit->name ?? '')) . ')';
+                                @endphp
+                                <label class="flex items-center gap-2 px-3 py-2 text-sm" x-bind:data-text="'{{ strtolower($label) }}'" x-show="!q || ($el.dataset.text || '').includes(q.toLowerCase())" x-cloak>
+                                    <input type="checkbox" value="{{ $user->id }}" x-model="selected" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500" />
+                                    <span class="text-gray-900 dark:text-gray-100">{{ $label }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                        <div class="mt-2 flex items-center gap-2">
+                            <button type="button" class="px-3 py-1.5 text-xs rounded-md bg-gray-100 hover:bg-gray-200 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-100" @click="selected = [];">Kosongkan</button>
+                            <button type="button" class="px-3 py-1.5 text-xs rounded-md bg-blue-600 hover:bg-blue-700 text-white" @click="selected = Array.from(new Set([...
+                                selected,
+                                ...Array.from($refs.list.querySelectorAll('label'))
+                                    .filter(el => el.style.display !== 'none')
+                                    .map(el => el.querySelector('input[type=checkbox]')?.value)
+                                    .filter(Boolean)
+                            ])).map(v => isNaN(v) ? v : Number(v))">Pilih yang tampil</button>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Dipilih: <span x-text="selected.length"></span> pegawai</span>
+                        </div>
+                    </div>
                     @error('participants')<p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>@enderror
                 </div>
                 <div class="md:col-span-2">
