@@ -10,6 +10,8 @@ class Spt extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $table = 'spt';
+
     protected $fillable = [
         'doc_no', 'number_is_manual', 'number_manual_reason', 'number_format_id', 'number_sequence_id',
         'number_scope_unit_id', 'spt_date', 'nota_dinas_id', 'signed_by_user_id', 'assignment_title',

@@ -1,6 +1,152 @@
+<style>
+    @media print {
+        * {
+            -webkit-print-color-adjust: exact !important;
+            color-adjust: exact !important;
+        }
+        
+        body {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white !important;
+            font-size: 12pt !important;
+            line-height: 1.4 !important;
+        }
+        
+        .print-container {
+            width: 210mm !important;
+            min-height: 297mm !important;
+            margin: 0 !important;
+            padding: 15mm !important;
+            box-shadow: none !important;
+            border: none !important;
+            background: white !important;
+            page-break-after: always;
+        }
+        
+        .print-button, .no-print {
+            display: none !important;
+        }
+        
+        table {
+            page-break-inside: avoid !important;
+            border-collapse: collapse !important;
+            table-layout: fixed !important;
+        }
+        
+        tr {
+            page-break-inside: avoid !important;
+            page-break-after: auto !important;
+        }
+        
+        td, th {
+            padding: 2pt !important;
+            vertical-align: top !important;
+        }
+        
+        /* Border hanya untuk tabel peserta */
+        .border, .border-gray-400 {
+            border: 1px solid #000 !important;
+        }
+        
+        /* Border bawah kop surat */
+        .border-b-2, .border-b {
+            border-bottom: 2px solid #000 !important;
+        }
+        
+        .bg-gray-100 {
+            background-color: #f3f4f6 !important;
+        }
+        
+        .text-center {
+            text-align: center !important;
+        }
+        
+        .text-left {
+            text-align: left !important;
+        }
+        
+        .text-justify {
+            text-align: justify !important;
+        }
+        
+        .font-semibold {
+            font-weight: 600 !important;
+        }
+        
+        .font-bold {
+            font-weight: bold !important;
+        }
+        
+        .underline {
+            text-decoration: underline !important;
+        }
+        
+        .pl-2 {
+            padding-left: 8pt !important;
+        }
+        
+        .px-2 {
+            padding-left: 8pt !important;
+            padding-right: 8pt !important;
+        }
+        
+        .py-1 {
+            padding-top: 4pt !important;
+            padding-bottom: 4pt !important;
+        }
+        
+        .w-8 {
+            width: 32pt !important;
+        }
+        
+        .mb-1, .mb-2, .mb-4, .mb-8 {
+            margin-bottom: 4pt !important;
+        }
+        
+        .mt-4, .mt-8 {
+            margin-top: 4pt !important;
+        }
+        
+        .flex {
+            display: flex !important;
+        }
+        
+        .justify-end {
+            justify-content: flex-end !important;
+        }
+        
+        .items-center {
+            align-items: center !important;
+        }
+        
+        .gap-2 {
+            gap: 8pt !important;
+        }
+        
+        .overflow-x-auto {
+            overflow: visible !important;
+        }
+        
+        .min-w-full {
+            min-width: 100% !important;
+        }
+        
+        @page {
+            size: A4 portrait;
+            margin: 0;
+        }
+        
+        /* Pastikan hanya dokumen yang dicetak */
+        .space-y-6 > *:not(.print-container) {
+            display: none !important;
+        }
+    }
+</style>
+
 <div class="space-y-6">
-    <!-- Header -->
-    <div class="flex items-center justify-between">
+    <!-- Tombol aksi tetap di atas -->
+    <div class="flex justify-between items-center no-print">
         <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Detail Nota Dinas</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Lihat detail lengkap Nota Dinas</p>
@@ -21,123 +167,217 @@
         </div>
     </div>
 
-    <!-- Flash Messages -->
-    @if (session()->has('message'))
-        <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg dark:bg-green-900 dark:border-green-700 dark:text-green-300">
-            <div class="flex items-center">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+    <!-- Surat Layout -->
+    <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-8 mx-auto border border-gray-200 dark:border-gray-700 text-sm print-container" style="width: 800px; max-width: 100%;">
+        <!-- Tombol Cetak -->
+        <div class="mb-4 flex justify-end print-button">
+            <button onclick="printDocument()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
                 </svg>
-                {{ session('message') }}
+                Cetak Dokumen
+            </button>
+        </div>
+        
+        <!-- Header Instansi -->
+        <table class="w-full mb-10 pb-2" style="border-bottom: 2px solid black;">
+            <tr>
+                <td style="width: 100px; vertical-align: top; ">
+                    <img src="/logobengkalis.png" alt="Logo" style="width: 80px; margin-bottom: 10px;">
+                </td>
+                <td style="text-align: center; vertical-align: top;">
+                    <div class="font-bold text-md md:text-xl uppercase">PEMERINTAH KABUPATEN BENGKALIS</div>
+                    <div class="font-bold text-lg md:text-xl uppercase">{{ \DB::table('org_settings')->value('name') }}</div>
+                    <div class="text-xs md:text-sm">{{ \DB::table('org_settings')->value('address') }}</div>
+                    <div class="text-xs md:text-sm">Telepon {{ \DB::table('org_settings')->value('phone') }} e-mail : {{ \DB::table('org_settings')->value('email') }}</div>
+                </td>
+                <td style="width: 100px;"></td>
+            </tr>
+        </table>
+        <div class="text-center  pb-2 mb-4">
+            <div class="font-bold text-base md:text-lg mt-2">NOTA DINAS</div>
+        </div>
+        <!-- Info Surat Dua Kolom -->
+        <div class="grid grid-cols-1 md:grid-cols-1 gap-x-8 gap-y-2 mb-6">
+            <table class="w-full text-sm" style="table-layout: fixed;">
+                <tr>
+                    <td style="width: 80px;" class="font-semibold align-top">Yth.</td>
+                    <td style="width: 20px;" class="align-top">:</td>
+                    <td class="align-top pl-2">{{ $notaDinas->toUser?->position?->name ?? '-' }} {{ \DB::table('org_settings')->value('name') }}</td>
+                </tr>
+                <tr>
+                    <td style="width: 80px;" class="font-semibold align-top">Dari</td>
+                    <td style="width: 20px;" class="align-top">:</td>
+                    <td class="align-top pl-2">{{ $notaDinas->fromUser?->position?->name ?? '-' }} {{ $notaDinas->fromUser?->unit?->name ?? '-' }}</td>
+                </tr>
+                <tr>
+                    <td style="width: 80px;" class="font-semibold align-top">Tembusan</td>
+                    <td style="width: 20px;" class="align-top">:</td>
+                    <td class="align-top pl-2">{{ $notaDinas->tembusan ?? '-' }}</td>
+                </tr>
+                <tr>
+                    <td style="width: 80px;" class="font-semibold align-top">Tanggal</td>
+                    <td style="width: 20px;" class="align-top">:</td>
+                    <td class="align-top pl-2">{{ $notaDinas->nd_date ? \Carbon\Carbon::parse($notaDinas->nd_date)->locale('id')->translatedFormat('d F Y') : '-' }}</td>
+                </tr>
+                <tr>
+                    <td style="width: 80px;" class="font-semibold align-top">Nomor</td>
+                    <td style="width: 20px;" class="align-top">:</td>
+                    <td class="align-top pl-2">{{ $notaDinas->doc_no }}</td>
+                </tr>
+                <tr>
+                    <td style="width: 80px;" class="font-semibold align-top">Sifat</td>
+                    <td style="width: 20px;" class="align-top">:</td>
+                    <td class="align-top pl-2">{{ $notaDinas->sifat ?? '-' }}</td>
+                </tr>
+                <tr>
+                    <td style="width: 80px;" class="font-semibold align-top">Lampiran</td>
+                    <td style="width: 20px;" class="align-top">:</td>
+                    <td class="align-top pl-2">{{ $notaDinas->lampiran_count ? $notaDinas->lampiran_count.' lembar' : '-' }}</td>
+                </tr>
+                <tr>
+                    <td style="width: 80px;" class="font-semibold align-top">Hal</td>
+                    <td style="width: 20px;" class="align-top">:</td>
+                    <td class="align-top pl-2">{{ $notaDinas->hal }}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="border-b-2 border-black mb-4"></div>
+        <!-- Isi Surat -->
+        <div class="mb-4 text-justify text-sm">
+            <p>Bersama ini diajukan rencana Perjalanan Dinas kepada Bapak {{ \DB::table('org_settings')->value('head_title') }} {{ \DB::table('org_settings')->value('name') }} dengan ketentuan sebagai berikut :</p>
+        </div>
+        <div class="mb-4">
+            <table class="w-full text-sm" style="table-layout: fixed;">
+                <tr>
+                    <td style="width: 30px; vertical-align: top;" class="align-top">1.</td>
+                    <td style="width: 150px; vertical-align: top;" class="font-semibold align-top">Dasar</td>
+                    <td style="width: 20px; vertical-align: top;" class="align-top">:</td>
+                    <td style="vertical-align: top;" class="align-top pl-2">{{ $notaDinas->dasar }}</td>
+                </tr>
+                <tr>
+                    <td style="width: 30px; vertical-align: top;" class="align-top">2.</td>
+                    <td style="width: 150px; vertical-align: top;" class="font-semibold align-top">Maksud</td>
+                    <td style="width: 20px; vertical-align: top;" class="align-top">:</td>
+                    <td style="vertical-align: top;" class="align-top pl-2">{{ $notaDinas->maksud }}</td>
+                </tr>
+                <tr>
+                    <td style="width: 30px; vertical-align: top;" class="align-top">3.</td>
+                    <td style="width: 150px; vertical-align: top;" class="font-semibold align-top">Tujuan</td>
+                    <td style="width: 20px; vertical-align: top;" class="align-top">:</td>
+                    <td style="vertical-align: top;" class="align-top pl-2">{{ $notaDinas->destinationCity?->name ?? '-' }}</td>
+                </tr>
+                <tr>
+                    <td style="width: 30px; vertical-align: top;" class="align-top">4.</td>
+                    <td style="width: 150px; vertical-align: top;" class="font-semibold align-top">Lamanya Perjalanan</td>
+                    <td style="width: 20px; vertical-align: top;" class="align-top">:</td>
+                    <td style="vertical-align: top;" class="align-top pl-2">{{ $notaDinas->days_count }} hari PP dari Tgl. {{ $notaDinas->start_date ? \Carbon\Carbon::parse($notaDinas->start_date)->locale('id')->translatedFormat('d F Y') : '-' }} s/d {{ $notaDinas->end_date ? \Carbon\Carbon::parse($notaDinas->end_date)->locale('id')->translatedFormat('d F Y') : '-' }}</td>
+                </tr>
+                <tr>
+                    <td style="width: 30px; vertical-align: top;" class="align-top">5.</td>
+                    <td style="width: 150px; vertical-align: top;" class="font-semibold align-top">Yang Bepergian</td>
+                    <td style="width: 20px; vertical-align: top;" class="align-top">:</td>
+                    <td style="vertical-align: top;" class="align-top pl-2"></td>
+                </tr>
+            </table>
+        </div>
+        <!-- Tabel Peserta -->
+        <div class="overflow-x-auto mb-4">
+            <table class="min-w-full border border-gray-400 text-sm">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="border px-2 py-1 w-8">No</th>
+                        <th class="border px-2 py-1">Nama/NIP/Pangkat</th>
+                        <th class="border px-2 py-1">Jabatan</th>
+                        <th class="border px-2 py-1">Keterangan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($notaDinas->participants as $i => $p)
+                        <tr>
+                            <td class="border px-2 py-1 text-center">{{ $i+1 }}</td>
+                            <td class="border px-2 py-1">
+                                {{ $p->user->name ?? '-' }}<br>
+                                {{ $p->user->rank?->name ?? '-' }} ({{ $p->user->rank?->code ?? '-' }})<br>
+                                NIP {{ $p->user->nip ?? '-' }}
+                            </td>
+                            <td class="border px-2 py-1">{{ $p->user->position?->name ?? '-' }}</td>
+                            <td class="border px-2 py-1"></td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="4" class="border px-2 py-1 text-center text-gray-400">Tidak ada peserta</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        <!-- Penutup -->
+        <div class="mb-8 mt-4 text-sm">Demikian disampaikan, atas bantuan dan persetujuan Bapak diucapkan terima kasih.</div>
+        <!-- Tanda Tangan -->
+        <br>
+        <br>
+        <div class="flex justify-end mt-8">
+            <div class="text-left text-sm">
+                <div class="mb-1">{{ $notaDinas->fromUser?->position?->name ?? '-' }} {{ $notaDinas->fromUser?->unit?->name ?? '-' }}</div>
+                <div class="mb-1">{{ \DB::table('org_settings')->value('name') }}</div>
+                <div class="mb-1">Kabupaten Bengkalis</div>
+                <br><br>
+                <div class="font-bold underline">{{ $notaDinas->fromUser?->gelar_depan ?? '-' }} {{ $notaDinas->fromUser?->name ?? '-' }} {{ $notaDinas->fromUser?->gelar_belakang ?? '-' }}</div>
+                <div>{{ $notaDinas->fromUser?->rank?->name ?? '-' }} ({{ $notaDinas->fromUser?->rank?->code ?? '-' }})</div>
+                <div>NIP. {{ $notaDinas->fromUser?->nip ?? '-' }}</div>
             </div>
         </div>
-    @endif
-
-    @if (session()->has('error'))
-        <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg dark:bg-red-900 dark:border-red-700 dark:text-red-300">
-            <div class="flex items-center">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                {{ session('error') }}
-            </div>
-        </div>
-    @endif
-
-    <!-- Status Badge -->
-    <div class="flex items-center justify-center">
-        <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium {{ $notaDinas->status === 'DRAFT' ? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300' : ($notaDinas->status === 'SUBMITTED' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : ($notaDinas->status === 'APPROVED' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200')) }}">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                @if($notaDinas->status === 'DRAFT')
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                @elseif($notaDinas->status === 'SUBMITTED')
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                @elseif($notaDinas->status === 'APPROVED')
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                @else
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                @endif
-            </svg>
-            {{ $notaDinas->status }}
-        </span>
     </div>
-
-    <!-- Status Update Form -->
-    <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
-        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h3 class="text-lg font-medium text-gray-900 dark:text-white flex items-center">
+    <!-- Section Aksi Dokumen: Perubahan Status & SPT/SPPD -->
+    <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Form Perubahan Status Nota Dinas -->
+        <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-semibold mb-4 flex items-center">
                 <svg class="w-5 h-5 mr-2 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                 </svg>
-                Update Status Dokumen
+                Perubahan Status Nota Dinas
             </h3>
-        </div>
-        <div class="p-6">
             <form wire:submit="updateStatus" class="space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label for="new_status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Status Baru
-                        </label>
-                        <select wire:model="new_status" id="new_status" class="block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                            <option value="">Pilih status...</option>
+                <div>
+                    <div class="mb-2">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                             @if($notaDinas->status === 'DRAFT')
-                                <option value="SUBMITTED">SUBMITTED - Ajukan untuk review</option>
+                                bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300
                             @elseif($notaDinas->status === 'SUBMITTED')
-                                <option value="APPROVED">APPROVED - Setujui dokumen</option>
-                                <option value="REJECTED">REJECTED - Tolak dokumen</option>
+                                bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200
                             @elseif($notaDinas->status === 'APPROVED')
-                                <option value="DRAFT">DRAFT - Kembalikan ke draft</option>
+                                bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
                             @elseif($notaDinas->status === 'REJECTED')
-                                <option value="DRAFT">DRAFT - Kembalikan ke draft</option>
-                                <option value="SUBMITTED">SUBMITTED - Ajukan ulang</option>
+                                bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200
+                            @else
+                                bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-200
                             @endif
-                        </select>
-                        @error('new_status') <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
+                        ">
+                            Status: {{ $notaDinas->status }}
+                        </span>
                     </div>
-                    <div>
-                        <label for="status_notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Catatan Status (Opsional)
-                        </label>
-                        <textarea wire:model="status_notes" id="status_notes" rows="2" placeholder="Tambahkan catatan untuk perubahan status..." class="block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"></textarea>
-                        @error('status_notes') <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
-                    </div>
+                    <label for="new_status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status Baru</label>
+                    <select wire:model="new_status" id="new_status" class="block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        <option value="">Pilih status...</option>
+                        @if($notaDinas->status === 'DRAFT')
+                            <option value="SUBMITTED">SUBMITTED - Ajukan untuk review</option>
+                        @elseif($notaDinas->status === 'SUBMITTED')
+                            <option value="APPROVED">APPROVED - Setujui dokumen</option>
+                            <option value="REJECTED">REJECTED - Tolak dokumen</option>
+                        @elseif($notaDinas->status === 'APPROVED')
+                            <option value="DRAFT">DRAFT - Kembalikan ke draft</option>
+                        @elseif($notaDinas->status === 'REJECTED')
+                            <option value="DRAFT">DRAFT - Kembalikan ke draft</option>
+                            <option value="SUBMITTED">SUBMITTED - Ajukan ulang</option>
+                        @endif
+                    </select>
+                    @error('new_status') <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
                 </div>
-                
-                @if($new_status)
-                    <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                        <div class="flex items-start">
-                            <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            <div>
-                                <h4 class="text-sm font-medium text-blue-800 dark:text-blue-200">
-                                    Aksi yang akan dilakukan:
-                                </h4>
-                                <ul class="mt-2 text-sm text-blue-700 dark:text-blue-300 space-y-1">
-                                    @if($new_status === 'SUBMITTED')
-                                        <li>• Dokumen akan diajukan untuk review</li>
-                                        <li>• Status berubah dari DRAFT ke SUBMITTED</li>
-                                        <li>• Dokumen siap untuk proses approval</li>
-                                    @elseif($new_status === 'APPROVED')
-                                        <li>• Dokumen disetujui</li>
-                                        <li>• Status berubah dari SUBMITTED ke APPROVED</li>
-                                        <li>• Dapat dilanjutkan ke pembuatan SPT/SPPD</li>
-                                    @elseif($new_status === 'REJECTED')
-                                        <li>• Dokumen ditolak</li>
-                                        <li>• Status berubah dari SUBMITTED ke REJECTED</li>
-                                        <li>• Perlu perbaikan sebelum diajukan ulang</li>
-                                    @elseif($new_status === 'DRAFT')
-                                        <li>• Dokumen dikembalikan ke status draft</li>
-                                        <li>• Dapat diedit kembali</li>
-                                        <li>• Perlu diajukan ulang setelah perbaikan</li>
-                                    @endif
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-
+                <div>
+                    <label for="status_notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Catatan Status (Opsional)</label>
+                    <textarea wire:model="status_notes" id="status_notes" rows="2" placeholder="Tambahkan catatan untuk perubahan status..." class="block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"></textarea>
+                    @error('status_notes') <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
+                </div>
                 <div class="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
                     <button type="button" wire:click="resetStatusForm" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600">
                         Reset
@@ -152,277 +392,209 @@
                 </div>
             </form>
         </div>
-    </div>
-
-    <!-- Next Document Actions -->
-    @if($notaDinas->status === 'APPROVED')
-        <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-6">
-            <div class="flex items-start">
-                <svg class="w-6 h-6 text-green-600 dark:text-green-400 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <!-- Tombol SPT/SPPD -->
+        <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center">
+            <h3 class="text-lg font-semibold mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
-                <div class="flex-1">
-                    <h4 class="text-lg font-medium text-green-800 dark:text-green-200 mb-2">
-                        Nota Dinas Telah Disetujui
-                    </h4>
-                    <p class="text-sm text-green-700 dark:text-green-300 mb-4">
-                        Nota Dinas ini telah disetujui dan siap untuk dilanjutkan ke tahap berikutnya. Anda dapat membuat dokumen SPT (Surat Perintah Tugas) berdasarkan Nota Dinas ini.
-                    </p>
-                    <div class="flex flex-wrap gap-3">
-                        <a href="{{ route('spt.create', ['nota_dinas_id' => $notaDinas->id]) }}" class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                Aksi Dokumen SPT / SPPD
+            </h3>
+            @if($notaDinas->status === 'APPROVED')
+                <div class="flex flex-wrap gap-3 justify-center">
+                    <a href="{{ route('spt.create', ['nota_dinas_id' => $notaDinas->id]) }}"
+                       class="flex items-center gap-2 px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        <span>Buat SPT</span>
+                    </a>
+                    @if($notaDinas->spt)
+                        <a href="{{ route('spt.show', $notaDinas->spt) }}"
+                           class="flex items-center gap-2 px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 transition"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                             </svg>
-                            Buat SPT
+                            <span>Lihat SPT</span>
                         </a>
-                        <a href="{{ route('sppd.create', ['nota_dinas_id' => $notaDinas->id]) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    @endif
+                    @if($notaDinas->spt)
+                        <a href="{{ route('sppd.create', ['spt_id' => $notaDinas->spt->id]) }}"
+                           class="flex items-center gap-2 px-4 py-2 rounded-md bg-cyan-600 text-white hover:bg-cyan-700 transition"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                             </svg>
-                            Buat SPPD
+                            <span>Buat SPPD</span>
                         </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Main Information -->
-        <div class="lg:col-span-2 space-y-6">
-
-             <!-- Organization Info -->
-             <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
-                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white flex items-center">
-                        <svg class="w-5 h-5 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                        </svg>
-                        Informasi Organisasi
-                    </h3>
-                </div>
-                <div class="p-6 space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Bidang Pengaju</label>
-                        <div class="mt-1 text-gray-900 dark:text-white">{{ $notaDinas->requestingUnit?->name ?? '-' }}</div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Kepada</label>
-                        <div class="mt-1 text-gray-900 dark:text-white">{{ $notaDinas->toUser?->name ?? '-' }}</div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Dari</label>
-                        <div class="mt-1 text-gray-900 dark:text-white">{{ $notaDinas->fromUser?->name ?? '-' }}</div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Document Information -->
-            <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
-                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white flex items-center">
-                        <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                        Informasi Dokumen
-                    </h3>
-                </div>
-                <div class="p-6 space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Nomor Nota Dinas</label>
-                            <div class="mt-1 font-mono text-lg font-bold text-gray-900 dark:text-white">{{ $notaDinas->doc_no }}</div>
-                            @if($notaDinas->number_is_manual)
-                                <div class="mt-1 text-xs text-yellow-600 dark:text-yellow-400">
-                                    <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                                    </svg>
-                                    Override manual: {{ $notaDinas->number_manual_reason }}
-                                </div>
-                            @endif
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Tanggal Nota Dinas</label>
-                            <div class="mt-1 text-gray-900 dark:text-white">{{ $notaDinas->nd_date ? \Carbon\Carbon::parse($notaDinas->nd_date)->format('d/m/Y') : '-' }}</div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Sifat</label>
-                            <div class="mt-1">
-                                @if($notaDinas->sifat)
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                                        {{ $notaDinas->sifat }}
-                                    </span>
-                                @else
-                                    <span class="text-gray-500 dark:text-gray-400">-</span>
-                                @endif
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Lampiran</label>
-                            <div class="mt-1 text-gray-900 dark:text-white">{{ $notaDinas->lampiran_count }} lembar</div>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Perihal</label>
-                        <div class="mt-1 text-gray-900 dark:text-white font-medium">{{ $notaDinas->hal }}</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Trip Information -->
-            <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
-                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white flex items-center">
-                        <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        </svg>
-                        Informasi Perjalanan
-                    </h3>
-                </div>
-                <div class="p-6 space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Tujuan</label>
-                            <div class="mt-1 text-gray-900 dark:text-white">{{ $notaDinas->destinationCity?->name ?? '-' }}</div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Durasi Perjalanan</label>
-                            <div class="mt-1 text-gray-900 dark:text-white">{{ $notaDinas->days_count }} hari</div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Tanggal Mulai</label>
-                            <div class="mt-1 text-gray-900 dark:text-white">{{ $notaDinas->start_date ? \Carbon\Carbon::parse($notaDinas->start_date)->format('d/m/Y') : '-' }}</div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Tanggal Selesai</label>
-                            <div class="mt-1 text-gray-900 dark:text-white">{{ $notaDinas->end_date ? \Carbon\Carbon::parse($notaDinas->end_date)->format('d/m/Y') : '-' }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Content -->
-            <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
-                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white flex items-center">
-                        <svg class="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                        Isi Nota Dinas
-                    </h3>
-                </div>
-                <div class="p-6 space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Dasar</label>
-                        <div class="mt-1 text-gray-900 dark:text-white whitespace-pre-line">{{ $notaDinas->dasar }}</div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Maksud</label>
-                        <div class="mt-1 text-gray-900 dark:text-white whitespace-pre-line">{{ $notaDinas->maksud }}</div>
-                    </div>
-                    @if($notaDinas->tembusan)
-                        <div>
-                            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Tembusan</label>
-                            <div class="mt-1 text-gray-900 dark:text-white whitespace-pre-line">{{ $notaDinas->tembusan }}</div>
-                        </div>
-                    @endif
-                    @if($notaDinas->notes)
-                        <div>
-                            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Catatan</label>
-                            <div class="mt-1 text-gray-900 dark:text-white whitespace-pre-line">{{ $notaDinas->notes }}</div>
-                        </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-
-        <!-- Sidebar -->
-        <div class="space-y-6">
-            <!-- Participants -->
-            <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
-                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white flex items-center">
-                        <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
-                        </svg>
-                        Peserta ({{ $notaDinas->participants->count() }})
-                    </h3>
-                </div>
-                <div class="p-6">
-                    @if($notaDinas->participants->count() > 0)
-                        <div class="space-y-3">
-                            @foreach($notaDinas->participants as $participant)
-                                <div class="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                                    <div class="flex-shrink-0">
-                                        <div class="w-8 h-8 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center">
-                                            <span class="text-sm font-medium text-indigo-600 dark:text-indigo-300">
-                                                {{ strtoupper(substr($participant->user->name ?? 'U', 0, 1)) }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
-                                            {{ $participant->user->name ?? 'N/A' }}
-                                        </p>
-                                        @if($participant->user->position)
-                                            <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
-                                                {{ $participant->user->position->name ?? '-' }}
-                                            </p>
-                                        @endif
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
                     @else
-                        <div class="text-center py-4">
-                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                        <button class="flex items-center gap-2 px-4 py-2 rounded-md bg-cyan-400 text-white opacity-60 cursor-not-allowed" disabled>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                             </svg>
-                            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Belum ada peserta</p>
-                        </div>
+                            <span>Buat SPPD</span>
+                        </button>
                     @endif
                 </div>
-            </div>
-
-           
-
-            <!-- Document Numbering Info -->
-            <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
-                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white flex items-center">
-                        <svg class="w-5 h-5 mr-2 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                        </svg>
-                        Informasi Penomoran
-                    </h3>
-                </div>
-                <div class="p-6 space-y-3">
-                    <div>
-                        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400">Format</label>
-                        <div class="mt-1 text-sm text-gray-900 dark:text-white font-mono">{{ $notaDinas->numberFormat?->format_string ?? '-' }}</div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400">Sequence ID</label>
-                        <div class="mt-1 text-sm text-gray-900 dark:text-white">{{ $notaDinas->number_sequence_id ?? '-' }}</div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400">Scope Unit</label>
-                        <div class="mt-1 text-sm text-gray-900 dark:text-white">{{ $notaDinas->number_scope_unit_id ?? '-' }}</div>
-                    </div>
-                    @if($notaDinas->number_is_manual)
-                        <div class="mt-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-                            <div class="flex items-center">
-                                <svg class="w-4 h-4 text-yellow-600 dark:text-yellow-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                                </svg>
-                                <span class="text-xs text-yellow-800 dark:text-yellow-200 font-medium">Override Manual</span>
-                            </div>
-                            <p class="mt-1 text-xs text-yellow-700 dark:text-yellow-300">{{ $notaDinas->number_manual_reason }}</p>
-                        </div>
-                    @endif
-                </div>
-            </div>
+            @else
+                <div class="text-gray-400 text-xs">Aksi SPT/SPPD hanya tersedia jika status Nota Dinas sudah APPROVED.</div>
+            @endif
         </div>
     </div>
 </div>
+
+<script>
+function printDocument() {
+    // Simpan elemen yang tidak perlu dicetak
+    const noPrintElements = document.querySelectorAll('.no-print, .print-button');
+    const originalDisplay = [];
+    
+    // Sembunyikan elemen yang tidak perlu dicetak
+    noPrintElements.forEach((el, index) => {
+        originalDisplay[index] = el.style.display;
+        el.style.display = 'none';
+    });
+    
+    // Buat iframe untuk print yang bersih
+    const printFrame = document.createElement('iframe');
+    printFrame.style.position = 'absolute';
+    printFrame.style.left = '-9999px';
+    printFrame.style.top = '-9999px';
+    document.body.appendChild(printFrame);
+    
+    const printDocument = printFrame.contentDocument || printFrame.contentWindow.document;
+    const printWindow = printFrame.contentWindow || printFrame;
+    
+    // Ambil konten dokumen
+    const documentContent = document.querySelector('.print-container').cloneNode(true);
+    
+    // Tambahkan CSS untuk print
+    const printCSS = `
+        <style>
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: Arial, sans-serif;
+                font-size: 12pt;
+                line-height: 1.4;
+                background: white;
+            }
+            .print-container {
+                width: 210mm;
+                min-height: 297mm;
+                margin: 0;
+                padding: 15mm;
+                background: white;
+                box-sizing: border-box;
+            }
+            table {
+                page-break-inside: avoid;
+                border-collapse: collapse;
+                width: 100%;
+                table-layout: fixed;
+            }
+            td, th {
+                padding: 2pt;
+                vertical-align: top;
+            }
+            /* Border hanya untuk tabel peserta */
+            .border, .border-gray-400 {
+                border: 1px solid #000 !important;
+            }
+            /* Border bawah kop surat */
+            .border-b-2, .border-b {
+                border-bottom: 2px solid #000 !important;
+            }
+            .bg-gray-100 {
+                background-color: #f3f4f6 !important;
+            }
+            .text-center {
+                text-align: center !important;
+            }
+            .text-left {
+                text-align: left !important;
+            }
+            .text-justify {
+                text-align: justify !important;
+            }
+            .font-semibold {
+                font-weight: 600 !important;
+            }
+            .font-bold {
+                font-weight: bold !important;
+            }
+            .underline {
+                text-decoration: underline !important;
+            }
+            .pl-2 {
+                padding-left: 8pt !important;
+            }
+            .px-2 {
+                padding-left: 8pt !important;
+                padding-right: 8pt !important;
+            }
+            .py-1 {
+                padding-top: 4pt !important;
+                padding-bottom: 4pt !important;
+            }
+            .w-8 {
+                width: 32pt !important;
+            }
+            .mb-1, .mb-2, .mb-4, .mb-8 {
+                margin-bottom: 4pt !important;
+            }
+            .mt-4, .mt-8 {
+                margin-top: 4pt !important;
+            }
+            .flex {
+                display: flex !important;
+            }
+            .justify-end {
+                justify-content: flex-end !important;
+            }
+            .items-center {
+                align-items: center !important;
+            }
+            .gap-2 {
+                gap: 8pt !important;
+            }
+            img {
+                max-width: 100%;
+                height: auto;
+            }
+            .overflow-x-auto {
+                overflow: visible !important;
+            }
+            .min-w-full {
+                min-width: 100% !important;
+            }
+        </style>
+    `;
+    
+    printDocument.open();
+    printDocument.write(printCSS);
+    printDocument.write(documentContent.outerHTML);
+    printDocument.close();
+    
+    // Tunggu konten dimuat lalu print
+    printFrame.onload = function() {
+        printWindow.print();
+        
+        // Bersihkan setelah print
+        setTimeout(() => {
+            document.body.removeChild(printFrame);
+            
+            // Kembalikan elemen yang disembunyikan
+            noPrintElements.forEach((el, index) => {
+                el.style.display = originalDisplay[index];
+            });
+        }, 1000);
+    };
+}
+</script>

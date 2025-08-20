@@ -29,4 +29,5 @@ class NotaDinas extends Model
     public function numberFormat() { return $this->belongsTo(DocNumberFormat::class, 'number_format_id'); }
     public function numberSequence() { return $this->belongsTo(NumberSequence::class, 'number_sequence_id'); }
     public function numberScopeUnit() { return $this->belongsTo(Unit::class, 'number_scope_unit_id'); }
+    public function spt() { return $this->hasOne(Spt::class, 'nota_dinas_id'); }
 }

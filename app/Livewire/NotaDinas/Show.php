@@ -96,7 +96,7 @@ class Show extends Component
 
     public function render()
     {
-        $this->notaDinas->load(['participants.user', 'requestingUnit', 'destinationCity', 'toUser', 'fromUser']);
+        $this->notaDinas->load(['participants.user', 'requestingUnit', 'destinationCity', 'toUser', 'fromUser', 'spt']);
         return view('livewire.nota-dinas.show', [
             'notaDinas' => $this->notaDinas
         ]);
