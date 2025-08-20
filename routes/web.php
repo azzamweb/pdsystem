@@ -89,6 +89,7 @@ use App\Livewire\Sppd\Index as SppdIndex;
 use App\Livewire\Sppd\Create as SppdCreate;
 use App\Livewire\Sppd\Edit as SppdEdit;
 use App\Livewire\Sppd\Show as SppdShow;
+use App\Http\Controllers\NotaDinasController;
 
 
 Route::get('/', function () {
@@ -242,6 +243,10 @@ Route::middleware('auth')->group(function () {
     Route::get('sppd/create', SppdCreate::class)->name('sppd.create');
     Route::get('sppd/{sppd}/edit', SppdEdit::class)->name('sppd.edit');
     Route::get('sppd/{sppd}', SppdShow::class)->name('sppd.show');
+    
+    // Nota Dinas PDF
+    Route::get('nota-dinas/{notaDinas}/pdf', [NotaDinasController::class, 'generatePdf'])->name('nota-dinas.pdf');
+    Route::get('nota-dinas/{notaDinas}/pdf/download', [NotaDinasController::class, 'downloadPdf'])->name('nota-dinas.pdf-download');
 });
 
 require __DIR__.'/auth.php';

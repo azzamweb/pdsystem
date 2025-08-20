@@ -1,147 +1,5 @@
 <style>
-    @media print {
-        * {
-            -webkit-print-color-adjust: exact !important;
-            color-adjust: exact !important;
-        }
-        
-        body {
-            margin: 0 !important;
-            padding: 0 !important;
-            background: white !important;
-            font-size: 12pt !important;
-            line-height: 1.4 !important;
-        }
-        
-        .print-container {
-            width: 210mm !important;
-            min-height: 297mm !important;
-            margin: 0 !important;
-            padding: 15mm !important;
-            box-shadow: none !important;
-            border: none !important;
-            background: white !important;
-            page-break-after: always;
-        }
-        
-        .print-button, .no-print {
-            display: none !important;
-        }
-        
-        table {
-            page-break-inside: avoid !important;
-            border-collapse: collapse !important;
-            table-layout: fixed !important;
-        }
-        
-        tr {
-            page-break-inside: avoid !important;
-            page-break-after: auto !important;
-        }
-        
-        td, th {
-            padding: 2pt !important;
-            vertical-align: top !important;
-        }
-        
-        /* Border hanya untuk tabel peserta */
-        .border, .border-gray-400 {
-            border: 1px solid #000 !important;
-        }
-        
-        /* Border bawah kop surat */
-        .border-b-2, .border-b {
-            border-bottom: 2px solid #000 !important;
-        }
-        
-        .bg-gray-100 {
-            background-color: #f3f4f6 !important;
-        }
-        
-        .text-center {
-            text-align: center !important;
-        }
-        
-        .text-left {
-            text-align: left !important;
-        }
-        
-        .text-justify {
-            text-align: justify !important;
-        }
-        
-        .font-semibold {
-            font-weight: 600 !important;
-        }
-        
-        .font-bold {
-            font-weight: bold !important;
-        }
-        
-        .underline {
-            text-decoration: underline !important;
-        }
-        
-        .pl-2 {
-            padding-left: 8pt !important;
-        }
-        
-        .px-2 {
-            padding-left: 8pt !important;
-            padding-right: 8pt !important;
-        }
-        
-        .py-1 {
-            padding-top: 4pt !important;
-            padding-bottom: 4pt !important;
-        }
-        
-        .w-8 {
-            width: 32pt !important;
-        }
-        
-        .mb-1, .mb-2, .mb-4, .mb-8 {
-            margin-bottom: 4pt !important;
-        }
-        
-        .mt-4, .mt-8 {
-            margin-top: 4pt !important;
-        }
-        
-        .flex {
-            display: flex !important;
-        }
-        
-        .justify-end {
-            justify-content: flex-end !important;
-        }
-        
-        .items-center {
-            align-items: center !important;
-        }
-        
-        .gap-2 {
-            gap: 8pt !important;
-        }
-        
-        .overflow-x-auto {
-            overflow: visible !important;
-        }
-        
-        .min-w-full {
-            min-width: 100% !important;
-        }
-        
-        @page {
-            size: A4 portrait;
-            margin: 0;
-        }
-        
-        /* Pastikan hanya dokumen yang dicetak */
-        .space-y-6 > *:not(.print-container) {
-            display: none !important;
-        }
-    }
+    /* CSS untuk tampilan web saja */
 </style>
 
 <div class="space-y-6">
@@ -149,17 +7,17 @@
     <div class="flex justify-between items-center no-print">
         <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Detail Nota Dinas</h1>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Lihat detail lengkap Nota Dinas</p>
+                            <p class="text-gray-600 dark:text-gray-400">Nomor: {{ $notaDinas->doc_no }}</p>
         </div>
-        <div class="flex items-center space-x-3">
-            <a href="{{ route('nota-dinas.edit', $notaDinas) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="flex items-center gap-3">
+            <a href="{{ route('nota-dinas.edit', $notaDinas) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                 </svg>
                 Edit
             </a>
-            <a href="{{ route('nota-dinas.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <a href="{{ route('nota-dinas.index') }}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                 </svg>
                 Kembali
@@ -168,15 +26,15 @@
     </div>
 
     <!-- Surat Layout -->
-    <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-8 mx-auto border border-gray-200 dark:border-gray-700 text-sm print-container" style="width: 800px; max-width: 100%;">
+    <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-8 mx-auto border border-gray-200 dark:border-gray-700 text-sm" style="width: 800px; max-width: 100%;">
         <!-- Tombol Cetak -->
-        <div class="mb-4 flex justify-end print-button">
-            <button onclick="printDocument()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center gap-2">
+        <div class="mb-4 flex justify-end">
+            <a href="{{ route('nota-dinas.pdf', $notaDinas->id) }}" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
                 </svg>
-                Cetak Dokumen
-            </button>
+                Preview PDF
+            </a>
         </div>
         
         <!-- Header Instansi -->
@@ -328,7 +186,7 @@
         </div>
     </div>
     <!-- Section Aksi Dokumen: Perubahan Status & SPT/SPPD -->
-    <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6 no-print">
         <!-- Form Perubahan Status Nota Dinas -->
         <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 border border-gray-200 dark:border-gray-700">
             <h3 class="text-lg font-semibold mb-4 flex items-center">
