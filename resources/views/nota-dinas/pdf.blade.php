@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Nota Dinas - {{ $notaDinas->doc_no }}</title>
     <style>
-        @page { size: A4; margin-right: 15mm; margin-left: 15mm; margin-top: 15mm; margin-bottom: 15mm; }
+        @page { size: A4; margin-right: 15mm; margin-left: 15mm; margin-top: 15mm; margin-bottom: 10mm; }
         @page:first { margin-right: 15mm; margin-left: 15mm; margin-top: 5mm; margin-bottom: 15mm; }
         body { font-family: Arial, sans-serif; font-size: 12pt; line-height: 1.5; margin: 0; padding: 0; }
         p, h1, h2, h3, h4, h5, h6, table, th, td, li { line-height: 1; }
@@ -180,7 +180,20 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse($notaDinas->participants as $i => $p)
+                @php
+                    $ordered = $notaDinas->participants->sort(function ($a, $b) {
+                        $ea = $a->user?->position?->echelon?->id ?? 999999;
+                        $eb = $b->user?->position?->echelon?->id ?? 999999;
+                        if ($ea !== $eb) return $ea <=> $eb;
+                        $ra = $a->user?->rank?->id ?? 0;
+                        $rb = $b->user?->rank?->id ?? 0;
+                        if ($ra !== $rb) return $rb <=> $ra;
+                        $na = (string)($a->user?->nip ?? '');
+                        $nb = (string)($b->user?->nip ?? '');
+                        return strcmp($na, $nb);
+                    })->values();
+                @endphp
+                @forelse($ordered as $i => $p)
                     <tr>
                         <td class="no">{{ $i+1 }}</td>
                         <td>
@@ -188,7 +201,7 @@
                             {{ $p->user->rank?->name ?? '-' }} ({{ $p->user->rank?->code ?? '-' }})<br>
                             NIP {{ $p->user->nip ?? '-' }}
                         </td>
-                        <td>{{ $p->user->position?->name ?? '-' }}</td>
+                        <td>{{ $p->user->position_desc ?: ($p->user->position?->name ?? '-') }}</td>
                         <td></td>
                     </tr>
                 @empty

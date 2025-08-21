@@ -34,6 +34,7 @@ class User extends Authenticatable
         'address',
         'unit_id',
         'position_id',
+        'position_desc',
         'rank_id',
         'npwp',
         'bank_name',

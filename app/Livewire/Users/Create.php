@@ -26,6 +26,7 @@ class Create extends Component
     public $address = '';
     public $unit_id = '';
     public $position_id = '';
+    public $position_desc = '';
     public $rank_id = '';
     public $npwp = '';
     public $bank_name = '';
@@ -73,6 +74,7 @@ class Create extends Component
             'address' => 'nullable|string',
             'unit_id' => 'nullable|exists:units,id',
             'position_id' => 'nullable|exists:positions,id',
+            'position_desc' => 'nullable|string|max:255',
             'rank_id' => 'nullable|exists:ranks,id',
             'npwp' => 'nullable|string|max:25',
             'bank_name' => 'nullable|string|max:255',

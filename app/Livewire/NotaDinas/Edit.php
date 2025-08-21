@@ -43,7 +43,7 @@ class Edit extends Component
     public $end_date = '';
     #[Rule('required|array|min:1')]
     public $participants = [];
-    #[Rule('required|in:DRAFT,SUBMITTED,APPROVED,REJECTED')]
+    #[Rule('required|in:DRAFT,APPROVED')]
     public $status = 'DRAFT';
     public $sifat = '';
     public $tembusan = '';
@@ -52,6 +52,37 @@ class Edit extends Component
     public $number_manual_reason = '';
     public $manual_doc_no = '';
     public $overlapDetails = [];
+
+    // Livewire-only status toggle with confirmation
+    public $confirmingStatusChange = false;
+    public $targetStatus = null;
+
+    public function requestStatusChange(string $toStatus): void
+    {
+        if (!in_array($toStatus, ['DRAFT', 'APPROVED'], true)) {
+            return;
+        }
+        if ($toStatus === $this->status) {
+            return;
+        }
+        $this->targetStatus = $toStatus;
+        $this->confirmingStatusChange = true;
+    }
+
+    public function cancelStatusChange(): void
+    {
+        $this->confirmingStatusChange = false;
+        $this->targetStatus = null;
+    }
+
+    public function applyStatusChange(): void
+    {
+        if ($this->targetStatus && in_array($this->targetStatus, ['DRAFT', 'APPROVED'], true)) {
+            $this->status = $this->targetStatus;
+        }
+        $this->confirmingStatusChange = false;
+        $this->targetStatus = null;
+    }
 
     public function mount(NotaDinas $notaDinas)
     {
@@ -81,6 +112,19 @@ class Edit extends Component
         $this->validate();
         DB::beginTransaction();
         try {
+            // Validasi transisi status yang diizinkan
+            $allowedTransitions = [
+                'DRAFT' => ['APPROVED'],
+                'APPROVED' => ['DRAFT'],
+            ];
+            $currentStatus = $this->notaDinas->status;
+            $allowedNextStatuses = $allowedTransitions[$currentStatus] ?? [];
+            if ($this->status !== $currentStatus && !in_array($this->status, $allowedNextStatuses, true)) {
+                $this->addError('status', 'Transisi status tidak diizinkan.');
+                DB::rollBack();
+                return;
+            }
+
             $days_count = (\Carbon\Carbon::parse($this->start_date)->diffInDays(\Carbon\Carbon::parse($this->end_date))) + 1;
             $doc_no = $this->notaDinas->doc_no;
             $number_is_manual = false;
@@ -128,6 +172,7 @@ class Edit extends Component
             if (!empty($overlapDetails)) {
                 $this->dispatch('showOverlapAlert', $overlapDetails);
                 $this->addError('participants', 'Terdapat pegawai yang tanggalnya beririsan dengan Nota Dinas lain.');
+                DB::rollBack();
                 return;
             } else {
                 $this->overlapDetails = [];
@@ -164,7 +209,7 @@ class Edit extends Component
             }
             DB::commit();
             session()->flash('message', 'Nota Dinas berhasil diperbarui.');
-            return $this->redirect(route('nota-dinas.index'));
+            return $this->redirect(route('nota-dinas.show', $this->notaDinas->id));
         } catch (\Exception $e) {
             DB::rollBack();
             $this->addError('general', 'Gagal menyimpan Nota Dinas: ' . $e->getMessage());

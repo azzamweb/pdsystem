@@ -8,6 +8,19 @@
         <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Detail Nota Dinas</h1>
                             <p class="text-gray-600 dark:text-gray-400">Nomor: {{ $notaDinas->doc_no }}</p>
+            <div class="mt-1">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                    @if($notaDinas->status === 'DRAFT')
+                        bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300
+                    @elseif($notaDinas->status === 'APPROVED')
+                        bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+                    @else
+                        bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-200
+                    @endif
+                ">
+                    Status: {{ $notaDinas->status }}
+                </span>
+            </div>
         </div>
         <div class="flex items-center gap-3">
             <a href="{{ route('nota-dinas.edit', $notaDinas) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center gap-2">
@@ -151,7 +164,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($notaDinas->participants as $i => $p)
+                    @forelse($participantsOrdered as $i => $p)
                         <tr>
                             <td class="border px-2 py-1 text-center">{{ $i+1 }}</td>
                             <td class="border px-2 py-1">
@@ -159,7 +172,7 @@
                                 {{ $p->user->rank?->name ?? '-' }} ({{ $p->user->rank?->code ?? '-' }})<br>
                                 NIP {{ $p->user->nip ?? '-' }}
                             </td>
-                            <td class="border px-2 py-1">{{ $p->user->position?->name ?? '-' }}</td>
+                            <td class="border px-2 py-1">{{ $p->user->position_desc ?: ($p->user->position?->name ?? '-') }}</td>
                             <td class="border px-2 py-1"></td>
                         </tr>
                     @empty
@@ -186,70 +199,23 @@
         </div>
     </div>
     <!-- Section Aksi Dokumen: Perubahan Status & SPT/SPPD -->
-    <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6 no-print">
-        <!-- Form Perubahan Status Nota Dinas -->
-        <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+    <div class="mt-8 grid grid-cols-1 gap-6 no-print">
+        <!-- Perubahan Status diarahkan ke halaman Edit -->
+        {{-- <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 border border-gray-200 dark:border-gray-700">
             <h3 class="text-lg font-semibold mb-4 flex items-center">
                 <svg class="w-5 h-5 mr-2 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                 </svg>
                 Perubahan Status Nota Dinas
             </h3>
-            <form wire:submit="updateStatus" class="space-y-4">
-                <div>
-                    <div class="mb-2">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                            @if($notaDinas->status === 'DRAFT')
-                                bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300
-                            @elseif($notaDinas->status === 'SUBMITTED')
-                                bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200
-                            @elseif($notaDinas->status === 'APPROVED')
-                                bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
-                            @elseif($notaDinas->status === 'REJECTED')
-                                bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200
-                            @else
-                                bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-200
-                            @endif
-                        ">
-                            Status: {{ $notaDinas->status }}
-                        </span>
-                    </div>
-                    <label for="new_status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status Baru</label>
-                    <select wire:model="new_status" id="new_status" class="block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                        <option value="">Pilih status...</option>
-                        @if($notaDinas->status === 'DRAFT')
-                            <option value="SUBMITTED">SUBMITTED - Ajukan untuk review</option>
-                        @elseif($notaDinas->status === 'SUBMITTED')
-                            <option value="APPROVED">APPROVED - Setujui dokumen</option>
-                            <option value="REJECTED">REJECTED - Tolak dokumen</option>
-                        @elseif($notaDinas->status === 'APPROVED')
-                            <option value="DRAFT">DRAFT - Kembalikan ke draft</option>
-                        @elseif($notaDinas->status === 'REJECTED')
-                            <option value="DRAFT">DRAFT - Kembalikan ke draft</option>
-                            <option value="SUBMITTED">SUBMITTED - Ajukan ulang</option>
-                        @endif
-                    </select>
-                    @error('new_status') <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
-                </div>
-                <div>
-                    <label for="status_notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Catatan Status (Opsional)</label>
-                    <textarea wire:model="status_notes" id="status_notes" rows="2" placeholder="Tambahkan catatan untuk perubahan status..." class="block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"></textarea>
-                    @error('status_notes') <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
-                </div>
-                <div class="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-                    <button type="button" wire:click="resetStatusForm" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600">
-                        Reset
-                    </button>
-                    <button type="submit" wire:loading.attr="disabled" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 disabled:opacity-25">
-                        <svg wire:loading wire:target="updateStatus" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Update Status
-                    </button>
-                </div>
-            </form>
-        </div>
+            <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">Perubahan status sekarang dilakukan melalui halaman Edit agar lebih konsisten dan aman.</p>
+            <a href="{{ route('nota-dinas.edit', $notaDinas) }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+                Ubah Status di Halaman Edit
+            </a>
+        </div> --}}
         <!-- Tombol SPT/SPPD -->
         <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center">
             <h3 class="text-lg font-semibold mb-4 flex items-center">

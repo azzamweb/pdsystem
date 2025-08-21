@@ -28,6 +28,7 @@ class Edit extends Component
     public $address = '';
     public $unit_id = '';
     public $position_id = '';
+    public $position_desc = '';
     public $rank_id = '';
     public $npwp = '';
     public $bank_name = '';
@@ -75,6 +76,7 @@ class Edit extends Component
         $this->address = $user->address;
         $this->unit_id = $user->unit_id;
         $this->position_id = $user->position_id;
+        $this->position_desc = $user->position_desc;
         $this->rank_id = $user->rank_id;
 
         $this->npwp = $user->npwp;
@@ -103,6 +105,7 @@ class Edit extends Component
             'address' => 'nullable|string',
             'unit_id' => 'nullable|exists:units,id',
             'position_id' => 'nullable|exists:positions,id',
+            'position_desc' => 'nullable|string|max:255',
             'rank_id' => 'nullable|exists:ranks,id',
 
             'npwp' => 'nullable|string|max:25',

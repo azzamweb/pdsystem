@@ -69,7 +69,31 @@
     <!-- Form -->
     <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
         <form wire:submit="save" class="space-y-6 p-6">
-            <div class="grid grid-cols-1>
+            <!-- Perubahan Status -->
+            <div class="rounded-md border border-gray-200 dark:border-gray-700 p-4">
+                <h3 class="text-sm font-semibold mb-3 flex items-center">
+                    <svg class="w-4 h-4 mr-2 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    Perubahan Status Nota Dinas
+                </h3>
+                <div class="flex items-center gap-3 mb-3">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                        @if($notaDinas->status === 'DRAFT') bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300
+                        @elseif($notaDinas->status === 'APPROVED') bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+                        @else bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-200 @endif">
+                        Status saat ini: {{ $notaDinas->status }}
+                    </span>
+                </div>
+                <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Ubah status</label>
+                <select id="status" wire:model="status" class="block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    <option value="DRAFT">DRAFT</option>
+                    <option value="APPROVED">APPROVED</option>
+                </select>
+                @error('status')<p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>@enderror
+            </div>
+
+            <div class="grid grid-cols-1  gap-6">
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nomor Nota Dinas</label>
                     <div class="flex items-center space-x-2 mt-1">

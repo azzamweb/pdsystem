@@ -46,7 +46,7 @@ class Create extends Component
     public $end_date = '';
     #[Rule('required|array|min:1')]
     public $participants = [];
-    #[Rule('required|in:DRAFT,SUBMITTED')]
+    #[Rule('required|in:DRAFT,APPROVED')]
     public $status = 'DRAFT';
     public $tembusan = '';
     public $notes = '';

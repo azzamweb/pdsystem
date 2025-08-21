@@ -25,16 +25,14 @@ class Show extends Component
     public function updateStatus()
     {
         $this->validate([
-            'new_status' => 'required|in:DRAFT,SUBMITTED,APPROVED,REJECTED',
+            'new_status' => 'required|in:DRAFT,APPROVED',
             'status_notes' => 'nullable|string|max:500',
         ]);
 
         // Validasi transisi status yang diizinkan
         $allowedTransitions = [
-            'DRAFT' => ['SUBMITTED'],
-            'SUBMITTED' => ['APPROVED', 'REJECTED'],
+            'DRAFT' => ['APPROVED'],
             'APPROVED' => ['DRAFT'],
-            'REJECTED' => ['DRAFT', 'SUBMITTED'],
         ];
 
         $currentStatus = $this->notaDinas->status;
@@ -54,16 +52,10 @@ class Show extends Component
                 'status' => $this->new_status,
             ]);
 
-            // Log perubahan status (opsional - bisa ditambahkan ke tabel audit)
-            // StatusChangeLog::create([
-            //     'nota_dinas_id' => $this->notaDinas->id,
-            //     'old_status' => $oldStatus,
-            //     'new_status' => $this->new_status,
-            //     'changed_by' => auth()->id(),
-            //     'notes' => $this->status_notes,
-            // ]);
-
             DB::commit();
+
+            // Update properti lokal agar UI langsung berubah
+            $this->notaDinas->status = $this->new_status;
 
             // Reset form
             $this->resetStatusForm();
@@ -76,10 +68,10 @@ class Show extends Component
                 'DRAFT' => 'Nota Dinas dikembalikan ke status draft.',
             ];
 
-            session()->flash('message', $statusMessages[$this->new_status] ?? 'Status berhasil diperbarui.');
+            session()->flash('message', $statusMessages[$this->notaDinas->status] ?? 'Status berhasil diperbarui.');
             
-            // Refresh data
-            $this->notaDinas->refresh();
+            // Redirect untuk sinkronisasi penuh
+            return redirect()->route('nota-dinas.show', $this->notaDinas->id);
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -96,9 +88,25 @@ class Show extends Component
 
     public function render()
     {
-        $this->notaDinas->load(['participants.user', 'requestingUnit', 'destinationCity', 'toUser', 'fromUser', 'spt']);
+        $this->notaDinas->load(['participants.user.rank', 'participants.user.position.echelon', 'requestingUnit', 'destinationCity', 'toUser', 'fromUser', 'spt']);
+
+        $participantsOrdered = $this->notaDinas->participants->sort(function ($a, $b) {
+            $ea = $a->user?->position?->echelon?->id ?? 999999;
+            $eb = $b->user?->position?->echelon?->id ?? 999999;
+            if ($ea !== $eb) return $ea <=> $eb; // ASC
+
+            $ra = $a->user?->rank?->id ?? 0;
+            $rb = $b->user?->rank?->id ?? 0;
+            if ($ra !== $rb) return $rb <=> $ra; // DESC (lebih tinggi dulu)
+
+            $na = (string)($a->user?->nip ?? '');
+            $nb = (string)($b->user?->nip ?? '');
+            return strcmp($na, $nb); // ASC
+        })->values();
+
         return view('livewire.nota-dinas.show', [
-            'notaDinas' => $this->notaDinas
+            'notaDinas' => $this->notaDinas,
+            'participantsOrdered' => $participantsOrdered,
         ]);
     }
 }
