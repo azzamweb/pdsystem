@@ -237,6 +237,16 @@ Route::middleware('auth')->group(function () {
     Route::get('spt/create', SptCreate::class)->name('spt.create');
     Route::get('spt/{spt}/edit', SptEdit::class)->name('spt.edit');
     Route::get('spt/{spt}', SptShow::class)->name('spt.show');
+    // SPT Delete (fallback non-Livewire)
+    Route::post('spt/{spt}/delete', function(\App\Models\Spt $spt) {
+        $notaDinasId = $spt->nota_dinas_id;
+        try {
+            $spt->delete();
+            return redirect()->route('nota-dinas.show', $notaDinasId)->with('message', 'SPT berhasil dihapus.');
+        } catch (\Throwable $e) {
+            return redirect()->route('nota-dinas.show', $notaDinasId)->with('error', 'Gagal menghapus SPT: '.$e->getMessage());
+        }
+    })->name('spt.destroy');
 
     // SPPD CRUD
     Route::get('sppd', SppdIndex::class)->name('sppd.index');

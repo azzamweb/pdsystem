@@ -2,12 +2,213 @@
 
 namespace App\Livewire\Sppd;
 
+use App\Models\Sppd;
+use App\Models\Spt;
+use App\Models\User;
+use App\Models\OrgPlace;
+use App\Models\City;
+use App\Models\TransportMode;
+use App\Models\DocNumberFormat;
+use App\Services\DocumentNumberService;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Rule;
 
+#[Layout('components.layouts.app')]
 class Create extends Component
 {
+    public $spt_id = null;
+    public $spt = null;
+
+    #[Rule('required|date')]
+    public $sppd_date = '';
+
+    // Bidang yang akan diterapkan ke semua SPPD yang dibuat dari SPT ini
+    // Dapat memilih lebih dari satu moda transportasi
+    public $transport_mode_ids = [];
+    #[Rule('required|exists:org_places,id')]
+    public $origin_place_id = '';
+    // Kota tujuan tidak ditampilkan di form; diisi otomatis dari Nota Dinas
+    public $destination_city_id = '';
+    #[Rule('required|in:LUAR_DAERAH,DALAM_DAERAH_GT8H,DALAM_DAERAH_LE8H,DIKLAT')]
+    public $trip_type = 'LUAR_DAERAH';
+
+    // Gunakan tanggal dari Nota Dinas (jika ada) untuk hari
+    // Tanggal berangkat/kembali tidak ditampilkan di form; diisi otomatis dari Nota Dinas
+    public $start_date = '';
+    public $end_date = '';
+    #[Rule('required|integer|min:1')]
+    public $days_count = 1;
+
+    // Sumber dana tidak ditampilkan di form (opsional)
+    public $funding_source = '';
+
+    // Peserta yang akan dibuatkan SPPD
+    #[Rule('required|array|min:1')]
+    public $selected_user_ids = [];
+
+    // Bantuan UI
+    public $participants = [];
+    public $format_string = null;
+    public $format_example = null;
+
+    public function mount($spt_id = null): void
+    {
+        $this->spt_id = $spt_id ?? request()->query('spt_id');
+        if (!$this->spt_id) {
+            session()->flash('error', 'SPT tidak ditemukan untuk pembuatan SPPD.');
+            $this->redirect(route('spt.index'));
+            return;
+        }
+
+        $this->spt = Spt::with(['notaDinas.participants.user', 'notaDinas.destinationCity'])
+            ->findOrFail($this->spt_id);
+
+        // Prefill nilai umum
+        $this->sppd_date = $this->spt->spt_date ?: now()->format('Y-m-d');
+        $this->start_date = $this->spt->notaDinas?->start_date ?: $this->sppd_date;
+        $this->end_date = $this->spt->notaDinas?->end_date ?: $this->sppd_date;
+        $this->days_count = (int)($this->spt->notaDinas?->days_count ?: 1);
+        $this->destination_city_id = $this->spt->notaDinas?->destination_city_id ?: '';
+
+        // Prefill peserta dari ND
+        $this->participants = $this->spt->notaDinas?->participants?->map(function ($p) {
+            return [
+                'id' => $p->user?->id,
+                'name' => $p->user?->fullNameWithTitles() ?? $p->user?->name,
+                'nip' => $p->user?->nip,
+            ];
+        })->filter(fn($x) => !empty($x['id']))->values()->all();
+        $this->selected_user_ids = collect($this->participants)->pluck('id')->all();
+
+        // Tampilkan format aktif SPPD untuk verifikasi cepat
+        $unitScopeId = $this->spt->notaDinas?->requesting_unit_id;
+        $fmt = DocNumberFormat::where('doc_type', 'SPPD')
+            ->where(function($q) use ($unitScopeId) {
+                $q->where('unit_scope_id', $unitScopeId)->orWhereNull('unit_scope_id');
+            })
+            ->where('is_active', true)
+            ->orderByRaw('unit_scope_id is null')
+            ->first();
+        if ($fmt) {
+            $this->format_string = $fmt->format_string;
+            $date = $this->sppd_date ? \Carbon\Carbon::parse($this->sppd_date) : now();
+            $unitCode = null;
+            if ($unitScopeId) {
+                $unit = \App\Models\Unit::find($unitScopeId);
+                $unitCode = $unit ? ($unit->code ?? $unit->id) : $unitScopeId;
+            }
+            $replace = [
+                '{seq}' => str_pad('1', $fmt->padding, '0', STR_PAD_LEFT),
+                '{doc_code}' => $fmt->doc_code,
+                '{unit_code}' => $unitCode,
+                '{roman_month}' => \App\Services\DocumentNumberService::romanMonth($date->month),
+                '{month}' => $date->format('m'),
+                '{year}' => $date->format('Y'),
+            ];
+            $example = $fmt->format_string;
+            foreach ($replace as $k => $v) { $example = str_replace($k, $v, $example); }
+            $this->format_example = $example;
+        }
+    }
+
+    public function toggleSelectAll(bool $checked): void
+    {
+        $this->selected_user_ids = $checked ? collect($this->participants)->pluck('id')->all() : [];
+    }
+
+    public function save(): mixed
+    {
+        $this->validate([
+            'sppd_date' => 'required|date',
+            'origin_place_id' => 'required|exists:org_places,id',
+            'trip_type' => 'required|in:LUAR_DAERAH,DALAM_DAERAH_GT8H,DALAM_DAERAH_LE8H,DIKLAT',
+            'selected_user_ids' => 'required|array|min:1',
+            'selected_user_ids.*' => 'exists:users,id',
+            'transport_mode_ids' => 'required|array|min:1',
+            'transport_mode_ids.*' => 'exists:transport_modes,id',
+        ]);
+
+        if (!$this->spt) {
+            session()->flash('error', 'SPT tidak ditemukan.');
+            return null;
+        }
+
+        $unitScopeId = $this->spt->notaDinas?->requesting_unit_id;
+        if (!$unitScopeId) {
+            session()->flash('error', 'Unit pada Nota Dinas tidak ditemukan. Pastikan field unit terisi.');
+            return null;
+        }
+
+        // Wajib: tujuan harus ada dari ND (tidak ditampilkan di form)
+        if (!$this->destination_city_id) {
+            $this->destination_city_id = $this->spt->notaDinas?->destination_city_id;
+        }
+        if (!$this->destination_city_id) {
+            session()->flash('error', 'Kota tujuan pada Nota Dinas tidak ditemukan.');
+            return null;
+        }
+
+        // Ambil satu moda utama untuk disimpan pada kolom yang tersedia
+        $primaryTransportModeId = is_array($this->transport_mode_ids) && count($this->transport_mode_ids) > 0
+            ? $this->transport_mode_ids[0]
+            : null;
+
+        $createdCount = 0;
+        $failMessages = [];
+        foreach ($this->selected_user_ids as $userId) {
+            try {
+                $gen = DocumentNumberService::generate('SPPD', $unitScopeId, $this->sppd_date ?: now(), [
+                    'spt_id' => $this->spt->id,
+                    'user_id' => $userId,
+                ], auth()->id());
+
+                Sppd::create([
+                    'doc_no' => $gen['number'],
+                    'number_is_manual' => false,
+                    'number_manual_reason' => null,
+                    'number_format_id' => $gen['format']?->id,
+                    'number_sequence_id' => $gen['sequence']?->id,
+                    'number_scope_unit_id' => $unitScopeId,
+                    'sppd_date' => $this->sppd_date,
+                    'spt_id' => $this->spt->id,
+                    'user_id' => $userId,
+                    'origin_place_id' => $this->origin_place_id,
+                    'destination_city_id' => $this->destination_city_id,
+                    'transport_mode_id' => $primaryTransportModeId,
+                    'trip_type' => $this->trip_type,
+                    'start_date' => $this->start_date,
+                    'end_date' => $this->end_date,
+                    'days_count' => $this->days_count,
+                    'funding_source' => $this->funding_source,
+                    'status' => 'DRAFT',
+                ]);
+                $createdCount++;
+            } catch (\Throwable $e) {
+                // lanjut ke user berikutnya, catat error minimal
+                $failMessages[] = $e->getMessage();
+            }
+        }
+
+        if ($createdCount > 0) {
+            session()->flash('message', 'SPPD berhasil dibuat untuk '.$createdCount.' pegawai.');
+            return $this->redirect(route('spt.show', $this->spt));
+        }
+
+        $msg = 'Gagal membuat SPPD: tidak ada dokumen yang berhasil dibuat.';
+        if (!empty($failMessages)) {
+            $msg .= ' Alasan pertama: ' . $failMessages[0];
+        }
+        session()->flash('error', $msg);
+        return null;
+    }
+
     public function render()
     {
-        return view('livewire.sppd.create');
+        return view('livewire.sppd.create', [
+            'transportModes' => TransportMode::orderBy('name')->get(),
+            'orgPlaces' => OrgPlace::orderBy('name')->get(),
+        ]);
     }
 }

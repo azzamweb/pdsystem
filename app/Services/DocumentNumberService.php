@@ -21,83 +21,83 @@ class DocumentNumberService
      */
     public static function generate($docType, $unitScopeId = null, $date = null, $meta = [], $userId = null)
     {
-        $date = $date ? Carbon::parse($date) : now();
-        // 1. Cari format aktif
-        $format = DocNumberFormat::where('doc_type', $docType)
-            ->where(function($q) use ($unitScopeId) {
-                $q->where('unit_scope_id', $unitScopeId)->orWhereNull('unit_scope_id');
-            })
-            ->where('is_active', true)
-            ->orderByRaw('unit_scope_id is null') // prioritas: scope > global
-            ->first();
-        if (!$format) {
-            throw new \Exception('Format penomoran tidak ditemukan untuk tipe dokumen ini.');
-        }
-        // 2. Tentukan scope sequence
-        $year = $date->year;
-        $month = $date->month;
-        $seqQuery = NumberSequence::where('doc_type', $docType)
-            ->where('unit_scope_id', $unitScopeId);
-        if ($format->reset_policy === 'YEARLY' || $format->reset_policy === 'MONTHLY') {
-            $seqQuery->where('year_scope', $year);
-        } else {
-            $seqQuery->whereNull('year_scope');
-        }
-        if ($format->reset_policy === 'MONTHLY') {
-            $seqQuery->where('month_scope', $month);
-        } else {
-            $seqQuery->whereNull('month_scope');
-        }
-        // 3. Ambil atau buat sequence
-        $sequence = $seqQuery->lockForUpdate()->first();
-        if (!$sequence) {
-            $sequence = NumberSequence::create([
-                'doc_type' => $docType,
-                'unit_scope_id' => $unitScopeId,
-                'year_scope' => $format->reset_policy === 'YEARLY' || $format->reset_policy === 'MONTHLY' ? $year : null,
-                'month_scope' => $format->reset_policy === 'MONTHLY' ? $month : null,
-                'current_value' => 1,
+        return DB::transaction(function () use ($docType, $unitScopeId, $date, $meta, $userId) {
+            $date = $date ? Carbon::parse($date) : now();
+            // 1. Cari format aktif
+            $format = DocNumberFormat::where('doc_type', $docType)
+                ->where(function($q) use ($unitScopeId) {
+                    $q->where('unit_scope_id', $unitScopeId)->orWhereNull('unit_scope_id');
+                })
+                ->where('is_active', true)
+                ->orderByRaw('unit_scope_id is null') // prioritas: scope > global
+                ->first();
+            if (!$format) {
+                throw new \Exception('Format penomoran tidak ditemukan untuk tipe dokumen ini.');
+            }
+            // 2. Tentukan scope sequence
+            $year = $date->year;
+            $month = $date->month;
+            $seqQuery = NumberSequence::where('doc_type', $docType)
+                ->where('unit_scope_id', $unitScopeId);
+            if ($format->reset_policy === 'YEARLY' || $format->reset_policy === 'MONTHLY') {
+                $seqQuery->where('year_scope', $year);
+            } else {
+                $seqQuery->whereNull('year_scope');
+            }
+            if ($format->reset_policy === 'MONTHLY') {
+                $seqQuery->where('month_scope', $month);
+            } else {
+                $seqQuery->whereNull('month_scope');
+            }
+            // 3. Ambil atau buat sequence (terkunci selama transaksi)
+            $sequence = $seqQuery->lockForUpdate()->first();
+            if (!$sequence) {
+                $sequence = NumberSequence::create([
+                    'doc_type' => $docType,
+                    'unit_scope_id' => $unitScopeId,
+                    'year_scope' => $format->reset_policy === 'YEARLY' || $format->reset_policy === 'MONTHLY' ? $year : null,
+                    'month_scope' => $format->reset_policy === 'MONTHLY' ? $month : null,
+                    'current_value' => 0,
+                    'last_generated_at' => now(),
+                ]);
+            }
+            $seqValue = $sequence->current_value + 1;
+            // 4. Build nomor dan pastikan unik (global)
+            $maxRetry = 50;
+            $retry = 0;
+            do {
+                $number = self::buildNumber($format, $seqValue, $unitScopeId, $date);
+                $exists = DocumentNumber::where('number', $number)->lockForUpdate()->exists();
+                if ($exists) {
+                    $seqValue++;
+                    $retry++;
+                }
+            } while ($exists && $retry < $maxRetry);
+
+            // 5. Update sequence dan simpan audit trail dalam transaksi yang sama
+            $sequence->update([
+                'current_value' => $seqValue,
                 'last_generated_at' => now(),
             ]);
-            $seqValue = 1;
-        } else {
-            $seqValue = $sequence->current_value + 1;
-        }
-        // 4. Build nomor dan pastikan unik
-        $maxRetry = 10;
-        $retry = 0;
-        do {
-            $number = self::buildNumber($format, $seqValue, $unitScopeId, $date);
-            $exists = DocumentNumber::where('doc_type', $docType)->where('number', $number)->exists();
-            if ($exists) {
-                $seqValue++;
-                $retry++;
-            }
-        } while ($exists && $retry < $maxRetry);
-        // Update sequence ke nilai terakhir
-        $sequence->update([
-            'current_value' => $seqValue,
-            'last_generated_at' => now(),
-        ]);
-        // 5. Simpan audit trail
-        $audit = DocumentNumber::create([
-            'doc_type' => $docType,
-            'doc_id' => $meta['doc_id'] ?? null,
-            'number' => $number,
-            'generated_by_user_id' => $userId,
-            'is_manual' => false,
-            'old_number' => null,
-            'format_id' => $format->id,
-            'sequence_id' => $sequence->id,
-            'meta' => json_encode($meta),
-            'created_at' => now(),
-        ]);
-        return [
-            'number' => $number,
-            'sequence' => $sequence,
-            'format' => $format,
-            'audit' => $audit,
-        ];
+            $audit = DocumentNumber::create([
+                'doc_type' => $docType,
+                'doc_id' => $meta['doc_id'] ?? null,
+                'number' => $number,
+                'generated_by_user_id' => $userId,
+                'is_manual' => false,
+                'old_number' => null,
+                'format_id' => $format->id,
+                'sequence_id' => $sequence->id,
+                'meta' => json_encode($meta),
+                'created_at' => now(),
+            ]);
+            return [
+                'number' => $number,
+                'sequence' => $sequence,
+                'format' => $format,
+                'audit' => $audit,
+            ];
+        });
     }
 
     /**
@@ -146,7 +146,7 @@ class DocumentNumberService
         return $number;
     }
 
-    protected static function romanMonth($month)
+    public static function romanMonth($month)
     {
         $romans = [null, 'I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
         return $romans[(int)$month] ?? $month;

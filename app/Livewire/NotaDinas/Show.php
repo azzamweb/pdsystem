@@ -3,6 +3,7 @@
 namespace App\Livewire\NotaDinas;
 
 use App\Models\NotaDinas;
+use App\Models\Spt;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Rule;
@@ -20,6 +21,32 @@ class Show extends Component
     public function mount(NotaDinas $notaDinas)
     {
         $this->notaDinas = $notaDinas;
+    }
+
+    public function deleteSpt(int $sptId): void
+    {
+        $spt = Spt::where('id', $sptId)
+            ->where('nota_dinas_id', $this->notaDinas->id)
+            ->first();
+
+        if (!$spt) {
+            session()->flash('error', 'SPT tidak ditemukan atau tidak terkait dengan Nota Dinas ini.');
+            return;
+        }
+
+        try {
+            DB::transaction(function () use ($spt) {
+                // Soft delete SPT; peserta akan dirujuk dari Nota Dinas sehingga tidak perlu menghapus relasi anggota
+                $spt->delete();
+            });
+
+            // Redirect penuh agar state benar-benar segar dan terlihat oleh user
+            session()->flash('message', 'SPT berhasil dihapus.');
+            $this->redirect(route('nota-dinas.show', $this->notaDinas->id), navigate: true);
+        } catch (\Throwable $e) {
+            session()->flash('error', 'Gagal menghapus SPT. Pastikan tidak ada data terkait seperti SPPD atau Laporan Perjalanan yang masih terhubung. Detail: ' . $e->getMessage());
+            $this->dispatch('$refresh');
+        }
     }
 
     public function updateStatus()

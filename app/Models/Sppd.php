@@ -10,6 +10,9 @@ class Sppd extends Model
 {
     use HasFactory, SoftDeletes;
 
+    // Explicitly map to singular table name
+    protected $table = 'sppd';
+
     protected $fillable = [
         'doc_no', 'number_is_manual', 'number_manual_reason', 'number_format_id', 'number_sequence_id',
         'number_scope_unit_id', 'sppd_date', 'spt_id', 'user_id', 'origin_place_id', 'destination_city_id',

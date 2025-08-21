@@ -25,7 +25,7 @@ class Index extends Component
 
     public function render()
     {
-        $notaDinas = NotaDinas::with(['requestingUnit', 'destinationCity', 'participants.user'])
+        $notaDinas = NotaDinas::with(['requestingUnit', 'destinationCity', 'participants.user', 'spt'])
             ->when($this->search, function($q) {
                 $q->where('doc_no', 'like', '%'.$this->search.'%')
                   ->orWhereHas('requestingUnit', function($q2) { $q2->where('name', 'like', '%'.$this->search.'%'); })

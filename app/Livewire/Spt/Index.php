@@ -13,11 +13,12 @@ class Index extends Component
     use WithPagination;
 
     public $search = '';
+    // Status dihapus dari SPT; filter status tidak digunakan lagi
     public $statusFilter = '';
 
     protected $queryString = [
         'search' => ['except' => ''],
-        'statusFilter' => ['except' => ''],
+        // 'statusFilter' => ['except' => ''],
     ];
 
     public function updatingSearch()
@@ -25,14 +26,11 @@ class Index extends Component
         $this->resetPage();
     }
 
-    public function updatingStatusFilter()
-    {
-        $this->resetPage();
-    }
+    // public function updatingStatusFilter() { $this->resetPage(); }
 
     public function render()
     {
-        $sptList = Spt::with(['notaDinas', 'members.user'])
+        $spts = Spt::with(['notaDinas', 'signedByUser'])
             ->when($this->search, function($q) {
                 $q->where('doc_no', 'like', '%'.$this->search.'%')
                   ->orWhereHas('notaDinas', function($q2) { 
@@ -41,15 +39,13 @@ class Index extends Component
                   ->orWhere('spt_date', 'like', '%'.$this->search.'%')
                   ->orWhere('status', 'like', '%'.$this->search.'%');
             })
-            ->when($this->statusFilter, function($q) {
-                $q->where('status', $this->statusFilter);
-            })
-            ->orderByDesc('doc_no')
+            // status filter dihapus
             ->orderByDesc('spt_date')
+            ->orderByDesc('id')
             ->paginate(10);
 
         return view('livewire.spt.index', [
-            'sptList' => $sptList
+            'spts' => $spts
         ]);
     }
 }

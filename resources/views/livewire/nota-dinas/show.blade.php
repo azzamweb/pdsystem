@@ -151,7 +151,7 @@
                     <td style="vertical-align: top;" class="align-top pl-2"></td>
                 </tr>
             </table>
-        </div>
+            </div>
         <!-- Tabel Peserta -->
         <div class="overflow-x-auto mb-4">
             <table class="min-w-full border border-gray-400 text-sm">
@@ -212,62 +212,139 @@
             <a href="{{ route('nota-dinas.edit', $notaDinas) }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                </svg>
+                            </svg>
                 Ubah Status di Halaman Edit
             </a>
         </div> --}}
         <!-- Tombol SPT/SPPD -->
-        <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center">
+        <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 border border-gray-200 dark:border-gray-700">
             <h3 class="text-lg font-semibold mb-4 flex items-center">
                 <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
                 Aksi Dokumen SPT / SPPD
             </h3>
+            @if (session()->has('message'))
+                <div class="mb-3 rounded bg-green-50 text-green-800 px-3 py-2 text-sm">{{ session('message') }}</div>
+            @endif
+            @if (session()->has('error'))
+                <div class="mb-3 rounded bg-red-50 text-red-800 px-3 py-2 text-sm">{{ session('error') }}</div>
+            @endif
             @if($notaDinas->status === 'APPROVED')
-                <div class="flex flex-wrap gap-3 justify-center">
-                    <a href="{{ route('spt.create', ['nota_dinas_id' => $notaDinas->id]) }}"
-                       class="flex items-center gap-2 px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition"
-                    >
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                        </svg>
-                        <span>Buat SPT</span>
-                    </a>
-                    @if($notaDinas->spt)
-                        <a href="{{ route('spt.show', $notaDinas->spt) }}"
-                           class="flex items-center gap-2 px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 transition"
+                @php
+                    // Kumpulkan SPT yang terkait ND ini (relasi one-to-many ke depan, untuk antisipasi evolusi)
+                    $relatedSpts = \App\Models\Spt::where('nota_dinas_id', $notaDinas->id)->orderByDesc('spt_date')->get();
+                @endphp
+                @if($relatedSpts->count() > 0)
+                    <div class="mb-4 text-sm text-gray-600 dark:text-gray-300">SPT yang sudah dibuat untuk Nota Dinas ini:</div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-sm border border-gray-200 dark:border-gray-700">
+                            <thead class="bg-gray-50 dark:bg-gray-700/50">
+                                <tr>
+                                    <th class="text-left px-3 py-2">Nomor SPT</th>
+                                    <th class="text-left px-3 py-2">Tanggal</th>
+                                    <th class="text-left px-3 py-2">Penandatangan</th>
+                                    <th class="text-left px-3 py-2">Status</th>
+                                    <th class="text-right px-3 py-2">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                                @foreach($relatedSpts as $spt)
+                                    <tr wire:key="spt-row-{{ $spt->id }}">
+                                        <td class="px-3 py-2 font-mono">{{ $spt->doc_no }}</td>
+                                        <td class="px-3 py-2">{{ \Carbon\Carbon::parse($spt->spt_date)->format('d/m/Y') }}</td>
+                                        <td class="px-3 py-2">{{ $spt->signedByUser?->fullNameWithTitles() }}</td>
+                                        <td class="px-3 py-2 text-gray-500">-</td>
+                                        <td class="px-3 py-2 text-right whitespace-nowrap">
+                                            <a href="{{ route('spt.show', $spt) }}" class="inline-flex items-center justify-center w-8 h-8 rounded hover:bg-blue-50 mr-1" title="Detail" aria-label="Detail">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor"><path d="M10 3C5 3 1.73 7.11 1 10c.73 2.89 4 7 9 7s8.27-4.11 9-7c-.73-2.89-4-7-9-7Zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10Zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"/></svg>
+                                            </a>
+                                            <a href="{{ route('spt.edit', $spt) }}" class="inline-flex items-center justify-center w-8 h-8 rounded hover:bg-yellow-50 mr-1" title="Edit" aria-label="Edit">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 0 1 2.828 2.828l-8.5 8.5a2 2 0 0 1-.878.515l-3.086.772a.5.5 0 0 1-.606-.606l.772-3.086a2 2 0 0 1 .515-.878l8.5-8.5Z"/><path d="M12.172 5 15 7.828"/></svg>
+                                            </a>
+                                            <form action="{{ route('spt.destroy', $spt) }}" method="POST" class="inline" onsubmit="return confirm('Hapus SPT ini?')">
+                                                @csrf
+                                                <button type="submit" class="inline-flex items-center justify-center w-8 h-8 rounded hover:bg-red-50" title="Hapus" aria-label="Hapus">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-600" viewBox="0 0 20 20" fill="currentColor"><path d="M6 8a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0V9a1 1 0 0 1 1-1Zm4 0a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0V9a1 1 0 0 1 1-1Zm4 0a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0V9a1 1 0 0 1 1-1Z"/><path d="M4 6h12v2H4V6Zm3-3h6a1 1 0 0 1 1 1v1H6V4a1 1 0 0 1 1-1Z"/></svg>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    {{-- Daftar SPPD terpisah --}}
+                    @php
+                        $sptIds = $relatedSpts->pluck('id');
+                        $allSppds = \App\Models\Sppd::with('user')
+                            ->whereIn('spt_id', $sptIds)
+                            ->orderBy('sppd_date')
+                            ->orderBy('id')
+                            ->get();
+                    @endphp
+                    <div class="mt-6">
+                        <div class="mb-2 text-sm text-gray-600 dark:text-gray-300 font-semibold">SPPD yang sudah dibuat</div>
+                        @if($allSppds->count() > 0)
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full text-sm border border-gray-200 dark:border-gray-700">
+                                    <thead class="bg-gray-50 dark:bg-gray-700/50">
+                                        <tr>
+                                            <th class="text-left px-3 py-2">Nomor SPPD</th>
+                                            <th class="text-left px-3 py-2">Pegawai</th>
+                                            <th class="text-left px-3 py-2">Tanggal</th>
+                                            <th class="text-right px-3 py-2">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                                        @foreach($allSppds as $sp)
+                                            <tr>
+                                                <td class="px-3 py-2 font-mono">{{ $sp->doc_no }}</td>
+                                                <td class="px-3 py-2">{{ $sp->user?->fullNameWithTitles() ?? $sp->user?->name }}</td>
+                                                <td class="px-3 py-2">{{ \Carbon\Carbon::parse($sp->sppd_date)->format('d/m/Y') }}</td>
+                                                <td class="px-3 py-2 text-right whitespace-nowrap">
+                                                    <a href="{{ route('sppd.show', $sp) }}" class="inline-flex items-center justify-center w-8 h-8 rounded hover:bg-blue-50 mr-1" title="Detail" aria-label="Detail">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor"><path d="M10 3C5 3 1.73 7.11 1 10c.73 2.89 4 7 9 7s8.27-4.11 9-7c-.73-2.89-4-7-9-7Zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10Zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"/></svg>
+                                                    </a>
+                                                    <a href="{{ route('sppd.edit', $sp) }}" class="inline-flex items-center justify-center w-8 h-8 rounded hover:bg-yellow-50" title="Edit" aria-label="Edit">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 0 1 2.828 2.828l-8.5 8.5a2 2 0 0 1-.878.515l-3.086.772a.5.5 0 0 1-.606-.606l.772-3.086a2 2 0 0 1 .515-.878l8.5-8.5Z"/><path d="M12.172 5 15 7.828"/></svg>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <div class="flex flex-wrap gap-3 justify-center">
+                                <a href="{{ route('sppd.create', ['spt_id' => $relatedSpts->first()?->id]) }}"
+                                   class="flex items-center gap-2 px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                    </svg>
+                                    <span>Generate SPPD</span>
+                                </a>
+                            </div>
+                        @endif
+                    </div>
+                @else
+                    <div class="flex flex-wrap gap-3 justify-center">
+                        <a href="{{ route('spt.create', ['nota_dinas_id' => $notaDinas->id]) }}"
+                           class="flex items-center gap-2 px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition"
                         >
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                             </svg>
-                            <span>Lihat SPT</span>
+                            <span>Buat SPT</span>
                         </a>
-                    @endif
-                    @if($notaDinas->spt)
-                        <a href="{{ route('sppd.create', ['spt_id' => $notaDinas->spt->id]) }}"
-                           class="flex items-center gap-2 px-4 py-2 rounded-md bg-cyan-600 text-white hover:bg-cyan-700 transition"
-                        >
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                            </svg>
-                            <span>Buat SPPD</span>
-                        </a>
-                    @else
-                        <button class="flex items-center gap-2 px-4 py-2 rounded-md bg-cyan-400 text-white opacity-60 cursor-not-allowed" disabled>
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                            </svg>
-                            <span>Buat SPPD</span>
-                        </button>
+                                </div>
+                            @endif
+                                @else
+                <div class="text-gray-400 text-xs">Aksi SPT/SPPD hanya tersedia jika status Nota Dinas sudah APPROVED.</div>
                     @endif
                 </div>
-            @else
-                <div class="text-gray-400 text-xs">Aksi SPT/SPPD hanya tersedia jika status Nota Dinas sudah APPROVED.</div>
-            @endif
+            </div>
         </div>
-    </div>
-</div>
 
 <script>
 function printDocument() {

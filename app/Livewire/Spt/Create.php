@@ -6,6 +6,7 @@ use App\Models\Spt;
 use App\Models\NotaDinas;
 use App\Models\User;
 use App\Models\Unit;
+use App\Models\DocNumberFormat;
 use App\Services\DocumentNumberService;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
@@ -34,21 +35,35 @@ class Create extends Component
     public $maksud = '';
     #[Rule('required|array|min:1')]
     public $members = [];
-    #[Rule('required|in:DRAFT,SUBMITTED,APPROVED,REJECTED')]
-    public $status = 'DRAFT';
+    // Status dihapus dari SPT
+    public $status = null;
     public $notes = '';
     public $number_is_manual = false;
     public $number_manual_reason = '';
     public $manual_doc_no = '';
 
+    // Penandatangan
+    #[Rule('required|exists:users,id')]
+    public $signed_by_user_id = '';
+    #[Rule('nullable|string|max:255')]
+    public $assignment_title = '';
+
+    // Bantuan format penomoran manual
+    public $format_string = null;
+    public $format_example = null;
+
     public function mount($nota_dinas_id = null)
     {
-        $this->nota_dinas_id = $nota_dinas_id;
+        $this->nota_dinas_id = $nota_dinas_id ?? request()->query('nota_dinas_id');
+        if (!$this->nota_dinas_id) {
+            session()->flash('error', 'Nota Dinas tidak ditemukan untuk pembuatan SPT.');
+            $this->redirect(route('nota-dinas.index'));
+            return;
+        }
         
         if ($this->nota_dinas_id) {
             $this->notaDinas = NotaDinas::with(['participants.user', 'requestingUnit', 'toUser', 'fromUser'])->findOrFail($this->nota_dinas_id);
-            
-            // Pre-fill form dengan data dari Nota Dinas
+            // Ambil semua dari ND (tidak ditampilkan di form)
             $this->requesting_unit_id = $this->notaDinas->requesting_unit_id;
             $this->to_user_id = $this->notaDinas->to_user_id;
             $this->from_user_id = $this->notaDinas->from_user_id;
@@ -56,15 +71,78 @@ class Create extends Component
             $this->dasar = $this->notaDinas->dasar;
             $this->maksud = $this->notaDinas->maksud;
             $this->spt_date = now()->format('Y-m-d');
-            
-            // Pre-select members dari Nota Dinas participants
+            // Peserta bawaan ND
             $this->members = $this->notaDinas->participants->pluck('user_id')->toArray();
+            // Default penandatangan dari ND
+            $this->signed_by_user_id = $this->notaDinas->to_user_id ?? '';
+            // Set assignment title default dari penandatangan jika ada
+            $this->assignment_title = $this->guessAssignmentTitle();
         }
+
+        // Ambil format aktif SPT (scope global)
+        $fmt = DocNumberFormat::where('doc_type', 'SPT')
+            ->whereNull('unit_scope_id')
+            ->where('is_active', true)
+            ->first();
+        if ($fmt) {
+            $this->format_string = $fmt->format_string;
+            // Bangun contoh sederhana (seq 001, tanggal spt atau hari ini)
+            $date = $this->spt_date ? \Carbon\Carbon::parse($this->spt_date) : now();
+            $replace = [
+                '{seq}' => str_pad('1', $fmt->padding, '0', STR_PAD_LEFT),
+                '{doc_code}' => $fmt->doc_code,
+                '{unit_code}' => '',
+                '{roman_month}' => $this->romanMonth((int)$date->format('m')),
+                '{month}' => $date->format('m'),
+                '{year}' => $date->format('Y'),
+            ];
+            $example = $fmt->format_string;
+            foreach ($replace as $k => $v) { $example = str_replace($k, $v, $example); }
+            $this->format_example = $example;
+        }
+    }
+
+    public function updatedSignedByUserId(): void
+    {
+        // Jika assignment_title kosong, isi otomatis saat penandatangan berubah
+        if (!trim((string)$this->assignment_title)) {
+            $this->assignment_title = $this->guessAssignmentTitle();
+        }
+    }
+
+    public function updatedNumberIsManual($val): void
+    {
+        // Reset nilai manual saat toggle berubah untuk menghindari kebingungan
+        if (!$val) {
+            $this->manual_doc_no = '';
+            $this->number_manual_reason = '';
+        }
+    }
+
+    private function guessAssignmentTitle(): string
+    {
+        if (!$this->signed_by_user_id) return '';
+        $u = User::with(['position'])->find($this->signed_by_user_id);
+        if (!$u) return '';
+        return (string)($u->position_desc ?: ($u->position->name ?? ''));
+    }
+
+    protected function romanMonth(int $m): string
+    {
+        $romans = [null,'I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
+        return $romans[$m] ?? (string)$m;
     }
 
     public function save()
     {
-        $this->validate();
+        $this->validate([
+            'spt_date' => 'required|date',
+            'number_is_manual' => 'boolean',
+            'manual_doc_no' => 'nullable|required_if:number_is_manual,true|string',
+            'number_manual_reason' => 'nullable|required_if:number_is_manual,true|string',
+            'signed_by_user_id' => 'required|exists:users,id',
+            'assignment_title' => 'nullable|string|max:255',
+        ]);
         
         DB::beginTransaction();
         try {
@@ -72,6 +150,7 @@ class Create extends Component
             $doc_no = null;
             $number_is_manual = false;
             $number_manual_reason = null;
+            $format = null; $sequence = null;
             
             if ($this->number_is_manual && $this->manual_doc_no) {
                 $doc_no = $this->manual_doc_no;
@@ -82,36 +161,37 @@ class Create extends Component
                     'nota_dinas_id' => $this->nota_dinas_id,
                 ]);
             } else {
-                // Generate otomatis
-                $doc_no = DocumentNumberService::generate('SPT', auth()->id(), [
+                // Generate otomatis (scope global / bukan per unit)
+                $gen = DocumentNumberService::generate('SPT', null, $this->spt_date ?: now(), [
                     'nota_dinas_id' => $this->nota_dinas_id,
-                    'unit_scope_id' => $this->requesting_unit_id,
-                ]);
+                ], auth()->id());
+                $doc_no = $gen['number'];
+                $format = $gen['format'];
+                $sequence = $gen['sequence'];
             }
 
             // Create SPT
+            $assignmentTitle = trim((string)$this->assignment_title);
+            if ($assignmentTitle === '') {
+                $assignmentTitle = $this->guessAssignmentTitle();
+            }
+
             $spt = Spt::create([
                 'doc_no' => $doc_no,
                 'number_is_manual' => $number_is_manual,
                 'number_manual_reason' => $number_manual_reason,
+                'number_format_id' => $format->id ?? null,
+                'number_sequence_id' => $sequence->id ?? null,
+                'number_scope_unit_id' => null,
                 'nota_dinas_id' => $this->nota_dinas_id,
-                'requesting_unit_id' => $this->requesting_unit_id,
-                'to_user_id' => $this->to_user_id,
-                'from_user_id' => $this->from_user_id,
                 'spt_date' => $this->spt_date,
-                'hal' => $this->hal,
-                'dasar' => $this->dasar,
-                'maksud' => $this->maksud,
-                'status' => $this->status,
+                'signed_by_user_id' => $this->signed_by_user_id,
+                'assignment_title' => $assignmentTitle,
+                // status dihapus
                 'notes' => $this->notes,
             ]);
 
-            // Create SPT members
-            foreach ($this->members as $userId) {
-                $spt->members()->create([
-                    'user_id' => $userId,
-                ]);
-            }
+            // Tidak lagi membuat SPT members; peserta akan selalu dirujuk dari Nota Dinas
 
             DB::commit();
             
@@ -128,11 +208,14 @@ class Create extends Component
     public function render()
     {
         $units = Unit::orderBy('name')->get();
-        $users = User::orderBy('name')->get();
+        $signers = User::where('is_signer', true)->orderBy('name')->get();
         
         return view('livewire.spt.create', [
             'units' => $units,
-            'users' => $users,
+            'users' => collect(),
+            'nota_dinas_id' => $this->nota_dinas_id,
+            'notaDinas' => $this->notaDinas,
+            'signers' => $signers,
         ]);
     }
 }
