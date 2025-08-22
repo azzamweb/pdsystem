@@ -81,10 +81,16 @@ class MainPage extends Component
 
     public function mount()
     {
-        // Initialize with first Nota Dinas if available
-        $firstNd = NotaDinas::with(['spt.sppds'])->first();
-        if ($firstNd) {
-            $this->selectedNotaDinasId = $firstNd->id;
+        // Initialize with latest Nota Dinas if available
+        $latestNd = NotaDinas::with(['spt.sppds'])->latest('created_at')->first();
+        if ($latestNd) {
+            $this->selectedNotaDinasId = $latestNd->id;
+            // Dispatch events to load child components
+            $this->dispatch('loadSpts', $latestNd->id);
+            if ($latestNd->spt) {
+                $this->selectedSptId = $latestNd->spt->id;
+                $this->dispatch('loadSppds', $latestNd->spt->id);
+            }
         }
     }
 

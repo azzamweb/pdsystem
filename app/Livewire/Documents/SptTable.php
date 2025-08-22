@@ -12,6 +12,7 @@ class SptTable extends Component
     public $notaDinasId = null;
     public $selectedSptId = null;
     public $spts = [];
+    public $notaDinas = null;
 
     protected $listeners = [];
 
@@ -35,11 +36,12 @@ class SptTable extends Component
         $this->notaDinasId = $notaDinasId;
         $this->selectedSptId = null;
         $this->spts = [];
+        $this->notaDinas = null;
         
         if ($notaDinasId) {
-            $notaDinas = NotaDinas::with(['spt.sppds.user', 'spt.signedByUser'])->find($notaDinasId);
-            if ($notaDinas && $notaDinas->spt) {
-                $this->spts = [$notaDinas->spt];
+            $this->notaDinas = NotaDinas::with(['spt.sppds.user', 'spt.signedByUser'])->find($notaDinasId);
+            if ($this->notaDinas && $this->notaDinas->spt) {
+                $this->spts = [$this->notaDinas->spt];
                 // Don't auto-select SPT
             }
         }

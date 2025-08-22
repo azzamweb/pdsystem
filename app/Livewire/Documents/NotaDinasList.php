@@ -63,6 +63,16 @@ class NotaDinasList extends Component
         $this->resetPage();
     }
 
+    public function resetFilters()
+    {
+        $this->search = '';
+        $this->dateFrom = '';
+        $this->dateTo = '';
+        $this->unitFilter = '';
+        $this->statusFilter = '';
+        $this->resetPage();
+    }
+
     public function selectNotaDinas($notaDinasId)
     {
         $this->selectedNotaDinasId = $notaDinasId;
@@ -109,7 +119,7 @@ class NotaDinasList extends Component
 
     public function render()
     {
-        $query = NotaDinas::with(['spt', 'requestingUnit', 'toUser', 'fromUser'])
+        $query = NotaDinas::with(['spt', 'requestingUnit', 'toUser', 'fromUser', 'participants.user', 'destinationCity'])
             ->orderBy('created_at', 'desc');
 
         // Search
@@ -118,16 +128,26 @@ class NotaDinasList extends Component
                 $q->where('doc_no', 'like', '%' . $this->search . '%')
                   ->orWhere('hal', 'like', '%' . $this->search . '%')
                   ->orWhere('dasar', 'like', '%' . $this->search . '%')
-                  ->orWhere('maksud', 'like', '%' . $this->search . '%');
+                  ->orWhere('maksud', 'like', '%' . $this->search . '%')
+                  ->orWhereHas('requestingUnit', function($unitQuery) {
+                      $unitQuery->where('name', 'like', '%' . $this->search . '%');
+                  })
+                  ->orWhereHas('destinationCity', function($cityQuery) {
+                      $cityQuery->where('name', 'like', '%' . $this->search . '%');
+                  })
+                  ->orWhereHas('participants.user', function($userQuery) {
+                      $userQuery->where('name', 'like', '%' . $this->search . '%')
+                               ->orWhere('nip', 'like', '%' . $this->search . '%');
+                  });
             });
         }
 
         // Date range filter
         if ($this->dateFrom) {
-            $query->whereDate('created_at', '>=', $this->dateFrom);
+            $query->whereDate('nd_date', '>=', $this->dateFrom);
         }
         if ($this->dateTo) {
-            $query->whereDate('created_at', '<=', $this->dateTo);
+            $query->whereDate('nd_date', '<=', $this->dateTo);
         }
 
         // Unit filter
