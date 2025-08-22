@@ -169,7 +169,7 @@ class Create extends Component
             }
             DB::commit();
             session()->flash('message', 'Nota Dinas berhasil dibuat.');
-            return $this->redirect(route('nota-dinas.index'));
+            return $this->redirect(route('documents'));
         } catch (\Exception $e) {
             DB::rollBack();
             $this->addError('general', 'Gagal menyimpan Nota Dinas: ' . $e->getMessage());

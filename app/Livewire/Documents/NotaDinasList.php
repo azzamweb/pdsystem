@@ -1,0 +1,151 @@
+<?php
+
+namespace App\Livewire\Documents;
+
+use Livewire\Component;
+use Livewire\WithPagination;
+use Livewire\Attributes\On;
+use App\Models\NotaDinas;
+use App\Models\Unit;
+use Carbon\Carbon;
+
+class NotaDinasList extends Component
+{
+    use WithPagination;
+
+    public $search = '';
+    public $dateFrom = '';
+    public $dateTo = '';
+    public $unitFilter = '';
+    public $statusFilter = '';
+    
+    public $selectedNotaDinasId = null;
+
+    public function mount($selectedNotaDinasId = null)
+    {
+        $this->selectedNotaDinasId = $selectedNotaDinasId;
+    }
+
+    protected $queryString = [
+        'search' => ['except' => ''],
+        'dateFrom' => ['except' => ''],
+        'dateTo' => ['except' => ''],
+        'unitFilter' => ['except' => ''],
+        'statusFilter' => ['except' => ''],
+    ];
+
+    protected $listeners = [
+        'refreshList' => '$refresh'
+    ];
+
+    public function updatedSearch()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedDateFrom()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedDateTo()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedUnitFilter()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedStatusFilter()
+    {
+        $this->resetPage();
+    }
+
+    public function selectNotaDinas($notaDinasId)
+    {
+        $this->selectedNotaDinasId = $notaDinasId;
+        $this->dispatch('ndSelected', $notaDinasId);
+    }
+
+
+
+    public function updateStatus($notaDinasId, $newStatus)
+    {
+        $notaDinas = NotaDinas::find($notaDinasId);
+        if ($notaDinas && in_array($newStatus, ['DRAFT', 'APPROVED'])) {
+            $notaDinas->update(['status' => $newStatus]);
+            $this->dispatch('refreshAll');
+            session()->flash('message', 'Status berhasil diperbarui');
+        }
+    }
+
+    public function createSpt($notaDinasId)
+    {
+        $notaDinas = NotaDinas::find($notaDinasId);
+        if ($notaDinas && $notaDinas->status === 'APPROVED' && !$notaDinas->spt) {
+            return redirect()->route('spt.create', ['nota_dinas_id' => $notaDinasId]);
+        }
+        
+        session()->flash('error', 'Tidak dapat membuat SPT. Pastikan Nota Dinas sudah APPROVED dan belum memiliki SPT.');
+    }
+
+    public function deleteNotaDinas($notaDinasId)
+    {
+        $notaDinas = NotaDinas::find($notaDinasId);
+        if ($notaDinas) {
+            try {
+                $notaDinas->delete();
+                session()->flash('message', 'Nota Dinas berhasil dihapus');
+                $this->dispatch('refreshAll');
+            } catch (\Exception $e) {
+                session()->flash('error', 'Gagal menghapus Nota Dinas. Pastikan tidak ada data terkait.');
+            }
+        } else {
+            session()->flash('error', 'Nota Dinas tidak ditemukan');
+        }
+    }
+
+    public function render()
+    {
+        $query = NotaDinas::with(['spt', 'requestingUnit', 'toUser', 'fromUser'])
+            ->orderBy('created_at', 'desc');
+
+        // Search
+        if ($this->search) {
+            $query->where(function($q) {
+                $q->where('doc_no', 'like', '%' . $this->search . '%')
+                  ->orWhere('hal', 'like', '%' . $this->search . '%')
+                  ->orWhere('dasar', 'like', '%' . $this->search . '%')
+                  ->orWhere('maksud', 'like', '%' . $this->search . '%');
+            });
+        }
+
+        // Date range filter
+        if ($this->dateFrom) {
+            $query->whereDate('created_at', '>=', $this->dateFrom);
+        }
+        if ($this->dateTo) {
+            $query->whereDate('created_at', '<=', $this->dateTo);
+        }
+
+        // Unit filter
+        if ($this->unitFilter) {
+            $query->where('requesting_unit_id', $this->unitFilter);
+        }
+
+        // Status filter
+        if ($this->statusFilter) {
+            $query->where('status', $this->statusFilter);
+        }
+
+        $notaDinasList = $query->paginate(10);
+        $units = Unit::orderBy('name')->get();
+
+        return view('livewire.documents.nota-dinas-list', [
+            'notaDinasList' => $notaDinasList,
+            'units' => $units,
+        ]);
+    }
+}

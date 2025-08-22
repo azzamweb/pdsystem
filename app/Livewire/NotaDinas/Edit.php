@@ -209,7 +209,7 @@ class Edit extends Component
             }
             DB::commit();
             session()->flash('message', 'Nota Dinas berhasil diperbarui.');
-            return $this->redirect(route('nota-dinas.show', $this->notaDinas->id));
+            return $this->redirect(route('documents'));
         } catch (\Exception $e) {
             DB::rollBack();
             $this->addError('general', 'Gagal menyimpan Nota Dinas: ' . $e->getMessage());

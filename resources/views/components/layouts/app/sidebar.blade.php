@@ -20,6 +20,7 @@
 
                 <flux:navlist variant="outline">
                     <flux:navlist.group :heading="__('Dokumen')" class="grid">
+                        <flux:navlist.item icon="document-text" :href="route('documents')" :current="request()->routeIs('documents')" wire:navigate>{{ __('Perjadin / Dokumen') }}</flux:navlist.item>
                         <flux:navlist.item icon="document-text" :href="route('nota-dinas.index')" :current="request()->routeIs('nota-dinas.*')" wire:navigate>{{ __('Nota Dinas') }}</flux:navlist.item>
                         <flux:navlist.item icon="document-check" :href="route('spt.index')" :current="request()->routeIs('spt.*')" wire:navigate>{{ __('SPT') }}</flux:navlist.item>
                         <!-- Tambahkan SPPD, dst di bawahnya nanti -->

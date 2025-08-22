@@ -107,6 +107,11 @@ Route::middleware('auth')->group(function () {
     Route::get('verify-email', VerifyEmail::class)->name('verification.notice');
     Route::get('confirm-password', ConfirmPassword::class)->name('password.confirm');
     Route::view('dashboard', 'dashboard')->name('dashboard');
+    
+    // Main Documents Page
+    Route::get('documents', function () {
+        return view('documents.main-page');
+    })->name('documents');
 
     // User CRUD
     Route::get('users', UserIndex::class)->name('users.index');

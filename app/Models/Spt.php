@@ -24,4 +24,5 @@ class Spt extends Model
     public function destinationCity() { return $this->belongsTo(City::class, 'destination_city_id'); }
     // public function members() { return $this->hasMany(SptMember::class); }
     public function tripReport() { return $this->hasOne(TripReport::class); }
+    public function sppds() { return $this->hasMany(Sppd::class); }
 }
