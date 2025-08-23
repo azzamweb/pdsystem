@@ -142,7 +142,7 @@
                     <td style="width: 30px; vertical-align: top;" class="align-top">4.</td>
                     <td style="width: 150px; vertical-align: top;" class="font-semibold align-top">Lamanya Perjalanan</td>
                     <td style="width: 20px; vertical-align: top;" class="align-top">:</td>
-                    <td style="vertical-align: top;" class="align-top pl-2">{{ $notaDinas->days_count }} hari PP dari Tgl. {{ $notaDinas->start_date ? \Carbon\Carbon::parse($notaDinas->start_date)->locale('id')->translatedFormat('d F Y') : '-' }} s/d {{ $notaDinas->end_date ? \Carbon\Carbon::parse($notaDinas->end_date)->locale('id')->translatedFormat('d F Y') : '-' }}</td>
+                                            <td style="vertical-align: top;" class="align-top pl-2">{{ $notaDinas->start_date && $notaDinas->end_date ? \Carbon\Carbon::parse($notaDinas->start_date)->diffInDays(\Carbon\Carbon::parse($notaDinas->end_date)) + 1 : '-' }} hari PP dari Tgl. {{ $notaDinas->start_date ? \Carbon\Carbon::parse($notaDinas->start_date)->locale('id')->translatedFormat('d F Y') : '-' }} s/d {{ $notaDinas->end_date ? \Carbon\Carbon::parse($notaDinas->end_date)->locale('id')->translatedFormat('d F Y') : '-' }}</td>
                 </tr>
                 <tr>
                     <td style="width: 30px; vertical-align: top;" class="align-top">5.</td>
@@ -256,9 +256,9 @@
                                         <td class="px-3 py-2">{{ $spt->signedByUser?->fullNameWithTitles() }}</td>
                                         <td class="px-3 py-2 text-gray-500">-</td>
                                         <td class="px-3 py-2 text-right whitespace-nowrap">
-                                            <a href="{{ route('spt.show', $spt) }}" class="inline-flex items-center justify-center w-8 h-8 rounded hover:bg-blue-50 mr-1" title="Detail" aria-label="Detail">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor"><path d="M10 3C5 3 1.73 7.11 1 10c.73 2.89 4 7 9 7s8.27-4.11 9-7c-.73-2.89-4-7-9-7Zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10Zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"/></svg>
-                                            </a>
+                                                                                                <a href="{{ route('spt.pdf', $spt) }}" target="_blank" class="inline-flex items-center justify-center w-8 h-8 rounded hover:bg-green-50 mr-1" title="Lihat PDF" aria-label="Lihat PDF">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" viewBox="0 0 20 20" fill="currentColor"><path d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                                                    </a>
                                             <a href="{{ route('spt.edit', $spt) }}" class="inline-flex items-center justify-center w-8 h-8 rounded hover:bg-yellow-50 mr-1" title="Edit" aria-label="Edit">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 0 1 2.828 2.828l-8.5 8.5a2 2 0 0 1-.878.515l-3.086.772a.5.5 0 0 1-.606-.606l.772-3.086a2 2 0 0 1 .515-.878l8.5-8.5Z"/><path d="M12.172 5 15 7.828"/></svg>
                                             </a>
@@ -303,8 +303,8 @@
                                                 <td class="px-3 py-2">{{ $sp->user?->fullNameWithTitles() ?? $sp->user?->name }}</td>
                                                 <td class="px-3 py-2">{{ \Carbon\Carbon::parse($sp->sppd_date)->format('d/m/Y') }}</td>
                                                 <td class="px-3 py-2 text-right whitespace-nowrap">
-                                                    <a href="{{ route('sppd.show', $sp) }}" class="inline-flex items-center justify-center w-8 h-8 rounded hover:bg-blue-50 mr-1" title="Detail" aria-label="Detail">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor"><path d="M10 3C5 3 1.73 7.11 1 10c.73 2.89 4 7 9 7s8.27-4.11 9-7c-.73-2.89-4-7-9-7Zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10Zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"/></svg>
+                                                    <a href="{{ route('sppd.pdf', $sp) }}" target="_blank" class="inline-flex items-center justify-center w-8 h-8 rounded hover:bg-green-50 mr-1" title="Lihat PDF" aria-label="Lihat PDF">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" viewBox="0 0 20 20" fill="currentColor"><path d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                                                     </a>
                                                     <a href="{{ route('sppd.edit', $sp) }}" class="inline-flex items-center justify-center w-8 h-8 rounded hover:bg-yellow-50" title="Edit" aria-label="Edit">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 0 1 2.828 2.828l-8.5 8.5a2 2 0 0 1-.878.515l-3.086.772a.5.5 0 0 1-.606-.606l.772-3.086a2 2 0 0 1 .515-.878l8.5-8.5Z"/><path d="M12.172 5 15 7.828"/></svg>

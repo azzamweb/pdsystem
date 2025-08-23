@@ -88,7 +88,7 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-700 dark:text-gray-300">
                                 @if($nd->spt)
-                                    <a href="{{ route('spt.show', $nd->spt) }}" class="font-mono text-blue-600 hover:underline">{{ $nd->spt->doc_no }}</a>
+                                    <a href="{{ route('spt.pdf', $nd->spt) }}" target="_blank" class="font-mono text-green-600 hover:underline">{{ $nd->spt->doc_no }}</a>
                                 @else
                                     <span class="text-gray-400">-</span>
                                 @endif

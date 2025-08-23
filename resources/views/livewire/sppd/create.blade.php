@@ -6,7 +6,7 @@
                 <p class="text-sm text-gray-600 dark:text-gray-300">Berdasarkan SPT: <span class="font-mono">{{ $spt->doc_no }}</span></p>
             @endif
         </div>
-        <a href="{{ $spt ? route('spt.show', $spt) : route('spt.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700">Kembali</a>
+        <a href="{{ route('documents', ['nota_dinas_id' => $spt->nota_dinas_id, 'spt_id' => $spt->id]) }}" class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700">Kembali</a>
     </div>
 
     @if (session('error'))
@@ -100,7 +100,7 @@
             </div>
 
             <div class="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <a href="{{ $spt ? route('spt.show', $spt) : route('spt.index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600">Batal</a>
+                <a href="{{ route('documents', ['nota_dinas_id' => $spt->nota_dinas_id, 'spt_id' => $spt->id]) }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600">Batal</a>
                 <button type="submit" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Generate SPPD</button>
             </div>
         </form>

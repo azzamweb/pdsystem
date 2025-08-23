@@ -22,7 +22,13 @@ class Spt extends Model
     public function signedByUser() { return $this->belongsTo(User::class, 'signed_by_user_id'); }
     public function originPlace() { return $this->belongsTo(OrgPlace::class, 'origin_place_id'); }
     public function destinationCity() { return $this->belongsTo(City::class, 'destination_city_id'); }
-    // public function members() { return $this->hasMany(SptMember::class); }
+    public function members() { return $this->hasMany(SptMember::class); }
     public function tripReport() { return $this->hasOne(TripReport::class); }
     public function sppds() { return $this->hasMany(Sppd::class); }
+    
+    // Helper method untuk mendapatkan peserta dari Nota Dinas
+    public function getParticipants()
+    {
+        return $this->notaDinas?->participants ?? collect();
+    }
 }

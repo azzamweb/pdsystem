@@ -36,8 +36,6 @@ class Create extends Component
 
     // Gunakan tanggal dari Nota Dinas (jika ada) untuk hari
     // Tanggal berangkat/kembali tidak ditampilkan di form; diisi otomatis dari Nota Dinas
-    public $start_date = '';
-    public $end_date = '';
     #[Rule('required|integer|min:1')]
     public $days_count = 1;
 
@@ -67,9 +65,7 @@ class Create extends Component
 
         // Prefill nilai umum
         $this->sppd_date = $this->spt->spt_date ?: now()->format('Y-m-d');
-        $this->start_date = $this->spt->notaDinas?->start_date ?: $this->sppd_date;
-        $this->end_date = $this->spt->notaDinas?->end_date ?: $this->sppd_date;
-        $this->days_count = (int)($this->spt->notaDinas?->days_count ?: 1);
+
         $this->destination_city_id = $this->spt->notaDinas?->destination_city_id ?: '';
 
         // Get participants who don't have SPPD yet
@@ -160,10 +156,7 @@ class Create extends Component
             return null;
         }
 
-        // Ambil satu moda utama untuk disimpan pada kolom yang tersedia
-        $primaryTransportModeId = is_array($this->transport_mode_ids) && count($this->transport_mode_ids) > 0
-            ? $this->transport_mode_ids[0]
-            : null;
+
 
         $createdCount = 0;
         $failMessages = [];
@@ -174,7 +167,7 @@ class Create extends Component
                     'user_id' => $userId,
                 ], auth()->id());
 
-                Sppd::create([
+                $sppd = Sppd::create([
                     'doc_no' => $gen['number'],
                     'number_is_manual' => false,
                     'number_manual_reason' => null,
@@ -186,14 +179,14 @@ class Create extends Component
                     'user_id' => $userId,
                     'origin_place_id' => $this->origin_place_id,
                     'destination_city_id' => $this->destination_city_id,
-                    'transport_mode_id' => $primaryTransportModeId,
                     'trip_type' => $this->trip_type,
-                    'start_date' => $this->start_date,
-                    'end_date' => $this->end_date,
-                    'days_count' => $this->days_count,
                     'funding_source' => $this->funding_source,
-                    'status' => 'DRAFT',
                 ]);
+
+                // Attach transport modes
+                if (is_array($this->transport_mode_ids) && count($this->transport_mode_ids) > 0) {
+                    $sppd->transportModes()->attach($this->transport_mode_ids);
+                }
                 $createdCount++;
             } catch (\Throwable $e) {
                 // lanjut ke user berikutnya, catat error minimal
@@ -203,7 +196,11 @@ class Create extends Component
 
         if ($createdCount > 0) {
             session()->flash('message', 'SPPD berhasil dibuat untuk '.$createdCount.' pegawai.');
-            return $this->redirect(route('spt.show', $this->spt));
+            // Redirect ke halaman utama dengan state yang sama
+            return $this->redirect(route('documents', [
+                'nota_dinas_id' => $this->spt->nota_dinas_id,
+                'spt_id' => $this->spt->id
+            ]));
         }
 
         $msg = 'Gagal membuat SPPD: tidak ada dokumen yang berhasil dibuat.';

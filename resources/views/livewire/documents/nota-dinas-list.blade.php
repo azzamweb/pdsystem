@@ -220,16 +220,29 @@
                                         </a>
 
                                         <!-- Delete -->
-                                        <button 
-                                            wire:click.stop="deleteNotaDinas({{ $notaDinas->id }})"
-                                            onclick="return confirm('Apakah Anda yakin ingin menghapus Nota Dinas ini?')"
-                                            class="flex w-full items-center px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
-                                        >
-                                            <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                            </svg>
-                                            Hapus
-                                        </button>
+                                        @if($notaDinas->spt || ($notaDinas->participants && $notaDinas->participants->count() > 0))
+                                            <button 
+                                                disabled
+                                                class="flex w-full items-center px-4 py-2 text-sm text-gray-400 dark:text-gray-500 cursor-not-allowed"
+                                                title="Tidak dapat dihapus karena memiliki dokumen turunan"
+                                            >
+                                                <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                </svg>
+                                                Hapus
+                                            </button>
+                                        @else
+                                            <button 
+                                                wire:click="confirmDelete({{ $notaDinas->id }})"
+                                                wire:confirm="Apakah Anda yakin ingin menghapus Nota Dinas ini?"
+                                                class="flex w-full items-center px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                            >
+                                                <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                </svg>
+                                                Hapus
+                                            </button>
+                                        @endif
                                     </div>
                                 </div>
                             </div>

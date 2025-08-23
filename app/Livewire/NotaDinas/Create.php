@@ -122,7 +122,7 @@ class Create extends Component
             } else {
                 $this->overlapDetails = [];
             }
-            $days_count = (\Carbon\Carbon::parse($this->start_date)->diffInDays(\Carbon\Carbon::parse($this->end_date))) + 1;
+
             $doc_no = $this->doc_no;
             $number_is_manual = $this->number_is_manual;
             $number_manual_reason = $this->number_manual_reason;
@@ -155,7 +155,7 @@ class Create extends Component
                 'destination_city_id' => $this->destination_city_id,
                 'start_date' => $this->start_date,
                 'end_date' => $this->end_date,
-                'days_count' => $days_count,
+
                 'requesting_unit_id' => $this->requesting_unit_id,
                 'status' => $this->status,
                 'created_by' => auth()->id(),
@@ -169,7 +169,10 @@ class Create extends Component
             }
             DB::commit();
             session()->flash('message', 'Nota Dinas berhasil dibuat.');
-            return $this->redirect(route('documents'));
+            // Redirect ke halaman utama dengan state yang sama
+            return $this->redirect(route('documents', [
+                'nota_dinas_id' => $nd->id
+            ]));
         } catch (\Exception $e) {
             DB::rollBack();
             $this->addError('general', 'Gagal menyimpan Nota Dinas: ' . $e->getMessage());

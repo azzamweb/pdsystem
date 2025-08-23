@@ -196,7 +196,11 @@ class Create extends Component
             DB::commit();
             
             session()->flash('message', 'SPT berhasil dibuat.');
-            return $this->redirect(route('spt.show', $spt));
+            // Redirect ke halaman utama dengan state yang sama
+            return $this->redirect(route('documents', [
+                'nota_dinas_id' => $this->nota_dinas_id,
+                'spt_id' => $spt->id
+            ]));
             
         } catch (\Exception $e) {
             DB::rollBack();

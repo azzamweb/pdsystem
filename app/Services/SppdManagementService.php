@@ -94,9 +94,7 @@ class SppdManagementService
             'origin_place_id' => $notaDinas->requestingUnit->orgPlace->id ?? null,
             'destination_city_id' => $notaDinas->destination_city_id,
             'trip_type' => $this->determineTripType($notaDinas),
-            'start_date' => $notaDinas->start_date,
-            'end_date' => $notaDinas->end_date,
-            'days_count' => $notaDinas->days_count,
+
             'funding_source' => 'APBD', // Default value, can be made configurable
             'status' => 'ACTIVE',
             'number_format_id' => $docNumberResult['format']->id,

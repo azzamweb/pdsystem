@@ -101,10 +101,22 @@ class NotaDinasList extends Component
         session()->flash('error', 'Tidak dapat membuat SPT. Pastikan Nota Dinas sudah APPROVED dan belum memiliki SPT.');
     }
 
-    public function deleteNotaDinas($notaDinasId)
+    public function confirmDelete($notaDinasId)
     {
         $notaDinas = NotaDinas::find($notaDinasId);
         if ($notaDinas) {
+            // Cek apakah Nota Dinas sudah memiliki SPT
+            if ($notaDinas->spt) {
+                session()->flash('error', 'Nota Dinas tidak dapat dihapus karena sudah memiliki Surat Perintah Tugas (SPT). Hapus SPT terlebih dahulu.');
+                return;
+            }
+            
+            // Cek apakah ada peserta yang terkait
+            if ($notaDinas->participants && $notaDinas->participants->count() > 0) {
+                session()->flash('error', 'Nota Dinas tidak dapat dihapus karena masih memiliki data peserta. Hapus data peserta terlebih dahulu.');
+                return;
+            }
+            
             try {
                 $notaDinas->delete();
                 session()->flash('message', 'Nota Dinas berhasil dihapus');
@@ -115,6 +127,11 @@ class NotaDinasList extends Component
         } else {
             session()->flash('error', 'Nota Dinas tidak ditemukan');
         }
+    }
+
+    public function deleteNotaDinas($notaDinasId)
+    {
+        $this->confirmDelete($notaDinasId);
     }
 
     public function render()

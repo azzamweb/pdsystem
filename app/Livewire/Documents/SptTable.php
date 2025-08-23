@@ -68,6 +68,30 @@ class SptTable extends Component
         return redirect()->route('spt.create', ['nota_dinas_id' => $notaDinasId]);
     }
 
+    public function confirmDelete($sptId)
+    {
+        $spt = Spt::find($sptId);
+        if ($spt) {
+            // Cek apakah SPT sudah memiliki SPPD
+            if ($spt->sppds && $spt->sppds->count() > 0) {
+                session()->flash('error', 'SPT tidak dapat dihapus karena sudah memiliki Surat Perintah Perjalanan Dinas (SPPD). Hapus SPPD terlebih dahulu.');
+                return;
+            }
+            
+            try {
+                $spt->delete();
+                session()->flash('message', 'SPT berhasil dihapus');
+                $this->dispatch('refreshAll');
+                // Reload SPTs after deletion
+                $this->loadSpts($this->notaDinasId);
+            } catch (\Exception $e) {
+                session()->flash('error', 'Gagal menghapus SPT. Pastikan tidak ada data terkait.');
+            }
+        } else {
+            session()->flash('error', 'SPT tidak ditemukan');
+        }
+    }
+
     public function render()
     {
         return view('livewire.documents.spt-table');

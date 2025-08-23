@@ -90,6 +90,8 @@ use App\Livewire\Sppd\Create as SppdCreate;
 use App\Livewire\Sppd\Edit as SppdEdit;
 use App\Livewire\Sppd\Show as SppdShow;
 use App\Http\Controllers\NotaDinasController;
+use App\Http\Controllers\SptController;
+use App\Http\Controllers\SppdController;
 
 
 Route::get('/', function () {
@@ -241,7 +243,10 @@ Route::middleware('auth')->group(function () {
     Route::get('spt', SptIndex::class)->name('spt.index');
     Route::get('spt/create', SptCreate::class)->name('spt.create');
     Route::get('spt/{spt}/edit', SptEdit::class)->name('spt.edit');
-    Route::get('spt/{spt}', SptShow::class)->name('spt.show');
+    // Redirect show SPT langsung ke PDF
+    Route::get('spt/{spt}', function(\App\Models\Spt $spt) {
+        return redirect()->route('spt.pdf', $spt);
+    })->name('spt.show');
     // SPT Delete (fallback non-Livewire)
     Route::post('spt/{spt}/delete', function(\App\Models\Spt $spt) {
         $notaDinasId = $spt->nota_dinas_id;
@@ -257,11 +262,20 @@ Route::middleware('auth')->group(function () {
     Route::get('sppd', SppdIndex::class)->name('sppd.index');
     Route::get('sppd/create', SppdCreate::class)->name('sppd.create');
     Route::get('sppd/{sppd}/edit', SppdEdit::class)->name('sppd.edit');
-    Route::get('sppd/{sppd}', SppdShow::class)->name('sppd.show');
+    // Redirect show SPPD langsung ke PDF
+    Route::get('sppd/{sppd}', function(\App\Models\Sppd $sppd) {
+        return redirect()->route('sppd.pdf', $sppd);
+    })->name('sppd.show');
     
     // Nota Dinas PDF
     Route::get('nota-dinas/{notaDinas}/pdf', [NotaDinasController::class, 'generatePdf'])->name('nota-dinas.pdf');
-    Route::get('nota-dinas/{notaDinas}/pdf/download', [NotaDinasController::class, 'downloadPdf'])->name('nota-dinas.pdf-download');
+Route::get('nota-dinas/{notaDinas}/pdf/download', [NotaDinasController::class, 'downloadPdf'])->name('nota-dinas.pdf-download');
+
+Route::get('spt/{spt}/pdf', [SptController::class, 'generatePdf'])->name('spt.pdf');
+Route::get('spt/{spt}/pdf/download', [SptController::class, 'downloadPdf'])->name('spt.pdf-download');
+
+Route::get('sppd/{sppd}/pdf', [SppdController::class, 'generatePdf'])->name('sppd.pdf');
+Route::get('sppd/{sppd}/pdf/download', [SppdController::class, 'downloadPdf'])->name('sppd.pdf-download');
 });
 
 require __DIR__.'/auth.php';

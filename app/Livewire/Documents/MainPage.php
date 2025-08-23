@@ -81,15 +81,34 @@ class MainPage extends Component
 
     public function mount()
     {
-        // Initialize with latest Nota Dinas if available
-        $latestNd = NotaDinas::with(['spt.sppds'])->latest('created_at')->first();
-        if ($latestNd) {
-            $this->selectedNotaDinasId = $latestNd->id;
-            // Dispatch events to load child components
-            $this->dispatch('loadSpts', $latestNd->id);
-            if ($latestNd->spt) {
-                $this->selectedSptId = $latestNd->spt->id;
-                $this->dispatch('loadSppds', $latestNd->spt->id);
+        // Check for query parameters first
+        $notaDinasId = request()->query('nota_dinas_id');
+        $sptId = request()->query('spt_id');
+        $sppdId = request()->query('sppd_id');
+        
+        if ($notaDinasId) {
+            $this->selectedNotaDinasId = $notaDinasId;
+            $this->dispatch('loadSpts', $notaDinasId);
+            
+            if ($sptId) {
+                $this->selectedSptId = $sptId;
+                $this->dispatch('loadSppds', $sptId);
+                
+                if ($sppdId) {
+                    $this->selectedSppdId = $sppdId;
+                }
+            }
+        } else {
+            // Initialize with latest Nota Dinas if available
+            $latestNd = NotaDinas::with(['spt.sppds'])->latest('created_at')->first();
+            if ($latestNd) {
+                $this->selectedNotaDinasId = $latestNd->id;
+                // Dispatch events to load child components
+                $this->dispatch('loadSpts', $latestNd->id);
+                if ($latestNd->spt) {
+                    $this->selectedSptId = $latestNd->spt->id;
+                    $this->dispatch('loadSppds', $latestNd->spt->id);
+                }
             }
         }
     }

@@ -1,7 +1,7 @@
 <div class="space-y-6">
     <div class="flex items-center justify-between">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Edit Surat Perintah Tugas (SPT)</h1>
-        <a href="{{ route('spt.show', $this->spt) }}" class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700">Kembali</a>
+        <a href="{{ route('documents', ['nota_dinas_id' => $this->spt->nota_dinas_id, 'spt_id' => $this->spt->id]) }}" class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700">Kembali</a>
     </div>
 
     @if (session('message'))
@@ -68,7 +68,7 @@
             </div>
 
             <div class="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <a href="{{ route('spt.show', $this->spt) }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600">Batal</a>
+                <a href="{{ route('documents', ['nota_dinas_id' => $this->spt->nota_dinas_id, 'spt_id' => $this->spt->id]) }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600">Batal</a>
                 <button type="submit" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Simpan Perubahan</button>
             </div>
         </form>

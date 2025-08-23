@@ -35,7 +35,9 @@
                             <td class="px-3 py-2">{{ $spt->signedByUser?->fullNameWithTitles() }}</td>
                             <td class="px-3 py-2 text-gray-500">-</td>
                             <td class="px-3 py-2 text-right">
-                                <a href="{{ route('spt.show', $spt) }}" class="text-blue-600 hover:underline mr-3">Detail</a>
+                                <a href="{{ route('spt.pdf', $spt) }}" target="_blank" class="text-green-600 hover:underline mr-3">PDF</a>
+                                <a href="{{ route('spt.pdf', $spt) }}" target="_blank" class="text-green-600 hover:underline mr-3">PDF</a>
+                                <a href="{{ route('spt.pdf-download', $spt) }}" class="text-orange-600 hover:underline mr-3">Download</a>
                                 <a href="{{ route('spt.edit', $spt) }}" class="text-gray-600 hover:underline">Edit</a>
                             </td>
                         </tr>

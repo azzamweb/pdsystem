@@ -6,7 +6,7 @@
     <style>
         @page { size: A4; margin-right: 15mm; margin-left: 15mm; margin-top: 15mm; margin-bottom: 10mm; }
         @page:first { margin-right: 15mm; margin-left: 15mm; margin-top: 5mm; margin-bottom: 15mm; }
-        body { font-family: Arial, sans-serif; font-size: 12pt; line-height: 1.5; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; font-size: 11pt; line-height: 1.5; margin: 0; padding: 0; }
         p, h1, h2, h3, h4, h5, h6, table, th, td, li { line-height: 1; }
         .container { width: 100%; margin: 0; padding: 0; }
         .header { text-align: center; margin-bottom: 4mm; }
@@ -129,7 +129,7 @@
                 <td class="number">1.</td>
                 <td class="label">Dasar</td>
                 <td class="separator">:</td>
-                <td class="content">{{ $notaDinas->dasar }}</td>
+                <td class="content" style="text-align: justify; padding-bottom: 10px;">{{ $notaDinas->dasar }}</td>
             </tr>
             <tr>
                <td ></td>
@@ -138,7 +138,7 @@
                 <td class="number">2.</td>
                 <td class="label">Maksud</td>
                 <td class="separator">:</td>
-                <td class="content">{{ $notaDinas->maksud }}</td>
+                <td class="content"  style="text-align: justify; padding-bottom: 10px;">{{ $notaDinas->maksud }}</td>
             </tr>
             <tr>
                 <td ></td>
@@ -147,7 +147,7 @@
                 <td class="number">3.</td>
                 <td class="label">Tujuan</td>
                 <td class="separator">:</td>
-                <td class="content">{{ $notaDinas->destinationCity?->name ?? '-' }}</td>
+                <td class="content" >{{ $notaDinas->destinationCity?->name ?? '-' }}</td>
             </tr>
             <tr>
                 <td ></td>
@@ -156,7 +156,7 @@
                 <td class="number">4.</td>
                 <td class="label">Lamanya Perjalanan</td>
                 <td class="separator">:</td>
-                <td class="content">{{ $notaDinas->days_count }} hari PP dari Tgl. {{ $notaDinas->start_date ? \Carbon\Carbon::parse($notaDinas->start_date)->locale('id')->translatedFormat('d F Y') : '-' }} s/d {{ $notaDinas->end_date ? \Carbon\Carbon::parse($notaDinas->end_date)->locale('id')->translatedFormat('d F Y') : '-' }}</td>
+                <td class="content">{{ $notaDinas->start_date && $notaDinas->end_date ? \Carbon\Carbon::parse($notaDinas->start_date)->diffInDays(\Carbon\Carbon::parse($notaDinas->end_date)) + 1 : '-' }} hari PP dari Tgl. {{ $notaDinas->start_date ? \Carbon\Carbon::parse($notaDinas->start_date)->locale('id')->translatedFormat('d F Y') : '-' }} s/d {{ $notaDinas->end_date ? \Carbon\Carbon::parse($notaDinas->end_date)->locale('id')->translatedFormat('d F Y') : '-' }}</td>
             </tr>
             <tr>
                 <td ></td>

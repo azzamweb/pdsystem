@@ -125,7 +125,7 @@ class Edit extends Component
                 return;
             }
 
-            $days_count = (\Carbon\Carbon::parse($this->start_date)->diffInDays(\Carbon\Carbon::parse($this->end_date))) + 1;
+
             $doc_no = $this->notaDinas->doc_no;
             $number_is_manual = false;
             $number_manual_reason = null;
@@ -194,7 +194,7 @@ class Edit extends Component
                 'destination_city_id' => $this->destination_city_id,
                 'start_date' => $this->start_date,
                 'end_date' => $this->end_date,
-                'days_count' => $days_count,
+
                 'requesting_unit_id' => $this->requesting_unit_id,
                 'status' => $this->status,
                 'notes' => $this->notes,
@@ -209,7 +209,10 @@ class Edit extends Component
             }
             DB::commit();
             session()->flash('message', 'Nota Dinas berhasil diperbarui.');
-            return $this->redirect(route('documents'));
+            // Redirect ke halaman utama dengan state yang sama
+            return $this->redirect(route('documents', [
+                'nota_dinas_id' => $this->notaDinas->id
+            ]));
         } catch (\Exception $e) {
             DB::rollBack();
             $this->addError('general', 'Gagal menyimpan Nota Dinas: ' . $e->getMessage());

@@ -5,8 +5,10 @@
             <p class="text-gray-600 dark:text-gray-400">Nomor: <span class="font-mono">{{ $spt->doc_no }}</span></p>
         </div>
         <div class="flex items-center gap-2">
+            <a href="{{ route('spt.pdf', $spt) }}" target="_blank" class="px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700">Lihat PDF</a>
+            <a href="{{ route('spt.pdf-download', $spt) }}" class="px-4 py-2 rounded-md bg-orange-600 text-white hover:bg-orange-700">Download PDF</a>
             <a href="{{ route('spt.edit', $spt) }}" class="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700">Edit</a>
-            <a href="{{ $spt->nota_dinas_id ? route('nota-dinas.show', $spt->nota_dinas_id) : route('spt.index') }}" class="px-4 py-2 rounded-md bg-gray-600 text-white hover:bg-gray-700">Kembali</a>
+            <a href="{{ route('documents', ['nota_dinas_id' => $spt->nota_dinas_id, 'spt_id' => $spt->id]) }}" class="px-4 py-2 rounded-md bg-gray-600 text-white hover:bg-gray-700">Kembali</a>
         </div>
     </div>
 
@@ -102,7 +104,7 @@
                         </tr>
                         <tr>
                             <td style="width: 20px; vertical-align: top;">2.</td>
-                            <td style="vertical-align: top;">Lamanya perjalanan : {{ $spt->notaDinas?->days_count }} ({{ \Illuminate\Support\Str::of($spt->notaDinas?->days_count)->snake()->replace('_',' ') }}) hari PP dari Tgl. {{ $spt->notaDinas?->start_date ? \Carbon\Carbon::parse($spt->notaDinas->start_date)->locale('id')->translatedFormat('d F Y') : '-' }} s/d {{ $spt->notaDinas?->end_date ? \Carbon\Carbon::parse($spt->notaDinas->end_date)->locale('id')->translatedFormat('d F Y') : '-' }}</td>
+                            <td style="vertical-align: top;">Lamanya perjalanan : {{ $spt->notaDinas?->start_date && $spt->notaDinas?->end_date ? \Carbon\Carbon::parse($spt->notaDinas->start_date)->diffInDays(\Carbon\Carbon::parse($spt->notaDinas->end_date)) + 1 : '-' }} ({{ $spt->notaDinas?->start_date && $spt->notaDinas?->end_date ? \Illuminate\Support\Str::of(\Carbon\Carbon::parse($spt->notaDinas->start_date)->diffInDays(\Carbon\Carbon::parse($spt->notaDinas->end_date)) + 1)->snake()->replace('_',' ') : '-' }}) hari PP dari Tgl. {{ $spt->notaDinas?->start_date ? \Carbon\Carbon::parse($spt->notaDinas->start_date)->locale('id')->translatedFormat('d F Y') : '-' }} s/d {{ $spt->notaDinas?->end_date ? \Carbon\Carbon::parse($spt->notaDinas->end_date)->locale('id')->translatedFormat('d F Y') : '-' }}</td>
                         </tr>
                         <tr>
                             <td style="width: 20px; vertical-align: top;">3.</td>

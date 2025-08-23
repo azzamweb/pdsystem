@@ -47,22 +47,36 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm text-gray-900 dark:text-white">
                                         <div class="font-medium">{{ $sppd->originPlace->name ?? 'N/A' }} → {{ $sppd->destinationCity->name ?? 'N/A' }}</div>
-                                        <div class="text-xs text-gray-500 dark:text-gray-400">
-                                            {{ \Carbon\Carbon::parse($sppd->start_date)->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($sppd->end_date)->format('d/m/Y') }} ({{ $sppd->days_count }} hari)
-                                        </div>
-                                        <div class="mt-1">
+                                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                            @if($sppd->transportModes && $sppd->transportModes->count() > 0)
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 mr-1">
+                                                    {{ $sppd->transportModes->pluck('name')->implode(', ') }}
+                                                </span>
+                                            @endif
                                             <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
-                                                {{ $sppd->trip_type === 'LUAR_DAERAH' ? 'Luar Daerah' : 'Dalam Daerah' }}
+                                                @switch($sppd->trip_type)
+                                                    @case('LUAR_DAERAH')
+                                                        Luar Daerah
+                                                        @break
+                                                    @case('DALAM_DAERAH_GT8H')
+                                                        Dalam Daerah > 8 Jam
+                                                        @break
+                                                    @case('DALAM_DAERAH_LE8H')
+                                                        Dalam Daerah ≤ 8 Jam
+                                                        @break
+                                                    @case('DIKLAT')
+                                                        Diklat
+                                                        @break
+                                                    @default
+                                                        {{ $sppd->trip_type }}
+                                                @endswitch
                                             </span>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div class="flex items-center justify-end space-x-2">
-                                        <!-- Status badge -->
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $sppd->status === 'COMPLETED' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' }}">
-                                            {{ $sppd->status === 'COMPLETED' ? 'Selesai' : ($sppd->status ?? 'Aktif') }}
-                                        </span>
+
 
                                         <!-- Dropdown menu -->
                                         <div class="relative" x-data="{ open: false }">
@@ -102,9 +116,9 @@
                                                 })"
                                             >
                                                 <div class="py-1">
-                                                    <!-- Cetak -->
+                                                    <!-- Lihat PDF -->
                                                     <a 
-                                                        href="{{ route('sppd.show', $sppd) }}" 
+                                                        href="{{ route('sppd.pdf', $sppd) }}" 
                                                         target="_blank"
                                                         class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                                                     >
@@ -113,6 +127,42 @@
                                                         </svg>
                                                         Cetak
                                                     </a>
+
+                                                    <!-- Edit -->
+                                                    <a 
+                                                        href="{{ route('sppd.edit', $sppd) }}"
+                                                        class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                                    >
+                                                        <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                                        </svg>
+                                                        Edit
+                                                    </a>
+
+                                                    <!-- Delete -->
+                                                    @if(($sppd->itineraries && $sppd->itineraries->count() > 0) || ($sppd->receipts && $sppd->receipts->count() > 0))
+                                                        <button 
+                                                            disabled
+                                                            class="flex items-center w-full px-4 py-2 text-sm text-gray-400 dark:text-gray-500 cursor-not-allowed"
+                                                            title="Tidak dapat dihapus karena memiliki data terkait"
+                                                        >
+                                                            <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                            </svg>
+                                                            Hapus
+                                                        </button>
+                                                    @else
+                                                        <button 
+                                                            wire:click="confirmDelete({{ $sppd->id }})"
+                                                            wire:confirm="Apakah Anda yakin ingin menghapus SPPD ini?"
+                                                            class="flex items-center w-full px-4 py-2 text-sm text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                                        >
+                                                            <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                            </svg>
+                                                            Hapus
+                                                        </button>
+                                                    @endif
                                                 </div>
                                             </div>
                                         </div>

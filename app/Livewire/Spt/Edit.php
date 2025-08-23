@@ -78,7 +78,11 @@ class Edit extends Component
 
             DB::commit();
             session()->flash('message', 'SPT berhasil diperbarui.');
-            return $this->redirect(route('spt.show', $this->spt));
+            // Redirect ke halaman utama dengan state yang sama
+            return $this->redirect(route('documents', [
+                'nota_dinas_id' => $this->spt->nota_dinas_id,
+                'spt_id' => $this->spt->id
+            ]));
         } catch (\Exception $e) {
             DB::rollBack();
             session()->flash('error', 'Gagal memperbarui SPT: ' . $e->getMessage());
