@@ -62,7 +62,7 @@ class Create extends Component
             return;
         }
 
-        $this->spt = Spt::with(['notaDinas.participants.user', 'notaDinas.destinationCity'])
+        $this->spt = Spt::with(['notaDinas.participants.user', 'notaDinas.destinationCity', 'sppds'])
             ->findOrFail($this->spt_id);
 
         // Prefill nilai umum
@@ -72,15 +72,25 @@ class Create extends Component
         $this->days_count = (int)($this->spt->notaDinas?->days_count ?: 1);
         $this->destination_city_id = $this->spt->notaDinas?->destination_city_id ?: '';
 
-        // Prefill peserta dari ND
+        // Get participants who don't have SPPD yet
+        $existingSppdUserIds = $this->spt->sppds->pluck('user_id')->toArray();
+        
         $this->participants = $this->spt->notaDinas?->participants?->map(function ($p) {
             return [
                 'id' => $p->user?->id,
                 'name' => $p->user?->fullNameWithTitles() ?? $p->user?->name,
                 'nip' => $p->user?->nip,
             ];
-        })->filter(fn($x) => !empty($x['id']))->values()->all();
+        })->filter(fn($x) => !empty($x['id']) && !in_array($x['id'], $existingSppdUserIds))->values()->all();
+        
         $this->selected_user_ids = collect($this->participants)->pluck('id')->all();
+
+        // Check if there are participants available for SPPD creation
+        if (empty($this->participants)) {
+            session()->flash('error', 'Semua peserta sudah memiliki SPPD. Tidak ada peserta baru yang dapat dibuatkan SPPD.');
+            $this->redirect(route('documents'));
+            return;
+        }
 
         // Tampilkan format aktif SPPD untuk verifikasi cepat
         $unitScopeId = $this->spt->notaDinas?->requesting_unit_id;

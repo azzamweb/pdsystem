@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\Attributes\On;
 use App\Models\Sppd;
 use App\Models\Spt;
+use App\Models\NotaDinas;
 
 
 class SppdTable extends Component
@@ -13,6 +14,7 @@ class SppdTable extends Component
     public $sptId = null;
     public $selectedSppdId = null;
     public $sppds = [];
+    public $spt = null; // Store SPT data
 
     protected $listeners = [];
 
@@ -44,11 +46,12 @@ class SppdTable extends Component
         $this->sptId = $sptId;
         $this->selectedSppdId = null;
         $this->sppds = [];
+        $this->spt = null;
         
         if ($sptId) {
-            $spt = Spt::with(['sppds.user', 'sppds.originPlace', 'sppds.destinationCity'])->find($sptId);
-            if ($spt) {
-                $this->sppds = $spt->sppds->sortByDesc('created_at')->values();
+            $this->spt = Spt::with(['sppds.user', 'sppds.originPlace', 'sppds.destinationCity', 'notaDinas.participants.user'])->find($sptId);
+            if ($this->spt) {
+                $this->sppds = $this->spt->sppds->sortByDesc('created_at')->values();
                 // Don't auto-select SPPD
             }
         }
@@ -65,6 +68,26 @@ class SppdTable extends Component
     public function createSppd($sptId)
     {
         return redirect()->route('sppd.create', ['spt_id' => $sptId]);
+    }
+
+    public function getParticipantsWithoutSppd()
+    {
+        if (!$this->spt || !$this->spt->notaDinas) {
+            return collect();
+        }
+
+        // Get all participants from Nota Dinas
+        $allParticipants = $this->spt->notaDinas->participants;
+        
+        // Get user IDs that already have SPPD
+        $existingSppdUserIds = $this->spt->sppds->pluck('user_id')->toArray();
+        
+        // Filter participants who don't have SPPD yet
+        $participantsWithoutSppd = $allParticipants->whereNotIn('user_id', $existingSppdUserIds);
+        
+
+        
+        return $participantsWithoutSppd;
     }
 
     public function render()

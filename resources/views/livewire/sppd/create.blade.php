@@ -73,7 +73,15 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Pilih Pegawai yang Dibuatkan SPPD <span class="text-red-500">*</span></label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Pilih Pegawai yang Dibuatkan SPPD <span class="text-red-500">*</span>
+                </label>
+                <div class="mb-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
+                    <p class="text-sm text-blue-800 dark:text-blue-200">
+                        <strong>Info:</strong> Hanya menampilkan peserta yang belum memiliki SPPD. 
+                        Peserta yang sudah memiliki SPPD tidak akan ditampilkan di sini.
+                    </p>
+                </div>
                 <div class="mb-2 flex items-center gap-3">
                     <label class="inline-flex items-center gap-2 text-sm">
                         <input type="checkbox" x-on:change="$dispatch('select-all', { checked: $event.target.checked })" />
