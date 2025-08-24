@@ -18,32 +18,16 @@
                     <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
                 </flux:navlist.group>
 
-                <flux:navlist variant="outline">
-                    <flux:navlist.group :heading="__('Dokumen')" class="grid">
-                        <flux:navlist.item icon="document-text" :href="route('documents')" :current="request()->routeIs('documents')" wire:navigate>{{ __('Perjadin / Dokumen') }}</flux:navlist.item>
-                        <!-- Tambahkan SPPD, dst di bawahnya nanti -->
-                    </flux:navlist.group>
-                </flux:navlist>
-
-                <flux:navlist.group :heading="__('Master Data')" class="grid">
-                    <flux:navlist.item icon="users" :href="route('users.index')" :current="request()->routeIs('users.*')" wire:navigate>{{ __('Data Pegawai') }}</flux:navlist.item>
-                    <flux:navlist.item icon="building-office" :href="route('units.index')" :current="request()->routeIs('units.*')" wire:navigate>{{ __('Data Unit') }}</flux:navlist.item>
-                    <flux:navlist.item icon="briefcase" :href="route('positions.index')" :current="request()->routeIs('positions.*')" wire:navigate>{{ __('Data Jabatan') }}</flux:navlist.item>
-                    
+                <flux:navlist.group :heading="__('Dokumen')" class="grid">
+                    <flux:navlist.item icon="document-text" :href="route('documents')" :current="request()->routeIs('documents')" wire:navigate>{{ __('Dokumen') }}</flux:navlist.item>
+                    <!-- Tambahkan SPPD, dst di bawahnya nanti -->
                 </flux:navlist.group>
 
-                <flux:navlist.group :heading="__('Ref Lokasi & Rute')" class="grid">
-                   
-                    <flux:navlist.item icon="map" :href="route('provinces.index')" :current="request()->routeIs('provinces.*')" wire:navigate>{{ __('Data Provinsi') }}</flux:navlist.item>
-                    <flux:navlist.item icon="building-office" :href="route('cities.index')" :current="request()->routeIs('cities.*')" wire:navigate>{{ __('Data Kota/Kabupaten') }}</flux:navlist.item>
-                    <flux:navlist.item icon="map-pin" :href="route('districts.index')" :current="request()->routeIs('districts.*')" wire:navigate>{{ __('Data Kecamatan') }}</flux:navlist.item>
-                    <flux:navlist.item icon="building-office-2" :href="route('org-places.index')" :current="request()->routeIs('org-places.*')" wire:navigate>{{ __('Data Kedudukan') }}</flux:navlist.item>
-                    <flux:navlist.item icon="truck" :href="route('transport-modes.index')" :current="request()->routeIs('transport-modes.*')" wire:navigate>{{ __('Data Moda Transportasi') }}</flux:navlist.item>
-                    <flux:navlist.item icon="map" :href="route('travel-routes.index')" :current="request()->routeIs('travel-routes.*')" wire:navigate>{{ __('Data Rute Perjalanan') }}</flux:navlist.item>
-                    
-                </flux:navlist.group>
+                <flux:navlist.item icon="users" :href="route('master-data.index')" :current="request()->routeIs('master-data.*')" wire:navigate>{{ __('Master Data') }}</flux:navlist.item>
 
-                                <flux:navlist.item icon="calculator" :href="route('reference-rates.index')" :current="request()->routeIs('reference-rates.*')" wire:navigate>{{ __('Referensi Tarif') }}</flux:navlist.item>
+                <flux:navlist.item icon="map" :href="route('location-routes.index')" :current="request()->routeIs('location-routes.*')" wire:navigate>{{ __('Ref Lokasi & Rute') }}</flux:navlist.item>
+
+                <flux:navlist.item icon="calculator" :href="route('reference-rates.index')" :current="request()->routeIs('reference-rates.*')" wire:navigate>{{ __('Referensi Tarif') }}</flux:navlist.item>
             </flux:navlist>
 
             <flux:spacer />

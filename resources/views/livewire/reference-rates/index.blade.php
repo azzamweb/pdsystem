@@ -243,34 +243,7 @@
                 </div>
             </div>
 
-            <!-- Configuration Section -->
-            <div class="mt-10">
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Configuration</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Format Penomoran Dokumen -->
-                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
-                        <div class="flex items-center">
-                            <div class="flex-shrink-0">
-                                <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-                                    <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                            <div class="ml-4">
-                                <h3 class="text-lg font-medium text-gray-900 dark:text-white">
-                                    <a href="{{ route('doc-number-formats.index') }}" class="hover:text-blue-600 dark:hover:text-blue-400">
-                                        Format Penomoran Dokumen
-                                    </a>
-                                </h3>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">
-                                    Kelola format penomoran untuk semua jenis dokumen perjalanan dinas
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            
         </div>
     </div>
 </div>

@@ -56,6 +56,8 @@ use App\Livewire\RepresentationRates\Create as RepresentationRateCreate;
 use App\Livewire\RepresentationRates\Edit as RepresentationRateEdit;
 use App\Livewire\RepresentationRates\Index as RepresentationRateIndex;
 use App\Livewire\ReferenceRates\Index as ReferenceRatesIndex;
+use App\Livewire\MasterData\Index as MasterDataIndex;
+use App\Livewire\LocationRoutes\Index as LocationRoutesIndex;
 use App\Livewire\AirfareRefs\Create as AirfareRefCreate;
 use App\Livewire\AirfareRefs\Edit as AirfareRefEdit;
 use App\Livewire\AirfareRefs\Index as AirfareRefIndex;
@@ -108,6 +110,12 @@ Route::middleware('auth')->group(function () {
     Route::get('documents', function () {
         return view('documents.main-page');
     })->name('documents');
+
+    // Master Data Index
+    Route::get('master-data', MasterDataIndex::class)->name('master-data.index');
+
+    // Location & Routes Index
+    Route::get('location-routes', LocationRoutesIndex::class)->name('location-routes.index');
 
     // User CRUD
     Route::get('users', UserIndex::class)->name('users.index');
