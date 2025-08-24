@@ -289,7 +289,294 @@
         <div class="signature end-section">
             <div class="block">
                 <div>Di Keluarkan di Bengkalis</div>
-                <div>Tanggal {{ $sppd->sppd_date ? \Carbon\Carbon::parse($sppd->sppd_date)->locale('id')->translatedFormat('F Y') : '-' }}</div>
+                <div>Tanggal {{ $sppd->sppd_date ? \Carbon\Carbon::parse($sppd->sppd_date)->locale('id')->translatedFormat('d F Y') : '-' }}</div>
+                <div>{{ $sppd->spt?->notaDinas?->fromUser?->position?->name ?? '-' }}</div>
+                <div>{{ \DB::table('org_settings')->value('name') }}</div>
+                <div>Selaku Kuasa Pengguna Anggaran</div>
+                <br><br><br><br><br><br>
+                <div class="name">{{ $sppd->spt?->notaDinas?->fromUser?->gelar_depan ?? '' }} {{ $sppd->spt?->notaDinas?->fromUser?->name ?? '-' }} {{ $sppd->spt?->notaDinas?->fromUser?->gelar_belakang ?? '' }}</div>
+                <div class="rank">{{ $sppd->spt?->notaDinas?->fromUser?->rank?->name ?? '-' }} ({{ $sppd->spt?->notaDinas?->fromUser?->rank?->code ?? '-' }})</div>
+                <div class="nip">NIP. {{ $sppd->spt?->notaDinas?->fromUser?->nip ?? '-' }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Halaman Kedua - Visum Penandatanganan SPPD -->
+    <div class="container" style="page-break-before: always;">
+        <!-- Travel Details Table -->
+        <table style="width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 4mm;">
+            <tr>
+                <td style="border: 1px solid #000; vertical-align: top; padding: 4px; width: 50%;">
+                    <!-- kiri baris 1: kosong sesuai contoh -->
+                    <div style="height: 40px;"></div>
+                </td>
+                <td style="border: 1px solid #000; vertical-align: top; padding: 4px; width: 50%;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="width: 25px; font-weight: bold; white-space: nowrap; vertical-align: top; font-size: 10pt;" rowspan="4">I.</td>
+                            <td style="width: 150px; vertical-align: top; font-size: 10pt;">Berangkat dari (tempat kedudukan)</td>
+                            <td style="width: 8px; text-align: center; vertical-align: top; font-size: 10pt;">:</td>
+                            <td style="word-break: break-word; vertical-align: top; font-size: 10pt;">{{ $sppd->originPlace->name ?? '-' }}</td>
+                        </tr>
+                        <tr>
+                            <td style="width: 150px; vertical-align: top; font-size: 10pt;">Ke</td>
+                            <td style="width: 8px; text-align: center; vertical-align: top; font-size: 10pt;">:</td>
+                            <td style="word-break: break-word; vertical-align: top; font-size: 10pt;">{{ $sppd->destinationCity->name ?? '-' }}</td>
+                        </tr>
+                        <tr>
+                            <td style="width: 150px; vertical-align: top; font-size: 10pt;">Pada tanggal</td>
+                            <td style="width: 8px; text-align: center; vertical-align: top; font-size: 10pt;">:</td>
+                            <td style="word-break: break-word; vertical-align: top; font-size: 10pt;">{{ $sppd->spt?->notaDinas?->start_date ? \Carbon\Carbon::parse($sppd->spt->notaDinas->start_date)->locale('id')->translatedFormat('d F Y') : ($sppd->start_date ? \Carbon\Carbon::parse($sppd->start_date)->locale('id')->translatedFormat('d F Y') : '-') }}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" style="height: 40px;"></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <!-- ROW 2 -->
+            <tr>
+                <td style="border: 1px solid #000; vertical-align: top; padding: 4px; width: 50%;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="width: 25px; font-weight: bold; white-space: nowrap; vertical-align: top; font-size: 10pt;" rowspan="3">II.</td>
+                            <td style="width: 150px; vertical-align: top; font-size: 10pt;">Tiba di</td>
+                            <td style="width: 8px; text-align: center; vertical-align: top; font-size: 10pt;">:</td>
+                            <td style="word-break: break-word; vertical-align: top; font-size: 10pt;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td style="width: 150px; vertical-align: top; font-size: 10pt;">Pada tanggal</td>
+                            <td style="width: 8px; text-align: center; vertical-align: top; font-size: 10pt;">:</td>
+                            <td style="word-break: break-word; vertical-align: top; font-size: 10pt;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" style="height: 40px;"></td>
+                        </tr>
+                    </table>
+                </td>
+                <td style="border: 1px solid #000; vertical-align: top; padding: 4px; width: 50%;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="width: 150px; vertical-align: top; font-size: 10pt;">Berangkat dari</td>
+                            <td style="width: 8px; text-align: center; vertical-align: top; font-size: 10pt;">:</td>
+                            <td style="word-break: break-word; vertical-align: top; font-size: 10pt;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td style="width: 150px; vertical-align: top; font-size: 10pt;">Ke</td>
+                            <td style="width: 8px; text-align: center; vertical-align: top; font-size: 10pt;">:</td>
+                            <td style="word-break: break-word; vertical-align: top; font-size: 10pt;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td style="width: 150px; vertical-align: top; font-size: 10pt;">Pada tanggal</td>
+                            <td style="width: 8px; text-align: center; vertical-align: top; font-size: 10pt;">:</td>
+                            <td style="word-break: break-word; vertical-align: top; font-size: 10pt;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" style="height: 40px;"></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <!-- ROW 3 -->
+            <tr>
+                <td style="border: 1px solid #000; vertical-align: top; padding: 4px; width: 50%;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="width: 25px; font-weight: bold; white-space: nowrap; vertical-align: top; font-size: 10pt;" rowspan="3">III.</td>
+                            <td style="width: 150px; vertical-align: top; font-size: 10pt;">Tiba di</td>
+                            <td style="width: 8px; text-align: center; vertical-align: top; font-size: 10pt;">:</td>
+                            <td style="word-break: break-word; vertical-align: top; font-size: 10pt;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td style="width: 150px; vertical-align: top; font-size: 10pt;">Pada tanggal</td>
+                            <td style="width: 8px; text-align: center; vertical-align: top; font-size: 10pt;">:</td>
+                            <td style="word-break: break-word; vertical-align: top; font-size: 10pt;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" style="height: 40px;"></td>
+                        </tr>
+                    </table>
+                </td>
+                <td style="border: 1px solid #000; vertical-align: top; padding: 4px; width: 50%;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="width: 150px; vertical-align: top; font-size: 10pt;">Berangkat dari</td>
+                            <td style="width: 8px; text-align: center; vertical-align: top; font-size: 10pt;">:</td>
+                            <td style="word-break: break-word; vertical-align: top; font-size: 10pt;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td style="width: 150px; vertical-align: top; font-size: 10pt;">Ke</td>
+                            <td style="width: 8px; text-align: center; vertical-align: top; font-size: 10pt;">:</td>
+                            <td style="word-break: break-word; vertical-align: top; font-size: 10pt;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td style="width: 150px; vertical-align: top; font-size: 10pt;">Pada tanggal</td>
+                            <td style="width: 8px; text-align: center; vertical-align: top; font-size: 10pt;">:</td>
+                            <td style="word-break: break-word; vertical-align: top; font-size: 10pt;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" style="height: 40px;"></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <!-- ROW 4 -->
+            <tr>
+                <td style="border: 1px solid #000; vertical-align: top; padding: 4px; width: 50%;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="width: 25px; font-weight: bold; white-space: nowrap; vertical-align: top; font-size: 10pt;" rowspan="3">IV.</td>
+                            <td style="width: 150px; vertical-align: top; font-size: 10pt;">Tiba di</td>
+                            <td style="width: 8px; text-align: center; vertical-align: top; font-size: 10pt;">:</td>
+                            <td style="word-break: break-word; vertical-align: top; font-size: 10pt;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td style="width: 150px; vertical-align: top; font-size: 10pt;">Pada tanggal</td>
+                            <td style="width: 8px; text-align: center; vertical-align: top; font-size: 10pt;">:</td>
+                            <td style="word-break: break-word; vertical-align: top; font-size: 10pt;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" style="height: 40px;"></td>
+                        </tr>
+                    </table>
+                </td>
+                <td style="border: 1px solid #000; vertical-align: top; padding: 4px; width: 50%;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="width: 150px; vertical-align: top; font-size: 10pt;">Berangkat dari</td>
+                            <td style="width: 8px; text-align: center; vertical-align: top; font-size: 10pt;">:</td>
+                            <td style="word-break: break-word; vertical-align: top; font-size: 10pt;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td style="width: 150px; vertical-align: top; font-size: 10pt;">Ke</td>
+                            <td style="width: 8px; text-align: center; vertical-align: top; font-size: 10pt;">:</td>
+                            <td style="word-break: break-word; vertical-align: top; font-size: 10pt;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td style="width: 150px; vertical-align: top; font-size: 10pt;">Pada tanggal</td>
+                            <td style="width: 8px; text-align: center; vertical-align: top; font-size: 10pt;">:</td>
+                            <td style="word-break: break-word; vertical-align: top; font-size: 10pt;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" style="height: 40px;"></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <!-- ROW 5 -->
+            <tr>
+                <td style="border: 1px solid #000; vertical-align: top; padding: 4px; width: 50%;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="width: 25px; font-weight: bold; white-space: nowrap; vertical-align: top; font-size: 10pt;" rowspan="3">V.</td>
+                            <td style="width: 150px; vertical-align: top; font-size: 10pt;">Tiba di</td>
+                            <td style="width: 8px; text-align: center; vertical-align: top; font-size: 10pt;">:</td>
+                            <td style="word-break: break-word; vertical-align: top; font-size: 10pt;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td style="width: 150px; vertical-align: top; font-size: 10pt;">Pada tanggal</td>
+                            <td style="width: 8px; text-align: center; vertical-align: top; font-size: 10pt;">:</td>
+                            <td style="word-break: break-word; vertical-align: top; font-size: 10pt;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" style="height: 40px;"></td>
+                        </tr>
+                    </table>
+                </td>
+                <td style="border: 1px solid #000; vertical-align: top; padding: 4px; width: 50%;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="width: 150px; vertical-align: top; font-size: 10pt;">Berangkat dari</td>
+                            <td style="width: 8px; text-align: center; vertical-align: top; font-size: 10pt;">:</td>
+                            <td style="word-break: break-word; vertical-align: top; font-size: 10pt;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td style="width: 150px; vertical-align: top; font-size: 10pt;">Ke</td>
+                            <td style="width: 8px; text-align: center; vertical-align: top; font-size: 10pt;">:</td>
+                            <td style="word-break: break-word; vertical-align: top; font-size: 10pt;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td style="width: 150px; vertical-align: top; font-size: 10pt;">Pada tanggal</td>
+                            <td style="width: 8px; text-align: center; vertical-align: top; font-size: 10pt;">:</td>
+                            <td style="word-break: break-word; vertical-align: top; font-size: 10pt;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" style="height: 40px;"></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <!-- ROW 6 -->
+            <tr>
+                <td style="border: 1px solid #000; vertical-align: top; padding: 4px; width: 50%;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="width: 25px; font-weight: bold; white-space: nowrap; vertical-align: top; font-size: 10pt;" rowspan="3">VI.</td>
+                            <td style="width: 150px; vertical-align: top; font-size: 10pt;">Tiba di</td>
+                            <td style="width: 8px; text-align: center; vertical-align: top; font-size: 10pt;">:</td>
+                            <td style="word-break: break-word; vertical-align: top; font-size: 10pt;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td style="width: 150px; vertical-align: top; font-size: 10pt;">Pada tanggal</td>
+                            <td style="width: 8px; text-align: center; vertical-align: top; font-size: 10pt;">:</td>
+                            <td style="word-break: break-word; vertical-align: top; font-size: 10pt;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" style="height: 40px;"></td>
+                        </tr>
+                    </table>
+                </td>
+                <td style="border: 1px solid #000; vertical-align: top; padding: 4px; width: 50%;">
+                    <div style="line-height: 1.3; text-align: justify; font-size: 9pt;">
+                        Telah diperiksa, dengan keterangan bahwa perjalanan tersebut di atas
+                        benar dilakukan atas perintah dan semata‑mata untuk kepentingan jabatan
+                        dalam waktu yang sesingkat‑singkatnya.
+                    </div>
+                    <div style="height: 40px;"></div>
+                </td>
+            </tr>
+
+            <!-- ROW 7 -->
+            <tr>
+                <td colspan="2" style="border: 1px solid #000; vertical-align: top; padding: 4px;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="width: 25px; font-weight: bold; white-space: nowrap; vertical-align: top; font-size: 10pt;">VII.</td>
+                            <td style="width: 150px; vertical-align: top; font-size: 10pt;">Catatan Lain‑Lain</td>
+                            <td style="word-break: break-word; vertical-align: top; font-size: 10pt;"></td>
+                        </tr>
+                    </table>
+                    <div style="height: 40px;"></div>
+                </td>
+            </tr>
+
+            <!-- ROW 8 -->
+            <tr>
+                <td colspan="2" style="border: 1px solid #000; vertical-align: top; padding: 4px;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="width: 25px; font-weight: bold; white-space: nowrap; vertical-align: top; font-size: 10pt;">VIII.</td>
+                            <td style="line-height: 1.3; text-align: justify; font-size: 9pt;">
+                                <strong>PERHATIAN</strong><br/>
+                                PPK yang menerbitkan SPD, pegawai yang melakukan perjalanan dinas, para pejabat
+                                yang mengesahkan tanggal berangkat/tiba, serta Bendahara Pengeluaran bertanggung
+                                jawab berdasarkan peraturan‑peraturan Keuangan Negara apabila negara menderita rugi
+                                akibat kesalahan, kelalaian, dan kealpaannya.
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+
+        <!-- Signature - sama dengan halaman pertama -->
+        <div class="signature end-section">
+            <div class="block">
                 <div>{{ $sppd->spt?->notaDinas?->fromUser?->position?->name ?? '-' }}</div>
                 <div>{{ \DB::table('org_settings')->value('name') }}</div>
                 <div>Selaku Kuasa Pengguna Anggaran</div>
