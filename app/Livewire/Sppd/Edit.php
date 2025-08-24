@@ -54,8 +54,18 @@ class Edit extends Component
             return;
         }
 
-        $this->sppd = Sppd::with(['user', 'spt.notaDinas', 'originPlace', 'destinationCity', 'transportModes'])
-            ->findOrFail($this->sppd_id);
+        $this->sppd = Sppd::with([
+            'user', 
+            'spt.notaDinas.participants.user', 
+            'spt.notaDinas.destinationCity.province',
+            'spt.notaDinas.requestingUnit',
+            'spt.notaDinas.fromUser.position',
+            'spt.notaDinas.toUser.position',
+            'spt.signedByUser.position',
+            'originPlace', 
+            'destinationCity', 
+            'transportModes'
+        ])->findOrFail($this->sppd_id);
 
         // Load data SPPD ke form
         $this->sppd_date = $this->sppd->sppd_date ?: now()->format('Y-m-d');

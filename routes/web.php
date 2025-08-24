@@ -77,18 +77,12 @@ use App\Livewire\DocNumberFormats\Create as DocNumberFormatCreate;
 use App\Livewire\DocNumberFormats\Edit as DocNumberFormatEdit;
 use App\Livewire\NumberSequences\Index as NumberSequenceIndex;
 use App\Livewire\DocumentNumbers\Index as DocumentNumberIndex;
-use App\Livewire\NotaDinas\Index as NotaDinasIndex;
 use App\Livewire\NotaDinas\Create as NotaDinasCreate;
 use App\Livewire\NotaDinas\Edit as NotaDinasEdit;
-use App\Livewire\NotaDinas\Show as NotaDinasShow;
-use App\Livewire\Spt\Index as SptIndex;
 use App\Livewire\Spt\Create as SptCreate;
 use App\Livewire\Spt\Edit as SptEdit;
-use App\Livewire\Spt\Show as SptShow;
-use App\Livewire\Sppd\Index as SppdIndex;
 use App\Livewire\Sppd\Create as SppdCreate;
 use App\Livewire\Sppd\Edit as SppdEdit;
-use App\Livewire\Sppd\Show as SppdShow;
 use App\Http\Controllers\NotaDinasController;
 use App\Http\Controllers\SptController;
 use App\Http\Controllers\SppdController;
@@ -234,32 +228,21 @@ Route::middleware('auth')->group(function () {
     Route::get('document-numbers', DocumentNumberIndex::class)->name('document-numbers.index');
 
     // Nota Dinas CRUD
-    Route::get('nota-dinas', NotaDinasIndex::class)->name('nota-dinas.index');
     Route::get('nota-dinas/create', NotaDinasCreate::class)->name('nota-dinas.create');
     Route::get('nota-dinas/{notaDinas}/edit', NotaDinasEdit::class)->name('nota-dinas.edit');
-    Route::get('nota-dinas/{notaDinas}', NotaDinasShow::class)->name('nota-dinas.show');
+    Route::get('nota-dinas/{notaDinas}', function(\App\Models\NotaDinas $notaDinas) {
+        return redirect()->route('nota-dinas.pdf', $notaDinas);
+    })->name('nota-dinas.show');
 
     // SPT CRUD
-    Route::get('spt', SptIndex::class)->name('spt.index');
     Route::get('spt/create', SptCreate::class)->name('spt.create');
     Route::get('spt/{spt}/edit', SptEdit::class)->name('spt.edit');
     // Redirect show SPT langsung ke PDF
     Route::get('spt/{spt}', function(\App\Models\Spt $spt) {
         return redirect()->route('spt.pdf', $spt);
     })->name('spt.show');
-    // SPT Delete (fallback non-Livewire)
-    Route::post('spt/{spt}/delete', function(\App\Models\Spt $spt) {
-        $notaDinasId = $spt->nota_dinas_id;
-        try {
-            $spt->delete();
-            return redirect()->route('nota-dinas.show', $notaDinasId)->with('message', 'SPT berhasil dihapus.');
-        } catch (\Throwable $e) {
-            return redirect()->route('nota-dinas.show', $notaDinasId)->with('error', 'Gagal menghapus SPT: '.$e->getMessage());
-        }
-    })->name('spt.destroy');
 
     // SPPD CRUD
-    Route::get('sppd', SppdIndex::class)->name('sppd.index');
     Route::get('sppd/create', SppdCreate::class)->name('sppd.create');
     Route::get('sppd/{sppd}/edit', SppdEdit::class)->name('sppd.edit');
     // Redirect show SPPD langsung ke PDF

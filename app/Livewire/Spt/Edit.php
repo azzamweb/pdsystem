@@ -32,7 +32,7 @@ class Edit extends Component
 
     public function mount(Spt $spt)
     {
-        $this->spt = $spt;
+        $this->spt = $spt->load(['notaDinas.requestingUnit', 'notaDinas.fromUser.position', 'notaDinas.toUser.position', 'notaDinas.destinationCity.province', 'notaDinas.participants.user']);
         $this->spt_date = $spt->spt_date ? (is_string($spt->spt_date) ? $spt->spt_date : \Carbon\Carbon::parse($spt->spt_date)->format('Y-m-d')) : '';
         $this->signed_by_user_id = $spt->signed_by_user_id;
         $this->assignment_title = $spt->assignment_title;

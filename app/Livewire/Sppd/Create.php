@@ -60,8 +60,15 @@ class Create extends Component
             return;
         }
 
-        $this->spt = Spt::with(['notaDinas.participants.user', 'notaDinas.destinationCity', 'sppds'])
-            ->findOrFail($this->spt_id);
+        $this->spt = Spt::with([
+            'notaDinas.participants.user', 
+            'notaDinas.destinationCity.province', 
+            'notaDinas.requestingUnit',
+            'notaDinas.fromUser.position',
+            'notaDinas.toUser.position',
+            'signedByUser.position',
+            'sppds'
+        ])->findOrFail($this->spt_id);
 
         // Prefill nilai umum
         $this->sppd_date = $this->spt->spt_date ?: now()->format('Y-m-d');
@@ -171,8 +178,8 @@ class Create extends Component
                     'doc_no' => $gen['number'],
                     'number_is_manual' => false,
                     'number_manual_reason' => null,
-                    'number_format_id' => $gen['format']?->id,
-                    'number_sequence_id' => $gen['sequence']?->id,
+                    'number_format_id' => isset($gen['format']) ? $gen['format']->id : null,
+                    'number_sequence_id' => isset($gen['sequence']) ? $gen['sequence']->id : null,
                     'number_scope_unit_id' => $unitScopeId,
                     'sppd_date' => $this->sppd_date,
                     'spt_id' => $this->spt->id,

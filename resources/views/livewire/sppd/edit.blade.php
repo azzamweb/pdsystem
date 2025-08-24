@@ -21,6 +21,90 @@
         </div>
     @endif
 
+    <!-- Informasi Nota Dinas dan SPT sebagai Referensi -->
+    @if($sppd->spt && $sppd->spt->notaDinas)
+    <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+        <h3 class="text-lg font-semibold text-blue-800 dark:text-blue-200 mb-3 flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Informasi Nota Dinas & SPT (Referensi)
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+            <!-- Nota Dinas Info -->
+            <div class="space-y-1">
+                <span class="font-medium text-gray-700 dark:text-gray-300">Nomor Nota Dinas:</span>
+                <p class="text-gray-900 dark:text-white font-mono">{{ $sppd->spt->notaDinas->doc_no }}</p>
+            </div>
+            <div class="space-y-1">
+                <span class="font-medium text-gray-700 dark:text-gray-300">Tanggal Nota Dinas:</span>
+                <p class="text-gray-900 dark:text-white">{{ $sppd->spt->notaDinas->nd_date ? \Carbon\Carbon::parse($sppd->spt->notaDinas->nd_date)->locale('id')->translatedFormat('d F Y') : '-' }}</p>
+            </div>
+            <div class="space-y-1">
+                <span class="font-medium text-gray-700 dark:text-gray-300">Bidang Pengaju:</span>
+                <p class="text-gray-900 dark:text-white">{{ $sppd->spt->notaDinas->requestingUnit->name ?? '-' }}</p>
+            </div>
+            <div class="space-y-1">
+                <span class="font-medium text-gray-700 dark:text-gray-300">Dari:</span>
+                <p class="text-gray-900 dark:text-white">{{ $sppd->spt->notaDinas->fromUser->fullNameWithTitles() ?? '-' }}</p>
+                <p class="text-xs text-gray-600 dark:text-gray-400">{{ $sppd->spt->notaDinas->fromUser->position->name ?? '-' }}</p>
+            </div>
+            <div class="space-y-1">
+                <span class="font-medium text-gray-700 dark:text-gray-300">Kepada:</span>
+                <p class="text-gray-900 dark:text-white">{{ $sppd->spt->notaDinas->toUser->fullNameWithTitles() ?? '-' }}</p>
+                <p class="text-xs text-gray-600 dark:text-gray-400">{{ $sppd->spt->notaDinas->toUser->position->name ?? '-' }}</p>
+            </div>
+            <div class="space-y-1">
+                <span class="font-medium text-gray-700 dark:text-gray-300">Tujuan:</span>
+                <p class="text-gray-900 dark:text-white">{{ $sppd->spt->notaDinas->destinationCity->name ?? '-' }}, {{ $sppd->spt->notaDinas->destinationCity->province->name ?? '-' }}</p>
+            </div>
+            <div class="space-y-1">
+                <span class="font-medium text-gray-700 dark:text-gray-300">Periode Perjalanan:</span>
+                <p class="text-gray-900 dark:text-white">
+                    {{ $sppd->spt->notaDinas->start_date ? \Carbon\Carbon::parse($sppd->spt->notaDinas->start_date)->locale('id')->translatedFormat('d F Y') : '-' }}
+                    s.d
+                    {{ $sppd->spt->notaDinas->end_date ? \Carbon\Carbon::parse($sppd->spt->notaDinas->end_date)->locale('id')->translatedFormat('d F Y') : '-' }}
+                </p>
+                <p class="text-xs text-gray-600 dark:text-gray-400">
+                    ({{ $sppd->spt->notaDinas->start_date && $sppd->spt->notaDinas->end_date ? \Carbon\Carbon::parse($sppd->spt->notaDinas->start_date)->diffInDays(\Carbon\Carbon::parse($sppd->spt->notaDinas->end_date)) + 1 : 0 }} hari)
+                </p>
+            </div>
+            <div class="space-y-1 md:col-span-2 lg:col-span-3">
+                <span class="font-medium text-gray-700 dark:text-gray-300">Hal:</span>
+                <p class="text-gray-900 dark:text-white">{{ $sppd->spt->notaDinas->hal }}</p>
+            </div>
+            
+            <!-- SPT Info -->
+            <div class="space-y-1">
+                <span class="font-medium text-gray-700 dark:text-gray-300">Nomor SPT:</span>
+                <p class="text-gray-900 dark:text-white font-mono">{{ $sppd->spt->doc_no }}</p>
+            </div>
+            <div class="space-y-1">
+                <span class="font-medium text-gray-700 dark:text-gray-300">Tanggal SPT:</span>
+                <p class="text-gray-900 dark:text-white">{{ $sppd->spt->spt_date ? \Carbon\Carbon::parse($sppd->spt->spt_date)->locale('id')->translatedFormat('d F Y') : '-' }}</p>
+            </div>
+            <div class="space-y-1">
+                <span class="font-medium text-gray-700 dark:text-gray-300">Penandatangan SPT:</span>
+                <p class="text-gray-900 dark:text-white">{{ $sppd->spt->signedByUser->fullNameWithTitles() ?? '-' }}</p>
+                <p class="text-xs text-gray-600 dark:text-gray-400">{{ $sppd->spt->signedByUser->position->name ?? '-' }}</p>
+            </div>
+            
+            @if($sppd->spt->notaDinas->participants && $sppd->spt->notaDinas->participants->count() > 0)
+            <div class="space-y-1 md:col-span-2 lg:col-span-3">
+                <span class="font-medium text-gray-700 dark:text-gray-300">Peserta Perjalanan:</span>
+                <div class="flex flex-wrap gap-2 mt-1">
+                    @foreach($sppd->spt->notaDinas->participants as $participant)
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                            {{ $participant->user->fullNameWithTitles() }}
+                        </span>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+        </div>
+    </div>
+    @endif
+
     <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
         <form wire:submit="save">
             <!-- Informasi Dasar -->
