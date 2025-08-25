@@ -152,6 +152,51 @@
                 
             </div>
 
+            <!-- Penandatangan dan Assignment Title -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Penandatangan <span class="text-red-500">*</span></label>
+                    <select wire:model="signed_by_user_id" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        <option value="">Pilih penandatangan</option>
+                        @foreach(\App\Models\User::where('is_signer', true)->orderBy('name')->get() as $signer)
+                            <option value="{{ $signer->id }}">{{ $signer->fullNameWithTitles() }} ({{ trim(($signer->position?->name ?? '') . ' ' . ($signer->unit?->name ?? '')) ?: '-' }})</option>
+                        @endforeach
+                    </select>
+                    @error('signed_by_user_id')<p class="text-sm text-red-600 mt-1">{{ $message }}</p>@enderror
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Jabatan pada SPPD (Assignment Title)</label>
+                    
+                    <!-- Toggle untuk custom assignment title -->
+                    <div class="flex items-center gap-2 mb-2">
+                        <input type="checkbox" id="use_custom_assignment_title" wire:model.live="use_custom_assignment_title" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                        <label for="use_custom_assignment_title" class="text-sm text-gray-700 dark:text-gray-300">Gunakan custom assignment title</label>
+                    </div>
+                    
+                    @if($use_custom_assignment_title)
+                        <!-- Custom assignment title dengan textarea -->
+                        <textarea 
+                            wire:model="assignment_title" 
+                            rows="3"
+                            placeholder="Masukkan custom assignment title (bisa beberapa baris)..." 
+                            class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white resize-y"
+                        ></textarea>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Assignment title custom akan digunakan sebagai jabatan pada SPPD.</p>
+                    @else
+                        <!-- Auto assignment title (read-only) -->
+                        <div class="mt-1 p-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md">
+                            <p class="text-sm text-gray-900 dark:text-white">
+                                {{ $assignment_title ?: 'Tidak ada assignment title yang tersedia' }}
+                            </p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Assignment title otomatis dari jabatan penandatangan.</p>
+                        </div>
+                    @endif
+                    
+                    @error('assignment_title')<p class="text-sm text-red-600 mt-1">{{ $message }}</p>@enderror
+                </div>
+            </div>
+
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Pilih Pegawai yang Dibuatkan SPPD <span class="text-red-500">*</span>

@@ -15,7 +15,10 @@ class SppdController extends Controller
             'user', 
             'spt.notaDinas.originPlace', 
             'spt.notaDinas.destinationCity', 
-            'itineraries'
+            'itineraries',
+            'signedByUser.position',
+            'signedByUser.unit',
+            'signedByUser.rank'
         ]);
         
         // Generate PDF
@@ -47,7 +50,10 @@ class SppdController extends Controller
             'user', 
             'spt.notaDinas.originPlace', 
             'spt.notaDinas.destinationCity', 
-            'itineraries'
+            'itineraries',
+            'signedByUser.position',
+            'signedByUser.unit',
+            'signedByUser.rank'
         ]);
         
         // Generate PDF

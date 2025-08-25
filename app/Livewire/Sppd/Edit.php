@@ -36,7 +36,12 @@ class Edit extends Component
 
     public $funding_source = '';
 
-
+    // Penandatangan
+    #[Rule('required|exists:users,id')]
+    public $signed_by_user_id = '';
+    #[Rule('nullable|string')]
+    public $assignment_title = '';
+    public $use_custom_assignment_title = false;
 
     public $user_name = '';
     public $spt_info = '';
@@ -70,9 +75,41 @@ class Edit extends Component
 
         $this->funding_source = $this->sppd->funding_source ?: '';
 
+        // Load penandatangan dan assignment title
+        $this->signed_by_user_id = $this->sppd->signed_by_user_id ?? '';
+        $this->assignment_title = $this->sppd->assignment_title ?? '';
+        
+        // Set custom assignment title berdasarkan apakah assignment_title berbeda dari default
+        $defaultTitle = $this->guessAssignmentTitle();
+        $this->use_custom_assignment_title = !empty(trim($this->sppd->assignment_title)) && trim($this->sppd->assignment_title) !== trim($defaultTitle);
+
         // Info tambahan untuk display
         $this->user_name = $this->sppd->user?->fullNameWithTitles() ?? 'N/A';
         $this->spt_info = $this->sppd->spt?->doc_no ?? 'N/A';
+    }
+
+    public function updatedSignedByUserId(): void
+    {
+        // Jika assignment_title kosong atau tidak custom, isi otomatis saat penandatangan berubah
+        if (!$this->use_custom_assignment_title || !trim((string)$this->assignment_title)) {
+            $this->assignment_title = $this->guessAssignmentTitle();
+        }
+    }
+
+    public function updatedUseCustomAssignmentTitle($val): void
+    {
+        // Jika custom assignment title dimatikan, reset ke default
+        if (!$val) {
+            $this->assignment_title = $this->guessAssignmentTitle();
+        }
+    }
+
+    private function guessAssignmentTitle(): string
+    {
+        if (!$this->signed_by_user_id) return '';
+        $u = User::with(['position'])->find($this->signed_by_user_id);
+        if (!$u) return '';
+        return (string)($u->position_desc ?: ($u->position->name ?? ''));
     }
 
 
@@ -84,6 +121,8 @@ class Edit extends Component
             'transport_mode_ids' => 'required|array|min:1',
             'transport_mode_ids.*' => 'exists:transport_modes,id',
             'trip_type' => 'required|in:LUAR_DAERAH,DALAM_DAERAH_GT8H,DALAM_DAERAH_LE8H,DIKLAT',
+            'signed_by_user_id' => 'required|exists:users,id',
+            'assignment_title' => 'nullable|string',
         ]);
 
         if (!$this->sppd) {
@@ -92,10 +131,18 @@ class Edit extends Component
         }
 
         try {
+            // Atur assignment title berdasarkan mode
+            $assignmentTitle = trim((string)$this->assignment_title);
+            if (!$this->use_custom_assignment_title || $assignmentTitle === '') {
+                $assignmentTitle = $this->guessAssignmentTitle();
+            }
+
             $this->sppd->update([
                 'sppd_date' => $this->sppd_date,
                 'trip_type' => $this->trip_type,
                 'funding_source' => $this->funding_source,
+                'signed_by_user_id' => $this->signed_by_user_id,
+                'assignment_title' => $assignmentTitle,
             ]);
 
             // Sync transport modes

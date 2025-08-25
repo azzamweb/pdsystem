@@ -46,6 +46,13 @@ class Create extends Component
     #[Rule('required|array|min:1')]
     public $selected_user_ids = [];
 
+    // Penandatangan
+    #[Rule('required|exists:users,id')]
+    public $signed_by_user_id = '';
+    #[Rule('nullable|string')]
+    public $assignment_title = '';
+    public $use_custom_assignment_title = false;
+
     // Bantuan UI
     public $participants = [];
     public $format_string = null;
@@ -87,6 +94,11 @@ class Create extends Component
         })->filter(fn($x) => !empty($x['id']) && !in_array($x['id'], $existingSppdUserIds))->values()->all();
         
         $this->selected_user_ids = collect($this->participants)->pluck('id')->all();
+
+        // Default penandatangan dari SPT
+        $this->signed_by_user_id = $this->spt->signed_by_user_id ?? '';
+        // Set assignment title default dari penandatangan jika ada
+        $this->assignment_title = $this->guessAssignmentTitle();
 
         // Check if there are participants available for SPPD creation
         if (empty($this->participants)) {
@@ -131,6 +143,30 @@ class Create extends Component
         $this->selected_user_ids = $checked ? collect($this->participants)->pluck('id')->all() : [];
     }
 
+    public function updatedSignedByUserId(): void
+    {
+        // Jika assignment_title kosong, isi otomatis saat penandatangan berubah
+        if (!trim((string)$this->assignment_title)) {
+            $this->assignment_title = $this->guessAssignmentTitle();
+        }
+    }
+
+    public function updatedUseCustomAssignmentTitle($val): void
+    {
+        // Jika custom assignment title dimatikan, reset ke default
+        if (!$val) {
+            $this->assignment_title = $this->guessAssignmentTitle();
+        }
+    }
+
+    private function guessAssignmentTitle(): string
+    {
+        if (!$this->signed_by_user_id) return '';
+        $u = User::with(['position'])->find($this->signed_by_user_id);
+        if (!$u) return '';
+        return (string)($u->position_desc ?: ($u->position->name ?? ''));
+    }
+
     public function save(): mixed
     {
         $this->validate([
@@ -140,6 +176,8 @@ class Create extends Component
             'selected_user_ids.*' => 'exists:users,id',
             'transport_mode_ids' => 'required|array|min:1',
             'transport_mode_ids.*' => 'exists:transport_modes,id',
+            'signed_by_user_id' => 'required|exists:users,id',
+            'assignment_title' => 'nullable|string',
         ]);
 
         if (!$this->spt) {
@@ -173,6 +211,12 @@ class Create extends Component
                     'user_id' => $userId,
                 ], auth()->id());
 
+                // Atur assignment title berdasarkan mode
+                $assignmentTitle = trim((string)$this->assignment_title);
+                if (!$this->use_custom_assignment_title || $assignmentTitle === '') {
+                    $assignmentTitle = $this->guessAssignmentTitle();
+                }
+
                 $sppd = Sppd::create([
                     'doc_no' => $gen['number'],
                     'number_is_manual' => false,
@@ -183,6 +227,8 @@ class Create extends Component
                     'sppd_date' => $this->sppd_date,
                     'spt_id' => $this->spt->id,
                     'user_id' => $userId,
+                    'signed_by_user_id' => $this->signed_by_user_id,
+                    'assignment_title' => $assignmentTitle,
                     'destination_city_id' => $this->destination_city_id,
                     'trip_type' => $this->trip_type,
                     'funding_source' => $this->funding_source,

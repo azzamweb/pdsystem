@@ -12,6 +12,9 @@
                                 Pegawai
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                Penandatangan
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 Perjalanan
                             </th>
                             <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -46,6 +49,20 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                                     {{ $sppd->user->fullNameWithTitles() ?? 'N/A' }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    @if($sppd->signedByUser)
+                                        <div class="text-sm text-gray-900 dark:text-white">
+                                            {{ $sppd->signedByUser->fullNameWithTitles() ?? 'N/A' }}
+                                        </div>
+                                        @if($sppd->assignment_title)
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">
+                                                {{ Str::limit($sppd->assignment_title, 50) }}
+                                            </div>
+                                        @endif
+                                    @else
+                                        <span class="text-gray-400">-</span>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm text-gray-900 dark:text-white">

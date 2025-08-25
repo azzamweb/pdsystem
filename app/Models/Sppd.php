@@ -15,12 +15,13 @@ class Sppd extends Model
 
     protected $fillable = [
         'doc_no', 'number_is_manual', 'number_manual_reason', 'number_format_id', 'number_sequence_id',
-        'number_scope_unit_id', 'sppd_date', 'spt_id', 'user_id',
+        'number_scope_unit_id', 'sppd_date', 'spt_id', 'user_id', 'signed_by_user_id', 'assignment_title',
         'trip_type', 'funding_source',
     ];
 
     public function spt() { return $this->belongsTo(Spt::class); }
     public function user() { return $this->belongsTo(User::class); }
+    public function signedByUser() { return $this->belongsTo(User::class, 'signed_by_user_id'); }
     // Accessor methods untuk origin place dan destination city
     public function getOriginPlaceAttribute()
     {

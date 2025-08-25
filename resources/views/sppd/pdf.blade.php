@@ -287,16 +287,38 @@
         
         <!-- Signature - sama dengan Nota Dinas dan SPT -->
         <div class="signature end-section">
-            <div class="block">
-                <div>Di Keluarkan di Bengkalis</div>
-                <div>Tanggal {{ $sppd->sppd_date ? \Carbon\Carbon::parse($sppd->sppd_date)->locale('id')->translatedFormat('d F Y') : '-' }}</div>
-                <div>{{ $sppd->spt?->notaDinas?->fromUser?->position?->name ?? '-' }}</div>
-                <div>{{ \DB::table('org_settings')->value('name') }}</div>
-                <div>Selaku Kuasa Pengguna Anggaran</div>
+            <div class="block" style="max-width: 300px;">
+                @php
+                    // Deteksi apakah assignment_title adalah custom atau auto
+                    $defaultTitle = $sppd->signedByUser?->position_desc ?: ($sppd->signedByUser?->position?->name ?? '');
+                    $isCustomAssignment = !empty(trim($sppd->assignment_title)) && trim($sppd->assignment_title) !== trim($defaultTitle);
+                @endphp
+                
+                @if($isCustomAssignment)
+                    <!-- Custom assignment title -->
+                    <div style="word-wrap: break-word; white-space: normal;">{!! nl2br(e($sppd->assignment_title)) !!}</div>
+                @else
+                    <!-- Auto assignment title (dari jabatan penandatangan) -->
+                    @if($sppd->signedByUser?->unit?->name)
+                        <!-- Jika ada unit name, tampilkan dalam baris terpisah -->
+                        <div style="word-wrap: break-word; white-space: normal;">{{ $sppd->signedByUser?->position?->name ?? '-' }} {{ $sppd->signedByUser?->unit?->name }}</div>
+                        <div>{{ \DB::table('org_settings')->value('name') }} <br>Kabupaten Bengkalis</div>
+                    @else
+                        <!-- Jika tidak ada unit name, position langsung disambung dengan organisasi -->
+                        <div style="word-wrap: break-word; white-space: normal;">{{ $sppd->signedByUser?->position?->name ?? '-' }} {{ \DB::table('org_settings')->value('name') }} <br>Kabupaten Bengkalis</div>
+                    @endif
+                    <div></div>
+                                        @endif
+                        @php
+                            // Cek apakah penandatangan adalah pimpinan organisasi
+                            $orgHeadUserId = \DB::table('org_settings')->value('head_user_id');
+                            $isOrgHead = $sppd->signedByUser && $sppd->signedByUser->id == $orgHeadUserId;
+                        @endphp
+                        <div>{{ $isOrgHead ? 'Selaku Pengguna Anggaran' : 'Selaku Kuasa Pengguna Anggaran' }}</div>
                 <br><br><br><br><br><br>
-                <div class="name">{{ $sppd->spt?->notaDinas?->fromUser?->gelar_depan ?? '' }} {{ $sppd->spt?->notaDinas?->fromUser?->name ?? '-' }} {{ $sppd->spt?->notaDinas?->fromUser?->gelar_belakang ?? '' }}</div>
-                <div class="rank">{{ $sppd->spt?->notaDinas?->fromUser?->rank?->name ?? '-' }} ({{ $sppd->spt?->notaDinas?->fromUser?->rank?->code ?? '-' }})</div>
-                <div class="nip">NIP. {{ $sppd->spt?->notaDinas?->fromUser?->nip ?? '-' }}</div>
+                <div class="name">{{ $sppd->signedByUser?->gelar_depan ?? '' }} {{ $sppd->signedByUser?->name ?? '-' }} {{ $sppd->signedByUser?->gelar_belakang ?? '' }}</div>
+                <div class="rank">{{ $sppd->signedByUser?->rank?->name ?? '-' }} ({{ $sppd->signedByUser?->rank?->code ?? '-' }})</div>
+                <div class="nip">NIP. {{ $sppd->signedByUser?->nip ?? '-' }}</div>
             </div>
         </div>
     </div>
@@ -543,13 +565,36 @@
             <tr>
                 <td style="border: 1px solid #000; vertical-align: top; padding: 4px; width: 50%;">
                     <div class="block">
-                        <div>{{ $sppd->spt?->notaDinas?->fromUser?->position?->name ?? '-' }}</div>
-                        <div>{{ \DB::table('org_settings')->value('name') }}</div>
-                        <div>Selaku Kuasa Pengguna Anggaran</div>
-                        <br><br><br><br>
-                        <div class="name">{{ $sppd->spt?->notaDinas?->fromUser?->gelar_depan ?? '' }} {{ $sppd->spt?->notaDinas?->fromUser?->name ?? '-' }} {{ $sppd->spt?->notaDinas?->fromUser?->gelar_belakang ?? '' }}</div>
-                        <div class="rank">{{ $sppd->spt?->notaDinas?->fromUser?->rank?->name ?? '-' }} ({{ $sppd->spt?->notaDinas?->fromUser?->rank?->code ?? '-' }})</div>
-                        <div class="nip">NIP. {{ $sppd->spt?->notaDinas?->fromUser?->nip ?? '-' }}</div>
+                        @php
+                            // Deteksi apakah assignment_title adalah custom atau auto
+                            $defaultTitle = $sppd->signedByUser?->position_desc ?: ($sppd->signedByUser?->position?->name ?? '');
+                            $isCustomAssignment = !empty(trim($sppd->assignment_title)) && trim($sppd->assignment_title) !== trim($defaultTitle);
+                        @endphp
+                        
+                        @if($isCustomAssignment)
+                            <!-- Custom assignment title -->
+                            <div style="word-wrap: break-word; white-space: normal;">{!! nl2br(e($sppd->assignment_title)) !!}</div>
+                        @else
+                            <!-- Auto assignment title (dari jabatan penandatangan) -->
+                            @if($sppd->signedByUser?->unit?->name)
+                                <!-- Jika ada unit name, tampilkan dalam baris terpisah -->
+                                <div style="word-wrap: break-word; white-space: normal;">{{ $sppd->signedByUser?->position?->name ?? '-' }} {{ $sppd->signedByUser?->unit?->name }}</div>
+                                <div>{{ \DB::table('org_settings')->value('name') }} Kabupaten Bengkalis</div>
+                            @else
+                                <!-- Jika tidak ada unit name, position langsung disambung dengan organisasi -->
+                                <div style="word-wrap: break-word; white-space: normal;">{{ $sppd->signedByUser?->position?->name ?? '-' }} {{ \DB::table('org_settings')->value('name') }} Kabupaten Bengkalis</div>
+                                                                    @endif
+                                        @php
+                                            // Cek apakah penandatangan adalah pimpinan organisasi
+                                            $orgHeadUserId = \DB::table('org_settings')->value('head_user_id');
+                                            $isOrgHead = $sppd->signedByUser && $sppd->signedByUser->id == $orgHeadUserId;
+                                        @endphp
+                                        <div>{{ $isOrgHead ? 'Selaku Pengguna Anggaran' : 'Selaku Kuasa Pengguna Anggaran' }}</div>
+                                    @endif
+                                    <br><br><br><br>
+                        <div class="name">{{ $sppd->signedByUser?->gelar_depan ?? '' }} {{ $sppd->signedByUser?->name ?? '-' }} {{ $sppd->signedByUser?->gelar_belakang ?? '' }}</div>
+                        <div class="rank">{{ $sppd->signedByUser?->rank?->name ?? '-' }} ({{ $sppd->signedByUser?->rank?->code ?? '-' }})</div>
+                        <div class="nip">NIP. {{ $sppd->signedByUser?->nip ?? '-' }}</div>
                     </div>
                 
             <div style="height: 10px;"></div> 
@@ -557,13 +602,36 @@
                 <td style="border: 1px solid #000; vertical-align: top; padding: 4px; width: 50%;">
                     
                             <div class="block">
-                                <div>{{ $sppd->spt?->notaDinas?->fromUser?->position?->name ?? '-' }}</div>
-                                <div>{{ \DB::table('org_settings')->value('name') }}</div>
-                                <div>Selaku Kuasa Pengguna Anggaran</div>
+                                @php
+                                    // Deteksi apakah assignment_title adalah custom atau auto
+                                    $defaultTitle = $sppd->signedByUser?->position_desc ?: ($sppd->signedByUser?->position?->name ?? '');
+                                    $isCustomAssignment = !empty(trim($sppd->assignment_title)) && trim($sppd->assignment_title) !== trim($defaultTitle);
+                                @endphp
+                                
+                                @if($isCustomAssignment)
+                                    <!-- Custom assignment title -->
+                                    <div style="word-wrap: break-word; white-space: normal;">{!! nl2br(e($sppd->assignment_title)) !!}</div>
+                                @else
+                                    <!-- Auto assignment title (dari jabatan penandatangan) -->
+                                    @if($sppd->signedByUser?->unit?->name)
+                                        <!-- Jika ada unit name, tampilkan dalam baris terpisah -->
+                                        <div style="word-wrap: break-word; white-space: normal;">{{ $sppd->signedByUser?->position?->name ?? '-' }} {{ $sppd->signedByUser?->unit?->name }}</div>
+                                        <div>{{ \DB::table('org_settings')->value('name') }} Kabupaten Bengkalis</div>
+                                    @else
+                                        <!-- Jika tidak ada unit name, position langsung disambung dengan organisasi -->
+                                        <div style="word-wrap: break-word; white-space: normal;">{{ $sppd->signedByUser?->position?->name ?? '-' }} {{ \DB::table('org_settings')->value('name') }} Kabupaten Bengkalis</div>
+                                    @endif
+                                    @php
+                                        // Cek apakah penandatangan adalah pimpinan organisasi
+                                        $orgHeadUserId = \DB::table('org_settings')->value('head_user_id');
+                                        $isOrgHead = $sppd->signedByUser && $sppd->signedByUser->id == $orgHeadUserId;
+                                    @endphp
+                                    <div>{{ $isOrgHead ? 'Selaku Pengguna Anggaran' : 'Selaku Kuasa Pengguna Anggaran' }}</div>
+                                @endif
                                 <br><br><br><br>
-                                <div class="name">{{ $sppd->spt?->notaDinas?->fromUser?->gelar_depan ?? '' }} {{ $sppd->spt?->notaDinas?->fromUser?->name ?? '-' }} {{ $sppd->spt?->notaDinas?->fromUser?->gelar_belakang ?? '' }}</div>
-                                <div class="rank">{{ $sppd->spt?->notaDinas?->fromUser?->rank?->name ?? '-' }} ({{ $sppd->spt?->notaDinas?->fromUser?->rank?->code ?? '-' }})</div>
-                                <div class="nip">NIP. {{ $sppd->spt?->notaDinas?->fromUser?->nip ?? '-' }}</div>
+                                <div class="name">{{ $sppd->signedByUser?->gelar_depan ?? '' }} {{ $sppd->signedByUser?->name ?? '-' }} {{ $sppd->signedByUser?->gelar_belakang ?? '' }}</div>
+                                <div class="rank">{{ $sppd->signedByUser?->rank?->name ?? '-' }} ({{ $sppd->signedByUser?->rank?->code ?? '-' }})</div>
+                                <div class="nip">NIP. {{ $sppd->signedByUser?->nip ?? '-' }}</div>
                             </div>
                         
                     <div style="height: 10px;"></div>
