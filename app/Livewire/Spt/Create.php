@@ -45,8 +45,9 @@ class Create extends Component
     // Penandatangan
     #[Rule('required|exists:users,id')]
     public $signed_by_user_id = '';
-    #[Rule('nullable|string|max:255')]
+    #[Rule('nullable|string')]
     public $assignment_title = '';
+    public $use_custom_assignment_title = false;
 
     // Bantuan format penomoran manual
     public $format_string = null;
@@ -119,6 +120,14 @@ class Create extends Component
         }
     }
 
+    public function updatedUseCustomAssignmentTitle($val): void
+    {
+        // Jika custom assignment title dimatikan, reset ke default
+        if (!$val) {
+            $this->assignment_title = $this->guessAssignmentTitle();
+        }
+    }
+
     private function guessAssignmentTitle(): string
     {
         if (!$this->signed_by_user_id) return '';
@@ -141,7 +150,7 @@ class Create extends Component
             'manual_doc_no' => 'nullable|required_if:number_is_manual,true|string',
             'number_manual_reason' => 'nullable|required_if:number_is_manual,true|string',
             'signed_by_user_id' => 'required|exists:users,id',
-            'assignment_title' => 'nullable|string|max:255',
+            'assignment_title' => 'nullable|string',
         ]);
         
         DB::beginTransaction();

@@ -196,9 +196,29 @@
             <div class="signature">
                 <div class="block" style="width: 300px;">
                     <div>Bengkalis, {{ $spt->spt_date ? \Carbon\Carbon::parse($spt->spt_date)->locale('id')->translatedFormat('d F Y') : '-' }}</div>
-                    <div style="word-wrap: break-word; white-space: normal;">{{ $spt->signedByUser?->position?->name ?? '-' }} {{ $spt->signedByUser?->unit?->name ?? ' ' }}{!! $spt->signedByUser?->unit?->name ? '<br>' : '' !!} {{ \DB::table('org_settings')->value('name') }}</div>
+                    @php
+                        // Deteksi apakah assignment_title adalah custom atau auto
+                        $defaultTitle = $spt->signedByUser?->position_desc ?: ($spt->signedByUser?->position?->name ?? '');
+                        $isCustomAssignment = !empty(trim($spt->assignment_title)) && trim($spt->assignment_title) !== trim($defaultTitle);
+                    @endphp
                     
-                    <div>Kabupaten Bengkalis</div>
+                    @if($isCustomAssignment)
+                        <!-- Custom assignment title -->
+                        <div style="word-wrap: break-word; white-space: normal;">{!! nl2br(e($spt->assignment_title)) !!}</div>
+                    @else
+                        <!-- Auto assignment title (dari jabatan penandatangan) -->
+                        @if($spt->signedByUser?->unit?->name)
+                            <!-- Jika ada unit name, tampilkan dalam baris terpisah -->
+                            <div style="word-wrap: break-word; white-space: normal;">{{ $spt->signedByUser?->position?->name ?? '-' }} {{ $spt->signedByUser?->unit?->name }}</div>
+                           
+                            <div>{{ \DB::table('org_settings')->value('name') }}</div>
+                        @else
+                            <!-- Jika tidak ada unit name, position langsung disambung dengan organisasi -->
+                            <div style="word-wrap: break-word; white-space: normal;">{{ $spt->signedByUser?->position?->name ?? '-' }} {{ \DB::table('org_settings')->value('name') }}</div>
+                        @endif
+                        <div>Kabupaten Bengkalis</div>             
+                    @endif
+                    
                     <br><br><br><br><br>
                     <div class="name">{{ $spt->signedByUser?->gelar_depan ?? '-' }} {{ $spt->signedByUser?->name ?? '-' }} {{ $spt->signedByUser?->gelar_belakang ?? '-' }}</div>
                     <div class="rank">{{ $spt->signedByUser?->rank?->name ?? '-' }} ({{ $spt->signedByUser?->rank?->code ?? '-' }})</div>

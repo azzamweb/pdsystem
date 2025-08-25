@@ -44,8 +44,14 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                    {{ $spt->assignment_title ?: 'Tidak ada judul tugas' }}
+                                <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                                    @if($spt->assignment_title)
+                                        <div class="whitespace-pre-line max-w-xs">
+                                            {{ $spt->assignment_title }}
+                                        </div>
+                                    @else
+                                        <span class="text-gray-500 dark:text-gray-400">Tidak ada judul tugas</span>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                                     {{ $spt->signedByUser->fullNameWithTitles() ?? 'N/A' }}
