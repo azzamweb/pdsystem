@@ -27,6 +27,8 @@ class Edit extends Component
     public $from_user_id = '';
     #[Rule('required|exists:cities,id')]
     public $destination_city_id = '';
+    #[Rule('required|exists:org_places,id')]
+    public $origin_place_id = '';
     #[Rule('required|date')]
     public $nd_date = '';
     #[Rule('required|string|max:255')]
@@ -91,6 +93,7 @@ class Edit extends Component
         $this->to_user_id = $notaDinas->to_user_id;
         $this->from_user_id = $notaDinas->from_user_id;
         $this->destination_city_id = $notaDinas->destination_city_id;
+        $this->origin_place_id = $notaDinas->origin_place_id;
         $this->nd_date = $notaDinas->nd_date;
         $this->hal = $notaDinas->hal;
         $this->dasar = $notaDinas->dasar;
@@ -192,6 +195,7 @@ class Edit extends Component
                 'dasar' => $this->dasar,
                 'maksud' => $this->maksud,
                 'destination_city_id' => $this->destination_city_id,
+                'origin_place_id' => $this->origin_place_id,
                 'start_date' => $this->start_date,
                 'end_date' => $this->end_date,
 
@@ -233,10 +237,12 @@ class Edit extends Component
             ->select('users.*')
             ->get();
         $cities = City::orderBy('name')->get();
+        $orgPlaces = \App\Models\OrgPlace::orderBy('name')->get();
         return view('livewire.nota-dinas.edit', [
             'units' => $units,
             'users' => $users,
             'cities' => $cities,
+            'orgPlaces' => $orgPlaces,
         ]);
     }
 }

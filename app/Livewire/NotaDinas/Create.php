@@ -7,6 +7,7 @@ use App\Models\NotaDinasParticipant;
 use App\Models\User;
 use App\Models\Unit;
 use App\Models\City;
+use App\Models\OrgPlace;
 use App\Services\DocumentNumberService;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
@@ -24,6 +25,8 @@ class Create extends Component
     public $from_user_id = '';
     #[Rule('required|exists:cities,id')]
     public $destination_city_id = '';
+    #[Rule('required|exists:org_places,id')]
+    public $origin_place_id = '';
     #[Rule('nullable|string|max:255')]
     public $doc_no = '';
     public $number_is_manual = false;
@@ -60,6 +63,7 @@ class Create extends Component
                 'to_user_id' => 'required|exists:users,id',
                 'from_user_id' => 'required|exists:users,id',
                 'destination_city_id' => 'required|exists:cities,id',
+                'origin_place_id' => 'required|exists:org_places,id',
                 'sifat' => 'required|in:Penting,Segera,Biasa,Rahasia',
                 'nd_date' => 'required|date',
                 'hal' => 'required|string|max:255',
@@ -153,6 +157,7 @@ class Create extends Component
                 'dasar' => $this->dasar,
                 'maksud' => $this->maksud,
                 'destination_city_id' => $this->destination_city_id,
+                'origin_place_id' => $this->origin_place_id,
                 'start_date' => $this->start_date,
                 'end_date' => $this->end_date,
 

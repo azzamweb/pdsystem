@@ -27,7 +27,7 @@ class Create extends Component
     // Bidang yang akan diterapkan ke semua SPPD yang dibuat dari SPT ini
     // Dapat memilih lebih dari satu moda transportasi
     public $transport_mode_ids = [];
-    #[Rule('required|exists:org_places,id')]
+    // Origin place now refers to Nota Dinas' origin place via SPT → Nota Dinas
     public $origin_place_id = '';
     // Kota tujuan tidak ditampilkan di form; diisi otomatis dari Nota Dinas
     public $destination_city_id = '';
@@ -135,7 +135,6 @@ class Create extends Component
     {
         $this->validate([
             'sppd_date' => 'required|date',
-            'origin_place_id' => 'required|exists:org_places,id',
             'trip_type' => 'required|in:LUAR_DAERAH,DALAM_DAERAH_GT8H,DALAM_DAERAH_LE8H,DIKLAT',
             'selected_user_ids' => 'required|array|min:1',
             'selected_user_ids.*' => 'exists:users,id',
@@ -184,7 +183,6 @@ class Create extends Component
                     'sppd_date' => $this->sppd_date,
                     'spt_id' => $this->spt->id,
                     'user_id' => $userId,
-                    'origin_place_id' => $this->origin_place_id,
                     'destination_city_id' => $this->destination_city_id,
                     'trip_type' => $this->trip_type,
                     'funding_source' => $this->funding_source,

@@ -90,6 +90,10 @@ use App\Livewire\Sppd\Create as SppdCreate;
 use App\Livewire\Sppd\Edit as SppdEdit;
 use App\Livewire\Receipts\Create as ReceiptCreate;
 use App\Livewire\Receipts\Index as ReceiptIndex;
+use App\Livewire\TripReports\Create as TripReportCreate;
+use App\Livewire\TripReports\Edit as TripReportEdit;
+use App\Livewire\TripReports\Index as TripReportIndex;
+use App\Livewire\SupportingDocuments\Upload as SupportingDocumentUpload;
 use App\Http\Controllers\NotaDinasController;
 use App\Http\Controllers\SptController;
 use App\Http\Controllers\SppdController;
@@ -271,6 +275,16 @@ Route::middleware('auth')->group(function () {
     Route::get('receipts/{receipt}', function(\App\Models\Receipt $receipt) {
         return view('receipts.pdf', compact('receipt'));
     })->name('receipts.show');
+
+    // Trip Reports CRUD
+    Route::get('trip-reports', TripReportIndex::class)->name('trip-reports.index');
+Route::get('trip-reports/create', TripReportCreate::class)->name('trip-reports.create');
+Route::get('trip-reports/{tripReport}/edit', TripReportEdit::class)->name('trip-reports.edit');
+Route::get('trip-reports/{tripReport}/pdf', [App\Http\Controllers\TripReportController::class, 'pdf'])->name('trip-reports.pdf');
+
+    // Supporting Documents
+    Route::get('nota-dinas/{notaDinas}/documents', SupportingDocumentUpload::class)->name('supporting-documents.upload');
+    Route::get('nota-dinas/{notaDinas}/documents/{document}/edit', \App\Livewire\SupportingDocuments\Edit::class)->name('supporting-documents.edit');
     // Redirect show SPPD langsung ke PDF
     Route::get('sppd/{sppd}', function(\App\Models\Sppd $sppd) {
         return redirect()->route('sppd.pdf', $sppd);

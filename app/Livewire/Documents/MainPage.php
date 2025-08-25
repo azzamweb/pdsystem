@@ -43,6 +43,9 @@ class MainPage extends Component
         $this->selectedSptId = null;
         $this->selectedSppdId = null;
         
+        // Load the actual Nota Dinas data
+        $this->selectedNotaDinas = NotaDinas::with(['spt.sppds', 'spt.notaDinas.originPlace', 'spt.notaDinas.destinationCity'])->find($notaDinasId);
+        
         // Dispatch specific events to child components
         $this->dispatch('loadSpts', $notaDinasId);
         $this->dispatch('clearSppds');
@@ -53,7 +56,9 @@ class MainPage extends Component
     {
         $this->selectedSptId = $sptId;
         $this->selectedSppdId = null;
-        
+        // Persist the selected SPT object for downstream actions (e.g., createLaporanPd)
+        $this->selectedSpt = Spt::with(['sppds', 'notaDinas.originPlace', 'notaDinas.destinationCity'])->find($sptId);
+
         // Dispatch specific event to SppdTable
         $this->dispatch('loadSppds', $sptId);
     }
@@ -62,20 +67,28 @@ class MainPage extends Component
     public function handleSppdSelected($sppdId)
     {
         $this->selectedSppdId = $sppdId;
+        // Load the actual SPPD data
+        $this->selectedSppd = Sppd::with(['spt.notaDinas.originPlace', 'spt.notaDinas.destinationCity'])->find($sppdId);
     }
 
     #[On('refreshAll')]
     public function refreshData()
     {
-        // Refresh selected data
+        // Refresh selected data with proper eager loading
         if ($this->selectedNotaDinasId) {
-            $this->selectedNotaDinas = NotaDinas::with(['spt.sppds'])->find($this->selectedNotaDinasId);
+            $this->selectedNotaDinas = NotaDinas::with(['spt.sppds', 'spt.notaDinas.originPlace', 'spt.notaDinas.destinationCity'])->find($this->selectedNotaDinasId);
         }
         if ($this->selectedSptId) {
-            $this->selectedSpt = Spt::with(['sppds'])->find($this->selectedSptId);
+            $this->selectedSpt = Spt::with(['sppds', 'notaDinas.originPlace', 'notaDinas.destinationCity'])->find($this->selectedSptId);
         }
         if ($this->selectedSppdId) {
-            $this->selectedSppd = Sppd::find($this->selectedSppdId);
+            $this->selectedSppd = Sppd::with(['spt.notaDinas.originPlace', 'spt.notaDinas.destinationCity'])->find($this->selectedSppdId);
+        }
+        
+        // Force refresh of trip report data to ensure latest data is displayed
+        if ($this->selectedSptId) {
+            // This will trigger a re-render of the trip report section
+            $this->dispatch('trip-report-refreshed');
         }
     }
 
@@ -85,28 +98,47 @@ class MainPage extends Component
         $notaDinasId = request()->query('nota_dinas_id');
         $sptId = request()->query('spt_id');
         $sppdId = request()->query('sppd_id');
+        $reportCreated = request()->query('report_created');
+        $reportUpdated = request()->query('report_updated');
         
         if ($notaDinasId) {
             $this->selectedNotaDinasId = $notaDinasId;
+            // Load the actual Nota Dinas data
+            $this->selectedNotaDinas = NotaDinas::with(['spt.sppds'])->find($notaDinasId);
             $this->dispatch('loadSpts', $notaDinasId);
             
             if ($sptId) {
                 $this->selectedSptId = $sptId;
+                // Load the actual SPT data
+                $this->selectedSpt = Spt::with(['sppds'])->find($sptId);
                 $this->dispatch('loadSppds', $sptId);
                 
                 if ($sppdId) {
                     $this->selectedSppdId = $sppdId;
+                    // Load the actual SPPD data
+                    $this->selectedSppd = Sppd::find($sppdId);
                 }
+            }
+            
+            // If report was created or updated, ensure we show success message and refresh data
+            if ($reportCreated) {
+                session()->flash('message', 'Laporan perjalanan dinas berhasil dibuat dan ditampilkan.');
+                $this->refreshData();
+            } elseif ($reportUpdated) {
+                session()->flash('message', 'Laporan perjalanan dinas berhasil diperbarui dan ditampilkan.');
+                $this->refreshData();
             }
         } else {
             // Initialize with latest Nota Dinas if available
             $latestNd = NotaDinas::with(['spt.sppds'])->latest('created_at')->first();
             if ($latestNd) {
                 $this->selectedNotaDinasId = $latestNd->id;
+                $this->selectedNotaDinas = $latestNd;
                 // Dispatch events to load child components
                 $this->dispatch('loadSpts', $latestNd->id);
                 if ($latestNd->spt) {
                     $this->selectedSptId = $latestNd->spt->id;
+                    $this->selectedSpt = $latestNd->spt;
                     $this->dispatch('loadSppds', $latestNd->spt->id);
                 }
             }
@@ -115,37 +147,59 @@ class MainPage extends Component
 
 
 
-    public function createKwitansi()
-    {
-        if (!$this->selectedSppd) {
-            session()->flash('error', 'Pilih SPPD terlebih dahulu');
-            return;
-        }
-        
-        // TODO: Implement kwitansi creation
-        session()->flash('message', 'Fitur Buat Kwitansi akan segera tersedia');
-    }
 
-    public function createDaftarRiil()
-    {
-        if (!$this->selectedSppd) {
-            session()->flash('error', 'Pilih SPPD terlebih dahulu');
-            return;
-        }
-        
-        // TODO: Implement daftar riil creation
-        session()->flash('message', 'Fitur Isi Daftar Riil akan segera tersedia');
-    }
 
     public function createLaporanPd()
     {
-        if (!$this->selectedSpt) {
+        // Use the selected SPT ID to avoid null object issues across requests
+        if (!$this->selectedSptId) {
             session()->flash('error', 'Pilih SPT terlebih dahulu');
             return;
         }
         
-        // TODO: Implement laporan PD creation
-        session()->flash('message', 'Fitur Buat Laporan PD akan segera tersedia');
+        // Check if trip report already exists
+        $existingReport = \App\Models\TripReport::where('spt_id', $this->selectedSptId)->first();
+        if ($existingReport) {
+            session()->flash('error', 'Laporan perjalanan dinas untuk SPT ini sudah ada');
+            return;
+        }
+        
+        // Redirect to create trip report with SPT ID as query parameter
+        return $this->redirect(route('trip-reports.create') . '?spt_id=' . $this->selectedSptId);
+    }
+
+    public function deleteTripReport($tripReportId)
+    {
+        try {
+            $tripReport = \App\Models\TripReport::findOrFail($tripReportId);
+            
+            // Store current state before deletion
+            $notaDinasId = $tripReport->spt->nota_dinas_id;
+            $sptId = $tripReport->spt_id;
+            $firstSppd = $tripReport->spt->sppds()->first();
+            $sppdId = $firstSppd ? $firstSppd->id : null;
+            
+            // Delete supporting documents first
+            $tripReport->supportingDocuments()->delete();
+            
+            // Delete the trip report
+            $tripReport->delete();
+            
+            session()->flash('message', 'Laporan perjalanan dinas berhasil dihapus.');
+            
+            // Refresh the data to update the UI
+            $this->refreshData();
+            
+            // Maintain the current state after deletion
+            $this->selectedNotaDinasId = $notaDinasId;
+            $this->selectedSptId = $sptId;
+            if ($sppdId) {
+                $this->selectedSppdId = $sppdId;
+            }
+            
+        } catch (\Exception $e) {
+            session()->flash('error', 'Gagal menghapus laporan perjalanan dinas: ' . $e->getMessage());
+        }
     }
 
     public function render()

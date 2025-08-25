@@ -15,6 +15,7 @@ class Spt extends Model
     protected $fillable = [
         'doc_no', 'number_is_manual', 'number_manual_reason', 'number_format_id', 'number_sequence_id', 'number_scope_unit_id',
         'nota_dinas_id', 'spt_date', 'signed_by_user_id', 'assignment_title',
+        'origin_place_id', 'destination_city_id', 'start_date', 'end_date', 'days_count', 'funding_source', 'status',
         'notes',
     ];
 
@@ -30,5 +31,29 @@ class Spt extends Model
     public function getParticipants()
     {
         return $this->notaDinas?->participants ?? collect();
+    }
+
+    // Accessor untuk place_from (menggunakan origin_place)
+    public function getPlaceFromAttribute()
+    {
+        return $this->originPlace?->name ?? '';
+    }
+
+    // Accessor untuk place_to (menggunakan destination_city)
+    public function getPlaceToAttribute()
+    {
+        return $this->destinationCity?->name ?? '';
+    }
+
+    // Accessor untuk depart_date (menggunakan start_date)
+    public function getDepartDateAttribute()
+    {
+        return $this->start_date;
+    }
+
+    // Accessor untuk return_date (menggunakan end_date)
+    public function getReturnDateAttribute()
+    {
+        return $this->end_date;
     }
 }

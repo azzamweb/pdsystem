@@ -49,7 +49,7 @@ class SppdTable extends Component
         $this->spt = null;
         
         if ($sptId) {
-            $this->spt = Spt::with(['sppds.user', 'sppds.originPlace', 'sppds.destinationCity', 'sppds.transportModes', 'sppds.receipts', 'sppds.itineraries', 'tripReport', 'notaDinas.participants.user'])->find($sptId);
+            $this->spt = Spt::with(['sppds.user', 'sppds.transportModes', 'sppds.receipts', 'sppds.itineraries', 'tripReport', 'notaDinas.originPlace', 'notaDinas.destinationCity.province', 'notaDinas.participants.user'])->find($sptId);
             if ($this->spt) {
                 $this->sppds = $this->spt->sppds->sortByDesc('created_at')->values();
                 // Don't auto-select SPPD

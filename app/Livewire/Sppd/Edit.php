@@ -22,11 +22,7 @@ class Edit extends Component
     #[Rule('required|date')]
     public $sppd_date = '';
 
-    #[Rule('required|exists:org_places,id')]
-    public $origin_place_id = '';
 
-    #[Rule('required|exists:cities,id')]
-    public $destination_city_id = '';
 
     #[Rule('required|array|min:1')]
     public $transport_mode_ids = [];
@@ -57,20 +53,17 @@ class Edit extends Component
         $this->sppd = Sppd::with([
             'user', 
             'spt.notaDinas.participants.user', 
+            'spt.notaDinas.originPlace',
             'spt.notaDinas.destinationCity.province',
             'spt.notaDinas.requestingUnit',
             'spt.notaDinas.fromUser.position',
             'spt.notaDinas.toUser.position',
             'spt.signedByUser.position',
-            'originPlace', 
-            'destinationCity', 
             'transportModes'
         ])->findOrFail($this->sppd_id);
 
         // Load data SPPD ke form
         $this->sppd_date = $this->sppd->sppd_date ?: now()->format('Y-m-d');
-        $this->origin_place_id = $this->sppd->origin_place_id;
-        $this->destination_city_id = $this->sppd->destination_city_id;
         $this->transport_mode_ids = $this->sppd->transportModes->pluck('id')->toArray();
         $this->trip_type = $this->sppd->trip_type ?: 'LUAR_DAERAH';
 
@@ -88,12 +81,9 @@ class Edit extends Component
     {
         $this->validate([
             'sppd_date' => 'required|date',
-            'origin_place_id' => 'required|exists:org_places,id',
-            'destination_city_id' => 'required|exists:cities,id',
             'transport_mode_ids' => 'required|array|min:1',
             'transport_mode_ids.*' => 'exists:transport_modes,id',
             'trip_type' => 'required|in:LUAR_DAERAH,DALAM_DAERAH_GT8H,DALAM_DAERAH_LE8H,DIKLAT',
-
         ]);
 
         if (!$this->sppd) {
@@ -104,8 +94,6 @@ class Edit extends Component
         try {
             $this->sppd->update([
                 'sppd_date' => $this->sppd_date,
-                'origin_place_id' => $this->origin_place_id,
-                'destination_city_id' => $this->destination_city_id,
                 'trip_type' => $this->trip_type,
                 'funding_source' => $this->funding_source,
             ]);

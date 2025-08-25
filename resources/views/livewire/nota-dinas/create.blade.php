@@ -124,6 +124,16 @@
                     @error('hal')<p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>@enderror
                 </div>
                 <div>
+                    <label for="origin_place_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tempat Asal <span class="text-red-500">*</span></label>
+                    <select wire:model="origin_place_id" id="origin_place_id" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        <option value="">Pilih Tempat Asal</option>
+                        @foreach(\App\Models\OrgPlace::orderBy('name')->get() as $place)
+                            <option value="{{ $place->id }}">{{ $place->name }}</option>
+                        @endforeach
+                    </select>
+                    @error('origin_place_id')<p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>@enderror
+                </div>
+                <div>
                     <label for="destination_city_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Kota/Kab Tujuan <span class="text-red-500">*</span></label>
                     <select wire:model="destination_city_id" id="destination_city_id" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                         <option value="">Pilih Kota/Kab</option>

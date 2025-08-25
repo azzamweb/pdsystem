@@ -13,10 +13,11 @@ class TripReport extends Model
     protected $fillable = [
         'doc_no', 'number_is_manual', 'number_manual_reason', 'number_format_id', 'number_sequence_id',
         'number_scope_unit_id', 'spt_id', 'report_no', 'report_date', 'place_from', 'place_to',
-        'depart_date', 'return_date', 'activities', 'created_by_user_id', 'status',
+        'depart_date', 'return_date', 'activities', 'created_by_user_id',
     ];
 
     public function spt() { return $this->belongsTo(Spt::class); }
     public function createdByUser() { return $this->belongsTo(User::class, 'created_by_user_id'); }
     public function signers() { return $this->hasMany(TripReportSigner::class); }
+    public function supportingDocuments() { return $this->hasMany(SupportingDocument::class); }
 }

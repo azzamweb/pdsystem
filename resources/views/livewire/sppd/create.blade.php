@@ -127,14 +127,10 @@
                     @error('transport_mode_ids')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tempat Berangkat (Origin) <span class="text-red-500">*</span></label>
-                    <select wire:model="origin_place_id" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                        <option value="">Pilih tempat</option>
-                        @foreach($orgPlaces as $pl)
-                            <option value="{{ $pl->id }}">{{ $pl->name }}</option>
-                        @endforeach
-                    </select>
-                    @error('origin_place_id')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tempat Berangkat (Origin)</label>
+                    <div class="mt-1 p-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-sm text-gray-600 dark:text-gray-400">
+                        <strong>Otomatis dari Nota Dinas:</strong> {{ $spt->notaDinas?->originPlace?->name ?? 'Belum diisi di Nota Dinas' }}
+                    </div>
                 </div>
                 
                 <div>

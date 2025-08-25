@@ -7,7 +7,7 @@
                         Buat Kwitansi
                     </h2>
                     <a 
-                        href="{{ route('documents') }}" 
+                        href="{{ $this->getBackUrl() }}" 
                         class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
                     >
                         Kembali
@@ -38,7 +38,7 @@
                                     Tujuan
                                 </label>
                                 <div class="text-sm text-gray-900 dark:text-white">
-                                    {{ $sppd->destinationCity->name }}, {{ $sppd->destinationCity->province->name }}
+                                    {{ $sppd->spt?->notaDinas?->destinationCity?->name ?? 'N/A' }}, {{ $sppd->spt?->notaDinas?->destinationCity?->province?->name ?? 'N/A' }}
                                 </div>
                             </div>
                             <div>
@@ -250,7 +250,7 @@
                         <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">III. Uang Harian</h3>
                         <div class="bg-white dark:bg-gray-700 rounded-lg p-4">
                             <div class="text-sm text-gray-900 dark:text-white">
-                                <strong>{{ $sppd->destinationCity->name }}</strong> 
+                                <strong>{{ $sppd->spt?->notaDinas?->destinationCity?->name ?? 'N/A' }}</strong> 
                                 ({{ $sppd->days_count }} hari × Rp {{ number_format($perdiem_rate, 0, ',', '.') }})
                             </div>
                             <div class="text-lg font-bold text-gray-900 dark:text-white mt-2">
@@ -293,7 +293,7 @@
                     <!-- Action Buttons -->
                     <div class="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">
                         <a 
-                            href="{{ route('documents') }}" 
+                            href="{{ $this->getBackUrl() }}" 
                             class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
                         >
                             Batal

@@ -13,7 +13,7 @@ class NotaDinas extends Model
     protected $fillable = [
         'doc_no', 'number_is_manual', 'number_manual_reason', 'number_format_id', 'number_sequence_id',
         'number_scope_unit_id', 'to_user_id', 'from_user_id', 'tembusan', 'nd_date',
-        'sifat', 'lampiran_count', 'hal', 'dasar', 'maksud', 'destination_city_id', 'start_date',
+        'sifat', 'lampiran_count', 'hal', 'dasar', 'maksud', 'destination_city_id', 'origin_place_id', 'start_date',
         'end_date', 'requesting_unit_id', 'status', 'created_by',
         'approved_by', 'approved_at', 'notes',
     ];
@@ -23,6 +23,7 @@ class NotaDinas extends Model
     public function toUser() { return $this->belongsTo(User::class, 'to_user_id'); }
     public function fromUser() { return $this->belongsTo(User::class, 'from_user_id'); }
     public function destinationCity() { return $this->belongsTo(City::class, 'destination_city_id'); }
+    public function originPlace() { return $this->belongsTo(OrgPlace::class, 'origin_place_id'); }
     public function requestingUnit() { return $this->belongsTo(Unit::class, 'requesting_unit_id'); }
     public function createdBy() { return $this->belongsTo(User::class, 'created_by'); }
     public function approvedBy() { return $this->belongsTo(User::class, 'approved_by'); }
@@ -30,4 +31,5 @@ class NotaDinas extends Model
     public function numberSequence() { return $this->belongsTo(NumberSequence::class, 'number_sequence_id'); }
     public function numberScopeUnit() { return $this->belongsTo(Unit::class, 'number_scope_unit_id'); }
     public function spt() { return $this->hasOne(Spt::class, 'nota_dinas_id'); }
+    public function supportingDocuments() { return $this->hasMany(SupportingDocument::class); }
 }

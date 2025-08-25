@@ -136,34 +136,24 @@
                 @error('sppd_date') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
             </div>
 
-            <!-- Tempat Asal dan Tujuan -->
+            <!-- Tempat Asal dan Tujuan (Otomatis dari Nota Dinas) -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
-                    <label for="origin_place_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Tempat Asal <span class="text-red-500">*</span>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Tempat Asal
                     </label>
-                    <select id="origin_place_id" wire:model="origin_place_id" 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                        <option value="">Pilih Tempat Asal</option>
-                        @foreach($orgPlaces as $place)
-                            <option value="{{ $place->id }}">{{ $place->name }}</option>
-                        @endforeach
-                    </select>
-                    @error('origin_place_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    <div class="p-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-sm text-gray-600 dark:text-gray-400">
+                        <strong>Otomatis dari Nota Dinas:</strong> {{ $sppd->spt?->notaDinas?->originPlace?->name ?? 'Belum diisi di Nota Dinas' }}
+                    </div>
                 </div>
 
                 <div>
-                    <label for="destination_city_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Kota Tujuan <span class="text-red-500">*</span>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Kota Tujuan
                     </label>
-                    <select id="destination_city_id" wire:model="destination_city_id" 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                        <option value="">Pilih Kota Tujuan</option>
-                        @foreach($cities as $city)
-                            <option value="{{ $city->id }}">{{ $city->name }}</option>
-                        @endforeach
-                    </select>
-                    @error('destination_city_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    <div class="p-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-sm text-gray-600 dark:text-gray-400">
+                        <strong>Otomatis dari Nota Dinas:</strong> {{ $sppd->spt?->notaDinas?->destinationCity?->name ?? 'Belum diisi di Nota Dinas' }}, {{ $sppd->spt?->notaDinas?->destinationCity?->province?->name ?? '' }}
+                    </div>
                 </div>
             </div>
 

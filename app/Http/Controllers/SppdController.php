@@ -10,8 +10,13 @@ class SppdController extends Controller
 {
     public function generatePdf(Sppd $sppd)
     {
-        // Load relationships yang diperlukan
-        $sppd->load(['user', 'spt.notaDinas', 'originPlace', 'destinationCity', 'itineraries']);
+        // Load relationships yang diperlukan dengan eager loading yang benar
+        $sppd->load([
+            'user', 
+            'spt.notaDinas.originPlace', 
+            'spt.notaDinas.destinationCity', 
+            'itineraries'
+        ]);
         
         // Generate PDF
         $pdf = Pdf::loadView('sppd.pdf', [
@@ -37,8 +42,13 @@ class SppdController extends Controller
     
     public function downloadPdf(Sppd $sppd)
     {
-        // Load relationships yang diperlukan
-        $sppd->load(['user', 'spt.notaDinas', 'originPlace', 'destinationCity', 'itineraries']);
+        // Load relationships yang diperlukan dengan eager loading yang benar
+        $sppd->load([
+            'user', 
+            'spt.notaDinas.originPlace', 
+            'spt.notaDinas.destinationCity', 
+            'itineraries'
+        ]);
         
         // Generate PDF
         $pdf = Pdf::loadView('sppd.pdf', [

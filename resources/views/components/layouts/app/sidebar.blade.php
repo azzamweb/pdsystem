@@ -20,7 +20,6 @@
 
                 <flux:navlist.group :heading="__('Dokumen')" class="grid">
                     <flux:navlist.item icon="document-text" :href="route('documents')" :current="request()->routeIs('documents')" wire:navigate>{{ __('Dokumen') }}</flux:navlist.item>
-                    <!-- Tambahkan SPPD, dst di bawahnya nanti -->
                 </flux:navlist.group>
 
                 <flux:navlist.item icon="users" :href="route('master-data.index')" :current="request()->routeIs('master-data.*')" wire:navigate>{{ __('Master Data') }}</flux:navlist.item>

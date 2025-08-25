@@ -75,8 +75,8 @@ class Create extends Component
         $this->sppd = Sppd::with([
             'user', 
             'spt.notaDinas.participants.user',
-            'originPlace',
-            'destinationCity.province',
+            'spt.notaDinas.originPlace',
+            'spt.notaDinas.destinationCity.province',
             'transportModes'
         ])->findOrFail($this->sppd_id);
 
@@ -125,7 +125,7 @@ class Create extends Component
             return;
         }
 
-        $destinationProvinceId = $this->sppd->destinationCity->province_id;
+        $destinationProvinceId = $this->sppd->spt?->notaDinas?->destinationCity?->province_id;
 
         // Load Perdiem Rate based on trip type
         $perdiemRate = PerdiemRate::where('province_id', $destinationProvinceId)
@@ -235,7 +235,17 @@ class Create extends Component
             DB::commit();
 
             session()->flash('message', 'Kwitansi berhasil dibuat.');
-            return redirect()->route('documents');
+            
+            // Redirect back to documents page with selected state
+            $notaDinasId = $this->sppd->spt->nota_dinas_id;
+            $sptId = $this->sppd->spt_id;
+            $sppdId = $this->sppd->id;
+            
+            return redirect()->route('documents', [
+                'nota_dinas_id' => $notaDinasId,
+                'spt_id' => $sptId,
+                'sppd_id' => $sppdId
+            ]);
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -282,7 +292,7 @@ class Create extends Component
                 'unit_amount' => $amount,
                 'line_total' => $amount,
                 'is_no_lodging' => true,
-                'destination_city' => $this->sppd->destinationCity->name,
+                'destination_city' => $this->sppd->spt?->notaDinas?->destinationCity?->name ?? 'N/A',
                 'remark' => "Tidak menginap (30% dari tarif maksimal)",
             ]);
         } elseif ($this->lodging_nights > 0) {
@@ -296,7 +306,7 @@ class Create extends Component
                 'unit_amount' => $lodgingRate,
                 'line_total' => $amount,
                 'is_no_lodging' => false,
-                'destination_city' => $this->sppd->destinationCity->name,
+                'destination_city' => $this->sppd->spt?->notaDinas?->destinationCity?->name ?? 'N/A',
                 'remark' => "Penginapan {$this->lodging_nights} malam",
             ]);
         }
@@ -314,8 +324,8 @@ class Create extends Component
                 'unit' => 'Hari',
                 'unit_amount' => $perdiemRate,
                 'line_total' => $amount,
-                'destination_city' => $this->sppd->destinationCity->name,
-                'remark' => "Uang harian {$this->sppd->destinationCity->name} ({$this->sppd->days_count} hari)",
+                'destination_city' => $this->sppd->spt?->notaDinas?->destinationCity?->name ?? 'N/A',
+                'remark' => "Uang harian " . ($this->sppd->spt?->notaDinas?->destinationCity?->name ?? 'N/A') . " ({$this->sppd->days_count} hari)",
             ]);
         }
     }
@@ -363,6 +373,23 @@ class Create extends Component
         }
         
         return $total;
+    }
+
+    public function getBackUrl()
+    {
+        if ($this->sppd) {
+            $notaDinasId = $this->sppd->spt->nota_dinas_id;
+            $sptId = $this->sppd->spt_id;
+            $sppdId = $this->sppd->id;
+            
+            return route('documents', [
+                'nota_dinas_id' => $notaDinasId,
+                'spt_id' => $sptId,
+                'sppd_id' => $sppdId
+            ]);
+        }
+        
+        return route('documents');
     }
 
     public function render()

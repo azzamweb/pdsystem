@@ -103,7 +103,7 @@ class NotaDinasList extends Component
 
     public function confirmDelete($notaDinasId)
     {
-        $notaDinas = NotaDinas::find($notaDinasId);
+        $notaDinas = NotaDinas::with(['spt', 'supportingDocuments'])->find($notaDinasId);
         if ($notaDinas) {
             // Cek apakah Nota Dinas sudah memiliki SPT
             if ($notaDinas->spt) {
@@ -111,9 +111,9 @@ class NotaDinasList extends Component
                 return;
             }
             
-            // Cek apakah ada peserta yang terkait
-            if ($notaDinas->participants && $notaDinas->participants->count() > 0) {
-                session()->flash('error', 'Nota Dinas tidak dapat dihapus karena masih memiliki data peserta. Hapus data peserta terlebih dahulu.');
+            // Cek apakah ada dokumen pendukung yang terkait
+            if ($notaDinas->supportingDocuments && $notaDinas->supportingDocuments->count() > 0) {
+                session()->flash('error', 'Nota Dinas tidak dapat dihapus karena masih memiliki dokumen pendukung. Hapus dokumen pendukung terlebih dahulu.');
                 return;
             }
             
@@ -136,7 +136,7 @@ class NotaDinasList extends Component
 
     public function render()
     {
-        $query = NotaDinas::with(['spt', 'requestingUnit', 'toUser', 'fromUser', 'participants.user', 'destinationCity'])
+        $query = NotaDinas::with(['spt', 'requestingUnit', 'toUser', 'fromUser', 'participants.user', 'destinationCity', 'supportingDocuments'])
             ->orderBy('created_at', 'desc');
 
         // Search
