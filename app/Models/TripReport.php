@@ -19,5 +19,6 @@ class TripReport extends Model
     public function spt() { return $this->belongsTo(Spt::class); }
     public function createdByUser() { return $this->belongsTo(User::class, 'created_by_user_id'); }
     public function signers() { return $this->hasMany(TripReportSigner::class); }
-    public function supportingDocuments() { return $this->hasMany(SupportingDocument::class); }
+    // Supporting documents now relate to Nota Dinas, not Trip Report
+    // public function supportingDocuments() { return $this->hasMany(SupportingDocument::class); }
 }

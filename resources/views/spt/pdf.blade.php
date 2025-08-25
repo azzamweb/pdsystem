@@ -195,7 +195,7 @@
         <div class="end-section" style="page-break-inside: avoid;">
             <div class="signature">
                 <div class="block" style="width: 300px;">
-                    <div>Bengkalis, {{ $spt->spt_date ? \Carbon\Carbon::parse($spt->spt_date)->locale('id')->translatedFormat('F Y') : '-' }}</div>
+                    <div>Bengkalis, {{ $spt->spt_date ? \Carbon\Carbon::parse($spt->spt_date)->locale('id')->translatedFormat('d F Y') : '-' }}</div>
                     <div style="word-wrap: break-word; white-space: normal;">{{ $spt->signedByUser?->position?->name ?? '-' }} {{ $spt->signedByUser?->unit?->name ?? ' ' }}{!! $spt->signedByUser?->unit?->name ? '<br>' : '' !!} {{ \DB::table('org_settings')->value('name') }}</div>
                     
                     <div>Kabupaten Bengkalis</div>

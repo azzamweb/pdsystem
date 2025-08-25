@@ -512,7 +512,7 @@
             </tr>
 
             <!-- ROW 6 -->
-            <tr>
+            <tr >
                 <td style="border: 1px solid #000; vertical-align: top; padding: 4px; width: 50%;">
                     <table style="width: 100%; border-collapse: collapse;">
                         <tr>
@@ -527,7 +527,7 @@
                             <td style="word-break: break-word; vertical-align: top; font-size: 10pt;">&nbsp;</td>
                         </tr>
                         <tr>
-                            <td colspan="3" style="height: 40px;"></td>
+                            <td colspan="3" style="height: 0px;"></td>
                         </tr>
                     </table>
                 </td>
@@ -537,7 +537,36 @@
                         benar dilakukan atas perintah dan semata‑mata untuk kepentingan jabatan
                         dalam waktu yang sesingkat‑singkatnya.
                     </div>
-                    <div style="height: 40px;"></div>
+                    <div style="height: 0px;"></div>
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #000; vertical-align: top; padding: 4px; width: 50%;">
+                    <div class="block">
+                        <div>{{ $sppd->spt?->notaDinas?->fromUser?->position?->name ?? '-' }}</div>
+                        <div>{{ \DB::table('org_settings')->value('name') }}</div>
+                        <div>Selaku Kuasa Pengguna Anggaran</div>
+                        <br><br><br><br>
+                        <div class="name">{{ $sppd->spt?->notaDinas?->fromUser?->gelar_depan ?? '' }} {{ $sppd->spt?->notaDinas?->fromUser?->name ?? '-' }} {{ $sppd->spt?->notaDinas?->fromUser?->gelar_belakang ?? '' }}</div>
+                        <div class="rank">{{ $sppd->spt?->notaDinas?->fromUser?->rank?->name ?? '-' }} ({{ $sppd->spt?->notaDinas?->fromUser?->rank?->code ?? '-' }})</div>
+                        <div class="nip">NIP. {{ $sppd->spt?->notaDinas?->fromUser?->nip ?? '-' }}</div>
+                    </div>
+                
+            <div style="height: 10px;"></div> 
+                </td>
+                <td style="border: 1px solid #000; vertical-align: top; padding: 4px; width: 50%;">
+                    
+                            <div class="block">
+                                <div>{{ $sppd->spt?->notaDinas?->fromUser?->position?->name ?? '-' }}</div>
+                                <div>{{ \DB::table('org_settings')->value('name') }}</div>
+                                <div>Selaku Kuasa Pengguna Anggaran</div>
+                                <br><br><br><br>
+                                <div class="name">{{ $sppd->spt?->notaDinas?->fromUser?->gelar_depan ?? '' }} {{ $sppd->spt?->notaDinas?->fromUser?->name ?? '-' }} {{ $sppd->spt?->notaDinas?->fromUser?->gelar_belakang ?? '' }}</div>
+                                <div class="rank">{{ $sppd->spt?->notaDinas?->fromUser?->rank?->name ?? '-' }} ({{ $sppd->spt?->notaDinas?->fromUser?->rank?->code ?? '-' }})</div>
+                                <div class="nip">NIP. {{ $sppd->spt?->notaDinas?->fromUser?->nip ?? '-' }}</div>
+                            </div>
+                        
+                    <div style="height: 10px;"></div>
                 </td>
             </tr>
 
@@ -551,7 +580,7 @@
                             <td style="word-break: break-word; vertical-align: top; font-size: 10pt;"></td>
                         </tr>
                     </table>
-                    <div style="height: 40px;"></div>
+                  
                 </td>
             </tr>
 
@@ -574,18 +603,7 @@
             </tr>
         </table>
 
-        <!-- Signature - sama dengan halaman pertama -->
-        <div class="signature end-section">
-            <div class="block">
-                <div>{{ $sppd->spt?->notaDinas?->fromUser?->position?->name ?? '-' }}</div>
-                <div>{{ \DB::table('org_settings')->value('name') }}</div>
-                <div>Selaku Kuasa Pengguna Anggaran</div>
-                <br><br><br><br><br><br>
-                <div class="name">{{ $sppd->spt?->notaDinas?->fromUser?->gelar_depan ?? '' }} {{ $sppd->spt?->notaDinas?->fromUser?->name ?? '-' }} {{ $sppd->spt?->notaDinas?->fromUser?->gelar_belakang ?? '' }}</div>
-                <div class="rank">{{ $sppd->spt?->notaDinas?->fromUser?->rank?->name ?? '-' }} ({{ $sppd->spt?->notaDinas?->fromUser?->rank?->code ?? '-' }})</div>
-                <div class="nip">NIP. {{ $sppd->spt?->notaDinas?->fromUser?->nip ?? '-' }}</div>
-            </div>
-        </div>
+        
     </div>
 </body>
 </html>

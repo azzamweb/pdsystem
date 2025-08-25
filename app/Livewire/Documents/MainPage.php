@@ -179,8 +179,8 @@ class MainPage extends Component
             $firstSppd = $tripReport->spt->sppds()->first();
             $sppdId = $firstSppd ? $firstSppd->id : null;
             
-            // Delete supporting documents first
-            $tripReport->supportingDocuments()->delete();
+            // Supporting documents now relate to Nota Dinas, not Trip Report
+            // No need to delete supporting documents when deleting trip report
             
             // Delete the trip report
             $tripReport->delete();
@@ -199,6 +199,27 @@ class MainPage extends Component
             
         } catch (\Exception $e) {
             session()->flash('error', 'Gagal menghapus laporan perjalanan dinas: ' . $e->getMessage());
+        }
+    }
+
+    public function deleteSupportingDocument($documentId)
+    {
+        try {
+            $document = \App\Models\SupportingDocument::findOrFail($documentId);
+            
+            // Store document info for confirmation message
+            $documentTitle = $document->title;
+            
+            // Delete the document
+            $document->delete();
+            
+            session()->flash('message', "Dokumen '{$documentTitle}' berhasil dihapus.");
+            
+            // Refresh the data to update the UI
+            $this->refreshData();
+            
+        } catch (\Exception $e) {
+            session()->flash('error', 'Gagal menghapus dokumen pendukung: ' . $e->getMessage());
         }
     }
 
