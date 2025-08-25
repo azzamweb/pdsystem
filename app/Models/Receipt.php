@@ -13,7 +13,7 @@ class Receipt extends Model
     protected $fillable = [
         'doc_no', 'number_is_manual', 'number_manual_reason', 'number_format_id', 'number_sequence_id',
         'number_scope_unit_id', 'sppd_id', 'travel_grade_id', 'receipt_no', 'receipt_date', 'payee_user_id',
-        'total_amount', 'notes', 'status',
+        'notes', 'status',
     ];
 
     public function sppd() { return $this->belongsTo(Sppd::class); }

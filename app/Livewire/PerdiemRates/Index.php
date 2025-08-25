@@ -41,14 +41,11 @@ class Index extends Component
     public function render()
     {
         $perdiemRates = PerdiemRate::query()
-            ->with(['province', 'travelGrade'])
+            ->with(['province'])
             ->when($this->search, function ($query) {
                 $query->whereHas('province', function ($q) {
                     $q->where('name', 'like', '%' . $this->search . '%')
                       ->orWhere('kemendagri_code', 'like', '%' . $this->search . '%');
-                })->orWhereHas('travelGrade', function ($q) {
-                    $q->where('name', 'like', '%' . $this->search . '%')
-                      ->orWhere('code', 'like', '%' . $this->search . '%');
                 });
             })
             ->orderBy($this->sortField, $this->sortDirection)

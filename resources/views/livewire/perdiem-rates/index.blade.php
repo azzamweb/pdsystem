@@ -66,9 +66,7 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                     Provinsi
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Tingkatan
-                                </th>
+
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                     Luar Kota
                                 </th>
@@ -99,16 +97,7 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div>
-                                            <div class="font-medium text-gray-900 dark:text-white">
-                                                {{ $perdiemRate->travelGrade->name }}
-                                            </div>
-                                            <div class="text-sm text-gray-500 dark:text-gray-400">
-                                                {{ $perdiemRate->travelGrade->code }}
-                                            </div>
-                                        </div>
-                                    </td>
+
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
                                         <span class="font-mono">{{ $perdiemRate->formatted_luar_kota }}</span>
                                     </td>
@@ -143,7 +132,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                                    <td colspan="6" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
                                         @if($search)
                                             Tidak ada tarif yang ditemukan dengan kata kunci "{{ $search }}"
                                         @else

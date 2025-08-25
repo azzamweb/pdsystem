@@ -70,6 +70,11 @@ class SppdTable extends Component
         return redirect()->route('sppd.create', ['spt_id' => $sptId]);
     }
 
+    public function createReceipt($sppdId)
+    {
+        return redirect()->route('receipts.create', ['sppd_id' => $sppdId]);
+    }
+
 
 
     public function confirmDelete($sppdId)

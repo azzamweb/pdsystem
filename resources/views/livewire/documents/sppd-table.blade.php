@@ -14,6 +14,9 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 Perjalanan
                             </th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                Kwitansi
+                            </th>
                             <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 Aksi
                             </th>
@@ -74,6 +77,46 @@
                                         </div>
                                     </div>
                                 </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                    @if($sppd->receipts && $sppd->receipts->count() > 0)
+                                        <!-- Kwitansi sudah ada - tampilkan tombol cetak dan edit -->
+                                        <div class="flex flex-col space-y-1">
+                                            <a 
+                                                href="{{ route('receipts.show', $sppd->receipts->first()) }}" 
+                                                target="_blank"
+                                                class="inline-flex items-center px-2 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-md hover:bg-green-200 dark:bg-green-900 dark:text-green-300 dark:hover:bg-green-800"
+                                                title="Cetak Kwitansi"
+                                            >
+                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                                                </svg>
+                                                Cetak
+                                            </a>
+                                            <a 
+                                                href="{{ route('receipts.edit', $sppd->receipts->first()) }}"
+                                                class="inline-flex items-center px-2 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded-md hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800"
+                                                title="Edit Kwitansi"
+                                            >
+                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                                </svg>
+                                                Edit
+                                            </a>
+                                        </div>
+                                    @else
+                                        <!-- Kwitansi belum ada - tampilkan tombol tambah -->
+                                        <button 
+                                            wire:click="createReceipt({{ $sppd->id }})"
+                                            class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-100 rounded-md hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800"
+                                            title="Buat Kwitansi"
+                                        >
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                            </svg>
+                                            + Kwitansi
+                                        </button>
+                                    @endif
+                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div class="flex items-center justify-end space-x-2">
 
@@ -101,17 +144,22 @@
                                                 x-transition:leave="transition ease-in duration-75"
                                                 x-transition:leave-start="transform opacity-100 scale-100"
                                                 x-transition:leave-end="transform opacity-0 scale-95"
-                                                class="fixed z-[9999] mt-2 w-48 origin-top-right rounded-md bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                                                class="fixed z-[99999] w-48 rounded-md bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
                                                 style="display: none;"
                                                 x-ref="dropdown"
                                                 x-init="$watch('open', value => {
                                                     if (value) {
-                                                        const rect = $el.getBoundingClientRect();
-                                                        const button = $el.previousElementSibling;
-                                                        const buttonRect = button.getBoundingClientRect();
-                                                        
-                                                        $el.style.top = buttonRect.bottom + 'px';
-                                                        $el.style.left = (buttonRect.right - $el.offsetWidth) + 'px';
+                                                        setTimeout(() => {
+                                                            const button = $el.previousElementSibling;
+                                                            const buttonRect = button.getBoundingClientRect();
+                                                            
+                                                            // Position to the left and above the button with smaller gap
+                                                            const top = buttonRect.top - $el.offsetHeight - 4;
+                                                            const left = buttonRect.left - $el.offsetWidth - 4;
+                                                            
+                                                            $el.style.top = Math.max(4, top) + 'px';
+                                                            $el.style.left = Math.max(4, left) + 'px';
+                                                        }, 10);
                                                     }
                                                 })"
                                             >
@@ -138,6 +186,8 @@
                                                         </svg>
                                                         Edit
                                                     </a>
+
+
 
                                                     <!-- Delete -->
                                                     @if(($sppd->itineraries && $sppd->itineraries->count() > 0) || ($sppd->receipts && $sppd->receipts->count() > 0))

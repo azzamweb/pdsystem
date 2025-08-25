@@ -13,7 +13,6 @@ class Edit extends Component
 {
     public PerdiemRate $perdiemRate;
     public $province_id = '';
-    public $travel_grade_id = '';
     public $satuan = 'OH';
     public $luar_kota = '';
     public $dalam_kota_gt8h = '';
@@ -21,7 +20,6 @@ class Edit extends Component
 
     protected $rules = [
         'province_id' => 'required|exists:provinces,id',
-        'travel_grade_id' => 'required|exists:travel_grades,id',
         'satuan' => 'required|string|max:10',
         'luar_kota' => 'required|numeric|min:0',
         'dalam_kota_gt8h' => 'required|numeric|min:0',
@@ -31,8 +29,6 @@ class Edit extends Component
     protected $messages = [
         'province_id.required' => 'Provinsi wajib dipilih',
         'province_id.exists' => 'Provinsi yang dipilih tidak valid',
-        'travel_grade_id.required' => 'Tingkatan perjalanan wajib dipilih',
-        'travel_grade_id.exists' => 'Tingkatan yang dipilih tidak valid',
         'satuan.required' => 'Satuan wajib diisi',
         'satuan.max' => 'Satuan maksimal 10 karakter',
         'luar_kota.required' => 'Tarif luar kota wajib diisi',
@@ -50,7 +46,6 @@ class Edit extends Component
     {
         $this->perdiemRate = $perdiemRate;
         $this->province_id = $perdiemRate->province_id;
-        $this->travel_grade_id = $perdiemRate->travel_grade_id;
         $this->satuan = $perdiemRate->satuan;
         $this->luar_kota = $perdiemRate->luar_kota;
         $this->dalam_kota_gt8h = $perdiemRate->dalam_kota_gt8h;
@@ -61,20 +56,17 @@ class Edit extends Component
     {
         $this->validate();
 
-        // Check for duplicate combination (excluding current record)
-        $existingRate = PerdiemRate::where([
-            'province_id' => $this->province_id,
-            'travel_grade_id' => $this->travel_grade_id,
-        ])->where('id', '!=', $this->perdiemRate->id)->first();
+        // Check for duplicate province (excluding current record)
+        $existingRate = PerdiemRate::where('province_id', $this->province_id)
+            ->where('id', '!=', $this->perdiemRate->id)->first();
 
         if ($existingRate) {
-            session()->flash('error', 'Tarif untuk kombinasi provinsi dan tingkatan ini sudah ada');
+            session()->flash('error', 'Tarif untuk provinsi ini sudah ada');
             return;
         }
 
         $this->perdiemRate->update([
             'province_id' => $this->province_id,
-            'travel_grade_id' => $this->travel_grade_id,
             'satuan' => $this->satuan,
             'luar_kota' => $this->luar_kota,
             'dalam_kota_gt8h' => $this->dalam_kota_gt8h,
@@ -88,8 +80,7 @@ class Edit extends Component
     public function render()
     {
         $provinces = Province::orderBy('name')->get();
-        $travelGrades = TravelGrade::orderBy('name')->get();
 
-        return view('livewire.perdiem-rates.edit', compact('provinces', 'travelGrades'));
+        return view('livewire.perdiem-rates.edit', compact('provinces'));
     }
 }

@@ -62,12 +62,33 @@ class DocumentNumberService
                 ]);
             }
             $seqValue = $sequence->current_value + 1;
-            // 4. Build nomor dan pastikan unik (global)
+            // 4. Build nomor dan pastikan unik sesuai scope dokumen
             $maxRetry = 50;
             $retry = 0;
             do {
                 $number = self::buildNumber($format, $seqValue, $unitScopeId, $date);
-                $exists = DocumentNumber::where('number', $number)->lockForUpdate()->exists();
+                
+                // Scope penomoran:
+                // - ND, SPT, LAP: GLOBAL (unique untuk seluruh OPD)
+                // - SPPD, KWT: PER UNIT (unique per unit/bidang)
+                if (in_array($docType, ['SPPD', 'KWT'])) {
+                    // SPPD & KWT: cek unik per unit
+                    if ($docType === 'SPPD') {
+                        $exists = \App\Models\Sppd::where('doc_no', $number)
+                            ->where('number_scope_unit_id', $unitScopeId)
+                            ->lockForUpdate()
+                            ->exists();
+                    } else { // KWT (Receipts)
+                        $exists = \App\Models\Receipt::where('doc_no', $number)
+                            ->where('number_scope_unit_id', $unitScopeId)
+                            ->lockForUpdate()
+                            ->exists();
+                    }
+                } else {
+                    // ND, SPT, LAP: cek unik global
+                    $exists = DocumentNumber::where('number', $number)->lockForUpdate()->exists();
+                }
+                
                 if ($exists) {
                     $seqValue++;
                     $retry++;
@@ -79,18 +100,24 @@ class DocumentNumberService
                 'current_value' => $seqValue,
                 'last_generated_at' => now(),
             ]);
-            $audit = DocumentNumber::create([
-                'doc_type' => $docType,
-                'doc_id' => $meta['doc_id'] ?? null,
-                'number' => $number,
-                'generated_by_user_id' => $userId,
-                'is_manual' => false,
-                'old_number' => null,
-                'format_id' => $format->id,
-                'sequence_id' => $sequence->id,
-                'meta' => json_encode($meta),
-                'created_at' => now(),
-            ]);
+            
+            // Audit trail: hanya untuk dokumen global scope (ND, SPT, LAP)
+            $audit = null;
+            if (!in_array($docType, ['SPPD', 'KWT'])) {
+                $audit = DocumentNumber::create([
+                    'doc_type' => $docType,
+                    'doc_id' => $meta['doc_id'] ?? null,
+                    'number' => $number,
+                    'generated_by_user_id' => $userId,
+                    'is_manual' => false,
+                    'old_number' => null,
+                    'format_id' => $format->id,
+                    'sequence_id' => $sequence->id,
+                    'meta' => json_encode($meta),
+                    'created_at' => now(),
+                ]);
+            }
+            
             return [
                 'number' => $number,
                 'sequence' => $sequence,

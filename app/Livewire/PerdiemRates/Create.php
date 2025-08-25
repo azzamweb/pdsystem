@@ -12,7 +12,6 @@ use Livewire\Attributes\Layout;
 class Create extends Component
 {
     public $province_id = '';
-    public $travel_grade_id = '';
     public $satuan = 'OH';
     public $luar_kota = '';
     public $dalam_kota_gt8h = '';
@@ -20,7 +19,6 @@ class Create extends Component
 
     protected $rules = [
         'province_id' => 'required|exists:provinces,id',
-        'travel_grade_id' => 'required|exists:travel_grades,id',
         'satuan' => 'required|string|max:10',
         'luar_kota' => 'required|numeric|min:0',
         'dalam_kota_gt8h' => 'required|numeric|min:0',
@@ -30,8 +28,6 @@ class Create extends Component
     protected $messages = [
         'province_id.required' => 'Provinsi wajib dipilih',
         'province_id.exists' => 'Provinsi yang dipilih tidak valid',
-        'travel_grade_id.required' => 'Tingkatan perjalanan wajib dipilih',
-        'travel_grade_id.exists' => 'Tingkatan yang dipilih tidak valid',
         'satuan.required' => 'Satuan wajib diisi',
         'satuan.max' => 'Satuan maksimal 10 karakter',
         'luar_kota.required' => 'Tarif luar kota wajib diisi',
@@ -49,20 +45,16 @@ class Create extends Component
     {
         $this->validate();
 
-        // Check for duplicate combination
-        $existingRate = PerdiemRate::where([
-            'province_id' => $this->province_id,
-            'travel_grade_id' => $this->travel_grade_id,
-        ])->first();
+        // Check for duplicate province
+        $existingRate = PerdiemRate::where('province_id', $this->province_id)->first();
 
         if ($existingRate) {
-            session()->flash('error', 'Tarif untuk kombinasi provinsi dan tingkatan ini sudah ada');
+            session()->flash('error', 'Tarif untuk provinsi ini sudah ada');
             return;
         }
 
         PerdiemRate::create([
             'province_id' => $this->province_id,
-            'travel_grade_id' => $this->travel_grade_id,
             'satuan' => $this->satuan,
             'luar_kota' => $this->luar_kota,
             'dalam_kota_gt8h' => $this->dalam_kota_gt8h,
@@ -76,8 +68,7 @@ class Create extends Component
     public function render()
     {
         $provinces = Province::orderBy('name')->get();
-        $travelGrades = TravelGrade::orderBy('name')->get();
 
-        return view('livewire.perdiem-rates.create', compact('provinces', 'travelGrades'));
+        return view('livewire.perdiem-rates.create', compact('provinces'));
     }
 }

@@ -181,17 +181,22 @@
                                     x-transition:leave="transition ease-in duration-75"
                                     x-transition:leave-start="transform opacity-100 scale-100"
                                     x-transition:leave-end="transform opacity-0 scale-95"
-                                    class="fixed z-[9999] mt-2 w-48 origin-top-right rounded-md bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                                    class="fixed z-[99999] w-48 rounded-md bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
                                     style="display: none;"
                                     x-ref="dropdown"
                                     x-init="$watch('open', value => {
                                         if (value) {
-                                            const rect = $el.getBoundingClientRect();
-                                            const button = $el.previousElementSibling;
-                                            const buttonRect = button.getBoundingClientRect();
-                                            
-                                            $el.style.top = buttonRect.bottom + 'px';
-                                            $el.style.left = (buttonRect.right - $el.offsetWidth) + 'px';
+                                            setTimeout(() => {
+                                                const button = $el.previousElementSibling;
+                                                const buttonRect = button.getBoundingClientRect();
+                                                
+                                                // Position to the left and above the button with smaller gap
+                                                const top = buttonRect.top - $el.offsetHeight - 4;
+                                                const left = buttonRect.left - $el.offsetWidth - 4;
+                                                
+                                                $el.style.top = Math.max(4, top) + 'px';
+                                                $el.style.left = Math.max(4, left) + 'px';
+                                            }, 10);
                                         }
                                     })"
                                 >

@@ -42,22 +42,7 @@
                             @enderror
                         </div>
 
-                        <!-- Travel Grade -->
-                        <div>
-                            <label for="travel_grade_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Tingkatan Perjalanan <span class="text-red-500">*</span>
-                            </label>
-                            <select wire:model="travel_grade_id" id="travel_grade_id" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                <option value="">Pilih tingkatan</option>
-                                @foreach($travelGrades as $grade)
-                                    <option value="{{ $grade->id }}">{{ $grade->display_name }}</option>
-                                @endforeach
-                            </select>
-                            @error('travel_grade_id')
-                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
-                            @enderror
-                        </div>
+
 
                         <!-- Satuan -->
                         <div>

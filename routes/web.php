@@ -73,6 +73,9 @@ use App\Livewire\OfficialVehicleTransportRefs\Index as OfficialVehicleTransportR
 use App\Livewire\AtCostComponents\Create as AtCostComponentCreate;
 use App\Livewire\AtCostComponents\Edit as AtCostComponentEdit;
 use App\Livewire\AtCostComponents\Index as AtCostComponentIndex;
+use App\Livewire\DistrictPerdiemRates\Create as DistrictPerdiemRateCreate;
+use App\Livewire\DistrictPerdiemRates\Edit as DistrictPerdiemRateEdit;
+use App\Livewire\DistrictPerdiemRates\Index as DistrictPerdiemRateIndex;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\DocNumberFormats\Index as DocNumberFormatIndex;
 use App\Livewire\DocNumberFormats\Create as DocNumberFormatCreate;
@@ -85,6 +88,8 @@ use App\Livewire\Spt\Create as SptCreate;
 use App\Livewire\Spt\Edit as SptEdit;
 use App\Livewire\Sppd\Create as SppdCreate;
 use App\Livewire\Sppd\Edit as SppdEdit;
+use App\Livewire\Receipts\Create as ReceiptCreate;
+use App\Livewire\Receipts\Index as ReceiptIndex;
 use App\Http\Controllers\NotaDinasController;
 use App\Http\Controllers\SptController;
 use App\Http\Controllers\SppdController;
@@ -218,6 +223,11 @@ Route::middleware('auth')->group(function () {
     Route::get('at-cost-components/create', AtCostComponentCreate::class)->name('at-cost-components.create');
     Route::get('at-cost-components/{component}/edit', AtCostComponentEdit::class)->name('at-cost-components.edit');
 
+    // District Perdiem Rates CRUD
+    Route::get('district-perdiem-rates', DistrictPerdiemRateIndex::class)->name('district-perdiem-rates.index');
+    Route::get('district-perdiem-rates/create', DistrictPerdiemRateCreate::class)->name('district-perdiem-rates.create');
+    Route::get('district-perdiem-rates/{districtPerdiemRate}/edit', DistrictPerdiemRateEdit::class)->name('district-perdiem-rates.edit');
+
     // Settings
     Route::get('settings/profile', Profile::class)->name('profile.show');
     Route::get('settings/password', Password::class)->name('password.show');
@@ -253,6 +263,14 @@ Route::middleware('auth')->group(function () {
     // SPPD CRUD
     Route::get('sppd/create', SppdCreate::class)->name('sppd.create');
     Route::get('sppd/{sppd}/edit', SppdEdit::class)->name('sppd.edit');
+
+    // Receipts CRUD
+    Route::get('receipts', ReceiptIndex::class)->name('receipts.index');
+    Route::get('receipts/create', ReceiptCreate::class)->name('receipts.create');
+    Route::get('receipts/{receipt}/edit', \App\Livewire\Receipts\Edit::class)->name('receipts.edit');
+    Route::get('receipts/{receipt}', function(\App\Models\Receipt $receipt) {
+        return view('receipts.pdf', compact('receipt'));
+    })->name('receipts.show');
     // Redirect show SPPD langsung ke PDF
     Route::get('sppd/{sppd}', function(\App\Models\Sppd $sppd) {
         return redirect()->route('sppd.pdf', $sppd);

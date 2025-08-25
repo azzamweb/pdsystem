@@ -9,7 +9,6 @@ class PerdiemRate extends Model
 {
     protected $fillable = [
         'province_id',
-        'travel_grade_id',
         'satuan',
         'luar_kota',
         'dalam_kota_gt8h',
@@ -18,7 +17,6 @@ class PerdiemRate extends Model
 
     protected $casts = [
         'province_id' => 'integer',
-        'travel_grade_id' => 'integer',
         'satuan' => 'string',
         'luar_kota' => 'decimal:2',
         'dalam_kota_gt8h' => 'decimal:2',
@@ -30,14 +28,9 @@ class PerdiemRate extends Model
         return $this->belongsTo(Province::class);
     }
 
-    public function travelGrade(): BelongsTo
-    {
-        return $this->belongsTo(TravelGrade::class);
-    }
-
     public function getDisplayNameAttribute(): string
     {
-        return "{$this->province->name} - {$this->travelGrade->name}";
+        return "{$this->province->name}";
     }
 
     public function getFormattedLuarKotaAttribute(): string

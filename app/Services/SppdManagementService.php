@@ -102,8 +102,10 @@ class SppdManagementService
             'number_scope_unit_id' => $spt->unit_id,
         ]);
 
-        // Update the audit trail with the actual SPPD ID
-        $docNumberResult['audit']->update(['doc_id' => $sppd->id]);
+        // Update the audit trail with the actual SPPD ID (if exists)
+        if ($docNumberResult['audit']) {
+            $docNumberResult['audit']->update(['doc_id' => $sppd->id]);
+        }
 
         Log::info("SPPD created for participant", [
             'sppd_id' => $sppd->id,
