@@ -74,12 +74,13 @@
 
                             <!-- Kegiatan -->
                             <div>
-                                <label for="activities" class="block text-sm font-medium text-gray-700">
-                                    Kegiatan yang Dilakukan <span class="text-red-500">*</span>
-                                </label>
-                                <textarea wire:model="activities" id="activities" rows="4" 
-                                          class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                          placeholder="Jelaskan kegiatan yang dilakukan selama perjalanan dinas..."></textarea>
+                                <x-enhanced-textarea 
+                                    id="activities"
+                                    model="activities"
+                                    label="Kegiatan yang Dilakukan <span class='text-red-500'>*</span>"
+                                    placeholder="Jelaskan kegiatan yang dilakukan selama perjalanan dinas... Gunakan bullet points atau numbering untuk struktur yang lebih baik."
+                                    rows="8"
+                                />
                                 @error('activities') 
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror

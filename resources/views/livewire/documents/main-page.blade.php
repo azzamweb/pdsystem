@@ -171,7 +171,7 @@
                                                     <div class="mt-3 pt-2 border-t border-green-200 dark:border-green-700">
                                                         <div class="font-medium text-gray-700 dark:text-gray-300 mb-1">Ringkasan Kegiatan:</div>
                                                         <div class="text-gray-600 dark:text-gray-400 leading-relaxed">
-                                                            {{ Str::limit($tripReport->activities, 150, '...') }}
+                                                            {!! Str::limit(formatActivitiesForPdf($tripReport->activities), 150, '...') !!}
                                                         </div>
                                                     </div>
                                                 @endif

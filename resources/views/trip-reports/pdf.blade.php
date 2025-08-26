@@ -119,7 +119,7 @@
         <div class="section">
             <div class="section-title">III. KEGIATAN YANG DILAKUKAN</div>
             <div class="activities">
-                {!! nl2br(e($tripReport->activities)) !!}
+                {!! formatActivitiesForPdf($tripReport->activities) !!}
             </div>
         </div>
     </div>
