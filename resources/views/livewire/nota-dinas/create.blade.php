@@ -45,6 +45,7 @@
                         <tr>
                             <th class="px-2 py-1 text-left">Pegawai</th>
                             <th class="px-2 py-1 text-left">Nomor ND</th>
+                            <th class="px-2 py-1 text-left">Bidang</th>
                             <th class="px-2 py-1 text-left">Perihal</th>
                             <th class="px-2 py-1 text-left">Tanggal</th>
                         </tr>
@@ -54,6 +55,7 @@
                             <tr>
                                 <td class="px-2 py-1">{{ $ov['user'] }}</td>
                                 <td class="px-2 py-1 font-mono">{{ $ov['doc_no'] }}</td>
+                                <td class="px-2 py-1">{{ $ov['unit'] ?? '-' }}</td>
                                 <td class="px-2 py-1">{{ $ov['hal'] }}</td>
                                 <td class="px-2 py-1">{{ $ov['start_date'] ? \Carbon\Carbon::parse($ov['start_date'])->format('d/m/Y') : '-' }} - {{ $ov['end_date'] ? \Carbon\Carbon::parse($ov['end_date'])->format('d/m/Y') : '-' }}</td>
                             </tr>
@@ -231,17 +233,51 @@
     <script>
         document.addEventListener('livewire:init', () => {
             Livewire.on('showOverlapAlert', (details) => {
-                let html = `<div class='overflow-x-auto'><table class='min-w-full text-xs'><thead><tr><th class='px-2 py-1 text-left'>Pegawai</th><th class='px-2 py-1 text-left'>Nomor ND</th><th class='px-2 py-1 text-left'>Perihal</th><th class='px-2 py-1 text-left'>Tanggal</th></tr></thead><tbody>`;
-                details.forEach(ov => {
-                    html += `<tr><td class='px-2 py-1'>${ov['user']}</td><td class='px-2 py-1 font-mono'>${ov['doc_no']}</td><td class='px-2 py-1'>${ov['hal']}</td><td class='px-2 py-1'>${ov['start_date'] ? moment(ov['start_date']).format('DD/MM/YYYY') : '-'} - ${ov['end_date'] ? moment(ov['end_date']).format('DD/MM/YYYY') : '-'}</td></tr>`;
-                });
+                console.log('Overlap Details received:', details);
+                
+                let html = `<div class='overflow-x-auto'><table class='min-w-full text-xs'><thead><tr><th class='px-2 py-1 text-left'>Pegawai</th><th class='px-2 py-1 text-left'>Nomor ND</th><th class='px-2 py-1 text-left'>Bidang</th><th class='px-2 py-1 text-left'>Perihal</th><th class='px-2 py-1 text-left'>Tanggal</th></tr></thead><tbody>`;
+                
+                if (Array.isArray(details)) {
+                    details.forEach(ov => {
+                        const user = ov.user || 'N/A';
+                        const docNo = ov.doc_no || 'N/A';
+                        const unit = ov.unit || '-';
+                        const hal = ov.hal || 'N/A';
+                        const startDate = ov.start_date ? moment(ov.start_date).format('DD/MM/YYYY') : '-';
+                        const endDate = ov.end_date ? moment(ov.end_date).format('DD/MM/YYYY') : '-';
+                        
+                        // Debug: Log individual values
+                        console.log('Processing overlap:', {
+                            user: user,
+                            docNo: docNo,
+                            unit: unit,
+                            hal: hal,
+                            startDate: startDate,
+                            endDate: endDate,
+                            rawStartDate: ov.start_date,
+                            rawEndDate: ov.end_date
+                        });
+                        
+                        html += `<tr>
+                            <td class='px-2 py-1'>${user}</td>
+                            <td class='px-2 py-1 font-mono'>${docNo}</td>
+                            <td class='px-2 py-1'>${unit}</td>
+                            <td class='px-2 py-1'>${hal}</td>
+                            <td class='px-2 py-1'>${startDate} - ${endDate}</td>
+                        </tr>`;
+                    });
+                } else {
+                    html += `<tr><td colspan='5' class='px-2 py-1 text-center text-red-500'>Data tidak valid</td></tr>`;
+                }
+                
                 html += '</tbody></table></div>';
+                
                 Swal.fire({
                     icon: 'warning',
                     title: 'Terdapat pegawai yang tanggalnya beririsan dengan Nota Dinas lain',
                     html: html,
                     confirmButtonText: 'Tutup',
-                    width: 600
+                    width: 800
                 });
             });
         });

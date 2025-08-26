@@ -13,6 +13,7 @@ use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Rule;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 #[Layout('components.layouts.app')]
 class Create extends Component
@@ -94,7 +95,22 @@ class Create extends Component
         try {
             // Validasi overlap peserta
             $overlapDetails = [];
+            
+            // Debug: Log input data
+            Log::info('Checking overlap for participants:', [
+                'participants' => $this->participants,
+                'start_date' => $this->start_date,
+                'end_date' => $this->end_date
+            ]);
+            
             foreach ($this->participants as $userId) {
+                // Debug: Check if user exists
+                $user = User::with(['position', 'unit'])->find($userId);
+                Log::info("Checking user: {$userId}", [
+                    'user_exists' => $user ? true : false,
+                    'user_name' => $user ? $user->name : 'Not found'
+                ]);
+                
                 $overlaps = NotaDinasParticipant::where('user_id', $userId)
                     ->whereHas('notaDinas', function($q) {
                         $q->where(function($q2) {
@@ -103,16 +119,25 @@ class Create extends Component
                         });
                     })
                     ->with(['notaDinas' => function($q) {
-                        $q->select('id', 'doc_no', 'hal', 'start_date', 'end_date');
+                        $q->select('id', 'doc_no', 'hal', 'start_date', 'end_date', 'requesting_unit_id')
+                          ->with(['requestingUnit:id,name']);
                     }])
                     ->get();
+                
+                // Debug: Log query results
+                Log::info("Overlaps found for user {$userId}:", [
+                    'count' => $overlaps->count(),
+                    'overlaps' => $overlaps->toArray()
+                ]);
+                
                 if ($overlaps->count() > 0) {
-                    $user = User::find($userId);
                     foreach ($overlaps as $ov) {
+                        $userInfo = $user ? $user->fullNameWithTitles() . ' (' . trim(($user->position->name ?? '') . ' ' . ($user->unit->name ?? '')) . ')' : 'User ID: ' . $userId;
                         $overlapDetails[] = [
-                            'user' => $user ? $user->name : $userId,
+                            'user' => $userInfo,
                             'doc_no' => $ov->notaDinas->doc_no ?? '-',
                             'hal' => $ov->notaDinas->hal ?? '-',
+                            'unit' => $ov->notaDinas->requestingUnit->name ?? '-',
                             'start_date' => $ov->notaDinas->start_date ?? null,
                             'end_date' => $ov->notaDinas->end_date ?? null,
                         ];
@@ -120,6 +145,10 @@ class Create extends Component
                 }
             }
             if (!empty($overlapDetails)) {
+                // Debug: Log overlap details
+                Log::info('Overlap Details:', $overlapDetails);
+                
+                $this->overlapDetails = $overlapDetails;
                 $this->dispatch('showOverlapAlert', $overlapDetails);
                 $this->addError('participants', 'Terdapat pegawai yang tanggalnya beririsan dengan Nota Dinas lain.');
                 return;
