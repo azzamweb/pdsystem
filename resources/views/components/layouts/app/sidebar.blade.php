@@ -29,6 +29,14 @@
                 <flux:navlist.item icon="calculator" :href="route('reference-rates.index')" :current="request()->routeIs('reference-rates.*')" wire:navigate>{{ __('Referensi Tarif') }}</flux:navlist.item>
             </flux:navlist>
 
+            <flux:navlist variant="outline">
+                <flux:navlist.group :heading="__('Rekapitulasi')" class="grid">
+                    <flux:navlist.item icon="document-text" :href="route('rekap.nota-dinas')" :current="request()->routeIs('rekap.nota-dinas')" wire:navigate>{{ __('Rekap Nota Dinas') }}</flux:navlist.item>
+                    <flux:navlist.item icon="document-text" :href="route('rekap.spt')" :current="request()->routeIs('rekap.spt')" wire:navigate>{{ __('Rekap SPT') }}</flux:navlist.item>
+                    <flux:navlist.item icon="users" :href="route('rekap.pegawai')" :current="request()->routeIs('rekap.pegawai')" wire:navigate>{{ __('Rekap Pegawai') }}</flux:navlist.item>
+                </flux:navlist.group>
+            </flux:navlist>
+
             <flux:spacer />
 
             <flux:navlist variant="outline">

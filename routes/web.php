@@ -97,6 +97,10 @@ use App\Livewire\SupportingDocuments\Upload as SupportingDocumentUpload;
 use App\Http\Controllers\NotaDinasController;
 use App\Http\Controllers\SptController;
 use App\Http\Controllers\SppdController;
+use App\Livewire\Rekap\NotaDinas as RekapNotaDinas;
+use App\Livewire\Rekap\Spt as RekapSpt;
+use App\Livewire\Rekap\Pegawai as RekapPegawai;
+use App\Http\Controllers\RekapPegawaiController;
 
 
 Route::get('/', function () {
@@ -293,6 +297,12 @@ Route::get('trip-reports/{tripReport}/pdf', [App\Http\Controllers\TripReportCont
     // Nota Dinas PDF
     Route::get('nota-dinas/{notaDinas}/pdf', [NotaDinasController::class, 'generatePdf'])->name('nota-dinas.pdf');
 Route::get('nota-dinas/{notaDinas}/pdf/download', [NotaDinasController::class, 'downloadPdf'])->name('nota-dinas.pdf-download');
+
+    // Rekapitulasi Routes
+    Route::get('rekap/nota-dinas', RekapNotaDinas::class)->name('rekap.nota-dinas');
+    Route::get('rekap/spt', RekapSpt::class)->name('rekap.spt');
+    Route::get('rekap/pegawai', RekapPegawai::class)->name('rekap.pegawai');
+    Route::get('rekap/pegawai/pdf', [RekapPegawaiController::class, 'generatePdf'])->name('rekap.pegawai.pdf');
 
 Route::get('spt/{spt}/pdf', [SptController::class, 'generatePdf'])->name('spt.pdf');
 Route::get('spt/{spt}/pdf/download', [SptController::class, 'downloadPdf'])->name('spt.pdf-download');
