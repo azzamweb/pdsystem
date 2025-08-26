@@ -15,27 +15,57 @@ if (!function_exists('formatActivitiesForPdf')) {
         // Convert *italic* to <em>
         $formatted = preg_replace('/\*(.*?)\*/s', '<em>$1</em>', $formatted);
         
-        // Convert bullet points to HTML list
+        // Convert bullet points and numbering to HTML list
         $lines = explode("\n", $formatted);
         $formattedLines = [];
+        $inBulletList = false;
+        $inNumberedList = false;
         
         foreach ($lines as $line) {
             $trimmedLine = trim($line);
             
             if (preg_match('/^•\s*(.+)$/', $trimmedLine, $matches)) {
                 // Bullet point
+                if (!$inBulletList) {
+                    $formattedLines[] = '<ul>';
+                    $inBulletList = true;
+                    $inNumberedList = false;
+                }
                 $formattedLines[] = '<li>' . $matches[1] . '</li>';
             } elseif (preg_match('/^\d+\.\s*(.+)$/', $trimmedLine, $matches)) {
                 // Numbered list
+                if (!$inNumberedList) {
+                    $formattedLines[] = '<ol>';
+                    $inNumberedList = true;
+                    $inBulletList = false;
+                }
                 $formattedLines[] = '<li>' . $matches[1] . '</li>';
             } else {
-                // Regular text
+                // Regular text - close any open lists
+                if ($inBulletList) {
+                    $formattedLines[] = '</ul>';
+                    $inBulletList = false;
+                }
+                if ($inNumberedList) {
+                    $formattedLines[] = '</ol>';
+                    $inNumberedList = false;
+                }
+                
+                // Add regular text
                 if (!empty($trimmedLine)) {
                     $formattedLines[] = '<p>' . $trimmedLine . '</p>';
                 } else {
                     $formattedLines[] = '<br>';
                 }
             }
+        }
+        
+        // Close any remaining open lists
+        if ($inBulletList) {
+            $formattedLines[] = '</ul>';
+        }
+        if ($inNumberedList) {
+            $formattedLines[] = '</ol>';
         }
         
         return implode("\n", $formattedLines);
@@ -64,9 +94,10 @@ if (!function_exists('terbilang')) {
             $terbilang = terbilang(intval($angka/1000)) . " ribu" . terbilang($angka % 1000);
         } elseif ($angka < 1000000000) {
             $terbilang = terbilang(intval($angka/1000000)) . " juta" . terbilang($angka % 1000000);
+            
         }
         
-        return $terbilang;
+        return $terbilang; 
     }
 }
 

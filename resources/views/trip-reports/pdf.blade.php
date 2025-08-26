@@ -26,23 +26,25 @@
         .info-table .separator { width: 10px; }
         .info-table .content { padding-left: 3pt; }
         .divider { border-bottom: 3px solid #000; margin: 3mm 0 4mm 0; }
-        .content-table { width: 100%; border-collapse: collapse; margin-bottom: 4mm; }
-        .content-table td { padding: 1pt 0; vertical-align: top; }
+        .content-table { width: 100%; border-collapse: collapse; margin-bottom: 2mm; }
+        .content-table td { padding: 0.5pt 0; vertical-align: top; }
         .content-table .number { width: 15px; }
         .content-table .label { width: 180px;  }
         .content-table .separator { width: 8px; }
         .content-table .content { padding-left: 3pt; text-transform: capitalize; }
-        .activities { margin-top: 10px; padding: 10px; border: 1px solid #ccc; background-color: #f9f9f9; }
-        .activities ul, .activities ol { margin: 10px 0; padding-left: 20px; }
-        .activities li { margin: 5px 0; line-height: 1.4; }
-        .activities p { margin: 8px 0; line-height: 1.4; }
+        .activities { margin-top: 5px; padding: 8px;     }
+        .activities ul, .activities ol { margin: 5px 0; padding-left: 20px; }
+        .activities ul { list-style-type: disc; }
+        .activities ol { list-style-type: decimal; }
+        .activities li { margin: 3px 0; line-height: 1.4; }
+        .activities p { margin: 4px 0; line-height: 1.4; }
         .activities strong, .activities b { font-weight: bold; }
         .activities em, .activities i { font-style: italic; }
-        .activities h1, .activities h2, .activities h3 { margin: 15px 0 8px 0; font-weight: bold; }
+        .activities h1, .activities h2, .activities h3 { margin: 8px 0 4px 0; font-weight: bold; }
         .activities h1 { font-size: 16px; }
         .activities h2 { font-size: 15px; }
         .activities h3 { font-size: 14px; }
-        .closing { margin: 4mm 0; text-align: justify; }
+        .closing { margin: 2mm 0; text-align: justify; }
         .signature { margin-top: 8mm; page-break-inside: avoid; text-align: right; }
         .signature .block { display: inline-block; text-align: left; }
         .signature div { margin-bottom: 1pt;line-height: 1; }
@@ -91,39 +93,80 @@
             <p>Pada hari ini {{ $tanggal_terbilang['hari'] }} tanggal {{ $tanggal_terbilang['tanggal'] }} bulan {{ $tanggal_terbilang['bulan'] }} tahun {{ $tanggal_terbilang['tahun'] }} yang bertanda tangan dibawah ini :</p>
         </div>
 
-        <!-- Informasi Pelapor -->
-        <table class="content-table">
-            <tr>
-                <td class="number">1.</td>
-                <td class="label">Nama</td>
-                <td class="separator">:</td>
-                <td class="content">{{ $tripReport->createdByUser->name ?? '-' }}</td>
-            </tr>
-            <tr>
-                <td class="number"></td>
-                <td class="label">NIP</td>
-                <td class="separator">:</td>
-                <td class="content">{{ $tripReport->createdByUser->nip ?? '-' }}</td>
-            </tr>
-            <tr>
-                <td class="number"></td>
-                <td class="label">Pangkat/Gol</td>
-                <td class="separator">:</td>
-                <td class="content">{{ $tripReport->createdByUser->rank?->name ?? '-' }} ({{ $tripReport->createdByUser->rank?->code ?? '-' }})</td>
-            </tr>
-            <tr>
-                <td class="number"></td>
-                <td class="label">Jabatan</td>
-                <td class="separator">:</td>
-                <td class="content">{{ $tripReport->createdByUser->position?->name ?? '-' }}</td>
-            </tr>
-            <tr>
-                <td class="number"></td>
-                <td class="label">Satuan Kerja</td>
-                <td class="separator">:</td>
-                <td class="content">{{ $tripReport->createdByUser->unit?->name ?? '-' }}</td>
-            </tr>
-        </table>
+        <!-- Informasi Peserta -->
+        @if($tripReport->spt->notaDinas->participants && $tripReport->spt->notaDinas->participants->count() > 0)
+            @foreach($tripReport->spt->notaDinas->participants as $index => $participant)
+                <table class="content-table">
+                    <tr>
+                        <td class="number">{{ $index + 1 }}.</td>
+                        <td class="label">Nama</td>
+                        <td class="separator">:</td>
+                        <td class="content">{{ $participant->user->name ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="number"></td>
+                        <td class="label">NIP</td>
+                        <td class="separator">:</td>
+                        <td class="content">{{ $participant->user->nip ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="number"></td>
+                        <td class="label">Pangkat/Gol</td>
+                        <td class="separator">:</td>
+                        <td class="content">{{ $participant->user->rank?->name ?? '-' }} ({{ $participant->user->rank?->code ?? '-' }})</td>
+                    </tr>
+                    <tr>
+                        <td class="number"></td>
+                        <td class="label">Jabatan</td>
+                        <td class="separator">:</td>
+                        <td class="content">{{ $participant->user->position?->name ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="number"></td>
+                        <td class="label">Satuan Kerja</td>
+                        <td class="separator">:</td>
+                        <td class="content">{{ $participant->user->unit?->name ?? '-' }}</td>
+                    </tr>
+                </table>
+                @if($index < $tripReport->spt->notaDinas->participants->count() - 1)
+                    <div style="height: 2mm;"></div>
+                @endif
+            @endforeach
+        @else
+            <!-- Fallback jika tidak ada participant -->
+            <table class="content-table">
+                <tr>
+                    <td class="number">1.</td>
+                    <td class="label">Nama</td>
+                    <td class="separator">:</td>
+                    <td class="content">{{ $tripReport->createdByUser->name ?? '-' }}</td>
+                </tr>
+                <tr>
+                    <td class="number"></td>
+                    <td class="label">NIP</td>
+                    <td class="separator">:</td>
+                    <td class="content">{{ $tripReport->createdByUser->nip ?? '-' }}</td>
+                </tr>
+                <tr>
+                    <td class="number"></td>
+                    <td class="label">Pangkat/Gol</td>
+                    <td class="separator">:</td>
+                    <td class="content">{{ $tripReport->createdByUser->rank?->name ?? '-' }} ({{ $tripReport->createdByUser->rank?->code ?? '-' }})</td>
+                </tr>
+                <tr>
+                    <td class="number"></td>
+                    <td class="label">Jabatan</td>
+                    <td class="separator">:</td>
+                    <td class="content">{{ $tripReport->createdByUser->position?->name ?? '-' }}</td>
+                </tr>
+                <tr>
+                    <td class="number"></td>
+                    <td class="label">Satuan Kerja</td>
+                    <td class="separator">:</td>
+                    <td class="content">{{ $tripReport->createdByUser->unit?->name ?? '-' }}</td>
+                </tr>
+            </table>
+        @endif
 
         <!-- Dasar Surat Tugas -->
         <div class="closing">
@@ -136,30 +179,16 @@
         </div>
 
         <!-- Detail Perjalanan -->
-        <table class="content-table">
-            <tr>
-                <td class="number">1.</td>
-                <td class="label">Berangkat dari</td>
-                <td class="separator">:</td>
-                <td class="content">{{ $tripReport->spt->notaDinas->originPlace->name ?? '-' }} menuju {{ $tripReport->spt->notaDinas->destinationCity->name ?? '-' }} pada tanggal {{ $tripReport->spt->notaDinas->start_date ? \Carbon\Carbon::parse($tripReport->spt->notaDinas->start_date)->locale('id')->translatedFormat('d F Y') : '-' }}</td>
-            </tr>
-            <tr>
-                <td class="number">2.</td>
-                <td class="label">Kegiatan dan Hasil Perjalanan Dinas</td>
-                <td class="separator">:</td>
-                <td class="content">
-                    <div class="activities">
-                        {!! formatActivitiesForPdf($tripReport->activities) !!}
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td class="number">3.</td>
-                <td class="label">Kembali ke</td>
-                <td class="separator">:</td>
-                <td class="content">{{ $tripReport->spt->notaDinas->originPlace->name ?? '-' }} pada tanggal {{ $tripReport->spt->notaDinas->end_date ? \Carbon\Carbon::parse($tripReport->spt->notaDinas->end_date)->locale('id')->translatedFormat('d F Y') : '-' }}</td>
-            </tr>
-        </table>
+        <div class="closing">
+            <p>1. Berangkat dari <strong>{{ $tripReport->spt->notaDinas->originPlace->name ?? '.........' }}</strong> menuju <strong>{{ $tripReport->spt->notaDinas->destinationCity->name ?? '.........' }}</strong> pada tanggal <strong>{{ $tripReport->spt->notaDinas->start_date ? \Carbon\Carbon::parse($tripReport->spt->notaDinas->start_date)->locale('id')->translatedFormat('d F Y') : '.........' }}</strong></p>
+            
+            <p>2. Kegiatan dan Hasil Perjalanan Dinas:</p>
+            <div class="activities" style="margin-left: 20px; margin-top: 5px;">
+                {!! formatActivitiesForPdf($tripReport->activities) !!}
+            </div>
+            
+            <p>3. Kembali ke <strong>{{ $tripReport->spt->notaDinas->originPlace->name ?? '.........' }}</strong> pada tanggal <strong>{{ $tripReport->spt->notaDinas->end_date ? \Carbon\Carbon::parse($tripReport->spt->notaDinas->end_date)->locale('id')->translatedFormat('d F Y') : '.........' }}</strong></p>
+        </div>
 
         <!-- Penutup -->
         <div class="closing">
@@ -167,14 +196,30 @@
         </div>
 
         <!-- Tanda Tangan -->
-        <div class="signature">
-            <p>{{ $tripReport->spt->notaDinas->originPlace->name ?? 'Bengkalis' }}, {{ $tripReport->report_date ? \Carbon\Carbon::parse($tripReport->report_date)->locale('id')->translatedFormat('d F Y') : date('d F Y') }}</p>
-            <p>Yang Membuat Laporan:</p>
-            <br><br><br>
-            <div class="signature block">
-                <div class="name">{{ $tripReport->createdByUser->gelar_depan ?? '' }} {{ $tripReport->createdByUser->name ?? 'N/A' }} {{ $tripReport->createdByUser->gelar_belakang ?? '' }}</div>
-                <div class="rank">{{ $tripReport->createdByUser->rank?->name ?? '-' }} ({{ $tripReport->createdByUser->rank?->code ?? '-' }})</div>
-                <div class="nip">NIP. {{ $tripReport->createdByUser->nip ?? 'N/A' }}</div>
+        <div class="signature" style="text-align: right; margin-top: 30px;">
+            <div style="max-width: 500px; margin-left: auto;">
+                <p style="margin-bottom: 20px; font-weight: bold;">Yang Membuat Laporan:</p>
+                
+                @if($tripReport->spt->notaDinas->participants && $tripReport->spt->notaDinas->participants->count() > 0)
+                    <table style="width: 100%; border-collapse: collapse;">
+                        @foreach($tripReport->spt->notaDinas->participants as $index => $participant)
+                            <tr>
+                                <td style="width: 30px; padding: 15px 0; vertical-align: top;">{{ $index + 1 }}.</td>
+                                <td style="padding: 15px 0; vertical-align: top;">{{ $participant->user->gelar_depan ?? '' }} {{ $participant->user->name ?? 'N/A' }} {{ $participant->user->gelar_belakang ?? '' }}</td>
+                                <td style="width: 150px; padding: 15px 0; vertical-align: top; border-bottom: 1px solid black;"></td>
+                            </tr>
+                        @endforeach
+                    </table>
+                @else
+                    <!-- Fallback jika tidak ada participant -->
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="width: 30px; padding: 15px 0; vertical-align: top;">1.</td>
+                            <td style="padding: 15px 0; vertical-align: top;">{{ $tripReport->createdByUser->gelar_depan ?? '' }} {{ $tripReport->createdByUser->name ?? 'N/A' }} {{ $tripReport->createdByUser->gelar_belakang ?? '' }}</td>
+                            <td style="width: 150px; padding: 15px 0; vertical-align: top; border-bottom: 1px solid black;"></td>
+                        </tr>
+                    </table>
+                @endif
             </div>
         </div>
     </div>
