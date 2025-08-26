@@ -41,3 +41,63 @@ if (!function_exists('formatActivitiesForPdf')) {
         return implode("\n", $formattedLines);
     }
 }
+
+if (!function_exists('terbilang')) {
+    function terbilang($angka) {
+        $angka = abs($angka);
+        $baca = array("", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh", "sebelas");
+        $terbilang = "";
+        
+        if ($angka < 12) {
+            $terbilang = " " . $baca[$angka];
+        } elseif ($angka < 20) {
+            $terbilang = terbilang($angka - 10) . " belas";
+        } elseif ($angka < 100) {
+            $terbilang = terbilang(intval($angka/10)) . " puluh" . terbilang($angka % 10);
+        } elseif ($angka < 200) {
+            $terbilang = " seratus" . terbilang($angka - 100);
+        } elseif ($angka < 1000) {
+            $terbilang = terbilang(intval($angka/100)) . " ratus" . terbilang($angka % 100);
+        } elseif ($angka < 2000) {
+            $terbilang = " seribu" . terbilang($angka - 1000);
+        } elseif ($angka < 1000000) {
+            $terbilang = terbilang(intval($angka/1000)) . " ribu" . terbilang($angka % 1000);
+        } elseif ($angka < 1000000000) {
+            $terbilang = terbilang(intval($angka/1000000)) . " juta" . terbilang($angka % 1000000);
+        }
+        
+        return $terbilang;
+    }
+}
+
+if (!function_exists('terbilangTanggal')) {
+    function terbilangTanggal($tanggal) {
+        if (empty($tanggal)) {
+            return [
+                'hari' => '.........',
+                'tanggal' => '.........',
+                'bulan' => '.........',
+                'tahun' => '.........'
+            ];
+        }
+        
+        $date = \Carbon\Carbon::parse($tanggal);
+        $hari = $date->locale('id')->translatedFormat('l');
+        $tanggal_angka = $date->day;
+        $bulan = $date->locale('id')->translatedFormat('F');
+        $tahun = $date->year;
+        
+        // Konversi tanggal ke terbilang
+        $tanggal_terbilang = ucwords(trim(terbilang($tanggal_angka)));
+        
+        // Konversi tahun ke terbilang
+        $tahun_terbilang = ucwords(trim(terbilang($tahun)));
+        
+        return [
+            'hari' => $hari,
+            'tanggal' => $tanggal_terbilang,
+            'bulan' => $bulan,
+            'tahun' => $tahun_terbilang
+        ];
+    }
+}

@@ -2,135 +2,180 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Perjalanan Dinas</title>
+    <title>Laporan Perjalanan Dinas - {{ $tripReport->report_no ?? 'LAP-' . $tripReport->id }}</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #333;
-            padding-bottom: 20px;
-        }
-        .title {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        .subtitle {
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-        .content {
-            margin-bottom: 20px;
-        }
-        .section {
-            margin-bottom: 15px;
-        }
-        .section-title {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        .info-grid {
-            display: table;
-            width: 100%;
-            margin-bottom: 10px;
-        }
-        .info-row {
-            display: table-row;
-        }
-        .info-label {
-            display: table-cell;
-            width: 150px;
-            font-weight: bold;
-            padding: 3px 0;
-        }
-        .info-value {
-            display: table-cell;
-            padding: 3px 0;
-        }
-        .activities {
-            margin-top: 10px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            background-color: #f9f9f9;
-        }
-        .footer {
-            margin-top: 40px;
-            text-align: right;
-        }
-        .signature {
-            margin-top: 50px;
-        }
+        @page { size: A4; margin-right: 15mm; margin-left: 15mm; margin-top: 15mm; margin-bottom: 10mm; }
+        @page:first { margin-right: 15mm; margin-left: 15mm; margin-top: 5mm; margin-bottom: 15mm; }
+        body { font-family: Arial, sans-serif; font-size: 11pt; line-height: 1.5; margin: 0; padding: 0; }
+        p, h1, h2, h3, h4, h5, h6, table, th, td, li { line-height: 1; }
+        .container { width: 100%; margin: 0; padding: 0; }
+        .header { text-align: center; margin-bottom: 4mm; }
+        .header table { width: 100%; border-collapse: collapse; }
+        .header td { vertical-align: middle; padding: 0; }
+        .logo { height: 20mm; max-width: 100%; }
+        .header-text { text-align: center; }
+        .header-text h1 { font-size: 14pt; margin: 0 0 1pt 0; text-transform: uppercase; letter-spacing: 0.5pt; }
+        .header-text h3 { font-size: 12pt; margin: 0 0 1pt 0; text-transform: uppercase; letter-spacing: 0.5pt; }
+        .header-text .unit { font-size: 12pt; font-weight: 700; margin: 0 0 2pt 0; text-transform: uppercase; }
+        .header-text p { font-size: 9pt; margin: 1pt 0; }
+        .document-title { font-size: 11pt; font-weight: bold; text-align: center; margin: 2mm 0 6mm 0;  }
+        .document-number { font-size: 11pt; text-align: center; margin: 0 0 6mm 0; }
+        .info-table { width: 100%; border-collapse: collapse; margin-bottom: 4mm; }
+        .info-table td { padding: 1pt 0; vertical-align: top; }
+        .info-table .label { width: 50px;  }
+        .info-table .separator { width: 10px; }
+        .info-table .content { padding-left: 3pt; }
+        .divider { border-bottom: 3px solid #000; margin: 3mm 0 4mm 0; }
+        .content-table { width: 100%; border-collapse: collapse; margin-bottom: 4mm; }
+        .content-table td { padding: 1pt 0; vertical-align: top; }
+        .content-table .number { width: 15px; }
+        .content-table .label { width: 180px;  }
+        .content-table .separator { width: 8px; }
+        .content-table .content { padding-left: 3pt; text-transform: capitalize; }
+        .activities { margin-top: 10px; padding: 10px; border: 1px solid #ccc; background-color: #f9f9f9; }
+        .activities ul, .activities ol { margin: 10px 0; padding-left: 20px; }
+        .activities li { margin: 5px 0; line-height: 1.4; }
+        .activities p { margin: 8px 0; line-height: 1.4; }
+        .activities strong, .activities b { font-weight: bold; }
+        .activities em, .activities i { font-style: italic; }
+        .activities h1, .activities h2, .activities h3 { margin: 15px 0 8px 0; font-weight: bold; }
+        .activities h1 { font-size: 16px; }
+        .activities h2 { font-size: 15px; }
+        .activities h3 { font-size: 14px; }
+        .closing { margin: 4mm 0; text-align: justify; }
+        .signature { margin-top: 8mm; page-break-inside: avoid; text-align: right; }
+        .signature .block { display: inline-block; text-align: left; }
+        .signature div { margin-bottom: 1pt;line-height: 1; }
+        .signature .name { font-weight: bold; text-decoration: underline; }
+        .signature .rank, .signature .nip { font-size: 12pt; line-height: 1;}
+        
+        /* Kontrol page-break agar rapi di multi-halaman */
+        table { page-break-inside: auto; }
+        thead { display: table-header-group; }
+        tfoot { display: table-footer-group; }
+        tr { page-break-inside: avoid; page-break-after: auto; }
+        .end-section { page-break-inside: avoid; }
+
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="title">LAPORAN PERJALANAN DINAS</div>
-        <div class="subtitle">PEMERINTAH KABUPATEN BENGKALIS</div>
-    </div>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <table style="border-bottom: 2px solid black;">
+                <tr>
+                    <td style="width: 22mm;">
+                        <img src="{{ public_path('logobengkalis.png') }}" alt="Logo" class="logo">
+                    </td>
+                    <td class="header-text" >
+                        <h3>PEMERINTAH KABUPATEN BENGKALIS</h3>
+                        <h1>{{ \DB::table('org_settings')->value('name') }}</h1>
+                        <p>{{ \DB::table('org_settings')->value('address') }}</p>
+                        <p>Telepon {{ \DB::table('org_settings')->value('phone') }} e-mail : {{ \DB::table('org_settings')->value('email') }}</p>
+                    </td>
+                    <td style="width: 22mm;"></td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="document-title">LAPORAN HASIL PERJALANAN DINAS</div>
+        @if($tripReport->report_no)
+            <div class="document-number">NOMOR: {{ $tripReport->report_no }}</div>
+        @endif
 
-    <div class="content">
-        <div class="section">
-            <div class="section-title">I. INFORMASI DASAR</div>
-            <div class="info-grid">
-                <div class="info-row">
-                    <div class="info-label">Nomor SPT:</div>
-                    <div class="info-value">{{ $tripReport->spt->doc_no ?? '-' }}</div>
-                </div>
-                <div class="info-row">
-                    <div class="info-label">Nomor Laporan:</div>
-                    <div class="info-value">{{ $tripReport->report_no ?? '-' }}</div>
-                </div>
-                <div class="info-row">
-                    <div class="info-label">Tanggal Laporan:</div>
-                    <div class="info-value">{{ $tripReport->report_date ? \Carbon\Carbon::parse($tripReport->report_date)->format('d/m/Y') : '-' }}</div>
-                </div>
-            </div>
+        <!-- Pembuka -->
+        <div class="closing">
+            @php
+                $tanggal_terbilang = terbilangTanggal($tripReport->report_date);
+            @endphp
+            <p>Pada hari ini {{ $tanggal_terbilang['hari'] }} tanggal {{ $tanggal_terbilang['tanggal'] }} bulan {{ $tanggal_terbilang['bulan'] }} tahun {{ $tanggal_terbilang['tahun'] }} yang bertanda tangan dibawah ini :</p>
         </div>
 
-        <div class="section">
-            <div class="section-title">II. INFORMASI PERJALANAN</div>
-            <div class="info-grid">
-                <div class="info-row">
-                    <div class="info-label">Tempat Asal:</div>
-                    <div class="info-value">{{ $tripReport->spt->notaDinas->originPlace->name ?? '-' }}</div>
-                </div>
-                <div class="info-row">
-                    <div class="info-label">Tempat Tujuan:</div>
-                    <div class="info-value">{{ $tripReport->spt->notaDinas->destinationCity->name ?? '-' }}</div>
-                </div>
-                <div class="info-row">
-                    <div class="info-label">Tanggal Berangkat:</div>
-                    <div class="info-value">{{ $tripReport->spt->notaDinas->start_date ? \Carbon\Carbon::parse($tripReport->spt->notaDinas->start_date)->format('d/m/Y') : '-' }}</div>
-                </div>
-                <div class="info-row">
-                    <div class="info-label">Tanggal Kembali:</div>
-                    <div class="info-value">{{ $tripReport->spt->notaDinas->end_date ? \Carbon\Carbon::parse($tripReport->spt->notaDinas->end_date)->format('d/m/Y') : '-' }}</div>
-                </div>
-            </div>
+        <!-- Informasi Pelapor -->
+        <table class="content-table">
+            <tr>
+                <td class="number">1.</td>
+                <td class="label">Nama</td>
+                <td class="separator">:</td>
+                <td class="content">{{ $tripReport->createdByUser->name ?? '-' }}</td>
+            </tr>
+            <tr>
+                <td class="number"></td>
+                <td class="label">NIP</td>
+                <td class="separator">:</td>
+                <td class="content">{{ $tripReport->createdByUser->nip ?? '-' }}</td>
+            </tr>
+            <tr>
+                <td class="number"></td>
+                <td class="label">Pangkat/Gol</td>
+                <td class="separator">:</td>
+                <td class="content">{{ $tripReport->createdByUser->rank?->name ?? '-' }} ({{ $tripReport->createdByUser->rank?->code ?? '-' }})</td>
+            </tr>
+            <tr>
+                <td class="number"></td>
+                <td class="label">Jabatan</td>
+                <td class="separator">:</td>
+                <td class="content">{{ $tripReport->createdByUser->position?->name ?? '-' }}</td>
+            </tr>
+            <tr>
+                <td class="number"></td>
+                <td class="label">Satuan Kerja</td>
+                <td class="separator">:</td>
+                <td class="content">{{ $tripReport->createdByUser->unit?->name ?? '-' }}</td>
+            </tr>
+        </table>
+
+        <!-- Dasar Surat Tugas -->
+        <div class="closing">
+            <p>Berdasarkan Surat Tugas Nomor: <strong>{{ $tripReport->spt->doc_no ?? '-' }}</strong> Tanggal <strong>{{ $tripReport->spt->start_date ? \Carbon\Carbon::parse($tripReport->spt->start_date)->locale('id')->translatedFormat('d F Y') : '-' }}</strong> melaksanakan Perjalanan Dinas ke <strong>{{ $tripReport->spt->notaDinas->destinationCity->name ?? '-' }}</strong></p>
         </div>
 
-        <div class="section">
-            <div class="section-title">III. KEGIATAN YANG DILAKUKAN</div>
-            <div class="activities">
-                {!! formatActivitiesForPdf($tripReport->activities) !!}
-            </div>
+        <!-- Laporan Pelaksanaan -->
+        <div class="closing">
+            <p>Bersama ini dapat dilaporkan pelaksanaan perjalanan dinas sebagai berikut:</p>
         </div>
-    </div>
 
-    <div class="footer">
+        <!-- Detail Perjalanan -->
+        <table class="content-table">
+            <tr>
+                <td class="number">1.</td>
+                <td class="label">Berangkat dari</td>
+                <td class="separator">:</td>
+                <td class="content">{{ $tripReport->spt->notaDinas->originPlace->name ?? '-' }} menuju {{ $tripReport->spt->notaDinas->destinationCity->name ?? '-' }} pada tanggal {{ $tripReport->spt->notaDinas->start_date ? \Carbon\Carbon::parse($tripReport->spt->notaDinas->start_date)->locale('id')->translatedFormat('d F Y') : '-' }}</td>
+            </tr>
+            <tr>
+                <td class="number">2.</td>
+                <td class="label">Kegiatan dan Hasil Perjalanan Dinas</td>
+                <td class="separator">:</td>
+                <td class="content">
+                    <div class="activities">
+                        {!! formatActivitiesForPdf($tripReport->activities) !!}
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="number">3.</td>
+                <td class="label">Kembali ke</td>
+                <td class="separator">:</td>
+                <td class="content">{{ $tripReport->spt->notaDinas->originPlace->name ?? '-' }} pada tanggal {{ $tripReport->spt->notaDinas->end_date ? \Carbon\Carbon::parse($tripReport->spt->notaDinas->end_date)->locale('id')->translatedFormat('d F Y') : '-' }}</td>
+            </tr>
+        </table>
+
+        <!-- Penutup -->
+        <div class="closing">
+            <p>Demikian laporan hasil perjalanan dinas ini dibuat dan untuk dapat dipergunakan sebagaimana mestinya.</p>
+        </div>
+
+        <!-- Tanda Tangan -->
         <div class="signature">
-            <p>Bengkalis, {{ $tripReport->report_date ? \Carbon\Carbon::parse($tripReport->report_date)->format('d/m/Y') : date('d/m/Y') }}</p>
-            <p>Yang membuat laporan,</p>
+            <p>{{ $tripReport->spt->notaDinas->originPlace->name ?? 'Bengkalis' }}, {{ $tripReport->report_date ? \Carbon\Carbon::parse($tripReport->report_date)->locale('id')->translatedFormat('d F Y') : date('d F Y') }}</p>
+            <p>Yang Membuat Laporan:</p>
             <br><br><br>
-            <p><strong>{{ $tripReport->createdByUser->name ?? 'N/A' }}</strong></p>
-            <p>NIP: {{ $tripReport->createdByUser->nip ?? 'N/A' }}</p>
+            <div class="signature block">
+                <div class="name">{{ $tripReport->createdByUser->gelar_depan ?? '' }} {{ $tripReport->createdByUser->name ?? 'N/A' }} {{ $tripReport->createdByUser->gelar_belakang ?? '' }}</div>
+                <div class="rank">{{ $tripReport->createdByUser->rank?->name ?? '-' }} ({{ $tripReport->createdByUser->rank?->code ?? '-' }})</div>
+                <div class="nip">NIP. {{ $tripReport->createdByUser->nip ?? 'N/A' }}</div>
+            </div>
         </div>
     </div>
 </body>
