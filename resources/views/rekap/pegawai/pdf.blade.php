@@ -33,7 +33,7 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 10px;
-            table-layout: fixed;
+            table-layout: fixed !important;
         }
         
         th, td {
@@ -42,6 +42,8 @@
             text-align: center;
             vertical-align: middle;
             font-size: 7px;
+            overflow: hidden;
+            word-wrap: break-word;
         }
         
         th {
@@ -52,38 +54,30 @@
         
         .name-cell {
             text-align: left;
-            width: 160px;
-            max-width: 160px;
+            width: 280px;
+            max-width: 280px;
         }
         
-        .position-cell {
+        .position-unit-cell {
             text-align: left;
-            width: 90px;
-            max-width: 90px;
-            font-size: 7px;
-            line-height: 1.2;
-        }
-        
-        .unit-cell {
-            text-align: left;
-            width: 70px;
-            max-width: 70px;
-            font-size: 7px;
-            line-height: 1.2;
+            width: 120px;
+            max-width: 120px;
+            font-size: 8px;
+            line-height: 1.3;
         }
         
         .date-cell {
-            width: 16px;
-            min-width: 16px;
-            max-width: 16px;
+            width: 15px;
+            min-width: 15px;
+            max-width: 15px;
         }
         
         .weekend {
-            background-color: #ffcccc;
+            background-color: #ffcccc !important;
         }
         
         .assignment {
-            background-color: #cce5ff;
+            background-color: #cce5ff !important;
         }
         
         .name-info {
@@ -93,21 +87,21 @@
         
         .name-info .full-name {
             font-weight: bold;
-            font-size: 7px;
+            font-size: 9px;
             margin: 0;
-            line-height: 1.2;
+            line-height: 1.3;
         }
         
         .name-info .nip {
-            font-size: 6px;
-            margin: 1px 0;
-            line-height: 1.1;
+            font-size: 8px;
+            margin: 2px 0;
+            line-height: 1.2;
         }
         
         .name-info .rank {
-            font-size: 6px;
-            margin: 1px 0;
-            line-height: 1.1;
+            font-size: 8px;
+            margin: 2px 0;
+            line-height: 1.2;
         }
         
         .footer {
@@ -145,28 +139,29 @@
     <table>
         <thead>
             <tr>
-                <th style="width: 20px;">No</th>
-                <th class="name-cell">Nama Lengkap, NIP, Pangkat</th>
-                <th class="position-cell">Jabatan</th>
-                <th class="unit-cell">Unit</th>
+                <th style="width: 20px !important;">No</th>
+                <th style="width: 250px !important; min-width: 250px !important; text-align: left;">Nama Lengkap, NIP, Pangkat</th>
+                <th style="width: 100px !important; min-width: 100px !important; text-align: left;">Jabatan & Unit</th>
                 @for($day = 1; $day <= $daysInMonth; $day++)
-                    <th class="date-cell">{{ $day }}</th>
+                    <th style="width: 12px !important; min-width: 12px !important; max-width: 12px !important; font-size: 6px !important;">{{ $day }}</th>
                 @endfor
             </tr>
         </thead>
         <tbody>
             @foreach($pegawai as $index => $p)
                 <tr>
-                    <td>{{ $index + 1 }}</td>
-                    <td class="name-cell">
+                    <td style="width: 20px !important;">{{ $index + 1 }}</td>
+                    <td style="width: 250px !important; min-width: 250px !important; text-align: left; padding: 3px;">
                         <div class="name-info">
                             <div class="full-name">{{ $p->fullNameWithTitles() }}</div>
                             <div class="nip">NIP: {{ $p->nip ?? '-' }}</div>
                             <div class="rank">{{ $p->rank->name ?? '-' }}</div>
                         </div>
                     </td>
-                    <td class="position-cell">{{ $p->position->name ?? '-' }}</td>
-                    <td class="unit-cell">{{ $p->unit->name ?? '-' }}</td>
+                    <td style="width: 100px !important; min-width: 100px !important; text-align: left; padding: 3px;">
+                        <div style="font-weight: bold; margin-bottom: 3px; font-size: 8px;">{{ $p->position->name ?? '-' }}</div>
+                        <div style="font-size: 7px; color: #666; line-height: 1.2;">{{ $p->unit->name ?? '-' }}</div>
+                    </td>
                     
                     @for($day = 1; $day <= $daysInMonth; $day++)
                         @php
@@ -191,7 +186,7 @@
                             }
                         @endphp
                         
-                        <td class="date-cell {{ $cellClass }}">
+                        <td style="width: 15px !important; min-width: 15px !important; max-width: 15px !important; {{ $cellClass }}">
                             @if($hasAssignment)
                                 ●
                             @endif
