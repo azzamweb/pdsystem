@@ -200,6 +200,9 @@ class Create extends Component
                 'notes' => $this->notes,
             ]);
 
+            // Create snapshot of signed_by_user data
+            $spt->createSignedByUserSnapshot();
+
             // Tidak lagi membuat SPT members; peserta akan selalu dirujuk dari Nota Dinas
 
             DB::commit();

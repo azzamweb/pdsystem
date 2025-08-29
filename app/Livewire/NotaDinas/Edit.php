@@ -241,6 +241,10 @@ class Edit extends Component
                 'status' => $this->status,
                 'notes' => $this->notes,
             ]);
+
+            // Update snapshot of user data
+            $this->notaDinas->createUserSnapshot();
+
             // Update peserta
             $this->notaDinas->participants()->delete();
             foreach ($this->participants as $userId) {

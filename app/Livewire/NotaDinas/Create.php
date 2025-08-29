@@ -204,11 +204,18 @@ class Create extends Component
                 'notes' => $this->notes,
             ]);
             foreach ($this->participants as $userId) {
-                NotaDinasParticipant::create([
+                $participant = NotaDinasParticipant::create([
                     'nota_dinas_id' => $nd->id,
                     'user_id' => $userId,
                 ]);
+                
+                // Create snapshot for participant
+                $participant->createUserSnapshot();
             }
+
+            // Create snapshot of user data
+            $nd->createUserSnapshot();
+
             DB::commit();
             session()->flash('message', 'Nota Dinas berhasil dibuat.');
             // Redirect ke halaman utama dengan state yang sama

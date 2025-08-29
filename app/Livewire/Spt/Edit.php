@@ -96,6 +96,9 @@ class Edit extends Component
                 'notes' => $this->notes,
             ]);
 
+            // Update snapshot of signed_by_user data
+            $this->spt->createSignedByUserSnapshot();
+
             DB::commit();
             session()->flash('message', 'SPT berhasil diperbarui.');
             // Redirect ke halaman utama dengan state yang sama

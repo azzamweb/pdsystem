@@ -16,6 +16,16 @@ class NotaDinas extends Model
         'sifat', 'lampiran_count', 'hal', 'custom_signer_title', 'dasar', 'maksud', 'destination_city_id', 'origin_place_id', 'start_date',
         'end_date', 'trip_type', 'requesting_unit_id', 'status', 'created_by',
         'approved_by', 'approved_at', 'notes',
+        // Snapshot fields for from_user
+        'from_user_name_snapshot', 'from_user_gelar_depan_snapshot', 'from_user_gelar_belakang_snapshot',
+        'from_user_nip_snapshot', 'from_user_unit_id_snapshot', 'from_user_unit_name_snapshot',
+        'from_user_position_id_snapshot', 'from_user_position_name_snapshot', 'from_user_position_desc_snapshot',
+        'from_user_rank_id_snapshot', 'from_user_rank_name_snapshot', 'from_user_rank_code_snapshot',
+        // Snapshot fields for to_user
+        'to_user_name_snapshot', 'to_user_gelar_depan_snapshot', 'to_user_gelar_belakang_snapshot',
+        'to_user_nip_snapshot', 'to_user_unit_id_snapshot', 'to_user_unit_name_snapshot',
+        'to_user_position_id_snapshot', 'to_user_position_name_snapshot', 'to_user_position_desc_snapshot',
+        'to_user_rank_id_snapshot', 'to_user_rank_name_snapshot', 'to_user_rank_code_snapshot',
     ];
 
     // Relasi
@@ -32,4 +42,88 @@ class NotaDinas extends Model
     public function numberScopeUnit() { return $this->belongsTo(Unit::class, 'number_scope_unit_id'); }
     public function spt() { return $this->hasOne(Spt::class, 'nota_dinas_id'); }
     public function supportingDocuments() { return $this->hasMany(SupportingDocument::class); }
+
+    /**
+     * Get snapshot data for from_user (penandatangan)
+     */
+    public function getFromUserSnapshotAttribute()
+    {
+        return [
+            'name' => $this->from_user_name_snapshot ?: $this->fromUser?->name,
+            'gelar_depan' => $this->from_user_gelar_depan_snapshot ?: $this->fromUser?->gelar_depan,
+            'gelar_belakang' => $this->from_user_gelar_belakang_snapshot ?: $this->fromUser?->gelar_belakang,
+            'nip' => $this->from_user_nip_snapshot ?: $this->fromUser?->nip,
+            'unit_id' => $this->from_user_unit_id_snapshot ?: $this->fromUser?->unit_id,
+            'unit_name' => $this->from_user_unit_name_snapshot ?: $this->fromUser?->unit?->name,
+            'position_id' => $this->from_user_position_id_snapshot ?: $this->fromUser?->position_id,
+            'position_name' => $this->from_user_position_name_snapshot ?: $this->fromUser?->position?->name,
+            'position_desc' => $this->from_user_position_desc_snapshot ?: $this->fromUser?->position_desc,
+            'rank_id' => $this->from_user_rank_id_snapshot ?: $this->fromUser?->rank_id,
+            'rank_name' => $this->from_user_rank_name_snapshot ?: $this->fromUser?->rank?->name,
+            'rank_code' => $this->from_user_rank_code_snapshot ?: $this->fromUser?->rank?->code,
+        ];
+    }
+
+    /**
+     * Get snapshot data for to_user (tujuan)
+     */
+    public function getToUserSnapshotAttribute()
+    {
+        return [
+            'name' => $this->to_user_name_snapshot ?: $this->toUser?->name,
+            'gelar_depan' => $this->to_user_gelar_depan_snapshot ?: $this->toUser?->gelar_depan,
+            'gelar_belakang' => $this->to_user_gelar_belakang_snapshot ?: $this->toUser?->gelar_belakang,
+            'nip' => $this->to_user_nip_snapshot ?: $this->toUser?->nip,
+            'unit_id' => $this->to_user_unit_id_snapshot ?: $this->toUser?->unit_id,
+            'unit_name' => $this->to_user_unit_name_snapshot ?: $this->toUser?->unit?->name,
+            'position_id' => $this->to_user_position_id_snapshot ?: $this->toUser?->position_id,
+            'position_name' => $this->to_user_position_name_snapshot ?: $this->toUser?->position?->name,
+            'position_desc' => $this->to_user_position_desc_snapshot ?: $this->toUser?->position_desc,
+            'rank_id' => $this->to_user_rank_id_snapshot ?: $this->toUser?->rank_id,
+            'rank_name' => $this->to_user_rank_name_snapshot ?: $this->toUser?->rank?->name,
+            'rank_code' => $this->to_user_rank_code_snapshot ?: $this->toUser?->rank?->code,
+        ];
+    }
+
+    /**
+     * Create snapshot of user data
+     */
+    public function createUserSnapshot()
+    {
+        // Snapshot from_user data
+        if ($this->fromUser) {
+            $this->update([
+                'from_user_name_snapshot' => $this->fromUser->name,
+                'from_user_gelar_depan_snapshot' => $this->fromUser->gelar_depan,
+                'from_user_gelar_belakang_snapshot' => $this->fromUser->gelar_belakang,
+                'from_user_nip_snapshot' => $this->fromUser->nip,
+                'from_user_unit_id_snapshot' => $this->fromUser->unit_id,
+                'from_user_unit_name_snapshot' => $this->fromUser->unit?->name,
+                'from_user_position_id_snapshot' => $this->fromUser->position_id,
+                'from_user_position_name_snapshot' => $this->fromUser->position?->name,
+                'from_user_position_desc_snapshot' => $this->fromUser->position_desc,
+                'from_user_rank_id_snapshot' => $this->fromUser->rank_id,
+                'from_user_rank_name_snapshot' => $this->fromUser->rank?->name,
+                'from_user_rank_code_snapshot' => $this->fromUser->rank?->code,
+            ]);
+        }
+
+        // Snapshot to_user data
+        if ($this->toUser) {
+            $this->update([
+                'to_user_name_snapshot' => $this->toUser->name,
+                'to_user_gelar_depan_snapshot' => $this->toUser->gelar_depan,
+                'to_user_gelar_belakang_snapshot' => $this->toUser->gelar_belakang,
+                'to_user_nip_snapshot' => $this->toUser->nip,
+                'to_user_unit_id_snapshot' => $this->toUser->unit_id,
+                'to_user_unit_name_snapshot' => $this->toUser->unit?->name,
+                'to_user_position_id_snapshot' => $this->toUser->position_id,
+                'to_user_position_name_snapshot' => $this->toUser->position?->name,
+                'to_user_position_desc_snapshot' => $this->toUser->position_desc,
+                'to_user_rank_id_snapshot' => $this->toUser->rank_id,
+                'to_user_rank_name_snapshot' => $this->toUser->rank?->name,
+                'to_user_rank_code_snapshot' => $this->toUser->rank?->code,
+            ]);
+        }
+    }
 }

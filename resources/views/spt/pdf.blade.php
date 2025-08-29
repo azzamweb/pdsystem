@@ -111,47 +111,65 @@
                     @php
                         $participants = $spt->getParticipants();
                         $ordered = $participants->sort(function ($a, $b) {
-                            $ea = $a->user?->position?->echelon?->id ?? 999999;
-                            $eb = $b->user?->position?->echelon?->id ?? 999999;
+                            // Gunakan snapshot data untuk sorting, fallback ke live data
+                            $ea = $a->user_position_echelon_id_snapshot ?? $a->user?->position?->echelon?->id ?? 999999;
+                            $eb = $b->user_position_echelon_id_snapshot ?? $b->user?->position?->echelon?->id ?? 999999;
                             if ($ea !== $eb) return $ea <=> $eb;
-                            $ra = $a->user?->rank?->id ?? 0;
-                            $rb = $b->user?->rank?->id ?? 0;
+                            
+                            $ra = $a->user_rank_id_snapshot ?? $a->user?->rank?->id ?? 0;
+                            $rb = $b->user_rank_id_snapshot ?? $b->user?->rank?->id ?? 0;
                             if ($ra !== $rb) return $rb <=> $ra;
-                            $na = (string)($a->user?->nip ?? '');
-                            $nb = (string)($b->user?->nip ?? '');
+                            
+                            $na = (string)($a->user_nip_snapshot ?? $a->user?->nip ?? '');
+                            $nb = (string)($b->user_nip_snapshot ?? $b->user?->nip ?? '');
                             return strcmp($na, $nb);
                         })->values();
                     @endphp
                     @if($ordered->count() > 0)
-                        @foreach($ordered as $i => $participant)
+                        
                             <table style="width: 100%; border: none; border-collapse: collapse; margin-bottom: 10px;">
-                                <tr>
-                                    <td>{{ $i+1 }}.</td>
-                                    <td style="width: 150px; vertical-align: top; border: none; padding: 2px 0;"> Nama</td>
-                                    <td style="width: 10px; vertical-align: top; border: none; padding: 2px 0;">:</td>
-                                    <td style="border: none; padding: 2px 0;">{{ $participant->user->name ?? '-' }}</td>
-                                </tr>
-                                <tr>
-                                    <td></td>
-                                    <td style="width: 150px; vertical-align: top; border: none; padding: 2px 0;">Pangkat/Gol. Ruang</td>
-                                    <td style="width: 10px; vertical-align: top; border: none; padding: 2px 0;"><:</td>
-                                    <td style="border: none; padding: 2px 0;">{{ $participant->user->rank?->name ?? '-' }} ({{ $participant->user->rank?->code ?? '-' }})</td>
-                                </tr>
-                                <tr>
-                                    <td></td>
-                                    <td style="width: 150px; vertical-align: top; border: none; padding: 2px 0;">NIP</td>
-                                    <td style="width: 10px; vertical-align: top; border: none; padding: 2px 0;"><:</td>
-                                    <td style="border: none; padding: 2px 0;">{{ $participant->user->nip ?? '-' }}</td>
-                                </tr>
-                                <tr>
-                                    <td></td>
-                                    <td style="width: 150px; vertical-align: top; border: none; padding: 2px 0;">Jabatan</td>
-                                    <td style="width: 10px; vertical-align: top; border: none; padding: 2px 0;">:</td>
-                                    <td style="border: none; padding: 2px 0;">{{ $participant->user->position_desc ?: ($participant->user->position?->name ?? '-') }}</td>
-                                </tr>
-                            </table>
-                            @if(!$loop->last)<br>@endif
-                        @endforeach
+                                                        @foreach($ordered as $i => $participant)
+                        @php
+                            $name = $participant->user_name_snapshot ?: $participant->user->name;
+                            $rankName = $participant->user_rank_name_snapshot ?: $participant->user->rank?->name;
+                            $rankCode = $participant->user_rank_code_snapshot ?: $participant->user->rank?->code;
+                            $nip = $participant->user_nip_snapshot ?: $participant->user->nip;
+                            $position = $participant->user_position_desc_snapshot ?: ($participant->user->position_desc ?: $participant->user->position?->name);
+                        @endphp
+                        <tr>
+                            <td>{{ $i+1 }}.</td>
+                            <td style="width: 150px; vertical-align: top; border: none; padding: 2px 0;">Nama</td>
+                            <td style="width: 10px; vertical-align: top; border: none; padding: 2px 0;">:</td>
+                            <td style="border: none; padding: 2px 0;">{{ $name ?? '-' }}</td>
+                        </tr>
+                        @if($rankName || $rankCode)
+                        <tr>
+                            <td></td>
+                            <td style="width: 150px; vertical-align: top; border: none; padding: 2px 0;">Pangkat/Gol. Ruang</td>
+                            <td style="width: 10px; vertical-align: top; border: none; padding: 2px 0;">:</td>
+                            <td style="border: none; padding: 2px 0;">{{ $rankName ?? '' }} {{ $rankCode ? '(' . $rankCode . ')' : '' }}</td>
+                        </tr>
+                        @endif
+                        @if($nip)
+                        <tr>
+                            <td></td>
+                            <td style="width: 150px; vertical-align: top; border: none; padding: 2px 0;">NIP</td>
+                            <td style="width: 10px; vertical-align: top; border: none; padding: 2px 0;">:</td>
+                            <td style="border: none; padding: 2px 0;">{{ $nip }}</td>
+                        </tr>
+                        @endif
+                        @if($position)
+                        <tr>
+                            <td></td>
+                            <td style="width: 150px; vertical-align: top; border: none; padding: 2px 0;">Jabatan</td>
+                            <td style="width: 10px; vertical-align: top; border: none; padding: 2px 0;">:</td>
+                            <td style="border: none; padding: 2px 0;">{{ $position }}</td>
+                        </tr>
+                        @endif
+                       
+                        @if(!$loop->last)<br>@endif
+                    @endforeach
+                    </table>
                     @else
                         -
                     @endif
@@ -206,23 +224,28 @@
                         <!-- Custom assignment title -->
                         <div style="word-wrap: break-word; white-space: normal;">{!! nl2br(e($spt->assignment_title)) !!}</div>
                     @else
-                        <!-- Auto assignment title (dari jabatan penandatangan) -->
-                        @if($spt->signedByUser?->unit?->name)
+                        <!-- Auto assignment title (dari snapshot Nota Dinas) -->
+                        @php
+                            $signedByUserSnapshot = $spt->getSignedByUserSnapshot();
+                            $positionName = $signedByUserSnapshot['position_name'] ?? $spt->signedByUser?->position?->name ?? '-';
+                            $unitName = $signedByUserSnapshot['unit_name'] ?? $spt->signedByUser?->unit?->name ?? '';
+                        @endphp
+                        @if($unitName)
                             <!-- Jika ada unit name, tampilkan dalam baris terpisah -->
-                            <div style="word-wrap: break-word; white-space: normal;">{{ $spt->signedByUser?->position?->name ?? '-' }} {{ $spt->signedByUser?->unit?->name }}</div>
+                            <div style="word-wrap: break-word; white-space: normal;">{{ $positionName }} {{ $unitName }}</div>
                            
                             <div>{{ \DB::table('org_settings')->value('name') }}</div>
                         @else
                             <!-- Jika tidak ada unit name, position langsung disambung dengan organisasi -->
-                            <div style="word-wrap: break-word; white-space: normal;">{{ $spt->signedByUser?->position?->name ?? '-' }} {{ \DB::table('org_settings')->value('name') }}</div>
+                            <div style="word-wrap: break-word; white-space: normal;">{{ $positionName }} {{ \DB::table('org_settings')->value('name') }}</div>
                         @endif
                         <div>Kabupaten Bengkalis</div>             
                     @endif
                     
                     <br><br><br><br><br>
-                    <div class="name">{{ $spt->signedByUser?->gelar_depan ?? '-' }} {{ $spt->signedByUser?->name ?? '-' }} {{ $spt->signedByUser?->gelar_belakang ?? '-' }}</div>
-                    <div class="rank">{{ $spt->signedByUser?->rank?->name ?? '-' }} ({{ $spt->signedByUser?->rank?->code ?? '-' }})</div>
-                    <div class="nip">NIP. {{ $spt->signedByUser?->nip ?? '-' }}</div>
+                    <div class="name">{{ $spt->getSignedByUserSnapshot()['gelar_depan'] ?? $spt->signedByUser?->gelar_depan ?? '-' }} {{ $spt->getSignedByUserSnapshot()['name'] ?? $spt->signedByUser?->name ?? '-' }} {{ $spt->getSignedByUserSnapshot()['gelar_belakang'] ?? $spt->signedByUser?->gelar_belakang ?? '-' }}</div>
+                    <div class="rank">{{ $spt->getSignedByUserSnapshot()['rank_name'] ?? $spt->signedByUser?->rank?->name ?? '-' }} ({{ $spt->getSignedByUserSnapshot()['rank_code'] ?? $spt->signedByUser?->rank?->code ?? '-' }})</div>
+                    <div class="nip">NIP. {{ $spt->getSignedByUserSnapshot()['nip'] ?? $spt->signedByUser?->nip ?? '-' }}</div>
                 </div>
             </div>
         </div>

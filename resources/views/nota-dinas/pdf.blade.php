@@ -78,12 +78,12 @@
             <tr>
                 <td class="label">Yth.</td>
                 <td class="separator">:</td>
-                <td class="content">{{ $notaDinas->toUser?->position?->name ?? '-' }} {{ \DB::table('org_settings')->value('name') }}</td>
+                <td class="content">{{ $notaDinas->to_user_position_name_snapshot ?: $notaDinas->toUser?->position?->name ?? '-' }} {{ \DB::table('org_settings')->value('name') }}</td>
             </tr>
             <tr>
                 <td class="label">Dari</td>
                 <td class="separator">:</td>
-                <td class="content">{{ $notaDinas->custom_signer_title ?: ($notaDinas->fromUser?->position?->name ?? '-') . ' ' . ($notaDinas->fromUser?->unit?->name ?? '-') }}</td>
+                <td class="content">{{ $notaDinas->custom_signer_title ?: ($notaDinas->from_user_position_name_snapshot ?: $notaDinas->fromUser?->position?->name ?? '-') . ' ' . ($notaDinas->from_user_unit_name_snapshot ?: $notaDinas->fromUser?->unit?->name ?? '-') }}</td>
             </tr>
             <tr>
                 <td class="label">Tembusan</td>
@@ -182,14 +182,17 @@
             <tbody>
                 @php
                     $ordered = $notaDinas->participants->sort(function ($a, $b) {
-                        $ea = $a->user?->position?->echelon?->id ?? 999999;
-                        $eb = $b->user?->position?->echelon?->id ?? 999999;
+                        // Gunakan snapshot data untuk sorting, fallback ke live data
+                        $ea = $a->user_position_echelon_id_snapshot ?? $a->user?->position?->echelon?->id ?? 999999;
+                        $eb = $b->user_position_echelon_id_snapshot ?? $b->user?->position?->echelon?->id ?? 999999;
                         if ($ea !== $eb) return $ea <=> $eb;
-                        $ra = $a->user?->rank?->id ?? 0;
-                        $rb = $b->user?->rank?->id ?? 0;
+                        
+                        $ra = $a->user_rank_id_snapshot ?? $a->user?->rank?->id ?? 0;
+                        $rb = $b->user_rank_id_snapshot ?? $b->user?->rank?->id ?? 0;
                         if ($ra !== $rb) return $rb <=> $ra;
-                        $na = (string)($a->user?->nip ?? '');
-                        $nb = (string)($b->user?->nip ?? '');
+                        
+                        $na = (string)($a->user_nip_snapshot ?? $a->user?->nip ?? '');
+                        $nb = (string)($b->user_nip_snapshot ?? $b->user?->nip ?? '');
                         return strcmp($na, $nb);
                     })->values();
                 @endphp
@@ -197,11 +200,22 @@
                     <tr>
                         <td class="no">{{ $i+1 }}</td>
                         <td>
-                            {{ $p->user->name ?? '-' }}<br>
-                            {{ $p->user->rank?->name ?? '-' }} ({{ $p->user->rank?->code ?? '-' }})<br>
-                            NIP {{ $p->user->nip ?? '-' }}
+                            {{ $p->user_name_snapshot ?: $p->user->name ?? '-' }}<br>
+                            @if($p->user_rank_name_snapshot ?: $p->user->rank?->name)
+                                {{ $p->user_rank_name_snapshot ?: $p->user->rank?->name }}
+                                @if($p->user_rank_code_snapshot ?: $p->user->rank?->code)
+                                    ({{ $p->user_rank_code_snapshot ?: $p->user->rank?->code }})
+                                @endif
+                                <br>
+                            @endif
+                            @if($p->user_nip_snapshot ?: $p->user->nip ?? null)
+                                NIP {{ $p->user_nip_snapshot ?: $p->user->nip }}
+                                @else
+                                <br>
+                            @endif
+                            
                         </td>
-                        <td>{{ $p->user->position_desc ?: ($p->user->position?->name ?? '-') }}</td>
+                        <td>{{ $p->user_position_desc_snapshot ?: ($p->user->position_desc ?: ($p->user->position?->name ?? '-')) }}</td>
                         <td></td>
                     </tr>
                 @empty
@@ -221,13 +235,13 @@
             <!-- Tanda Tangan -->
             <div class="signature">
                 <div class="block">
-                    <div>{{ $notaDinas->custom_signer_title ?: ($notaDinas->fromUser?->position?->name ?? '-') . ' ' . ($notaDinas->fromUser?->unit?->name ?? '-') }}</div>
+                    <div>{{ $notaDinas->custom_signer_title ?: ($notaDinas->from_user_position_name_snapshot ?: $notaDinas->fromUser?->position?->name ?? '-') . ' ' . ($notaDinas->from_user_unit_name_snapshot ?: $notaDinas->fromUser?->unit?->name ?? '-') }}</div>
                     <div>{{ \DB::table('org_settings')->value('name') }}</div>
                     <div>Kabupaten Bengkalis</div>
                     <br><br><br><br><br>
-                    <div class="name">{{ $notaDinas->fromUser?->gelar_depan ?? '' }} {{ $notaDinas->fromUser?->name ?? '-' }} {{ $notaDinas->fromUser?->gelar_belakang ?? '-' }}</div>
-                    <div class="rank">{{ $notaDinas->fromUser?->rank?->name ?? '-' }} ({{ $notaDinas->fromUser?->rank?->code ?? '-' }})</div>
-                    <div class="nip">NIP. {{ $notaDinas->fromUser?->nip ?? '-' }}</div>
+                    <div class="name">{{ $notaDinas->from_user_gelar_depan_snapshot ?: $notaDinas->fromUser?->gelar_depan ?? '' }} {{ $notaDinas->from_user_name_snapshot ?: $notaDinas->fromUser?->name ?? '-' }} {{ $notaDinas->from_user_gelar_belakang_snapshot ?: $notaDinas->fromUser?->gelar_belakang ?? '-' }}</div>
+                    <div class="rank">{{ $notaDinas->from_user_rank_name_snapshot ?: $notaDinas->fromUser?->rank?->name ?? '-' }} ({{ $notaDinas->from_user_rank_code_snapshot ?: $notaDinas->fromUser?->rank?->code ?? '-' }})</div>
+                    <div class="nip">NIP. {{ $notaDinas->from_user_nip_snapshot ?: $notaDinas->fromUser?->nip ?? '-' }}</div>
                 </div>
             </div>
         </div>

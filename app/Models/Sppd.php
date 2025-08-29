@@ -45,4 +45,63 @@ class Sppd extends Model
     public function receipts() { return $this->hasMany(Receipt::class); }
     // TripReport terkait dengan SPT, bukan SPPD langsung
     // public function tripReport() { return $this->hasOne(TripReport::class); }
+
+    /**
+     * Get snapshot data for user from Nota Dinas
+     */
+    public function getUserSnapshot()
+    {
+        if (!$this->spt?->notaDinas) {
+            return null;
+        }
+
+        // Find the participant in Nota Dinas that matches this SPPD user
+        $participant = $this->spt->notaDinas->participants
+            ->where('user_id', $this->user_id)
+            ->first();
+
+        if ($participant) {
+            return [
+                'name' => $participant->user_name_snapshot ?: $participant->user?->name,
+                'gelar_depan' => $participant->user_gelar_depan_snapshot ?: $participant->user?->gelar_depan,
+                'gelar_belakang' => $participant->user_gelar_belakang_snapshot ?: $participant->user?->gelar_belakang,
+                'nip' => $participant->user_nip_snapshot ?: $participant->user?->nip,
+                'unit_id' => $participant->user_unit_id_snapshot ?: $participant->user?->unit_id,
+                'unit_name' => $participant->user_unit_name_snapshot ?: $participant->user?->unit?->name,
+                'position_id' => $participant->user_position_id_snapshot ?: $participant->user?->position_id,
+                'position_name' => $participant->user_position_name_snapshot ?: $participant->user?->position?->name,
+                'position_desc' => $participant->user_position_desc_snapshot ?: $participant->user?->position_desc,
+                'rank_id' => $participant->user_rank_id_snapshot ?: $participant->user?->rank_id,
+                'rank_name' => $participant->user_rank_name_snapshot ?: $participant->user?->rank?->name,
+                'rank_code' => $participant->user_rank_code_snapshot ?: $participant->user?->rank?->code,
+            ];
+        }
+
+        return null;
+    }
+
+    /**
+     * Get snapshot data for signed_by_user from Nota Dinas
+     */
+    public function getSignedByUserSnapshot()
+    {
+        if (!$this->spt?->notaDinas) {
+            return null;
+        }
+
+        return [
+            'name' => $this->spt->notaDinas->from_user_name_snapshot ?: $this->spt->notaDinas->fromUser?->name,
+            'gelar_depan' => $this->spt->notaDinas->from_user_gelar_depan_snapshot ?: $this->spt->notaDinas->fromUser?->gelar_depan,
+            'gelar_belakang' => $this->spt->notaDinas->from_user_gelar_belakang_snapshot ?: $this->spt->notaDinas->fromUser?->gelar_belakang,
+            'nip' => $this->spt->notaDinas->from_user_nip_snapshot ?: $this->spt->notaDinas->fromUser?->nip,
+            'unit_id' => $this->spt->notaDinas->from_user_unit_id_snapshot ?: $this->spt->notaDinas->fromUser?->unit_id,
+            'unit_name' => $this->spt->notaDinas->from_user_unit_name_snapshot ?: $this->spt->notaDinas->fromUser?->unit?->name,
+            'position_id' => $this->spt->notaDinas->from_user_position_id_snapshot ?: $this->spt->notaDinas->fromUser?->position_id,
+            'position_name' => $this->spt->notaDinas->from_user_position_name_snapshot ?: $this->spt->notaDinas->fromUser?->position?->name,
+            'position_desc' => $this->spt->notaDinas->from_user_position_desc_snapshot ?: $this->spt->notaDinas->fromUser?->position_desc,
+            'rank_id' => $this->spt->notaDinas->from_user_rank_id_snapshot ?: $this->spt->notaDinas->fromUser?->rank_id,
+            'rank_name' => $this->spt->notaDinas->from_user_rank_name_snapshot ?: $this->spt->notaDinas->fromUser?->rank?->name,
+            'rank_code' => $this->spt->notaDinas->from_user_rank_code_snapshot ?: $this->spt->notaDinas->fromUser?->rank?->code,
+        ];
+    }
 }
