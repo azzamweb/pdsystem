@@ -175,5 +175,72 @@
                 width: 800
             });
         });
+
+        // Search functionality for edit form
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('search-participants-edit');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    const participantItems = document.querySelectorAll('.participant-item-edit');
+                    
+                    participantItems.forEach(item => {
+                        const text = item.getAttribute('data-text');
+                        if (text.includes(searchTerm)) {
+                            item.style.display = 'flex';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                });
+            }
+        });
+
+        // Clear all participants for edit form
+        function clearParticipantsEdit() {
+            const checkboxes = document.querySelectorAll('input[name="participants[]"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            // Trigger Livewire update
+            @this.set('participants', []);
+            updateSelectedCountEdit();
+        }
+
+        // Select visible participants for edit form
+        function selectVisibleParticipantsEdit() {
+            const visibleItems = document.querySelectorAll('.participant-item-edit');
+            const checkboxes = [];
+            
+            visibleItems.forEach(item => {
+                if (item.style.display !== 'none') {
+                    const checkbox = item.querySelector('input[type="checkbox"]');
+                    if (checkbox) {
+                        checkbox.checked = true;
+                        checkboxes.push(checkbox.value);
+                    }
+                }
+            });
+            
+            // Trigger Livewire update
+            @this.set('participants', checkboxes);
+            updateSelectedCountEdit();
+        }
+
+        // Update selected count for edit form
+        function updateSelectedCountEdit() {
+            const checkboxes = document.querySelectorAll('input[name="participants[]"]:checked');
+            const countElement = document.getElementById('selected-count-edit');
+            if (countElement) {
+                countElement.textContent = checkboxes.length;
+            }
+        }
+
+        // Listen for checkbox changes in edit form
+        document.addEventListener('change', function(e) {
+            if (e.target.name === 'participants[]') {
+                updateSelectedCountEdit();
+            }
+        });
     });
 </script>

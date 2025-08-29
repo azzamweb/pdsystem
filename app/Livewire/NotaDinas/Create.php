@@ -38,6 +38,9 @@ class Create extends Component
     public $nd_date = '';
     #[Rule('required|string|max:255')]
     public $hal = '';
+    public $use_custom_signer_title = false;
+    #[Rule('nullable|string|max:255')]
+    public $custom_signer_title = '';
     #[Rule('required|string')]
     public $dasar = '';
     #[Rule('required|string')]
@@ -70,6 +73,7 @@ class Create extends Component
                 'sifat' => 'required|in:Penting,Segera,Biasa,Rahasia',
                 'nd_date' => 'required|date',
                 'hal' => 'required|string|max:255',
+                'custom_signer_title' => 'nullable|string|max:255',
                 'dasar' => 'required|string',
                 'maksud' => 'required|string',
                 'lampiran_count' => 'required|integer|min:1',
@@ -186,6 +190,7 @@ class Create extends Component
                 'sifat' => $this->sifat,
                 'lampiran_count' => $this->lampiran_count,
                 'hal' => $this->hal,
+                'custom_signer_title' => $this->use_custom_signer_title ? $this->custom_signer_title : null,
                 'dasar' => $this->dasar,
                 'maksud' => $this->maksud,
                 'destination_city_id' => $this->destination_city_id,

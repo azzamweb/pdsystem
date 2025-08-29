@@ -85,6 +85,23 @@
         @error('hal')<p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>@enderror
     </div>
     <div class="md:col-span-2">
+        <div class="flex items-center space-x-2 mb-2">
+            <input type="checkbox" wire:model.live="use_custom_signer_title" id="use_custom_signer_title" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500" />
+            <label for="use_custom_signer_title" class="text-sm font-medium text-gray-700 dark:text-gray-300">Gunakan judul penandatangan custom</label>
+        </div>
+        @if($use_custom_signer_title)
+            <label for="custom_signer_title" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Judul Penandatangan Custom</label>
+            <textarea wire:model="custom_signer_title" id="custom_signer_title" rows="2" placeholder="Contoh: Kepala Dinas Pendidikan, Pemuda dan Olahraga&#10;atau&#10;Sekretaris Daerah&#10;Kabupaten Bengkalis" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"></textarea>
+            @error('custom_signer_title')<p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>@enderror
+        @else
+            <div class="mt-1 p-3 bg-gray-50 dark:bg-gray-700 rounded-md border border-gray-200 dark:border-gray-600">
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    <span class="font-medium">Judul normal:</span> Akan menggunakan judul berdasarkan jabatan dan unit pegawai yang dipilih sebagai penandatangan.
+                </p>
+            </div>
+        @endif
+    </div>
+    <div class="md:col-span-2">
         <label for="dasar" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Dasar <span class="text-red-500">*</span></label>
         <textarea wire:model="dasar" id="dasar" rows="2" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"></textarea>
         @error('dasar')<p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>@enderror
@@ -111,29 +128,58 @@
     </div>
     <div class="md:col-span-2">
         <label for="participants" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Peserta (Pegawai yang bepergian) <span class="text-red-500">*</span></label>
-        <div x-data="{ q: '', selected: @entangle('participants') }" class="mt-1">
-            <input type="text" x-model="q" placeholder="Cari nama / jabatan / unit..." class="mb-2 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
-            <div class="overflow-y-auto overscroll-y-contain border border-gray-200 dark:border-gray-700 rounded-md divide-y divide-gray-100 dark:divide-gray-700" x-ref="list" style="height:200px;">
-                @foreach($users as $user)
+        <div class="mt-1">
+            <input type="text" id="search-participants-edit" placeholder="Cari nama / jabatan / unit..." class="mb-2 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+            <div class="overflow-y-auto overscroll-y-contain border border-gray-200 dark:border-gray-700 rounded-md divide-y divide-gray-100 dark:divide-gray-700" style="height:250px;">
+                @if($users->count() > 0)
+                    @foreach($users as $user)
                     @php
-                        $label = $user->fullNameWithTitles() . ' (' . trim(($user->position->name ?? '') . ' ' . ($user->unit->name ?? '')) . ')';
+                        $label = $user->fullNameWithTitles() . ' (' . trim(($user->position?->name ?? '') . ' ' . ($user->unit?->name ?? '')) . ')';
                     @endphp
-                    <label class="flex items-center gap-2 px-3 py-2 text-sm" x-bind:data-text="'{{ strtolower($label) }}'" x-show="!q || ($el.dataset.text || '').includes(q.toLowerCase())" x-cloak>
-                        <input type="checkbox" value="{{ $user->id }}" x-model="selected" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500" />
-                        <span class="text-gray-900 dark:text-gray-100">{{ $label }}</span>
+                    <label class="flex items-start gap-3 px-4 py-3 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer participant-item-edit" data-text="{{ strtolower($label) }}">
+                        <input type="checkbox" name="participants[]" value="{{ $user->id }}" wire:model="participants" class="mt-1 rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500" />
+                        <div class="flex-1 min-w-0">
+                            <div class="font-medium text-gray-900 dark:text-gray-100">
+                                {{ $user->fullNameWithTitles() }}
+                            </div>
+                            @if($user->position?->name || $user->unit?->name)
+                                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                    @if($user->position?->name)
+                                        <span class="inline-block bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 px-2 py-1 rounded mr-2">
+                                            {{ $user->position->name }}
+                                        </span>
+                                    @endif
+                                    @if($user->unit?->name)
+                                        <span class="inline-block bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 px-2 py-1 rounded">
+                                            {{ $user->unit->name }}
+                                        </span>
+                                    @endif
+                                </div>
+                            @endif
+                            @if($user->nip)
+                                <div class="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                                    NIP: {{ $user->nip }}
+                                </div>
+                            @endif
+                        </div>
                     </label>
-                @endforeach
+                    @endforeach
+                @else
+                    <div class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                        </svg>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">Tidak ada data pegawai</h3>
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                            Belum ada data pegawai yang tersedia.
+                        </p>
+                    </div>
+                @endif
             </div>
             <div class="mt-2 flex items-center gap-2">
-                <button type="button" class="px-3 py-1.5 text-xs rounded-md bg-gray-100 hover:bg-gray-200 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-100" @click="selected = [];">Kosongkan</button>
-                <button type="button" class="px-3 py-1.5 text-xs rounded-md bg-blue-600 hover:bg-blue-700 text-white" @click="selected = Array.from(new Set([...
-                    selected,
-                    ...Array.from($refs.list.querySelectorAll('label'))
-                        .filter(el => el.style.display !== 'none')
-                        .map(el => el.querySelector('input[type=checkbox]')?.value)
-                        .filter(Boolean)
-                ])).map(v => isNaN(v) ? v : Number(v))">Pilih yang tampil</button>
-                <span class="text-xs text-gray-500 dark:text-gray-400">Dipilih: <span x-text="selected.length"></span> pegawai</span>
+                <button type="button" class="px-3 py-1.5 text-xs rounded-md bg-gray-100 hover:bg-gray-200 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-100" onclick="clearParticipantsEdit()">Kosongkan</button>
+                <button type="button" class="px-3 py-1.5 text-xs rounded-md bg-blue-600 hover:bg-blue-700 text-white" onclick="selectVisibleParticipantsEdit()">Pilih yang tampil</button>
+                <span class="text-xs text-gray-500 dark:text-gray-400">Dipilih: <span id="selected-count-edit">{{ count($participants) }}</span> pegawai</span>
             </div>
         </div>
         @error('participants')<p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>@enderror

@@ -83,7 +83,7 @@
             <tr>
                 <td class="label">Dari</td>
                 <td class="separator">:</td>
-                <td class="content">{{ $notaDinas->fromUser?->position?->name ?? '-' }} {{ $notaDinas->fromUser?->unit?->name ?? '-' }}</td>
+                <td class="content">{{ $notaDinas->custom_signer_title ?: ($notaDinas->fromUser?->position?->name ?? '-') . ' ' . ($notaDinas->fromUser?->unit?->name ?? '-') }}</td>
             </tr>
             <tr>
                 <td class="label">Tembusan</td>
@@ -221,11 +221,11 @@
             <!-- Tanda Tangan -->
             <div class="signature">
                 <div class="block">
-                    <div>{{ $notaDinas->fromUser?->position?->name ?? '-' }} {{ $notaDinas->fromUser?->unit?->name ?? '-' }}</div>
+                    <div>{{ $notaDinas->custom_signer_title ?: ($notaDinas->fromUser?->position?->name ?? '-') . ' ' . ($notaDinas->fromUser?->unit?->name ?? '-') }}</div>
                     <div>{{ \DB::table('org_settings')->value('name') }}</div>
                     <div>Kabupaten Bengkalis</div>
                     <br><br><br><br><br>
-                    <div class="name">{{ $notaDinas->fromUser?->gelar_depan ?? '-' }} {{ $notaDinas->fromUser?->name ?? '-' }} {{ $notaDinas->fromUser?->gelar_belakang ?? '-' }}</div>
+                    <div class="name">{{ $notaDinas->fromUser?->gelar_depan ?? '' }} {{ $notaDinas->fromUser?->name ?? '-' }} {{ $notaDinas->fromUser?->gelar_belakang ?? '-' }}</div>
                     <div class="rank">{{ $notaDinas->fromUser?->rank?->name ?? '-' }} ({{ $notaDinas->fromUser?->rank?->code ?? '-' }})</div>
                     <div class="nip">NIP. {{ $notaDinas->fromUser?->nip ?? '-' }}</div>
                 </div>

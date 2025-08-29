@@ -34,6 +34,9 @@ class Edit extends Component
     public $nd_date = '';
     #[Rule('required|string|max:255')]
     public $hal = '';
+    public $use_custom_signer_title = false;
+    #[Rule('nullable|string|max:255')]
+    public $custom_signer_title = '';
     #[Rule('required|string')]
     public $dasar = '';
     #[Rule('required|string')]
@@ -99,6 +102,8 @@ class Edit extends Component
         $this->origin_place_id = $notaDinas->origin_place_id;
         $this->nd_date = $notaDinas->nd_date;
         $this->hal = $notaDinas->hal;
+        $this->custom_signer_title = $notaDinas->custom_signer_title;
+        $this->use_custom_signer_title = !empty($notaDinas->custom_signer_title);
         $this->dasar = $notaDinas->dasar;
         $this->maksud = $notaDinas->maksud;
         $this->lampiran_count = $notaDinas->lampiran_count;
@@ -224,6 +229,7 @@ class Edit extends Component
                 'sifat' => $this->sifat,
                 'lampiran_count' => $this->lampiran_count,
                 'hal' => $this->hal,
+                'custom_signer_title' => $this->use_custom_signer_title ? $this->custom_signer_title : null,
                 'dasar' => $this->dasar,
                 'maksud' => $this->maksud,
                 'destination_city_id' => $this->destination_city_id,
