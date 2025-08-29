@@ -242,16 +242,26 @@ class Edit extends Component
                 'notes' => $this->notes,
             ]);
 
-            // Update snapshot of user data
-            $this->notaDinas->createUserSnapshot();
+            // Update snapshot of user data only if it doesn't exist yet
+            if (!$this->notaDinas->from_user_name_snapshot || !$this->notaDinas->to_user_name_snapshot) {
+                $this->notaDinas->createUserSnapshot();
+            }
 
-            // Update peserta
-            $this->notaDinas->participants()->delete();
-            foreach ($this->participants as $userId) {
-                NotaDinasParticipant::create([
+            // Update peserta - hanya buat snapshot untuk participant baru
+            $existingParticipantIds = $this->notaDinas->participants()->pluck('user_id')->toArray();
+            $newParticipantIds = array_diff($this->participants, $existingParticipantIds);
+            
+            // Hapus participant yang tidak ada di list baru
+            $this->notaDinas->participants()->whereNotIn('user_id', $this->participants)->delete();
+            
+            // Tambah participant baru
+            foreach ($newParticipantIds as $userId) {
+                $participant = NotaDinasParticipant::create([
                     'nota_dinas_id' => $this->notaDinas->id,
                     'user_id' => $userId,
                 ]);
+                // Create snapshot hanya untuk participant baru
+                $participant->createUserSnapshot();
             }
             DB::commit();
             session()->flash('message', 'Nota Dinas berhasil diperbarui.');

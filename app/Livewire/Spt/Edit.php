@@ -96,8 +96,10 @@ class Edit extends Component
                 'notes' => $this->notes,
             ]);
 
-            // Update snapshot of signed_by_user data
-            $this->spt->createSignedByUserSnapshot();
+            // Update snapshot of signed_by_user data only if signatory changed or snapshot doesn't exist
+            if ($this->spt->signed_by_user_id !== $this->signed_by_user_id || !$this->spt->signed_by_user_name_snapshot) {
+                $this->spt->createSignedByUserSnapshot();
+            }
 
             DB::commit();
             session()->flash('message', 'SPT berhasil diperbarui.');
