@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Echelon;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class EchelonsSeeder extends Seeder
 {
@@ -13,17 +12,22 @@ class EchelonsSeeder extends Seeder
      */
     public function run(): void
     {
-        $data = [
-            ['code' => 'I.a',  'name' => 'Eselon I.a'],
-            ['code' => 'I.b',  'name' => 'Eselon I.b'],
-            ['code' => 'II.a', 'name' => 'Eselon II.a'],
-            ['code' => 'II.b', 'name' => 'Eselon II.b'],
-            ['code' => 'III.a','name' => 'Eselon III.a'],
-            ['code' => 'III.b','name' => 'Eselon III.b'],
-            ['code' => 'IV.a', 'name' => 'Eselon IV.a'],
-            ['code' => 'IV.b', 'name' => 'Eselon IV.b'],
+        $echelons = [
+            ['code' => 'I.a', 'name' => 'ESELON 1A'],
+            ['code' => 'I.b', 'name' => 'ESELON 1B'],
+            ['code' => 'II.a', 'name' => 'ESELON 2A'],
+            ['code' => 'II.b', 'name' => 'ESELON 2B'],
+            ['code' => 'III.a', 'name' => 'ESELON 3A'],
+            ['code' => 'III.b', 'name' => 'ESELON 3B'],
+            ['code' => 'IV.a', 'name' => 'ESELON 4A'],
+            ['code' => 'IV.b', 'name' => 'ESELON 4B'],
+            ['code' => 'V.a', 'name' => 'ESELON 5A'],
+            ['code' => 'V.b', 'name' => 'ESELON 5B'],
+            ['code' => 'NE', 'name' => 'NON ESELON'],
         ];
 
-        DB::table('echelons')->insert($data);
+        foreach ($echelons as $echelon) {
+            Echelon::create($echelon);
+        }
     }
 }

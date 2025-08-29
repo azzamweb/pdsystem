@@ -56,22 +56,31 @@ class PerdiemRatesSeeder extends Seeder
             ['name' => 'PAPUA PEGUNUNGAN', 'luar_kota' => 580000, 'dalam_kota_gt8h' => 230000, 'diklat' => 170000],
         ];
 
+        // Get all travel grades
+        $travelGrades = TravelGrade::all();
+
         foreach ($perdiemRates as $rateData) {
             // Cari provinsi berdasarkan nama
             $province = Province::where('name', 'like', '%' . $rateData['name'] . '%')->first();
             
             if ($province) {
-                // Cek apakah sudah ada data untuk provinsi ini
-                $existingRate = PerdiemRate::where('province_id', $province->id)->first();
-                
-                if (!$existingRate) {
-                    PerdiemRate::create([
-                        'province_id' => $province->id,
-                        'satuan' => 'OH',
-                        'luar_kota' => $rateData['luar_kota'],
-                        'dalam_kota_gt8h' => $rateData['dalam_kota_gt8h'],
-                        'diklat' => $rateData['diklat'],
-                    ]);
+                // Create perdiem rate for each travel grade
+                foreach ($travelGrades as $travelGrade) {
+                    // Cek apakah sudah ada data untuk kombinasi provinsi dan travel grade ini
+                    $existingRate = PerdiemRate::where('province_id', $province->id)
+                        ->where('travel_grade_id', $travelGrade->id)
+                        ->first();
+                    
+                    if (!$existingRate) {
+                        PerdiemRate::create([
+                            'province_id' => $province->id,
+                            'travel_grade_id' => $travelGrade->id,
+                            'satuan' => 'OH',
+                            'luar_kota' => $rateData['luar_kota'],
+                            'dalam_kota_gt8h' => $rateData['dalam_kota_gt8h'],
+                            'diklat' => $rateData['diklat'],
+                        ]);
+                    }
                 }
             }
         }

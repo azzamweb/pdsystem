@@ -57,6 +57,11 @@ class DatabaseSeeder extends Seeder
             AirfareRefsSeeder::class,
             NotaDinasSeeder::class,
             DocNumberFormatSeeder::class,
+            
+            // User seeders (harus dijalankan terakhir karena bergantung pada data referensi)
+            UsersSeeder::class,
+            UserTravelGradeMapSeeder::class,
+            EmployeesSeeder::class,
         ]);
     }
 }

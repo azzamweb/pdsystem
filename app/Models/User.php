@@ -45,6 +45,7 @@ class User extends Authenticatable
         'signature_path',
         'photo_path',
         'is_signer',
+        'is_non_staff',
     ];
 
     /**
@@ -69,6 +70,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'birth_date' => 'date',
             'is_signer' => 'boolean',
+            'is_non_staff' => 'boolean',
         ];
     }
 
@@ -82,6 +84,14 @@ class User extends Authenticatable
             ->take(2)
             ->map(fn ($word) => Str::substr($word, 0, 1))
             ->implode('');
+    }
+
+    /**
+     * Set birth_date attribute
+     */
+    public function setBirthDateAttribute($value)
+    {
+        $this->attributes['birth_date'] = ($value === '' || $value === null) ? null : $value;
     }
 
     /**

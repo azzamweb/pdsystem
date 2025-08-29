@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Rank;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class RanksSeeder extends Seeder
 {
@@ -13,26 +12,31 @@ class RanksSeeder extends Seeder
      */
     public function run(): void
     {
-        $data = [
-            ['code' => 'I/a',   'name' => 'Juru Muda'],
-            ['code' => 'I/b',   'name' => 'Juru Muda Tingkat I'],
-            ['code' => 'I/c',   'name' => 'Juru'],
-            ['code' => 'I/d',   'name' => 'Juru Tingkat I'],
-            ['code' => 'II/a',  'name' => 'Pengatur Muda'],
-            ['code' => 'II/b',  'name' => 'Pengatur Muda Tingkat I'],
-            ['code' => 'II/c',  'name' => 'Pengatur'],
-            ['code' => 'II/d',  'name' => 'Pengatur Tingkat I'],
-            ['code' => 'III/a', 'name' => 'Penata Muda'],
-            ['code' => 'III/b', 'name' => 'Penata Muda Tingkat I'],
+        $ranks = [
+            ['code' => 'IV/e', 'name' => 'Pembina Utama'],
+            ['code' => 'IV/d', 'name' => 'Pembina Utama Muda'],
+            ['code' => 'IV/c', 'name' => 'Pembina Utama Muda'],
+            ['code' => 'IV/b', 'name' => 'Pembina Tk.I'],
+            ['code' => 'IV/a', 'name' => 'Pembina'],
+            ['code' => 'III/d', 'name' => 'Penata Tk.I'],
             ['code' => 'III/c', 'name' => 'Penata'],
-            ['code' => 'III/d', 'name' => 'Penata Tingkat I'],
-            ['code' => 'IV/a',  'name' => 'Pembina'],
-            ['code' => 'IV/b',  'name' => 'Pembina Tingkat I'],
-            ['code' => 'IV/c',  'name' => 'Pembina Utama Muda'],
-            ['code' => 'IV/d',  'name' => 'Pembina Utama Madya'],
-            ['code' => 'IV/e',  'name' => 'Pembina Utama'],
+            ['code' => 'III/b', 'name' => 'Penata Muda Tk.I'],
+            ['code' => 'III/a', 'name' => 'Penata Muda'],
+            ['code' => 'II/d', 'name' => 'Pengatur Tk.I'],
+            ['code' => 'II/c', 'name' => 'Pengatur'],
+            ['code' => 'II/b', 'name' => 'Pengatur Muda Tk.I'],
+            ['code' => 'II/a', 'name' => 'Pengatur Muda'],
+            ['code' => 'I/d', 'name' => 'Juru Tk.I'],
+            ['code' => 'I/c', 'name' => 'Juru'],
+            ['code' => 'I/b', 'name' => 'Juru Muda Tk.I'],
+            ['code' => 'I/a', 'name' => 'Juru Muda'],
+            // Khusus untuk non-PNS
+            ['code' => '7A', 'name' => 'ANGGOTA DPA'],
+            ['code' => '6F', 'name' => 'MENTERI NEGARA'],
         ];
 
-        DB::table('ranks')->insert($data);
+        foreach ($ranks as $rank) {
+            Rank::create($rank);
+        }
     }
 }

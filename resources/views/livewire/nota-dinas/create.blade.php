@@ -145,6 +145,16 @@
                     </select>
                     @error('destination_city_id')<p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>@enderror
                 </div>
+                <div>
+                    <label for="trip_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Jenis Perjalanan <span class="text-red-500">*</span></label>
+                    <select wire:model="trip_type" id="trip_type" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        <option value="LUAR_DAERAH">Luar Daerah</option>
+                        <option value="DALAM_DAERAH_GT8H">Dalam Daerah > 8 Jam</option>
+                        <option value="DALAM_DAERAH_LE8H">Dalam Daerah ≤ 8 Jam</option>
+                        <option value="DIKLAT">Diklat</option>
+                    </select>
+                    @error('trip_type')<p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>@enderror
+                </div>
                 <div class="md:col-span-2">
                     <label for="dasar" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Dasar <span class="text-red-500">*</span></label>
                     <textarea wire:model="dasar" id="dasar" rows="2" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"></textarea>

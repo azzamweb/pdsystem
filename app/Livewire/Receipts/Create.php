@@ -63,55 +63,30 @@ class Create extends Component
     public $representasi_rate = 0;
     public $show_representasi = false;
 
+    // SPPD selection properties
+    public $available_sppds = [];
+    public $selected_sppd_id = '';
+
     public function mount($sppd_id = null): void
     {
         $this->sppd_id = $sppd_id ?? request()->query('sppd_id');
-        if (!$this->sppd_id) {
-            session()->flash('error', 'SPPD tidak ditemukan untuk pembuatan kwitansi.');
-            $this->redirect(route('documents'));
-            return;
-        }
-
-        $this->sppd = Sppd::with([
-            'user', 
-            'spt.notaDinas.participants.user',
-            'spt.notaDinas.originPlace',
-            'spt.notaDinas.destinationCity.province',
-            'transportModes'
-        ])->findOrFail($this->sppd_id);
-
-        // Prefill values
-        $this->receipt_date = now()->format('Y-m-d');
-        $this->payee_user_id = $this->sppd->user_id;
-        
-        // Debug: pastikan payee_user_id terisi
-        if (!$this->payee_user_id) {
-            session()->flash('error', 'Penerima pembayaran tidak ditemukan.');
-            $this->redirect(route('documents'));
-            return;
-        }
-
-        // Ambil travel grade otomatis dari user
-        $userTravelGradeMap = $this->sppd->user->travelGradeMap;
-        if (!$userTravelGradeMap) {
-            session()->flash('error', 'Pegawai belum memiliki data tingkat perjalanan. Silakan update data pegawai terlebih dahulu.');
-            $this->redirect(route('documents'));
-            return;
-        }
-        
-        $this->travel_grade_id = $userTravelGradeMap->travel_grade_id;
+        $spt_id = request()->query('spt_id');
         
         // Load travel grades untuk referensi
         $this->travel_grades = TravelGrade::orderBy('name')->get();
 
-        // Load rates based on SPPD data
-        $this->loadRates();
-        
-        // Debug: log hasil perhitungan
-        Log::info('Receipt Create - Initial calculation:', [
-            'travel_grade_id' => $this->travel_grade_id,
-            'show_representasi' => $this->show_representasi
-        ]);
+        if ($this->sppd_id) {
+            // Jika ada sppd_id, load SPPD dan setup seperti sebelumnya
+            $this->loadSppdData($this->sppd_id);
+        } elseif ($spt_id) {
+            // Jika ada spt_id, load SPPD yang tersedia untuk SPT tersebut
+            $this->receipt_date = now()->format('Y-m-d');
+            $this->loadAvailableSppdsBySpt($spt_id);
+        } else {
+            // Jika tidak ada sppd_id atau spt_id, setup untuk pemilihan SPPD
+            $this->receipt_date = now()->format('Y-m-d');
+            $this->loadAvailableSppds();
+        }
     }
 
     public function loadRates()
@@ -190,6 +165,18 @@ class Create extends Component
             'notes' => 'nullable|string',
             'manual_doc_no' => 'nullable|string',
         ]);
+
+        // Jika tidak ada SPPD yang dipilih, validasi
+        if (!$this->sppd_id && !$this->selected_sppd_id) {
+            session()->flash('error', 'Silakan pilih SPPD terlebih dahulu.');
+            return;
+        }
+
+        // Jika ada selected_sppd_id, gunakan itu
+        if ($this->selected_sppd_id && !$this->sppd_id) {
+            $this->sppd_id = $this->selected_sppd_id;
+            $this->loadSppdData($this->sppd_id);
+        }
 
         try {
             DB::beginTransaction();
@@ -364,7 +351,9 @@ class Create extends Component
         
         // Perdiem
         $perdiemRate = $this->perdiem_rate ?: 0;
-        $total += $perdiemRate * $this->sppd->days_count;
+        if ($this->sppd) {
+            $total += $perdiemRate * $this->sppd->days_count;
+        }
         
         // Representasi
         if ($this->show_representasi) {
@@ -390,6 +379,87 @@ class Create extends Component
         }
         
         return route('documents');
+    }
+
+    public function loadSppdData($sppdId)
+    {
+        $this->sppd = Sppd::with([
+            'user', 
+            'spt.notaDinas.participants.user',
+            'spt.notaDinas.originPlace',
+            'spt.notaDinas.destinationCity.province',
+            'transportModes'
+        ])->findOrFail($sppdId);
+
+        // Prefill values
+        $this->receipt_date = now()->format('Y-m-d');
+        $this->payee_user_id = $this->sppd->user_id;
+        
+        // Debug: pastikan payee_user_id terisi
+        if (!$this->payee_user_id) {
+            session()->flash('error', 'Penerima pembayaran tidak ditemukan.');
+            $this->redirect(route('documents'));
+            return;
+        }
+
+        // Ambil travel grade otomatis dari user
+        $userTravelGradeMap = $this->sppd->user->travelGradeMap;
+        if (!$userTravelGradeMap) {
+            session()->flash('error', 'Pegawai belum memiliki data tingkat perjalanan. Silakan update data pegawai terlebih dahulu.');
+            $this->redirect(route('documents'));
+            return;
+        }
+        
+        $this->travel_grade_id = $userTravelGradeMap->travel_grade_id;
+        
+        // Load rates based on SPPD data
+        $this->loadRates();
+        
+        // Debug: log hasil perhitungan
+        Log::info('Receipt Create - Initial calculation:', [
+            'travel_grade_id' => $this->travel_grade_id,
+            'show_representasi' => $this->show_representasi
+        ]);
+    }
+
+    public function loadAvailableSppds()
+    {
+        // Load SPPD yang belum memiliki kwitansi
+        $this->available_sppds = Sppd::with(['user', 'spt.notaDinas'])
+            ->whereDoesntHave('receipts')
+            ->whereHas('user.travelGradeMap') // Pastikan user memiliki travel grade
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($sppd) {
+                return [
+                    'id' => $sppd->id,
+                    'text' => $sppd->doc_no . ' - ' . $sppd->user->name . ' (' . $sppd->spt->notaDinas->doc_no . ')'
+                ];
+            });
+    }
+
+    public function loadAvailableSppdsBySpt($sptId)
+    {
+        // Load SPPD yang belum memiliki kwitansi untuk SPT tertentu
+        $this->available_sppds = Sppd::with(['user', 'spt.notaDinas'])
+            ->where('spt_id', $sptId)
+            ->whereDoesntHave('receipts')
+            ->whereHas('user.travelGradeMap') // Pastikan user memiliki travel grade
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($sppd) {
+                return [
+                    'id' => $sppd->id,
+                    'text' => $sppd->doc_no . ' - ' . $sppd->user->name . ' (' . $sppd->spt->notaDinas->doc_no . ')'
+                ];
+            });
+    }
+
+    public function updatedSelectedSppdId()
+    {
+        if ($this->selected_sppd_id) {
+            $this->loadSppdData($this->selected_sppd_id);
+        }
     }
 
     public function render()

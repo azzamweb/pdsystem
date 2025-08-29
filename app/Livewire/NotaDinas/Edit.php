@@ -46,6 +46,8 @@ class Edit extends Component
     public $end_date = '';
     #[Rule('required|array|min:1')]
     public $participants = [];
+    #[Rule('required|in:LUAR_DAERAH,DALAM_DAERAH_GT8H,DALAM_DAERAH_LE8H,DIKLAT')]
+    public $trip_type = 'LUAR_DAERAH';
     #[Rule('required|in:DRAFT,APPROVED')]
     public $status = 'DRAFT';
     public $sifat = '';
@@ -102,6 +104,7 @@ class Edit extends Component
         $this->lampiran_count = $notaDinas->lampiran_count;
         $this->start_date = $notaDinas->start_date;
         $this->end_date = $notaDinas->end_date;
+        $this->trip_type = $notaDinas->trip_type;
         $this->participants = $notaDinas->participants()->pluck('user_id')->toArray();
         $this->status = $notaDinas->status;
         $this->sifat = $notaDinas->sifat;
@@ -227,7 +230,7 @@ class Edit extends Component
                 'origin_place_id' => $this->origin_place_id,
                 'start_date' => $this->start_date,
                 'end_date' => $this->end_date,
-
+                'trip_type' => $this->trip_type,
                 'requesting_unit_id' => $this->requesting_unit_id,
                 'status' => $this->status,
                 'notes' => $this->notes,

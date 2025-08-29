@@ -37,6 +37,7 @@ class Edit extends Component
     public $birth_date = '';
     public $gender = '';
     public $is_signer = false;
+    public $is_non_staff = false;
     public $travel_grade_id = '';
 
     // Mutators to handle empty strings for foreign key fields
@@ -58,6 +59,11 @@ class Edit extends Component
     public function setTravelGradeIdProperty($value)
     {
         $this->travel_grade_id = $value === '' ? null : $value;
+    }
+
+    public function setBirthDateProperty($value)
+    {
+        $this->birth_date = ($value === '' || $value === null) ? null : $value;
     }
 
 
@@ -86,6 +92,7 @@ class Edit extends Component
         $this->birth_date = $user->birth_date?->format('Y-m-d');
         $this->gender = $user->gender;
         $this->is_signer = $user->is_signer;
+        $this->is_non_staff = $user->is_non_staff;
         
         // Set travel grade mapping
         $this->travel_grade_id = $user->travelGradeMap?->travel_grade_id;
@@ -115,6 +122,7 @@ class Edit extends Component
             'birth_date' => 'nullable|date',
             'gender' => 'nullable|in:L,P',
             'is_signer' => 'boolean',
+            'is_non_staff' => 'boolean',
             'travel_grade_id' => 'nullable|exists:travel_grades,id',
         ];
     }
@@ -123,10 +131,10 @@ class Edit extends Component
     {
         $validated = $this->validate();
         
-        // Convert empty strings to null for foreign key fields
-        $foreignKeys = ['unit_id', 'position_id', 'rank_id', 'travel_grade_id'];
-        foreach ($foreignKeys as $key) {
-            if (isset($validated[$key]) && $validated[$key] === '') {
+        // Convert empty strings to null for foreign key fields and date fields
+        $nullableFields = ['unit_id', 'position_id', 'rank_id', 'travel_grade_id', 'birth_date'];
+        foreach ($nullableFields as $key) {
+            if (isset($validated[$key]) && ($validated[$key] === '' || $validated[$key] === null)) {
                 $validated[$key] = null;
             }
         }

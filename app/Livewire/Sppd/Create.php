@@ -31,8 +31,6 @@ class Create extends Component
     public $origin_place_id = '';
     // Kota tujuan tidak ditampilkan di form; diisi otomatis dari Nota Dinas
     public $destination_city_id = '';
-    #[Rule('required|in:LUAR_DAERAH,DALAM_DAERAH_GT8H,DALAM_DAERAH_LE8H,DIKLAT')]
-    public $trip_type = 'LUAR_DAERAH';
 
     // Gunakan tanggal dari Nota Dinas (jika ada) untuk hari
     // Tanggal berangkat/kembali tidak ditampilkan di form; diisi otomatis dari Nota Dinas
@@ -230,7 +228,6 @@ class Create extends Component
                     'signed_by_user_id' => $this->signed_by_user_id,
                     'assignment_title' => $assignmentTitle,
                     'destination_city_id' => $this->destination_city_id,
-                    'trip_type' => $this->trip_type,
                     'funding_source' => $this->funding_source,
                 ]);
 

@@ -93,7 +93,6 @@ class SppdManagementService
             'user_id' => $participant->user_id,
             'origin_place_id' => $notaDinas->requestingUnit->orgPlace->id ?? null,
             'destination_city_id' => $notaDinas->destination_city_id,
-            'trip_type' => $this->determineTripType($notaDinas),
 
             'funding_source' => 'APBD', // Default value, can be made configurable
             'status' => 'ACTIVE',
@@ -142,15 +141,7 @@ class SppdManagementService
         return true;
     }
 
-    /**
-     * Determine trip type based on Nota Dinas data
-     */
-    protected function determineTripType(NotaDinas $notaDinas)
-    {
-        // Logic to determine if it's within district or outside
-        // This can be enhanced based on your business rules
-        return 'LUAR_DAERAH'; // Default value
-    }
+
 
     /**
      * Check if SPPD sync is needed for a Nota Dinas

@@ -175,17 +175,28 @@
                 </div>
 
                 <div>
-                    <label for="trip_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Jenis Perjalanan <span class="text-red-500">*</span>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Jenis Perjalanan
                     </label>
-                    <select id="trip_type" wire:model="trip_type" 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                        <option value="LUAR_DAERAH">Luar Daerah</option>
-                        <option value="DALAM_DAERAH_GT8H">Dalam Daerah > 8 Jam</option>
-                        <option value="DALAM_DAERAH_LE8H">Dalam Daerah ≤ 8 Jam</option>
-                        <option value="DIKLAT">Diklat</option>
-                    </select>
-                    @error('trip_type') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    <div class="p-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-sm text-gray-600 dark:text-gray-400">
+                        <strong>Otomatis dari Nota Dinas:</strong> 
+                        @switch($sppd->trip_type)
+                            @case('LUAR_DAERAH')
+                                Luar Daerah
+                                @break
+                            @case('DALAM_DAERAH_GT8H')
+                                Dalam Daerah > 8 Jam
+                                @break
+                            @case('DALAM_DAERAH_LE8H')
+                                Dalam Daerah ≤ 8 Jam
+                                @break
+                            @case('DIKLAT')
+                                Diklat
+                                @break
+                            @default
+                                Belum diisi di Nota Dinas
+                        @endswitch
+                    </div>
                 </div>
             </div>
 

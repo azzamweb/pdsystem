@@ -168,6 +168,35 @@ class MainPage extends Component
         return $this->redirect(route('trip-reports.create') . '?spt_id=' . $this->selectedSptId);
     }
 
+    public function createKwitansi()
+    {
+        // Use the selected SPT ID to avoid null object issues across requests
+        if (!$this->selectedSptId) {
+            session()->flash('error', 'Pilih SPT terlebih dahulu');
+            return;
+        }
+        
+        // Check if there are SPPDs available for this SPT
+        $sppds = \App\Models\Sppd::where('spt_id', $this->selectedSptId)->get();
+        if ($sppds->isEmpty()) {
+            session()->flash('error', 'Tidak ada SPPD yang tersedia untuk dibuatkan kwitansi');
+            return;
+        }
+        
+        // Check if all SPPDs already have receipts
+        $sppdsWithoutReceipts = $sppds->filter(function($sppd) {
+            return !$sppd->receipts()->exists();
+        });
+        
+        if ($sppdsWithoutReceipts->isEmpty()) {
+            session()->flash('error', 'Semua SPPD sudah memiliki kwitansi');
+            return;
+        }
+        
+        // Redirect to create receipt page
+        return $this->redirect(route('receipts.create') . '?spt_id=' . $this->selectedSptId);
+    }
+
     public function deleteTripReport($tripReportId)
     {
         try {

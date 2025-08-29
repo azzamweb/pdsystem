@@ -27,8 +27,7 @@ class Edit extends Component
     #[Rule('required|array|min:1')]
     public $transport_mode_ids = [];
 
-    #[Rule('required|in:LUAR_DAERAH,DALAM_DAERAH_GT8H,DALAM_DAERAH_LE8H,DIKLAT')]
-    public $trip_type = 'LUAR_DAERAH';
+
 
 
 
@@ -70,7 +69,6 @@ class Edit extends Component
         // Load data SPPD ke form
         $this->sppd_date = $this->sppd->sppd_date ?: now()->format('Y-m-d');
         $this->transport_mode_ids = $this->sppd->transportModes->pluck('id')->toArray();
-        $this->trip_type = $this->sppd->trip_type ?: 'LUAR_DAERAH';
 
 
         $this->funding_source = $this->sppd->funding_source ?: '';
@@ -120,7 +118,6 @@ class Edit extends Component
             'sppd_date' => 'required|date',
             'transport_mode_ids' => 'required|array|min:1',
             'transport_mode_ids.*' => 'exists:transport_modes,id',
-            'trip_type' => 'required|in:LUAR_DAERAH,DALAM_DAERAH_GT8H,DALAM_DAERAH_LE8H,DIKLAT',
             'signed_by_user_id' => 'required|exists:users,id',
             'assignment_title' => 'nullable|string',
         ]);
@@ -139,7 +136,6 @@ class Edit extends Component
 
             $this->sppd->update([
                 'sppd_date' => $this->sppd_date,
-                'trip_type' => $this->trip_type,
                 'funding_source' => $this->funding_source,
                 'signed_by_user_id' => $this->signed_by_user_id,
                 'assignment_title' => $assignmentTitle,

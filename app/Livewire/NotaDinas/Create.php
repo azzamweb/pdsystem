@@ -50,6 +50,8 @@ class Create extends Component
     public $end_date = '';
     #[Rule('required|array|min:1')]
     public $participants = [];
+    #[Rule('required|in:LUAR_DAERAH,DALAM_DAERAH_GT8H,DALAM_DAERAH_LE8H,DIKLAT')]
+    public $trip_type = 'LUAR_DAERAH';
     #[Rule('required|in:DRAFT,APPROVED')]
     public $status = 'DRAFT';
     public $tembusan = '';
@@ -75,6 +77,7 @@ class Create extends Component
                 'end_date' => 'required|date|after_or_equal:start_date',
                 'participants' => 'required|array|min:1',
                 'participants.*' => 'exists:users,id',
+                'trip_type' => 'required|in:LUAR_DAERAH,DALAM_DAERAH_GT8H,DALAM_DAERAH_LE8H,DIKLAT',
                 'status' => 'required|in:DRAFT,SUBMITTED',
                 'tembusan' => 'nullable|string',
                 'notes' => 'nullable|string',
@@ -189,7 +192,7 @@ class Create extends Component
                 'origin_place_id' => $this->origin_place_id,
                 'start_date' => $this->start_date,
                 'end_date' => $this->end_date,
-
+                'trip_type' => $this->trip_type,
                 'requesting_unit_id' => $this->requesting_unit_id,
                 'status' => $this->status,
                 'created_by' => auth()->id(),

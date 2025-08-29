@@ -16,7 +16,7 @@ class Sppd extends Model
     protected $fillable = [
         'doc_no', 'number_is_manual', 'number_manual_reason', 'number_format_id', 'number_sequence_id',
         'number_scope_unit_id', 'sppd_date', 'spt_id', 'user_id', 'signed_by_user_id', 'assignment_title',
-        'trip_type', 'funding_source',
+        'funding_source',
     ];
 
     public function spt() { return $this->belongsTo(Spt::class); }
@@ -31,6 +31,12 @@ class Sppd extends Model
     public function getDestinationCityAttribute()
     {
         return $this->spt?->notaDinas?->destinationCity;
+    }
+
+    // Accessor untuk trip_type (mengambil dari NotaDinas)
+    public function getTripTypeAttribute()
+    {
+        return $this->spt?->notaDinas?->trip_type ?? 'LUAR_DAERAH';
     }
     public function transportModes() { return $this->belongsToMany(TransportMode::class, 'sppd_transport_modes'); }
     public function itineraries() { return $this->hasMany(SppdItinerary::class); }

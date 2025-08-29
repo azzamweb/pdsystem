@@ -14,7 +14,7 @@ class NotaDinas extends Model
         'doc_no', 'number_is_manual', 'number_manual_reason', 'number_format_id', 'number_sequence_id',
         'number_scope_unit_id', 'to_user_id', 'from_user_id', 'tembusan', 'nd_date',
         'sifat', 'lampiran_count', 'hal', 'dasar', 'maksud', 'destination_city_id', 'origin_place_id', 'start_date',
-        'end_date', 'requesting_unit_id', 'status', 'created_by',
+        'end_date', 'trip_type', 'requesting_unit_id', 'status', 'created_by',
         'approved_by', 'approved_at', 'notes',
     ];
 

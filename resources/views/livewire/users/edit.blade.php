@@ -213,10 +213,17 @@
                 <!-- Additional Settings -->
                 <div>
                     <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Pengaturan Tambahan</h3>
-                    <div class="flex items-center space-x-2">
-                        <input type="checkbox" wire:model="is_signer" id="is_signer" 
-                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
-                        <label for="is_signer" class="text-sm font-medium text-gray-700 dark:text-gray-300">Pegawai dapat menandatangani dokumen</label>
+                    <div class="space-y-3">
+                        <div class="flex items-center space-x-2">
+                            <input type="checkbox" wire:model="is_signer" id="is_signer" 
+                                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+                            <label for="is_signer" class="text-sm font-medium text-gray-700 dark:text-gray-300">Pegawai dapat menandatangani dokumen</label>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <input type="checkbox" wire:model="is_non_staff" id="is_non_staff" 
+                                class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded" />
+                            <label for="is_non_staff" class="text-sm font-medium text-gray-700 dark:text-gray-300">Bukan staf organisasi (akan dikecualikan dari rekap pegawai)</label>
+                        </div>
                     </div>
                 </div>
 
