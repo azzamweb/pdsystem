@@ -404,9 +404,8 @@ class Create extends Component
                 $this->payee_user_id = $user->id;
                 
                 // Ambil travel grade otomatis dari user
-                $userTravelGradeMap = $user->travelGradeMap;
-                if ($userTravelGradeMap) {
-                    $this->travel_grade_id = $userTravelGradeMap->travel_grade_id;
+                if ($user->travel_grade_id) {
+                    $this->travel_grade_id = $user->travel_grade_id;
                 } else {
                     session()->flash('error', 'Pegawai belum memiliki data tingkat perjalanan. Silakan update data pegawai terlebih dahulu.');
                     $this->redirect(route('documents'));
@@ -438,7 +437,9 @@ class Create extends Component
         // Load SPPD yang belum memiliki kwitansi
         $this->available_sppds = Sppd::with(['user', 'spt.notaDinas'])
             ->whereDoesntHave('receipts')
-            ->whereHas('user.travelGradeMap') // Pastikan user memiliki travel grade
+            ->whereHas('user', function($query) {
+                $query->whereNotNull('travel_grade_id'); // Pastikan user memiliki travel grade
+            })
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($sppd) {
@@ -455,7 +456,9 @@ class Create extends Component
         $this->available_sppds = Sppd::with(['user', 'spt.notaDinas'])
             ->where('spt_id', $sptId)
             ->whereDoesntHave('receipts')
-            ->whereHas('user.travelGradeMap') // Pastikan user memiliki travel grade
+            ->whereHas('user', function($query) {
+                $query->whereNotNull('travel_grade_id'); // Pastikan user memiliki travel grade
+            })
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($sppd) {

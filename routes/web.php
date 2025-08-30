@@ -45,7 +45,7 @@ use App\Livewire\TravelRoutes\Index as TravelRouteIndex;
 use App\Livewire\TravelGrades\Create as TravelGradeCreate;
 use App\Livewire\TravelGrades\Edit as TravelGradeEdit;
 use App\Livewire\TravelGrades\Index as TravelGradeIndex;
-use App\Livewire\UserTravelGradeMaps\Index as UserTravelGradeMapIndex;
+
 use App\Livewire\PerdiemRates\Create as PerdiemRateCreate;
 use App\Livewire\PerdiemRates\Edit as PerdiemRateEdit;
 use App\Livewire\PerdiemRates\Index as PerdiemRateIndex;
@@ -185,8 +185,7 @@ Route::middleware('auth')->group(function () {
     Route::get('travel-grades/create', TravelGradeCreate::class)->name('travel-grades.create');
     Route::get('travel-grades/{travelGrade}/edit', TravelGradeEdit::class)->name('travel-grades.edit');
 
-    // User Travel Grade Mapping
-    Route::get('user-travel-grade-maps', UserTravelGradeMapIndex::class)->name('user-travel-grade-maps.index');
+
 
     // Perdiem Rate CRUD
     Route::get('perdiem-rates', PerdiemRateIndex::class)->name('perdiem-rates.index');

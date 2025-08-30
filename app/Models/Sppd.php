@@ -103,6 +103,9 @@ class Sppd extends Model
                 'rank_name' => $participant->user_rank_name_snapshot ?: $participant->user?->rank?->name,
                 'rank_code' => $participant->user_rank_code_snapshot ?: $participant->user?->rank?->code,
                 'position_echelon_id' => $participant->user_position_echelon_id_snapshot ?: $participant->user?->position?->echelon?->id,
+                'travel_grade_id' => $participant->user_travel_grade_id_snapshot ?: $participant->user?->travel_grade_id,
+                'travel_grade_code' => $participant->user_travel_grade_code_snapshot ?: $participant->user?->travelGrade?->code,
+                'travel_grade_name' => $participant->user_travel_grade_name_snapshot ?: $participant->user?->travelGrade?->name,
             ];
         });
     }
@@ -158,5 +161,28 @@ class Sppd extends Model
             'signed_by_user_rank_code_snapshot' => $user->rank?->code,
             'signed_by_user_position_echelon_id_snapshot' => $user->position?->echelon_id,
         ]);
+    }
+
+    /**
+     * Get travel grade snapshot from Nota Dinas via SPT
+     */
+    public function getTravelGradeSnapshot()
+    {
+        if (!$this->spt?->notaDinas) {
+            return null;
+        }
+
+        // Get travel grade from the first participant after sorting
+        $sortedParticipants = $this->spt->notaDinas->getSortedParticipants();
+        $firstParticipant = $sortedParticipants->first();
+        if ($firstParticipant) {
+            return [
+                'id' => $firstParticipant->user_travel_grade_id_snapshot,
+                'code' => $firstParticipant->user_travel_grade_code_snapshot,
+                'name' => $firstParticipant->user_travel_grade_name_snapshot,
+            ];
+        }
+
+        return null;
     }
 }

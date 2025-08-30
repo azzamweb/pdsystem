@@ -120,8 +120,8 @@
                             </label>
                             <div class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 dark:bg-gray-600 dark:border-gray-600 dark:text-white">
                                 <div class="text-sm text-gray-900 dark:text-white font-medium">
-                                    @if($sppd->user->travelGradeMap && $sppd->user->travelGradeMap->travelGrade)
-                                        {{ $sppd->user->travelGradeMap->travelGrade->name }}
+                                    @if($sppd->user->travelGrade)
+                                        {{ $sppd->user->travelGrade->name }}
                                     @else
                                         <span class="text-red-500">Tingkatan perjalanan belum ditentukan</span>
                                     @endif

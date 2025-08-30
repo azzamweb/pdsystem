@@ -214,4 +214,27 @@ class Spt extends Model
             'rank_code' => $this->notaDinas->to_user_rank_code_snapshot ?: $this->notaDinas->toUser?->rank?->code,
         ];
     }
+
+    /**
+     * Get travel grade snapshot from Nota Dinas
+     */
+    public function getTravelGradeSnapshot()
+    {
+        if (!$this->notaDinas) {
+            return null;
+        }
+
+        // Get travel grade from the first participant after sorting
+        $sortedParticipants = $this->notaDinas->getSortedParticipants();
+        $firstParticipant = $sortedParticipants->first();
+        if ($firstParticipant) {
+            return [
+                'id' => $firstParticipant->user_travel_grade_id_snapshot,
+                'code' => $firstParticipant->user_travel_grade_code_snapshot,
+                'name' => $firstParticipant->user_travel_grade_name_snapshot,
+            ];
+        }
+
+        return null;
+    }
 }

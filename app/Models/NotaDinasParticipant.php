@@ -17,10 +17,13 @@ class NotaDinasParticipant extends Model
         'user_position_id_snapshot', 'user_position_name_snapshot', 'user_position_desc_snapshot',
         'user_rank_id_snapshot', 'user_rank_name_snapshot', 'user_rank_code_snapshot',
         'user_position_echelon_id_snapshot',
+        // Snapshot fields for travel grade
+        'user_travel_grade_id_snapshot', 'user_travel_grade_code_snapshot', 'user_travel_grade_name_snapshot',
     ];
 
     public function notaDinas() { return $this->belongsTo(NotaDinas::class); }
     public function user() { return $this->belongsTo(User::class); }
+    public function travelGradeSnapshot() { return $this->belongsTo(TravelGrade::class, 'user_travel_grade_id_snapshot'); }
 
     /**
      * Get snapshot data for user
@@ -41,6 +44,9 @@ class NotaDinasParticipant extends Model
             'rank_name' => $this->user_rank_name_snapshot ?: $this->user?->rank?->name,
             'rank_code' => $this->user_rank_code_snapshot ?: $this->user?->rank?->code,
             'position_echelon_id' => $this->user_position_echelon_id_snapshot ?: $this->user?->position?->echelon?->id,
+            'travel_grade_id' => $this->user_travel_grade_id_snapshot ?: $this->user?->travel_grade_id,
+            'travel_grade_code' => $this->user_travel_grade_code_snapshot ?: $this->user?->travelGrade?->code,
+            'travel_grade_name' => $this->user_travel_grade_name_snapshot ?: $this->user?->travelGrade?->name,
         ];
     }
 
@@ -64,6 +70,9 @@ class NotaDinasParticipant extends Model
                 'user_rank_name_snapshot' => $this->user->rank?->name,
                 'user_rank_code_snapshot' => $this->user->rank?->code,
                 'user_position_echelon_id_snapshot' => $this->user->position?->echelon?->id,
+                'user_travel_grade_id_snapshot' => $this->user->travel_grade_id,
+                'user_travel_grade_code_snapshot' => $this->user->travelGrade?->code,
+                'user_travel_grade_name_snapshot' => $this->user->travelGrade?->name,
             ]);
         }
     }

@@ -107,14 +107,7 @@ class Create extends Component
             }
         }
         
-        $user = User::create($validated);
-        
-        // Handle travel grade mapping
-        if ($this->travel_grade_id) {
-            $user->travelGradeMap()->create([
-                'travel_grade_id' => $this->travel_grade_id
-            ]);
-        }
+        User::create($validated);
         
         session()->flash('message', 'Data pegawai berhasil ditambahkan.');
         

@@ -107,9 +107,9 @@
                                 {{ $user->email }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
-                                @if($user->travelGradeMap?->travelGrade)
+                                @if($user->travelGrade)
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
-                                        {{ $user->travelGradeMap->travelGrade->name }}
+                                        {{ $user->travelGrade->name }}
                                     </span>
                                 @else
                                     <span class="text-gray-400">-</span>

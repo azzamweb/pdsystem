@@ -36,6 +36,7 @@ class User extends Authenticatable
         'position_id',
         'position_desc',
         'rank_id',
+        'travel_grade_id',
         'npwp',
         'bank_name',
         'bank_account_no',
@@ -143,18 +144,10 @@ class User extends Authenticatable
     }
 
     /**
-     * Relationship with Travel Grade through mapping
+     * Relationship with Travel Grade
      */
-    public function travelGradeMap(): HasOne
+    public function travelGrade(): BelongsTo
     {
-        return $this->hasOne(UserTravelGradeMap::class);
-    }
-
-    /**
-     * Get travel grade through mapping
-     */
-    public function travelGrade(): HasOneThrough
-    {
-        return $this->hasOneThrough(TravelGrade::class, UserTravelGradeMap::class, 'user_id', 'id', 'id', 'travel_grade_id');
+        return $this->belongsTo(TravelGrade::class);
     }
 }

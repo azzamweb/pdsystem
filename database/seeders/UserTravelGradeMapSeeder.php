@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\TravelGrade;
-use App\Models\UserTravelGradeMap;
 
 class UserTravelGradeMapSeeder extends Seeder
 {
@@ -25,14 +24,13 @@ class UserTravelGradeMapSeeder extends Seeder
             $travelGradeCode = $this->determineTravelGrade($user);
             
             if (isset($travelGrades[$travelGradeCode])) {
-                UserTravelGradeMap::create([
-                    'user_id' => $user->id,
+                $user->update([
                     'travel_grade_id' => $travelGrades[$travelGradeCode]->id,
                 ]);
             }
         }
         
-        $this->command->info('User Travel Grade Maps seeded successfully!');
+        $this->command->info('User Travel Grades updated successfully!');
     }
     
     /**

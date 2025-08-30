@@ -19,14 +19,9 @@ class TravelGrade extends Model
         'name' => 'string',
     ];
 
-    public function userMaps(): HasMany
+    public function users(): HasMany
     {
-        return $this->hasMany(UserTravelGradeMap::class);
-    }
-
-    public function users(): HasManyThrough
-    {
-        return $this->hasManyThrough(User::class, UserTravelGradeMap::class);
+        return $this->hasMany(User::class);
     }
 
     public function perdiemRates(): HasMany

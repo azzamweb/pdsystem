@@ -94,8 +94,8 @@ class Edit extends Component
         $this->is_signer = $user->is_signer;
         $this->is_non_staff = $user->is_non_staff;
         
-        // Set travel grade mapping
-        $this->travel_grade_id = $user->travelGradeMap?->travel_grade_id;
+        // Set travel grade
+        $this->travel_grade_id = $user->travel_grade_id;
     }
 
     protected function rules()
@@ -140,18 +140,6 @@ class Edit extends Component
         }
         
         $this->user->update($validated);
-        
-        // Handle travel grade mapping
-        if ($this->travel_grade_id) {
-            // Update or create mapping
-            $this->user->travelGradeMap()->updateOrCreate(
-                ['user_id' => $this->user->id],
-                ['travel_grade_id' => $this->travel_grade_id]
-            );
-        } else {
-            // Remove mapping if travel_grade_id is null
-            $this->user->travelGradeMap()->delete();
-        }
         
         session()->flash('message', 'Data pegawai berhasil diperbarui.');
         

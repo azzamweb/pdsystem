@@ -94,9 +94,8 @@ class Edit extends Component
         if ($this->receipt->payee_user_id) {
             $payeeUser = User::find($this->receipt->payee_user_id);
             if ($payeeUser) {
-                $userTravelGradeMap = $payeeUser->travelGradeMap;
-                if ($userTravelGradeMap) {
-                    $this->travel_grade_id = $userTravelGradeMap->travel_grade_id;
+                if ($payeeUser->travel_grade_id) {
+                    $this->travel_grade_id = $payeeUser->travel_grade_id;
                 } else {
                     $this->travel_grade_id = $this->receipt->travel_grade_id;
                 }

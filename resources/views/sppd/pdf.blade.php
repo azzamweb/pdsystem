@@ -150,13 +150,11 @@
                 <td class="content">
                     @php
                         $participants = $sppd->getSortedParticipantsSnapshot();
+                        $firstParticipant = $participants->first();
                     @endphp
-                    @if($participants->count() > 0)
-                        @foreach($participants as $index => $participant)
-                            <strong>{{ $index + 1 }}. Nama</strong> : {{ $participant['name'] ?? '-' }}<br>
-                            <strong>NIP</strong> : {{ $participant['nip'] ?? '-' }}<br>
-                            @if(!$loop->last)<br>@endif
-                        @endforeach
+                    @if($firstParticipant)
+                        <strong>Nama</strong> : {{ $firstParticipant['name'] ?? '-' }}<br>
+                        <strong>NIP</strong> : {{ $firstParticipant['nip'] ?? '-' }}
                     @else
                         <strong>Nama</strong> : -<br>
                         <strong>NIP</strong> : -
@@ -167,10 +165,8 @@
                 <td class="number">3.</td>
                 <td class="label">a. Pangkat dan Golongan</td>
                 <td class="content">
-                    @if($participants->count() > 0)
-                        @foreach($participants as $index => $participant)
-                            {{ $index + 1 }}. {{ $participant['rank_name'] ?? '-' }} ({{ $participant['rank_code'] ?? '-' }})<br>
-                        @endforeach
+                    @if($firstParticipant)
+                        {{ $firstParticipant['rank_name'] ?? '-' }} ({{ $firstParticipant['rank_code'] ?? '-' }})
                     @else
                         -
                     @endif
@@ -180,10 +176,8 @@
                 <td class="number"></td>
                 <td class="label">b. Jabatan/Instansi</td>
                 <td class="content">
-                    @if($participants->count() > 0)
-                        @foreach($participants as $index => $participant)
-                            {{ $index + 1 }}. {{ $participant['position_desc'] ?: ($participant['position_name'] ?? '-') }} {{ $participant['unit_name'] ?? '' }}<br>
-                        @endforeach
+                    @if($firstParticipant)
+                        {{ $firstParticipant['position_desc'] ?: ($firstParticipant['position_name'] ?? '-') }} {{ $firstParticipant['unit_name'] ?? '' }}
                     @else
                         -
                     @endif
@@ -193,10 +187,11 @@
                 <td class="number"></td>
                 <td class="label">c. Tingkat Biaya Perjalanan Dinas</td>
                 <td class="content">
-                    @if($participants->count() > 0)
-                        @foreach($participants as $index => $participant)
-                            {{ $index + 1 }}. {{ $participant['rank_name'] ?? '-' }}<br>
-                        @endforeach
+                    @if($firstParticipant)
+                        @php
+                            $travelGrade = $sppd->getTravelGradeSnapshot();
+                        @endphp
+                        {{ $travelGrade['code'] ?? '-' }}
                     @else
                         -
                     @endif
@@ -270,37 +265,35 @@
             <tr>
                 <td class="number">8.</td>
                 <td class="content" colspan="2">
-                    <table style="width: 100%; border-collapse: collapse; border: none;">
-                        <thead>
-                            <tr>
-                                <th style="text-align: left; font-weight: normal; font-size: 9pt; border: none;">Pengikut: Nama</th>
-                                <th style="text-align: center; font-weight: normal; font-size: 9pt; border: none;">Tanggal Lahir</th>
-                                <th style="text-align: center; font-weight: normal; font-size: 9pt; border: none;">Keterangan</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td style="text-align: left; font-size: 9pt; border: none;">1.</td>
-                                <td style="text-align: left; font-size: 9pt; border: none;"></td>
-                                <td style="text-align: left; font-size: 9pt; border: none;"></td>
-                            </tr>
-                            <tr>
-                                <td style="text-align: left; font-size: 9pt; border: none;">2.</td>
-                                <td style="text-align: left; font-size: 9pt; border: none;"></td>
-                                <td style="text-align: left; font-size: 9pt; border: none;"></td>
-                            </tr>
-                            <tr>
-                                <td style="text-align: left; font-size: 9pt; border: none;">3.</td>
-                                <td style="text-align: left; font-size: 9pt; border: none;"></td>
-                                <td style="text-align: left; font-size: 9pt; border: none;"></td>
-                            </tr>
-                            <tr>
-                                <td style="text-align: left; font-size: 9pt; border: none;">4.</td>
-                                <td style="text-align: left; font-size: 9pt; border: none;"></td>
-                                <td style="text-align: left; font-size: 9pt; border: none;"></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    Pengikut :
+                    @php
+                        $sortedParticipants = $sppd->getSortedParticipantsSnapshot();
+                        $otherParticipants = $sortedParticipants->skip(1); // Skip first participant (already shown above)
+                    @endphp
+                    
+                    @if($otherParticipants->count() > 0)
+                        <table style="width: 100%; border-collapse: collapse; border: none;">
+                            <thead>
+                                <tr>
+                                    
+                                    <th style="text-align: left; font-weight: normal;  border: none; width: 8%;">No.</th>
+                                    <th style="text-align: left; font-weight: normal;  border: none; width: 45%;">Nama</th>
+                                    <th style="text-align: left; font-weight: normal;  border: none; width: 47%;">Jabatan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($otherParticipants as $index => $participant)
+                                    <tr>
+                                        <td style="text-align: left;  border: none;">{{ $index }}.</td>
+                                        <td style="text-align: left;  border: none;">{{ $participant['name'] ?? '-' }}</td>
+                                        <td style="text-align: left;  border: none;">{{ $participant['position_desc'] ?: ($participant['position_name'] ?? '-') }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @else
+                        <span style="font-size: 9pt;">-</span>
+                    @endif
                 </td>
             </tr>
             <tr>

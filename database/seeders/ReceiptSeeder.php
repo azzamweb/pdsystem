@@ -16,15 +16,15 @@ class ReceiptSeeder extends Seeder
      */
     public function run(): void
     {
-        $sppds = Sppd::with(['user.travelGradeMap', 'spt.notaDinas'])->get();
+        $sppds = Sppd::with(['user', 'spt.notaDinas'])->get();
 
         if ($sppds->isEmpty()) {
             return;
         }
 
         foreach ($sppds as $sppd) {
-            // Skip if user doesn't have travel grade mapping
-            if (!$sppd->user->travelGradeMap) {
+            // Skip if user doesn't have travel grade
+            if (!$sppd->user->travel_grade_id) {
                 continue;
             }
 
@@ -42,7 +42,7 @@ class ReceiptSeeder extends Seeder
                 'number_scope_unit_id' => $sppd->number_scope_unit_id,
                 'sppd_id' => $sppd->id,
                 'receipt_date' => now(),
-                'travel_grade_id' => $sppd->user->travelGradeMap->travel_grade_id,
+                'travel_grade_id' => $sppd->user->travel_grade_id,
                 'payee_user_id' => $sppd->user_id,
                 'total_amount' => 0, // Will be calculated from receipt lines
                 'notes' => 'Kwitansi untuk SPPD ' . $sppd->doc_no,
