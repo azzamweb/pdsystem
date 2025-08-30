@@ -242,8 +242,14 @@ class Edit extends Component
                 'notes' => $this->notes,
             ]);
 
-            // Update snapshot of user data only if it doesn't exist yet
-            if (!$this->notaDinas->from_user_name_snapshot || !$this->notaDinas->to_user_name_snapshot) {
+            // Refresh model to get updated relationships
+            $this->notaDinas->refresh();
+
+            // Update snapshot of user data if from_user_id or to_user_id changed, or if snapshot doesn't exist
+            if ($this->notaDinas->from_user_id !== $this->from_user_id || 
+                $this->notaDinas->to_user_id !== $this->to_user_id || 
+                !$this->notaDinas->from_user_name_snapshot || 
+                !$this->notaDinas->to_user_name_snapshot) {
                 $this->notaDinas->createUserSnapshot();
             }
 

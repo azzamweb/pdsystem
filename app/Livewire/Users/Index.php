@@ -44,10 +44,12 @@ class Index extends Component
             ->leftJoin('positions', 'users.position_id', '=', 'positions.id')
             ->leftJoin('echelons', 'positions.echelon_id', '=', 'echelons.id')
             ->leftJoin('ranks', 'users.rank_id', '=', 'ranks.id')
-            ->orderByRaw('CASE WHEN echelons.code IS NULL THEN 2 ELSE 0 END') // Users without echelon last
-            ->orderBy('echelons.code', 'asc') // Eselon tertinggi (I.a) first
-            ->orderBy('ranks.code', 'desc') // Pangkat tertinggi (IV/e) first
-            ->orderBy('users.name')
+            // 1. Sort by eselon (lower number = higher eselon)
+            ->orderByRaw('CASE WHEN echelons.id IS NULL THEN 999999 ELSE echelons.id END ASC')
+            // 2. Sort by rank (higher number = higher rank)
+            ->orderByRaw('CASE WHEN ranks.id IS NULL THEN 0 ELSE ranks.id END DESC')
+            // 3. Sort by NIP (alphabetical)
+            ->orderBy('users.nip', 'ASC')
             ->select('users.*')
             ->paginate(10);
 

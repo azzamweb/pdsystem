@@ -50,8 +50,9 @@ class Index extends Component
                 });
             })
             ->leftJoin('echelons', 'positions.echelon_id', '=', 'echelons.id')
-            ->orderByRaw('CASE WHEN echelons.code IS NULL THEN 2 ELSE 0 END') // Non eselon positions last
-            ->orderBy('echelons.code', 'asc') // Eselon tertinggi (I.a) first
+            // 1. Sort by eselon (lower number = higher eselon)
+            ->orderByRaw('CASE WHEN echelons.id IS NULL THEN 999999 ELSE echelons.id END ASC')
+            // 2. Sort by position name
             ->orderBy('positions.name')
             ->select('positions.*')
             ->paginate(10);

@@ -6,6 +6,7 @@ use App\Models\Receipt;
 use App\Models\ReceiptLine;
 use App\Models\Sppd;
 use App\Models\TravelGrade;
+use App\Models\User;
 use App\Models\PerdiemRate;
 use App\Models\LodgingCap;
 use App\Models\RepresentationRate;
@@ -384,7 +385,6 @@ class Create extends Component
     public function loadSppdData($sppdId)
     {
         $this->sppd = Sppd::with([
-            'user', 
             'spt.notaDinas.participants.user',
             'spt.notaDinas.originPlace',
             'spt.notaDinas.destinationCity.province',
@@ -393,24 +393,35 @@ class Create extends Component
 
         // Prefill values
         $this->receipt_date = now()->format('Y-m-d');
-        $this->payee_user_id = $this->sppd->user_id;
         
-        // Debug: pastikan payee_user_id terisi
-        if (!$this->payee_user_id) {
-            session()->flash('error', 'Penerima pembayaran tidak ditemukan.');
+        // Get first participant as default payee
+        $participants = $this->sppd->getParticipantsSnapshot();
+        if ($participants->count() > 0) {
+            $firstParticipant = $participants->first();
+            // Find the actual user record to get travel grade
+            $user = User::find($firstParticipant['user_id'] ?? null);
+            if ($user) {
+                $this->payee_user_id = $user->id;
+                
+                // Ambil travel grade otomatis dari user
+                $userTravelGradeMap = $user->travelGradeMap;
+                if ($userTravelGradeMap) {
+                    $this->travel_grade_id = $userTravelGradeMap->travel_grade_id;
+                } else {
+                    session()->flash('error', 'Pegawai belum memiliki data tingkat perjalanan. Silakan update data pegawai terlebih dahulu.');
+                    $this->redirect(route('documents'));
+                    return;
+                }
+            } else {
+                session()->flash('error', 'Penerima pembayaran tidak ditemukan.');
+                $this->redirect(route('documents'));
+                return;
+            }
+        } else {
+            session()->flash('error', 'Tidak ada peserta yang ditemukan untuk SPPD ini.');
             $this->redirect(route('documents'));
             return;
         }
-
-        // Ambil travel grade otomatis dari user
-        $userTravelGradeMap = $this->sppd->user->travelGradeMap;
-        if (!$userTravelGradeMap) {
-            session()->flash('error', 'Pegawai belum memiliki data tingkat perjalanan. Silakan update data pegawai terlebih dahulu.');
-            $this->redirect(route('documents'));
-            return;
-        }
-        
-        $this->travel_grade_id = $userTravelGradeMap->travel_grade_id;
         
         // Load rates based on SPPD data
         $this->loadRates();

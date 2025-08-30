@@ -94,38 +94,41 @@
         </div>
 
         <!-- Informasi Peserta -->
-        @if($tripReport->spt->notaDinas->participants && $tripReport->spt->notaDinas->participants->count() > 0)
-            @foreach($tripReport->spt->notaDinas->participants as $index => $participant)
+        @php
+            $sortedParticipants = $tripReport->spt->notaDinas->getSortedParticipants();
+        @endphp
+        @if($sortedParticipants && $sortedParticipants->count() > 0)
+            @foreach($sortedParticipants as $index => $participant)
                 <table class="content-table">
                     <tr>
                         <td class="number">{{ $index + 1 }}.</td>
                         <td class="label">Nama</td>
                         <td class="separator">:</td>
-                        <td class="content">{{ $participant->user->name ?? '-' }}</td>
+                        <td class="content">{{ $participant->user_name_snapshot ?: $participant->user?->name ?? '-' }}</td>
                     </tr>
                     <tr>
                         <td class="number"></td>
                         <td class="label">NIP</td>
                         <td class="separator">:</td>
-                        <td class="content">{{ $participant->user->nip ?? '-' }}</td>
+                        <td class="content">{{ $participant->user_nip_snapshot ?: $participant->user?->nip ?? '-' }}</td>
                     </tr>
                     <tr>
                         <td class="number"></td>
                         <td class="label">Pangkat/Gol</td>
                         <td class="separator">:</td>
-                        <td class="content">{{ $participant->user->rank?->name ?? '-' }} ({{ $participant->user->rank?->code ?? '-' }})</td>
+                        <td class="content">{{ $participant->user_rank_name_snapshot ?: $participant->user?->rank?->name ?? '-' }} ({{ $participant->user_rank_code_snapshot ?: $participant->user?->rank?->code ?? '-' }})</td>
                     </tr>
                     <tr>
                         <td class="number"></td>
                         <td class="label">Jabatan</td>
                         <td class="separator">:</td>
-                        <td class="content">{{ $participant->user->position?->name ?? '-' }}</td>
+                        <td class="content">{{ $participant->user_position_desc_snapshot ?: ($participant->user?->position_desc ?: $participant->user?->position?->name ?? '-') }}</td>
                     </tr>
                     <tr>
                         <td class="number"></td>
                         <td class="label">Satuan Kerja</td>
                         <td class="separator">:</td>
-                        <td class="content">{{ $participant->user->unit?->name ?? '-' }}</td>
+                        <td class="content">{{ $participant->user_unit_name_snapshot ?: $participant->user?->unit?->name ?? '-' }}</td>
                     </tr>
                 </table>
                 @if($index < $tripReport->spt->notaDinas->participants->count() - 1)

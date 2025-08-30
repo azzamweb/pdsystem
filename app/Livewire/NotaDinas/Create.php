@@ -237,11 +237,12 @@ class Create extends Component
             ->leftJoin('positions', 'positions.id', '=', 'users.position_id')
             ->leftJoin('echelons', 'echelons.id', '=', 'positions.echelon_id')
             ->leftJoin('ranks', 'ranks.id', '=', 'users.rank_id')
-            // Eselon yang tidak ada diurutkan terakhir (angka besar)
+            // 1. Sort by eselon (lower number = higher eselon)
             ->orderByRaw('COALESCE(echelons.id, 999999) ASC')
-            // Rank lebih tinggi muncul lebih dulu; jika tidak ada rank, ditempatkan paling bawah
+            // 2. Sort by rank (higher number = higher rank)
             ->orderByRaw('COALESCE(ranks.id, 0) DESC')
-            ->orderBy('users.name')
+            // 3. Sort by NIP (alphabetical)
+            ->orderBy('users.nip', 'ASC')
             ->select('users.*')
             ->get();
         $cities = City::orderBy('name')->get();

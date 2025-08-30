@@ -54,10 +54,17 @@ class RekapPegawaiController extends Controller
             $query->where('rank_id', $rank_filter);
         }
 
-        // Sort by position echelon, rank, and NIP
-        $query->orderBy('position_id', 'asc')
-              ->orderBy('rank_id', 'asc')
-              ->orderBy('nip', 'asc');
+        // Sort by eselon, rank, and NIP
+        $query->leftJoin('positions', 'users.position_id', '=', 'positions.id')
+              ->leftJoin('echelons', 'positions.echelon_id', '=', 'echelons.id')
+              ->leftJoin('ranks', 'users.rank_id', '=', 'ranks.id')
+              // 1. Sort by eselon (lower number = higher eselon)
+              ->orderByRaw('CASE WHEN echelons.id IS NULL THEN 999999 ELSE echelons.id END ASC')
+              // 2. Sort by rank (higher number = higher rank)
+              ->orderByRaw('CASE WHEN ranks.id IS NULL THEN 0 ELSE ranks.id END DESC')
+              // 3. Sort by NIP (alphabetical)
+              ->orderBy('users.nip', 'ASC')
+              ->select('users.*');
 
         $pegawai = $query->get();
 

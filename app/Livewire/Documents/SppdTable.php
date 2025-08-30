@@ -49,7 +49,7 @@ class SppdTable extends Component
         $this->spt = null;
         
         if ($sptId) {
-            $this->spt = Spt::with(['sppds.user', 'sppds.transportModes', 'sppds.receipts', 'sppds.itineraries', 'tripReport', 'notaDinas.originPlace', 'notaDinas.destinationCity.province', 'notaDinas.participants.user'])->find($sptId);
+            $this->spt = Spt::with(['sppds.transportModes', 'sppds.receipts', 'sppds.itineraries', 'tripReport', 'notaDinas.originPlace', 'notaDinas.destinationCity.province', 'notaDinas.participants.user'])->find($sptId);
             if ($this->spt) {
                 $this->sppds = $this->spt->sppds->sortByDesc('created_at')->values();
                 // Don't auto-select SPPD
@@ -70,10 +70,7 @@ class SppdTable extends Component
         return redirect()->route('sppd.create', ['spt_id' => $sptId]);
     }
 
-    public function createReceipt($sppdId)
-    {
-        return redirect()->route('receipts.create', ['sppd_id' => $sppdId]);
-    }
+
 
 
 
@@ -113,25 +110,7 @@ class SppdTable extends Component
         }
     }
 
-    public function getParticipantsWithoutSppd()
-    {
-        if (!$this->spt || !$this->spt->notaDinas) {
-            return collect();
-        }
 
-        // Get all participants from Nota Dinas
-        $allParticipants = $this->spt->notaDinas->participants;
-        
-        // Get user IDs that already have SPPD
-        $existingSppdUserIds = $this->spt->sppds->pluck('user_id')->toArray();
-        
-        // Filter participants who don't have SPPD yet
-        $participantsWithoutSppd = $allParticipants->whereNotIn('user_id', $existingSppdUserIds);
-        
-
-        
-        return $participantsWithoutSppd;
-    }
 
     public function render()
     {

@@ -6,6 +6,7 @@ use App\Models\Receipt;
 use App\Models\ReceiptLine;
 use App\Models\Sppd;
 use App\Models\TravelGrade;
+use App\Models\User;
 use App\Models\PerdiemRate;
 use App\Models\LodgingCap;
 use App\Models\RepresentationRate;
@@ -74,7 +75,6 @@ class Edit extends Component
         }
 
         $this->receipt = Receipt::with([
-            'sppd.user', 
             'sppd.spt.notaDinas.participants.user',
             'sppd.spt.notaDinas.originPlace',
             'sppd.spt.notaDinas.destinationCity.province',
@@ -90,10 +90,19 @@ class Edit extends Component
         $this->total_amount = $this->receipt->total_amount;
         $this->notes = $this->receipt->notes;
 
-        // Ambil travel grade otomatis dari user (jika belum ada, gunakan yang ada di receipt)
-        $userTravelGradeMap = $this->sppd->user->travelGradeMap;
-        if ($userTravelGradeMap) {
-            $this->travel_grade_id = $userTravelGradeMap->travel_grade_id;
+        // Ambil travel grade otomatis dari payee user (jika belum ada, gunakan yang ada di receipt)
+        if ($this->receipt->payee_user_id) {
+            $payeeUser = User::find($this->receipt->payee_user_id);
+            if ($payeeUser) {
+                $userTravelGradeMap = $payeeUser->travelGradeMap;
+                if ($userTravelGradeMap) {
+                    $this->travel_grade_id = $userTravelGradeMap->travel_grade_id;
+                } else {
+                    $this->travel_grade_id = $this->receipt->travel_grade_id;
+                }
+            } else {
+                $this->travel_grade_id = $this->receipt->travel_grade_id;
+            }
         } else {
             $this->travel_grade_id = $this->receipt->travel_grade_id;
         }

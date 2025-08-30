@@ -109,21 +109,7 @@
                 <td class="separator">:</td>
                 <td class="content">
                     @php
-                        $participants = $spt->getParticipants();
-                        $ordered = $participants->sort(function ($a, $b) {
-                            // Gunakan snapshot data untuk sorting, fallback ke live data
-                            $ea = $a->user_position_echelon_id_snapshot ?? $a->user?->position?->echelon?->id ?? 999999;
-                            $eb = $b->user_position_echelon_id_snapshot ?? $b->user?->position?->echelon?->id ?? 999999;
-                            if ($ea !== $eb) return $ea <=> $eb;
-                            
-                            $ra = $a->user_rank_id_snapshot ?? $a->user?->rank?->id ?? 0;
-                            $rb = $b->user_rank_id_snapshot ?? $b->user?->rank?->id ?? 0;
-                            if ($ra !== $rb) return $rb <=> $ra;
-                            
-                            $na = (string)($a->user_nip_snapshot ?? $a->user?->nip ?? '');
-                            $nb = (string)($b->user_nip_snapshot ?? $b->user?->nip ?? '');
-                            return strcmp($na, $nb);
-                        })->values();
+                        $ordered = $spt->getSortedParticipantsSnapshot();
                     @endphp
                     @if($ordered->count() > 0)
                         

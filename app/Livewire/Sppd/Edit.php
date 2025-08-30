@@ -55,7 +55,6 @@ class Edit extends Component
         }
 
         $this->sppd = Sppd::with([
-            'user', 
             'spt.notaDinas.participants.user', 
             'spt.notaDinas.originPlace',
             'spt.notaDinas.destinationCity.province',
@@ -82,7 +81,8 @@ class Edit extends Component
         $this->use_custom_assignment_title = !empty(trim($this->sppd->assignment_title)) && trim($this->sppd->assignment_title) !== trim($defaultTitle);
 
         // Info tambahan untuk display
-        $this->user_name = $this->sppd->user?->fullNameWithTitles() ?? 'N/A';
+        $participants = $this->sppd->getParticipantsSnapshot();
+        $this->user_name = $participants->count() > 0 ? $participants->first()['name'] ?? 'N/A' : 'N/A';
         $this->spt_info = $this->sppd->spt?->doc_no ?? 'N/A';
     }
 
@@ -141,8 +141,16 @@ class Edit extends Component
                 'assignment_title' => $assignmentTitle,
             ]);
 
+            // Refresh model to get updated relationships
+            $this->sppd->refresh();
+
             // Sync transport modes
             $this->sppd->transportModes()->sync($this->transport_mode_ids);
+
+            // Update snapshot of signed_by_user data only if signatory changed
+            if ($this->sppd->signed_by_user_id !== $this->signed_by_user_id || !$this->sppd->signed_by_user_name_snapshot) {
+                $this->sppd->createSignedByUserSnapshot();
+            }
 
             session()->flash('message', 'SPPD berhasil diperbarui.');
             // Redirect ke halaman utama dengan state yang sama

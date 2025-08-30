@@ -86,6 +86,29 @@ class NotaDinas extends Model
     }
 
     /**
+     * Get participants sorted by eselon, rank, and NIP
+     */
+    public function getSortedParticipants()
+    {
+        return $this->participants->sort(function ($a, $b) {
+            // 1. Sort by eselon (position_echelon_id) - lower number = higher eselon
+            $ea = $a->user_position_echelon_id_snapshot ?? $a->user?->position?->echelon?->id ?? 999999;
+            $eb = $b->user_position_echelon_id_snapshot ?? $b->user?->position?->echelon?->id ?? 999999;
+            if ($ea !== $eb) return $ea <=> $eb;
+            
+            // 2. Sort by rank (rank_id) - higher number = higher rank
+            $ra = $a->user_rank_id_snapshot ?? $a->user?->rank?->id ?? 0;
+            $rb = $b->user_rank_id_snapshot ?? $b->user?->rank?->id ?? 0;
+            if ($ra !== $rb) return $rb <=> $ra; // DESC order for rank
+            
+            // 3. Sort by NIP (alphabetical)
+            $na = (string)($a->user_nip_snapshot ?? $a->user?->nip ?? '');
+            $nb = (string)($b->user_nip_snapshot ?? $b->user?->nip ?? '');
+            return strcmp($na, $nb);
+        })->values();
+    }
+
+    /**
      * Create snapshot of user data
      */
     public function createUserSnapshot()

@@ -39,7 +39,7 @@ class SptTable extends Component
         $this->notaDinas = null;
         
         if ($notaDinasId) {
-            $this->notaDinas = NotaDinas::with(['spt.sppds.user', 'spt.signedByUser'])->find($notaDinasId);
+            $this->notaDinas = NotaDinas::with(['spt.sppds', 'spt.signedByUser'])->find($notaDinasId);
             if ($this->notaDinas && $this->notaDinas->spt) {
                 $this->spts = [$this->notaDinas->spt];
                 // Don't auto-select SPT

@@ -86,6 +86,35 @@ class Spt extends Model
                 'rank_id' => $participant->user_rank_id_snapshot ?: $participant->user?->rank_id,
                 'rank_name' => $participant->user_rank_name_snapshot ?: $participant->user?->rank?->name,
                 'rank_code' => $participant->user_rank_code_snapshot ?: $participant->user?->rank?->code,
+                'position_echelon_id' => $participant->user_position_echelon_id_snapshot ?: $participant->user?->position?->echelon?->id,
+            ];
+        });
+    }
+
+    /**
+     * Get sorted participants snapshot data from Nota Dinas
+     */
+    public function getSortedParticipantsSnapshot()
+    {
+        if (!$this->notaDinas) {
+            return collect();
+        }
+
+        return $this->notaDinas->getSortedParticipants()->map(function ($participant) {
+            return [
+                'name' => $participant->user_name_snapshot ?: $participant->user?->name,
+                'gelar_depan' => $participant->user_gelar_depan_snapshot ?: $participant->user?->gelar_depan,
+                'gelar_belakang' => $participant->user_gelar_belakang_snapshot ?: $participant->user?->gelar_belakang,
+                'nip' => $participant->user_nip_snapshot ?: $participant->user?->nip,
+                'unit_id' => $participant->user_unit_id_snapshot ?: $participant->user?->unit_id,
+                'unit_name' => $participant->user_unit_name_snapshot ?: $participant->user?->unit?->name,
+                'position_id' => $participant->user_position_id_snapshot ?: $participant->user?->position_id,
+                'position_name' => $participant->user_position_name_snapshot ?: $participant->user?->position?->name,
+                'position_desc' => $participant->user_position_desc_snapshot ?: $participant->user?->position_desc,
+                'rank_id' => $participant->user_rank_id_snapshot ?: $participant->user?->rank_id,
+                'rank_name' => $participant->user_rank_name_snapshot ?: $participant->user?->rank?->name,
+                'rank_code' => $participant->user_rank_code_snapshot ?: $participant->user?->rank?->code,
+                'position_echelon_id' => $participant->user_position_echelon_id_snapshot ?: $participant->user?->position?->echelon?->id,
             ];
         });
     }

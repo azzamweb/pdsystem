@@ -11,7 +11,7 @@ class SptController extends Controller
     public function generatePdf(Spt $spt)
     {
         // Load relationships yang diperlukan
-        $spt->load(['notaDinas.participants.user', 'signedByUser', 'sppds.user']);
+        $spt->load(['notaDinas.participants.user', 'signedByUser', 'sppds']);
         
         // Generate PDF
         $pdf = Pdf::loadView('spt.pdf', [
@@ -38,7 +38,7 @@ class SptController extends Controller
     public function downloadPdf(Spt $spt)
     {
         // Load relationships yang diperlukan
-        $spt->load(['notaDinas.participants.user', 'signedByUser', 'sppds.user']);
+        $spt->load(['notaDinas.participants.user', 'signedByUser', 'sppds']);
         
         // Generate PDF
         $pdf = Pdf::loadView('spt.pdf', [

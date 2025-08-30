@@ -140,10 +140,13 @@
                         </td>
                         <td class="px-6 py-4 text-xs text-gray-900 dark:text-white">
                             @if($notaDinas->participants->count() > 0)
+                                @php
+                                    $sortedParticipants = $notaDinas->getSortedParticipants();
+                                @endphp
                                 <div class="space-y-1">
-                                    @foreach($notaDinas->participants as $participant)
+                                    @foreach($sortedParticipants as $participant)
                                         <div class="truncate">
-                                            {{ $participant->user->name }}
+                                            {{ $participant->user_name_snapshot ?: $participant->user->name }}
                                         </div>
                                     @endforeach
                                 </div>

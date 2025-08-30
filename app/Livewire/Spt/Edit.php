@@ -96,6 +96,9 @@ class Edit extends Component
                 'notes' => $this->notes,
             ]);
 
+            // Refresh model to get updated relationships
+            $this->spt->refresh();
+
             // Update snapshot of signed_by_user data only if signatory changed or snapshot doesn't exist
             if ($this->spt->signed_by_user_id !== $this->signed_by_user_id || !$this->spt->signed_by_user_name_snapshot) {
                 $this->spt->createSignedByUserSnapshot();

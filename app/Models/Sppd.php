@@ -15,12 +15,17 @@ class Sppd extends Model
 
     protected $fillable = [
         'doc_no', 'number_is_manual', 'number_manual_reason', 'number_format_id', 'number_sequence_id',
-        'number_scope_unit_id', 'sppd_date', 'spt_id', 'user_id', 'signed_by_user_id', 'assignment_title',
+        'number_scope_unit_id', 'sppd_date', 'spt_id', 'signed_by_user_id', 'assignment_title',
         'funding_source',
+        // Snapshot fields for signed_by_user
+        'signed_by_user_name_snapshot', 'signed_by_user_gelar_depan_snapshot', 'signed_by_user_gelar_belakang_snapshot',
+        'signed_by_user_nip_snapshot', 'signed_by_user_unit_id_snapshot', 'signed_by_user_unit_name_snapshot',
+        'signed_by_user_position_id_snapshot', 'signed_by_user_position_name_snapshot', 'signed_by_user_position_desc_snapshot',
+        'signed_by_user_rank_id_snapshot', 'signed_by_user_rank_name_snapshot', 'signed_by_user_rank_code_snapshot',
+        'signed_by_user_position_echelon_id_snapshot',
     ];
 
     public function spt() { return $this->belongsTo(Spt::class); }
-    public function user() { return $this->belongsTo(User::class); }
     public function signedByUser() { return $this->belongsTo(User::class, 'signed_by_user_id'); }
     // Accessor methods untuk origin place dan destination city
     public function getOriginPlaceAttribute()
@@ -47,20 +52,15 @@ class Sppd extends Model
     // public function tripReport() { return $this->hasOne(TripReport::class); }
 
     /**
-     * Get snapshot data for user from Nota Dinas
+     * Get all participants snapshot data from Nota Dinas
      */
-    public function getUserSnapshot()
+    public function getParticipantsSnapshot()
     {
         if (!$this->spt?->notaDinas) {
-            return null;
+            return collect();
         }
 
-        // Find the participant in Nota Dinas that matches this SPPD user
-        $participant = $this->spt->notaDinas->participants
-            ->where('user_id', $this->user_id)
-            ->first();
-
-        if ($participant) {
+        return $this->spt->notaDinas->participants->map(function ($participant) {
             return [
                 'name' => $participant->user_name_snapshot ?: $participant->user?->name,
                 'gelar_depan' => $participant->user_gelar_depan_snapshot ?: $participant->user?->gelar_depan,
@@ -74,34 +74,89 @@ class Sppd extends Model
                 'rank_id' => $participant->user_rank_id_snapshot ?: $participant->user?->rank_id,
                 'rank_name' => $participant->user_rank_name_snapshot ?: $participant->user?->rank?->name,
                 'rank_code' => $participant->user_rank_code_snapshot ?: $participant->user?->rank?->code,
+                'position_echelon_id' => $participant->user_position_echelon_id_snapshot ?: $participant->user?->position?->echelon?->id,
             ];
-        }
-
-        return null;
+        });
     }
 
     /**
-     * Get snapshot data for signed_by_user from Nota Dinas
+     * Get sorted participants snapshot data from Nota Dinas
+     */
+    public function getSortedParticipantsSnapshot()
+    {
+        if (!$this->spt?->notaDinas) {
+            return collect();
+        }
+
+        return $this->spt->notaDinas->getSortedParticipants()->map(function ($participant) {
+            return [
+                'name' => $participant->user_name_snapshot ?: $participant->user?->name,
+                'gelar_depan' => $participant->user_gelar_depan_snapshot ?: $participant->user?->gelar_depan,
+                'gelar_belakang' => $participant->user_gelar_belakang_snapshot ?: $participant->user?->gelar_belakang,
+                'nip' => $participant->user_nip_snapshot ?: $participant->user?->nip,
+                'unit_id' => $participant->user_unit_id_snapshot ?: $participant->user?->unit_id,
+                'unit_name' => $participant->user_unit_name_snapshot ?: $participant->user?->unit?->name,
+                'position_id' => $participant->user_position_id_snapshot ?: $participant->user?->position_id,
+                'position_name' => $participant->user_position_name_snapshot ?: $participant->user?->position?->name,
+                'position_desc' => $participant->user_position_desc_snapshot ?: $participant->user?->position_desc,
+                'rank_id' => $participant->user_rank_id_snapshot ?: $participant->user?->rank_id,
+                'rank_name' => $participant->user_rank_name_snapshot ?: $participant->user?->rank?->name,
+                'rank_code' => $participant->user_rank_code_snapshot ?: $participant->user?->rank?->code,
+                'position_echelon_id' => $participant->user_position_echelon_id_snapshot ?: $participant->user?->position?->echelon?->id,
+            ];
+        });
+    }
+
+    /**
+     * Get snapshot data for signed_by_user from SPPD snapshot
      */
     public function getSignedByUserSnapshot()
     {
-        if (!$this->spt?->notaDinas) {
-            return null;
+        return [
+            'name' => $this->signed_by_user_name_snapshot ?: $this->signedByUser?->name,
+            'gelar_depan' => $this->signed_by_user_gelar_depan_snapshot ?: $this->signedByUser?->gelar_depan,
+            'gelar_belakang' => $this->signed_by_user_gelar_belakang_snapshot ?: $this->signedByUser?->gelar_belakang,
+            'nip' => $this->signed_by_user_nip_snapshot ?: $this->signedByUser?->nip,
+            'unit_id' => $this->signed_by_user_unit_id_snapshot ?: $this->signedByUser?->unit_id,
+            'unit_name' => $this->signed_by_user_unit_name_snapshot ?: $this->signedByUser?->unit?->name,
+            'position_id' => $this->signed_by_user_position_id_snapshot ?: $this->signedByUser?->position_id,
+            'position_name' => $this->signed_by_user_position_name_snapshot ?: $this->signedByUser?->position?->name,
+            'position_desc' => $this->signed_by_user_position_desc_snapshot ?: $this->signedByUser?->position_desc,
+            'rank_id' => $this->signed_by_user_rank_id_snapshot ?: $this->signedByUser?->rank_id,
+            'rank_name' => $this->signed_by_user_rank_name_snapshot ?: $this->signedByUser?->rank?->name,
+            'rank_code' => $this->signed_by_user_rank_code_snapshot ?: $this->signedByUser?->rank?->code,
+            'position_echelon_id' => $this->signed_by_user_position_echelon_id_snapshot ?: $this->signedByUser?->position?->echelon_id,
+        ];
+    }
+
+    /**
+     * Create snapshot of signed_by_user data
+     */
+    public function createSignedByUserSnapshot()
+    {
+        if (!$this->signed_by_user_id) {
+            return;
         }
 
-        return [
-            'name' => $this->spt->notaDinas->from_user_name_snapshot ?: $this->spt->notaDinas->fromUser?->name,
-            'gelar_depan' => $this->spt->notaDinas->from_user_gelar_depan_snapshot ?: $this->spt->notaDinas->fromUser?->gelar_depan,
-            'gelar_belakang' => $this->spt->notaDinas->from_user_gelar_belakang_snapshot ?: $this->spt->notaDinas->fromUser?->gelar_belakang,
-            'nip' => $this->spt->notaDinas->from_user_nip_snapshot ?: $this->spt->notaDinas->fromUser?->nip,
-            'unit_id' => $this->spt->notaDinas->from_user_unit_id_snapshot ?: $this->spt->notaDinas->fromUser?->unit_id,
-            'unit_name' => $this->spt->notaDinas->from_user_unit_name_snapshot ?: $this->spt->notaDinas->fromUser?->unit?->name,
-            'position_id' => $this->spt->notaDinas->from_user_position_id_snapshot ?: $this->spt->notaDinas->fromUser?->position_id,
-            'position_name' => $this->spt->notaDinas->from_user_position_name_snapshot ?: $this->spt->notaDinas->fromUser?->position?->name,
-            'position_desc' => $this->spt->notaDinas->from_user_position_desc_snapshot ?: $this->spt->notaDinas->fromUser?->position_desc,
-            'rank_id' => $this->spt->notaDinas->from_user_rank_id_snapshot ?: $this->spt->notaDinas->fromUser?->rank_id,
-            'rank_name' => $this->spt->notaDinas->from_user_rank_name_snapshot ?: $this->spt->notaDinas->fromUser?->rank?->name,
-            'rank_code' => $this->spt->notaDinas->from_user_rank_code_snapshot ?: $this->spt->notaDinas->fromUser?->rank?->code,
-        ];
+        $user = User::with(['position', 'unit', 'rank'])->find($this->signed_by_user_id);
+        if (!$user) {
+            return;
+        }
+
+        $this->update([
+            'signed_by_user_name_snapshot' => $user->name,
+            'signed_by_user_gelar_depan_snapshot' => $user->gelar_depan,
+            'signed_by_user_gelar_belakang_snapshot' => $user->gelar_belakang,
+            'signed_by_user_nip_snapshot' => $user->nip,
+            'signed_by_user_unit_id_snapshot' => $user->unit_id,
+            'signed_by_user_unit_name_snapshot' => $user->unit?->name,
+            'signed_by_user_position_id_snapshot' => $user->position_id,
+            'signed_by_user_position_name_snapshot' => $user->position?->name,
+            'signed_by_user_position_desc_snapshot' => $user->position_desc,
+            'signed_by_user_rank_id_snapshot' => $user->rank_id,
+            'signed_by_user_rank_name_snapshot' => $user->rank?->name,
+            'signed_by_user_rank_code_snapshot' => $user->rank?->code,
+            'signed_by_user_position_echelon_id_snapshot' => $user->position?->echelon_id,
+        ]);
     }
 }

@@ -136,7 +136,7 @@ class NotaDinasList extends Component
 
     public function render()
     {
-        $query = NotaDinas::with(['spt', 'requestingUnit', 'toUser', 'fromUser', 'participants.user', 'destinationCity', 'supportingDocuments'])
+        $query = NotaDinas::with(['spt', 'requestingUnit', 'toUser', 'fromUser', 'participants.user.position.echelon', 'participants.user.rank', 'destinationCity', 'supportingDocuments'])
             ->orderBy('created_at', 'desc');
 
         // Search

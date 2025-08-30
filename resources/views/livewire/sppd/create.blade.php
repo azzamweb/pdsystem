@@ -211,29 +211,21 @@
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Pilih Pegawai yang Dibuatkan SPPD <span class="text-red-500">*</span>
+                    Peserta yang Akan Dibuatkan SPPD
                 </label>
-                <div class="mb-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
-                    <p class="text-sm text-blue-800 dark:text-blue-200">
-                        <strong>Info:</strong> Hanya menampilkan peserta yang belum memiliki SPPD. 
-                        Peserta yang sudah memiliki SPPD tidak akan ditampilkan di sini.
+                <div class="mb-3 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
+                    <p class="text-sm text-green-800 dark:text-green-200">
+                        <strong>Info:</strong> 1 SPPD akan dibuat untuk mewakili semua peserta perjalanan dari Nota Dinas ini.
                     </p>
-                </div>
-                <div class="mb-2 flex items-center gap-3">
-                    <label class="inline-flex items-center gap-2 text-sm">
-                        <input type="checkbox" x-on:change="$dispatch('select-all', { checked: $event.target.checked })" />
-                        <span>Pilih semua</span>
-                    </label>
                 </div>
                 <div class="border rounded-md max-h-56 overflow-y-auto p-2">
                     @foreach($participants as $p)
-                        <label class="flex items-center gap-3 py-1">
-                            <input type="checkbox" value="{{ $p['id'] }}" wire:model="selected_user_ids" />
+                        <div class="flex items-center gap-3 py-1">
+                            <span class="text-green-600">✓</span>
                             <span>{{ $p['name'] }} <span class="text-xs text-gray-500">NIP {{ $p['nip'] }}</span></span>
-                        </label>
+                        </div>
                     @endforeach
                 </div>
-                @error('selected_user_ids')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
             </div>
 
             <div class="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">

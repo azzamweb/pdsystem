@@ -40,10 +40,6 @@ class Create extends Component
     // Sumber dana tidak ditampilkan di form (opsional)
     public $funding_source = '';
 
-    // Peserta yang akan dibuatkan SPPD
-    #[Rule('required|array|min:1')]
-    public $selected_user_ids = [];
-
     // Penandatangan
     #[Rule('required|exists:users,id')]
     public $signed_by_user_id = '';
@@ -80,18 +76,14 @@ class Create extends Component
 
         $this->destination_city_id = $this->spt->notaDinas?->destination_city_id ?: '';
 
-        // Get participants who don't have SPPD yet
-        $existingSppdUserIds = $this->spt->sppds->pluck('user_id')->toArray();
-        
+        // Get all participants from Nota Dinas for display
         $this->participants = $this->spt->notaDinas?->participants?->map(function ($p) {
             return [
                 'id' => $p->user?->id,
                 'name' => $p->user?->fullNameWithTitles() ?? $p->user?->name,
                 'nip' => $p->user?->nip,
             ];
-        })->filter(fn($x) => !empty($x['id']) && !in_array($x['id'], $existingSppdUserIds))->values()->all();
-        
-        $this->selected_user_ids = collect($this->participants)->pluck('id')->all();
+        })->values()->all();
 
         // Default penandatangan dari SPT
         $this->signed_by_user_id = $this->spt->signed_by_user_id ?? '';
@@ -138,7 +130,7 @@ class Create extends Component
 
     public function toggleSelectAll(bool $checked): void
     {
-        $this->selected_user_ids = $checked ? collect($this->participants)->pluck('id')->all() : [];
+        // No longer needed since 1 SPPD represents all participants
     }
 
     public function updatedSignedByUserId(): void
@@ -169,9 +161,6 @@ class Create extends Component
     {
         $this->validate([
             'sppd_date' => 'required|date',
-            'trip_type' => 'required|in:LUAR_DAERAH,DALAM_DAERAH_GT8H,DALAM_DAERAH_LE8H,DIKLAT',
-            'selected_user_ids' => 'required|array|min:1',
-            'selected_user_ids.*' => 'exists:users,id',
             'transport_mode_ids' => 'required|array|min:1',
             'transport_mode_ids.*' => 'exists:transport_modes,id',
             'signed_by_user_id' => 'required|exists:users,id',
@@ -198,65 +187,53 @@ class Create extends Component
             return null;
         }
 
+        DB::beginTransaction();
+        try {
+            $gen = DocumentNumberService::generate('SPPD', $unitScopeId, $this->sppd_date ?: now(), [
+                'spt_id' => $this->spt->id,
+            ], auth()->id());
 
-
-        $createdCount = 0;
-        $failMessages = [];
-        foreach ($this->selected_user_ids as $userId) {
-            try {
-                $gen = DocumentNumberService::generate('SPPD', $unitScopeId, $this->sppd_date ?: now(), [
-                    'spt_id' => $this->spt->id,
-                    'user_id' => $userId,
-                ], auth()->id());
-
-                // Atur assignment title berdasarkan mode
-                $assignmentTitle = trim((string)$this->assignment_title);
-                if (!$this->use_custom_assignment_title || $assignmentTitle === '') {
-                    $assignmentTitle = $this->guessAssignmentTitle();
-                }
-
-                $sppd = Sppd::create([
-                    'doc_no' => $gen['number'],
-                    'number_is_manual' => false,
-                    'number_manual_reason' => null,
-                    'number_format_id' => isset($gen['format']) ? $gen['format']->id : null,
-                    'number_sequence_id' => isset($gen['sequence']) ? $gen['sequence']->id : null,
-                    'number_scope_unit_id' => $unitScopeId,
-                    'sppd_date' => $this->sppd_date,
-                    'spt_id' => $this->spt->id,
-                    'user_id' => $userId,
-                    'signed_by_user_id' => $this->signed_by_user_id,
-                    'assignment_title' => $assignmentTitle,
-                    'destination_city_id' => $this->destination_city_id,
-                    'funding_source' => $this->funding_source,
-                ]);
-
-                // Attach transport modes
-                if (is_array($this->transport_mode_ids) && count($this->transport_mode_ids) > 0) {
-                    $sppd->transportModes()->attach($this->transport_mode_ids);
-                }
-                $createdCount++;
-            } catch (\Throwable $e) {
-                // lanjut ke user berikutnya, catat error minimal
-                $failMessages[] = $e->getMessage();
+            // Atur assignment title berdasarkan mode
+            $assignmentTitle = trim((string)$this->assignment_title);
+            if (!$this->use_custom_assignment_title || $assignmentTitle === '') {
+                $assignmentTitle = $this->guessAssignmentTitle();
             }
-        }
 
-        if ($createdCount > 0) {
-            session()->flash('message', 'SPPD berhasil dibuat untuk '.$createdCount.' pegawai.');
+            $sppd = Sppd::create([
+                'doc_no' => $gen['number'],
+                'number_is_manual' => false,
+                'number_manual_reason' => null,
+                'number_format_id' => isset($gen['format']) ? $gen['format']->id : null,
+                'number_sequence_id' => isset($gen['sequence']) ? $gen['sequence']->id : null,
+                'number_scope_unit_id' => $unitScopeId,
+                'sppd_date' => $this->sppd_date,
+                'spt_id' => $this->spt->id,
+                'signed_by_user_id' => $this->signed_by_user_id,
+                'assignment_title' => $assignmentTitle,
+                'funding_source' => $this->funding_source,
+            ]);
+
+            // Attach transport modes
+            if (is_array($this->transport_mode_ids) && count($this->transport_mode_ids) > 0) {
+                $sppd->transportModes()->attach($this->transport_mode_ids);
+            }
+
+            // Create snapshot of signed_by_user data
+            $sppd->createSignedByUserSnapshot();
+
+            DB::commit();
+            session()->flash('message', 'SPPD berhasil dibuat untuk semua peserta.');
             // Redirect ke halaman utama dengan state yang sama
             return $this->redirect(route('documents', [
                 'nota_dinas_id' => $this->spt->nota_dinas_id,
                 'spt_id' => $this->spt->id
             ]));
-        }
 
-        $msg = 'Gagal membuat SPPD: tidak ada dokumen yang berhasil dibuat.';
-        if (!empty($failMessages)) {
-            $msg .= ' Alasan pertama: ' . $failMessages[0];
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            session()->flash('error', 'Gagal membuat SPPD: ' . $e->getMessage());
+            return null;
         }
-        session()->flash('error', $msg);
-        return null;
     }
 
     public function render()

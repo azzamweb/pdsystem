@@ -17,9 +17,6 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 Perjalanan
                             </th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                Kwitansi
-                            </th>
                             <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 Aksi
                             </th>
@@ -48,7 +45,21 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                    {{ $sppd->user->fullNameWithTitles() ?? 'N/A' }}
+                                    @php
+                                        $participants = $sppd->getSortedParticipantsSnapshot();
+                                    @endphp
+                                    @if($participants->count() > 0)
+                                        @foreach($participants as $index => $participant)
+                                            <div class="{{ $index > 0 ? 'mt-1' : '' }}">
+                                                {{ $index + 1 }}. {{ $participant['name'] ?? 'N/A' }}
+                                                @if($participant['nip'])
+                                                    <span class="text-xs text-gray-500">({{ $participant['nip'] }})</span>
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                    @else
+                                        <span class="text-gray-400">-</span>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                                     @if($sppd->signedByUser)
@@ -94,46 +105,7 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                    @if($sppd->receipts && $sppd->receipts->count() > 0)
-                                        <!-- Kwitansi sudah ada - tampilkan tombol cetak dan edit -->
-                                        <div class="flex flex-col space-y-1">
-                                            <a 
-                                                href="{{ route('receipts.show', $sppd->receipts->first()) }}" 
-                                                target="_blank"
-                                                class="inline-flex items-center px-2 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-md hover:bg-green-200 dark:bg-green-900 dark:text-green-300 dark:hover:bg-green-800"
-                                                title="Cetak Kwitansi"
-                                            >
-                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
-                                                </svg>
-                                                Cetak
-                                            </a>
-                                            <a 
-                                                href="{{ route('receipts.edit', $sppd->receipts->first()) }}"
-                                                class="inline-flex items-center px-2 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded-md hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800"
-                                                title="Edit Kwitansi"
-                                            >
-                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                                </svg>
-                                                Edit
-                                            </a>
-                                        </div>
-                                    @else
-                                        <!-- Kwitansi belum ada - tampilkan tombol tambah -->
-                                        <button 
-                                            wire:click="createReceipt({{ $sppd->id }})"
-                                            class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-100 rounded-md hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800"
-                                            title="Buat Kwitansi"
-                                        >
-                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                            </svg>
-                                            + Kwitansi
-                                        </button>
-                                    @endif
-                                </td>
+
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div class="flex items-center justify-end space-x-2">
 
@@ -240,35 +212,23 @@
                     </tbody>
                 </table>
             </div>
-        @endif
-
-        @php
-            // Get participants without SPPD (always check, regardless of existing SPPDs)
-            $participantsWithoutSppd = $this->getParticipantsWithoutSppd();
-            $hasParticipantsWithoutSppd = $participantsWithoutSppd->count() > 0;
-        @endphp
-
-        @if($hasParticipantsWithoutSppd)
-            <div class="mt-6 text-center py-8 text-gray-500 dark:text-gray-400">
-                <svg class="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                </svg>
-                <p class="mb-2">Ada {{ $participantsWithoutSppd->count() }} peserta yang belum memiliki SPPD</p>
-                <p class="mb-4 text-sm text-gray-400">Klik tombol di bawah untuk membuat SPPD</p>
-                
-                <button 
-                    wire:click="createSppd({{ $sptId }})"
-                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                    Buat SPPD
-                </button>
-            </div>
-        @elseif(count($sppds) == 0)
+        @else
             <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+                <!-- Debug info -->
+                
+                
                 <svg class="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
                 <p class="mb-4">Belum ada SPPD untuk SPT ini</p>
+                
+                <button 
+                    wire:click="createSppd({{ $sptId }})"
+                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
+                    style="display: inline-flex !important; visibility: visible !important; opacity: 1 !important;"
+                >
+                    Buat SPPD
+                </button>
             </div>
         @endif
     @else
