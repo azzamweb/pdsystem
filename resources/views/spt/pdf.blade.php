@@ -116,24 +116,24 @@
                             <table style="width: 100%; border: none; border-collapse: collapse; margin-bottom: 10px;">
                                                         @foreach($ordered as $i => $participant)
                         @php
-                            $name = $participant->user_name_snapshot ?: $participant->user->name;
-                            $rankName = $participant->user_rank_name_snapshot ?: $participant->user->rank?->name;
-                            $rankCode = $participant->user_rank_code_snapshot ?: $participant->user->rank?->code;
-                            $nip = $participant->user_nip_snapshot ?: $participant->user->nip;
-                            $position = $participant->user_position_desc_snapshot ?: ($participant->user->position_desc ?: $participant->user->position?->name);
+                            $name = $participant['name'] ?? '-';
+                            $rankName = $participant['rank_name'] ?? '';
+                            $rankCode = $participant['rank_code'] ?? '';
+                            $nip = $participant['nip'] ?? '';
+                            $position = $participant['position_desc'] ?: ($participant['position_name'] ?? '');
                         @endphp
                         <tr>
                             <td>{{ $i+1 }}.</td>
                             <td style="width: 150px; vertical-align: top; border: none; padding: 2px 0;">Nama</td>
                             <td style="width: 10px; vertical-align: top; border: none; padding: 2px 0;">:</td>
-                            <td style="border: none; padding: 2px 0;">{{ $name ?? '-' }}</td>
+                            <td style="border: none; padding: 2px 0;">{{ $name }}</td>
                         </tr>
                         @if($rankName || $rankCode)
                         <tr>
                             <td></td>
                             <td style="width: 150px; vertical-align: top; border: none; padding: 2px 0;">Pangkat/Gol. Ruang</td>
                             <td style="width: 10px; vertical-align: top; border: none; padding: 2px 0;">:</td>
-                            <td style="border: none; padding: 2px 0;">{{ $rankName ?? '' }} {{ $rankCode ? '(' . $rankCode . ')' : '' }}</td>
+                            <td style="border: none; padding: 2px 0;">{{ $rankName }} {{ $rankCode ? '(' . $rankCode . ')' : '' }}</td>
                         </tr>
                         @endif
                         @if($nip)

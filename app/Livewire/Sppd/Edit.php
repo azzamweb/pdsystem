@@ -42,9 +42,6 @@ class Edit extends Component
     public $assignment_title = '';
     public $use_custom_assignment_title = false;
 
-    public $user_name = '';
-    public $spt_info = '';
-
     public function mount($sppd_id = null): void
     {
         $this->sppd_id = $sppd_id ?? request()->route('sppd');
@@ -80,10 +77,7 @@ class Edit extends Component
         $defaultTitle = $this->guessAssignmentTitle();
         $this->use_custom_assignment_title = !empty(trim($this->sppd->assignment_title)) && trim($this->sppd->assignment_title) !== trim($defaultTitle);
 
-        // Info tambahan untuk display
-        $participants = $this->sppd->getParticipantsSnapshot();
-        $this->user_name = $participants->count() > 0 ? $participants->first()['name'] ?? 'N/A' : 'N/A';
-        $this->spt_info = $this->sppd->spt?->doc_no ?? 'N/A';
+
     }
 
     public function updatedSignedByUserId(): void

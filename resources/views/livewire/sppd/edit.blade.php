@@ -93,7 +93,7 @@
             <div class="space-y-1 md:col-span-2 lg:col-span-3">
                 <span class="font-medium text-gray-700 dark:text-gray-300">Peserta Perjalanan:</span>
                 <div class="flex flex-wrap gap-2 mt-1">
-                    @foreach($sppd->spt->notaDinas->participants as $participant)
+                    @foreach($sppd->spt->notaDinas->getSortedParticipants() as $participant)
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                             {{ $participant->user->fullNameWithTitles() }}
                         </span>
@@ -107,24 +107,7 @@
 
     <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
         <form wire:submit="save">
-            <!-- Informasi Dasar -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Pegawai
-                    </label>
-                    <input type="text" value="{{ $user_name }}" disabled 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 dark:bg-gray-700 dark:text-gray-300">
-                </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        SPT
-                    </label>
-                    <input type="text" value="{{ $spt_info }}" disabled 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 dark:bg-gray-700 dark:text-gray-300">
-                </div>
-            </div>
 
             <!-- Tanggal SPPD -->
             <div class="mb-6">

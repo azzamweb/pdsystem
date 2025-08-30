@@ -275,18 +275,17 @@
                         <table style="width: 100%; border-collapse: collapse; border: none;">
                             <thead>
                                 <tr>
-                                    
-                                    <th style="text-align: left; font-weight: normal;  border: none; width: 8%;">No.</th>
-                                    <th style="text-align: left; font-weight: normal;  border: none; width: 45%;">Nama</th>
-                                    <th style="text-align: left; font-weight: normal;  border: none; width: 47%;">Jabatan</th>
+                                    <th style="text-align: left; font-weight: normal; font-size: 9pt; border: none; width: 8%;"><strong>No.</strong></th>
+                                    <th style="text-align: left; font-weight: normal; font-size: 9pt; border: none; width: 45%;"><strong>Nama</strong></th>
+                                    <th style="text-align: left; font-weight: normal; font-size: 9pt; border: none; width: 47%;"><strong>Jabatan</strong></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($otherParticipants as $index => $participant)
                                     <tr>
-                                        <td style="text-align: left;  border: none;">{{ $index }}.</td>
-                                        <td style="text-align: left;  border: none;">{{ $participant['name'] ?? '-' }}</td>
-                                        <td style="text-align: left;  border: none;">{{ $participant['position_desc'] ?: ($participant['position_name'] ?? '-') }}</td>
+                                        <td style="text-align: left; font-size: 9pt; border: none;">{{ $index }}.</td>
+                                        <td style="text-align: left; font-size: 9pt; border: none;">{{ $participant['name'] ?? '-' }}</td>
+                                        <td style="text-align: left; font-size: 9pt; border: none;">{{ $participant['position_desc'] ?: ($participant['position_name'] ?? '-') }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>

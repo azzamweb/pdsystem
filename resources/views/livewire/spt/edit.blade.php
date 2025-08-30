@@ -66,7 +66,7 @@
             <div class="space-y-1 md:col-span-2 lg:col-span-3">
                 <span class="font-medium text-gray-700 dark:text-gray-300">Peserta Perjalanan:</span>
                 <div class="flex flex-wrap gap-2 mt-1">
-                    @foreach($this->spt->notaDinas->participants as $participant)
+                    @foreach($this->spt->notaDinas->getSortedParticipants() as $participant)
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                             {{ $participant->user->fullNameWithTitles() }}
                         </span>
