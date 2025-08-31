@@ -42,6 +42,10 @@ class Edit extends Component
     public $assignment_title = '';
     public $use_custom_assignment_title = false;
 
+    // PPTK (Pejabat Pelaksana Teknis Kegiatan)
+    #[Rule('nullable|exists:users,id')]
+    public $pptk_user_id = '';
+
     public function mount($sppd_id = null): void
     {
         $this->sppd_id = $sppd_id ?? request()->route('sppd');
@@ -72,6 +76,9 @@ class Edit extends Component
         // Load penandatangan dan assignment title
         $this->signed_by_user_id = $this->sppd->signed_by_user_id ?? '';
         $this->assignment_title = $this->sppd->assignment_title ?? '';
+        
+        // Load PPTK
+        $this->pptk_user_id = $this->sppd->pptk_user_id ?? '';
         
         // Set custom assignment title berdasarkan apakah assignment_title berbeda dari default
         $defaultTitle = $this->guessAssignmentTitle();
@@ -122,6 +129,10 @@ class Edit extends Component
         }
 
         try {
+            // Simpan nilai awal sebelum update
+            $originalSignedByUserId = $this->sppd->signed_by_user_id;
+            $originalPptkUserId = $this->sppd->pptk_user_id;
+            
             // Atur assignment title berdasarkan mode
             $assignmentTitle = trim((string)$this->assignment_title);
             if (!$this->use_custom_assignment_title || $assignmentTitle === '') {
@@ -132,6 +143,7 @@ class Edit extends Component
                 'sppd_date' => $this->sppd_date,
                 'funding_source' => $this->funding_source,
                 'signed_by_user_id' => $this->signed_by_user_id,
+                'pptk_user_id' => $this->pptk_user_id,
                 'assignment_title' => $assignmentTitle,
             ]);
 
@@ -142,8 +154,13 @@ class Edit extends Component
             $this->sppd->transportModes()->sync($this->transport_mode_ids);
 
             // Update snapshot of signed_by_user data only if signatory changed
-            if ($this->sppd->signed_by_user_id !== $this->signed_by_user_id || !$this->sppd->signed_by_user_name_snapshot) {
+            if ($originalSignedByUserId != $this->signed_by_user_id || !$this->sppd->signed_by_user_name_snapshot) {
                 $this->sppd->createSignedByUserSnapshot();
+            }
+            
+            // Update snapshot of pptk_user data only if PPTK changed
+            if ($originalPptkUserId != $this->pptk_user_id || !$this->sppd->pptk_user_name_snapshot) {
+                $this->sppd->createPptkUserSnapshot();
             }
 
             session()->flash('message', 'SPPD berhasil diperbarui.');

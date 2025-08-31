@@ -170,31 +170,26 @@ class MainPage extends Component
 
     public function createKwitansi()
     {
-        // Use the selected SPT ID to avoid null object issues across requests
-        if (!$this->selectedSptId) {
-            session()->flash('error', 'Pilih SPT terlebih dahulu');
+        // Use the selected SPPD ID to avoid null object issues across requests
+        if (!$this->selectedSppdId) {
+            session()->flash('error', 'Pilih SPPD terlebih dahulu');
             return;
         }
         
-        // Check if there are SPPDs available for this SPT
-        $sppds = \App\Models\Sppd::where('spt_id', $this->selectedSptId)->get();
-        if ($sppds->isEmpty()) {
-            session()->flash('error', 'Tidak ada SPPD yang tersedia untuk dibuatkan kwitansi');
+        // Check if the selected SPPD already has a receipt
+        $sppd = \App\Models\Sppd::find($this->selectedSppdId);
+        if (!$sppd) {
+            session()->flash('error', 'SPPD tidak ditemukan');
             return;
         }
         
-        // Check if all SPPDs already have receipts
-        $sppdsWithoutReceipts = $sppds->filter(function($sppd) {
-            return !$sppd->receipts()->exists();
-        });
-        
-        if ($sppdsWithoutReceipts->isEmpty()) {
-            session()->flash('error', 'Semua SPPD sudah memiliki kwitansi');
+        if ($sppd->receipts()->exists()) {
+            session()->flash('error', 'SPPD ini sudah memiliki kwitansi');
             return;
         }
         
-        // Redirect to create receipt page
-        return $this->redirect(route('receipts.create') . '?spt_id=' . $this->selectedSptId);
+        // Redirect to create receipt page with SPPD ID
+        return $this->redirect(route('receipts.create') . '?sppd_id=' . $this->selectedSppdId);
     }
 
     public function deleteTripReport($tripReportId)

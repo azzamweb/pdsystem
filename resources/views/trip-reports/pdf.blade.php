@@ -131,7 +131,7 @@
                         <td class="content">{{ $participant->user_unit_name_snapshot ?: $participant->user?->unit?->name ?? '-' }}</td>
                     </tr>
                 </table>
-                @if($index < $tripReport->spt->notaDinas->participants->count() - 1)
+                @if($index < $sortedParticipants->count() - 1)
                     <div style="height: 2mm;"></div>
                 @endif
             @endforeach
@@ -205,7 +205,7 @@
                 
                 @if($tripReport->spt->notaDinas->participants && $tripReport->spt->notaDinas->participants->count() > 0)
                     <table style="width: 100%; border-collapse: collapse;">
-                        @foreach($tripReport->spt->notaDinas->participants as $index => $participant)
+                        @foreach($tripReport->spt->notaDinas->getSortedParticipants() as $index => $participant)
                             <tr>
                                 <td style="width: 30px; padding: 15px 0; vertical-align: top;">{{ $index + 1 }}.</td>
                                 <td style="padding: 15px 0; vertical-align: top;">{{ $participant->user->gelar_depan ?? '' }} {{ $participant->user->name ?? 'N/A' }} {{ $participant->user->gelar_belakang ?? '' }}</td>

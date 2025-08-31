@@ -228,6 +228,71 @@
                 </div>
             </div>
 
+            <!-- PPTK -->
+            <div class="mb-6" x-data="searchableSelect({
+                options: {{ Js::from(\App\Models\User::orderBy('name')->get()->map(function($user) {
+                    return [
+                        'id' => $user->id,
+                        'text' => $user->fullNameWithTitles() . ' (' . trim(($user->position?->name ?? '') . ' ' . ($user->unit?->name ?? '')) . ')',
+                        'name' => $user->name,
+                        'nip' => $user->nip,
+                        'position' => $user->position?->name,
+                        'unit' => $user->unit?->name
+                    ];
+                })) }},
+                selectedValue: @entangle('pptk_user_id'),
+                placeholder: 'Cari dan pilih PPTK (opsional)...'
+            })">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">PPTK (Pejabat Pelaksana Teknis Kegiatan)</label>
+                
+                <!-- Search Input -->
+                <div class="relative mt-1">
+                    <input 
+                        type="text" 
+                        x-ref="searchInput"
+                        x-model="searchTerm"
+                        @click="open = true"
+                        @keydown.escape="open = false"
+                        @keydown.arrow-down.prevent="selectNext()"
+                        @keydown.arrow-up.prevent="selectPrevious()"
+                        @keydown.enter.prevent="selectCurrent()"
+                        placeholder="Cari dan pilih PPTK (opsional)..."
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        :class="{ 'border-blue-500': open }"
+                    >
+                    
+                    <!-- Dropdown -->
+                    <div 
+                        x-show="open" 
+                        x-transition:enter="transition ease-out duration-200"
+                        x-transition:enter-start="opacity-0 transform scale-95"
+                        x-transition:enter-end="opacity-100 transform scale-100"
+                        x-transition:leave="transition ease-in duration-150"
+                        x-transition:leave-start="opacity-100 transform scale-100"
+                        x-transition:leave-end="opacity-0 transform scale-95"
+                        @click.away="open = false"
+                        class="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg max-h-60 overflow-y-auto"
+                    >
+                        <template x-for="(option, index) in filteredOptions" :key="option.id">
+                            <div 
+                                @click="selectOption(option)"
+                                class="px-3 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+                                :class="{ 'bg-blue-100 dark:bg-blue-900': index === selectedIndex }"
+                            >
+                                <div class="font-medium" x-text="option.text"></div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400" x-text="'NIP: ' + (option.nip || '-')"></div>
+                            </div>
+                        </template>
+                        
+                        <div x-show="filteredOptions.length === 0" class="px-3 py-2 text-gray-500 dark:text-gray-400">
+                            Tidak ada hasil yang ditemukan
+                        </div>
+                    </div>
+                </div>
+                
+                @error('pptk_user_id')<p class="text-sm text-red-600 mt-1">{{ $message }}</p>@enderror
+            </div>
+
             <!-- Sumber Dana -->
             <div class="mb-6">
                 <label for="funding_source" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">

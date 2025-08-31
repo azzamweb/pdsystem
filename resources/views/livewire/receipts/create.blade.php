@@ -20,295 +20,319 @@
                     </div>
                 @endif
 
-                <form wire:submit="save">
-                    <!-- SPPD Information -->
-                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-6">
-                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Informasi SPPD</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Nomor SPPD
-                                </label>
-                                <div class="text-sm text-gray-900 dark:text-white font-medium">
-                                    {{ $sppd->doc_no }}
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Tujuan
-                                </label>
-                                <div class="text-sm text-gray-900 dark:text-white">
-                                    {{ $sppd->spt?->notaDinas?->destinationCity?->name ?? 'N/A' }}, {{ $sppd->spt?->notaDinas?->destinationCity?->province?->name ?? 'N/A' }}
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Durasi
-                                </label>
-                                <div class="text-sm text-gray-900 dark:text-white">
-                                    {{ $sppd->days_count }} hari
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Jenis Perjalanan
-                                </label>
-                                <div class="text-sm text-gray-900 dark:text-white">
-                                    {{ $sppd->trip_type }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Form Fields -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                                                    <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Tanggal Kwitansi *
-                                </label>
-                                <input 
-                                    type="date" 
-                                    wire:model="receipt_date" 
-                                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                />
-                                @error('receipt_date') 
-                                    <span class="text-red-500 text-sm">{{ $message }}</span> 
-                                @enderror
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Nomor Kwitansi (SIPD)
-                                </label>
-                                <input 
-                                    type="text" 
-                                    wire:model="manual_doc_no" 
-                                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                    placeholder="Nomor dari aplikasi SIPD (opsional)"
-                                />
-                                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                    Nomor kwitansi akan diisi dari aplikasi SIPD. Bisa dikosongkan untuk sementara.
-                                </div>
-                                @error('manual_doc_no') 
-                                    <span class="text-red-500 text-sm">{{ $message }}</span> 
-                                @enderror
-                            </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                Tingkatan Perjalanan
-                            </label>
-                            <div class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 dark:bg-gray-600 dark:border-gray-600 dark:text-white">
-                                <div class="text-sm text-gray-900 dark:text-white font-medium">
-                                    @if($sppd->user->travelGrade)
-                                        {{ $sppd->user->travelGrade->name }}
-                                    @else
-                                        <span class="text-red-500">Tingkatan perjalanan belum ditentukan</span>
-                                    @endif
-                                </div>
-                                <div class="text-xs text-gray-500 dark:text-gray-400">
-                                    Diambil dari data pegawai
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                Penerima Pembayaran
-                            </label>
-                            <div class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 dark:bg-gray-600 dark:border-gray-600 dark:text-white">
-                                <div class="text-sm text-gray-900 dark:text-white font-medium">
-                                    {{ $sppd->user->fullNameWithTitles() }}
-                                </div>
-                                <div class="text-xs text-gray-500 dark:text-gray-400">
-                                    NIP: {{ $sppd->user->nip }}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                Total Amount
-                            </label>
-                            <div class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 dark:bg-gray-600 dark:border-gray-600 dark:text-white font-mono text-lg font-bold">
-                                Rp {{ number_format($this->getTotalAmount(), 0, ',', '.') }}
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Transportation Section -->
+                <!-- SPPD Selection (if spt_id is provided) -->
+                @if($spt && $availableSppds->count() > 0 && !$sppd)
                     <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 mb-6">
-                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">I. Transportasi</h3>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Pilih SPPD</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                            Pilih SPPD yang akan dibuatkan kwitansi:
+                        </p>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Transportasi Laut
-                                </label>
-                                <input 
-                                    type="number" 
-                                    wire:model="transport_laut" 
-                                    min="0"
-                                    step="1000"
-                                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                    placeholder="0"
-                                />
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Transportasi Darat
-                                </label>
-                                <input 
-                                    type="number" 
-                                    wire:model="transport_darat" 
-                                    min="0"
-                                    step="1000"
-                                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                    placeholder="0"
-                                />
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Transportasi Darat/Roro
-                                </label>
-                                <input 
-                                    type="number" 
-                                    wire:model="transport_darat_roro" 
-                                    min="0"
-                                    step="1000"
-                                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                    placeholder="0"
-                                />
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Transportasi Udara
-                                </label>
-                                <input 
-                                    type="number" 
-                                    wire:model="transport_udara" 
-                                    min="0"
-                                    step="1000"
-                                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                    placeholder="0"
-                                />
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Taksi
-                                </label>
-                                <input 
-                                    type="number" 
-                                    wire:model="transport_taxi" 
-                                    min="0"
-                                    step="1000"
-                                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                    placeholder="0"
-                                />
-                            </div>
+                            @foreach($availableSppds as $availableSppd)
+                                <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
+                                     wire:click="selectSppd({{ $availableSppd->id }})">
+                                    <div class="font-medium text-gray-900 dark:text-white">
+                                        {{ $availableSppd->doc_no }}
+                                    </div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                                        {{ $availableSppd->spt->notaDinas->participants->first()?->user->fullNameWithTitles() ?? 'N/A' }}
+                                    </div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-500">
+                                        NIP: {{ $availableSppd->spt->notaDinas->participants->first()?->user->nip ?? 'N/A' }}
+                                    </div>
+                                </div>
+                            @endforeach
                         </div>
                     </div>
+                @endif
 
-                    <!-- Lodging Section -->
-                    <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 mb-6">
-                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">II. Penginapan</h3>
-                        <div class="space-y-4">
-                            <div class="flex items-center">
-                                <input 
-                                    type="checkbox" 
-                                    wire:model="is_no_lodging" 
-                                    id="is_no_lodging"
-                                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                                />
-                                <label for="is_no_lodging" class="ml-2 block text-sm text-gray-900 dark:text-white">
-                                    Tidak menginap (30% dari tarif maksimal: Rp {{ number_format($lodging_rate * 0.3, 0, ',', '.') }})
-                                </label>
+                <!-- Form (only show if SPPD is selected) -->
+                @if($sppd)
+                    <form wire:submit="save">
+                        <!-- Informasi Nota Dinas dan SPT sebagai Referensi -->
+                        @if($sppd->spt && $sppd->spt->notaDinas)
+                        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+                            <h3 class="text-lg font-semibold text-blue-800 dark:text-blue-200 mb-3 flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Informasi Nota Dinas & SPT (Referensi)
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                                <!-- Nota Dinas Info -->
+                                <div class="space-y-1">
+                                    <span class="font-medium text-gray-700 dark:text-gray-300">Nomor Nota Dinas:</span>
+                                    <p class="text-gray-900 dark:text-white font-mono">{{ $sppd->spt->notaDinas->doc_no }}</p>
+                                </div>
+                                <div class="space-y-1">
+                                    <span class="font-medium text-gray-700 dark:text-gray-300">Tanggal Nota Dinas:</span>
+                                    <p class="text-gray-900 dark:text-white">{{ $sppd->spt->notaDinas->nd_date ? \Carbon\Carbon::parse($sppd->spt->notaDinas->nd_date)->locale('id')->translatedFormat('d F Y') : '-' }}</p>
+                                </div>
+                                <div class="space-y-1">
+                                    <span class="font-medium text-gray-700 dark:text-gray-300">Bidang Pengaju:</span>
+                                    <p class="text-gray-900 dark:text-white">{{ $sppd->spt->notaDinas->requestingUnit->name ?? '-' }}</p>
+                                </div>
+                                <div class="space-y-1">
+                                    <span class="font-medium text-gray-700 dark:text-gray-300">Dari:</span>
+                                    <p class="text-gray-900 dark:text-white">{{ $sppd->spt->notaDinas->fromUser->fullNameWithTitles() ?? '-' }}</p>
+                                    <p class="text-xs text-gray-600 dark:text-gray-400">{{ $sppd->spt->notaDinas->fromUser->position->name ?? '-' }}</p>
+                                </div>
+                                <div class="space-y-1">
+                                    <span class="font-medium text-gray-700 dark:text-gray-300">Kepada:</span>
+                                    <p class="text-gray-900 dark:text-white">{{ $sppd->spt->notaDinas->toUser->fullNameWithTitles() ?? '-' }}</p>
+                                    <p class="text-xs text-gray-600 dark:text-gray-400">{{ $sppd->spt->notaDinas->toUser->position->name ?? '-' }}</p>
+                                </div>
+                                <div class="space-y-1">
+                                    <span class="font-medium text-gray-700 dark:text-gray-300">Tujuan:</span>
+                                    <p class="text-gray-900 dark:text-white">{{ $sppd->spt->notaDinas->destinationCity->name ?? '-' }}, {{ $sppd->spt->notaDinas->destinationCity->province->name ?? '-' }}</p>
+                                </div>
+                                <div class="space-y-1">
+                                    <span class="font-medium text-gray-700 dark:text-gray-300">Periode Perjalanan:</span>
+                                    <p class="text-gray-900 dark:text-white">
+                                        {{ $sppd->spt->notaDinas->start_date ? \Carbon\Carbon::parse($sppd->spt->notaDinas->start_date)->locale('id')->translatedFormat('d F Y') : '-' }}
+                                        s.d
+                                        {{ $sppd->spt->notaDinas->end_date ? \Carbon\Carbon::parse($sppd->spt->notaDinas->end_date)->locale('id')->translatedFormat('d F Y') : '-' }}
+                                    </p>
+                                    <p class="text-xs text-gray-600 dark:text-gray-400">
+                                        ({{ $sppd->spt->notaDinas->start_date && $sppd->spt->notaDinas->end_date ? \Carbon\Carbon::parse($sppd->spt->notaDinas->start_date)->diffInDays(\Carbon\Carbon::parse($sppd->spt->notaDinas->end_date)) + 1 : 0 }} hari)
+                                    </p>
+                                </div>
+                                <div class="space-y-1 md:col-span-2 lg:col-span-3">
+                                    <span class="font-medium text-gray-700 dark:text-gray-300">Hal:</span>
+                                    <p class="text-gray-900 dark:text-white">{{ $sppd->spt->notaDinas->hal }}</p>
+                                </div>
+                                
+                                <!-- SPT Info -->
+                                <div class="space-y-1">
+                                    <span class="font-medium text-gray-700 dark:text-gray-300">Nomor SPT:</span>
+                                    <p class="text-gray-900 dark:text-white font-mono">{{ $sppd->spt->doc_no }}</p>
+                                </div>
+                                <div class="space-y-1">
+                                    <span class="font-medium text-gray-700 dark:text-gray-300">Tanggal SPT:</span>
+                                    <p class="text-gray-900 dark:text-white">{{ $sppd->spt->spt_date ? \Carbon\Carbon::parse($sppd->spt->spt_date)->locale('id')->translatedFormat('d F Y') : '-' }}</p>
+                                </div>
+                                <div class="space-y-1">
+                                    <span class="font-medium text-gray-700 dark:text-gray-300">Penandatangan SPT:</span>
+                                    <p class="text-gray-900 dark:text-white">{{ $sppd->spt->signedByUser->fullNameWithTitles() ?? '-' }}</p>
+                                    <p class="text-xs text-gray-600 dark:text-gray-400">{{ $sppd->spt->signedByUser->position->name ?? '-' }}</p>
+                                </div>
+                                
+                                @if($sppd->spt->notaDinas->participants && $sppd->spt->notaDinas->participants->count() > 0)
+                                <div class="space-y-1 md:col-span-2 lg:col-span-3">
+                                    <span class="font-medium text-gray-700 dark:text-gray-300">Peserta Perjalanan:</span>
+                                    <div class="flex flex-wrap gap-2 mt-1">
+                                        @foreach($sppd->spt->notaDinas->getSortedParticipants() as $participant)
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                                {{ $participant->user->fullNameWithTitles() }}
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                </div>
+                                @endif
                             </div>
-                            
-                            @if(!$is_no_lodging)
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Jumlah Malam Menginap
-                                </label>
-                                <input 
-                                    type="number" 
-                                    wire:model="lodging_nights" 
-                                    min="0"
-                                    max="{{ $sppd->days_count }}"
-                                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                    placeholder="0"
-                                />
-                                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                    Tarif per malam: Rp {{ number_format($lodging_rate, 0, ',', '.') }}
+                        </div>
+                        @endif
+
+                        <!-- SPPD Information -->
+                        <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-6">
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Informasi SPPD</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        Nomor SPPD
+                                    </label>
+                                    <div class="text-sm text-gray-900 dark:text-white font-medium">
+                                        {{ $sppd->doc_no }}
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        Tanggal SPPD
+                                    </label>
+                                    <div class="text-sm text-gray-900 dark:text-white">
+                                        {{ $sppd->sppd_date ? \Carbon\Carbon::parse($sppd->sppd_date)->locale('id')->translatedFormat('d F Y') : '-' }}
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        Penandatangan SPPD
+                                    </label>
+                                    <div class="text-sm text-gray-900 dark:text-white">
+                                        {{ $sppd->signedByUser->fullNameWithTitles() ?? '-' }}
+                                    </div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                                        {{ $sppd->signedByUser->position->name ?? '-' }}
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        PPTK
+                                    </label>
+                                    <div class="text-sm text-gray-900 dark:text-white">
+                                        {{ $sppd->pptkUser->fullNameWithTitles() ?? '-' }}
+                                    </div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                                        {{ $sppd->pptkUser->position->name ?? '-' }}
+                                    </div>
+                                </div>
+                               
+                            </div>
+                        </div>
+
+                        <!-- Form Fields -->
+                        <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                            <div class="space-y-6">
+                                <!-- Kode Rekening Kegiatan -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        Kode Rekening Kegiatan
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        wire:model="account_code" 
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                        placeholder="Contoh: 2.2.1.01.01.0001"
+                                    />
+                                    @error('account_code') 
+                                        <span class="text-red-500 text-sm">{{ $message }}</span> 
+                                    @enderror
+                                </div>
+
+                                <!-- Nama Bendahara -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        Nama Bendahara <span class="text-red-500">*</span>
+                                    </label>
+                                    <div x-data="searchableSelect({
+                                        options: {{ Js::from(\App\Models\User::orderBy('name')->get()->map(function($user) {
+                                            return [
+                                                'id' => $user->id,
+                                                'text' => $user->fullNameWithTitles() . ' (' . trim(($user->position?->name ?? '') . ' ' . ($user->unit?->name ?? '')) . ')',
+                                                'name' => $user->name,
+                                                'nip' => $user->nip,
+                                                'position' => $user->position?->name,
+                                                'unit' => $user->unit?->name
+                                            ];
+                                        })) }},
+                                        selectedValue: @entangle('treasurer_user_id'),
+                                        placeholder: 'Cari dan pilih bendahara...'
+                                    })">
+                                        <!-- Search Input -->
+                                        <div class="relative mt-1">
+                                            <input 
+                                                type="text" 
+                                                x-ref="searchInput"
+                                                x-model="searchTerm"
+                                                @click="open = true"
+                                                @keydown.escape="open = false"
+                                                @keydown.arrow-down.prevent="selectNext()"
+                                                @keydown.arrow-up.prevent="selectPrevious()"
+                                                @keydown.enter.prevent="selectCurrent()"
+                                                placeholder="Cari dan pilih bendahara..."
+                                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                                :class="{ 'border-blue-500': open }"
+                                            >
+                                            
+                                            <!-- Dropdown -->
+                                            <div 
+                                                x-show="open" 
+                                                x-transition:enter="transition ease-out duration-200"
+                                                x-transition:enter-start="opacity-0 transform scale-95"
+                                                x-transition:enter-end="opacity-100 transform scale-100"
+                                                x-transition:leave="transition ease-in duration-150"
+                                                x-transition:leave-start="opacity-100 transform scale-100"
+                                                x-transition:leave-end="opacity-0 transform scale-95"
+                                                @click.away="open = false"
+                                                class="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg max-h-60 overflow-y-auto"
+                                            >
+                                                <template x-for="(option, index) in filteredOptions" :key="option.id">
+                                                    <div 
+                                                        @click="selectOption(option)"
+                                                        class="px-3 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+                                                        :class="{ 'bg-blue-100 dark:bg-blue-900': index === selectedIndex }"
+                                                    >
+                                                        <div class="font-medium" x-text="option.text"></div>
+                                                        <div class="text-sm text-gray-500 dark:text-gray-400" x-text="'NIP: ' + (option.nip || '-')"></div>
+                                                    </div>
+                                                </template>
+                                                
+                                                <div x-show="filteredOptions.length === 0" class="px-3 py-2 text-gray-500 dark:text-gray-400">
+                                                    Tidak ada hasil yang ditemukan
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @error('treasurer_user_id') 
+                                        <span class="text-red-500 text-sm">{{ $message }}</span> 
+                                    @enderror
+                                </div>
+
+                                <!-- Titel Bendahara -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        Titel Bendahara <span class="text-red-500">*</span>
+                                    </label>
+                                    <select 
+                                        wire:model="treasurer_title" 
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                    >
+                                        <option value="">Pilih Titel</option>
+                                        <option value="Bendahara Pengeluaran">Bendahara Pengeluaran</option>
+                                        <option value="Bendahara Pengeluaran Pembantu">Bendahara Pengeluaran Pembantu</option>
+                                    </select>
+                                    @error('treasurer_title') 
+                                        <span class="text-red-500 text-sm">{{ $message }}</span> 
+                                    @enderror
+                                </div>
+
+                                <!-- Tanggal Kwitansi -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        Tanggal Kwitansi <span class="text-red-500">*</span>
+                                    </label>
+                                    <input 
+                                        type="date" 
+                                        wire:model="receipt_date" 
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                    />
+                                    @error('receipt_date') 
+                                        <span class="text-red-500 text-sm">{{ $message }}</span> 
+                                    @enderror
+                                </div>
+
+                                <!-- Nomor Kwitansi -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        Nomor Kwitansi (SIPD)
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        wire:model="receipt_no" 
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                        placeholder="Nomor dari aplikasi SIPD (opsional)"
+                                    />
+                                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                        Nomor kwitansi akan diisi dari aplikasi SIPD. Bisa dikosongkan untuk sementara.
+                                    </div>
+                                    @error('receipt_no') 
+                                        <span class="text-red-500 text-sm">{{ $message }}</span> 
+                                    @enderror
                                 </div>
                             </div>
-                            @endif
-                        </div>
-                    </div>
 
-                    <!-- Perdiem Section -->
-                    <div class="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4 mb-6">
-                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">III. Uang Harian</h3>
-                        <div class="bg-white dark:bg-gray-700 rounded-lg p-4">
-                            <div class="text-sm text-gray-900 dark:text-white">
-                                <strong>{{ $sppd->spt?->notaDinas?->destinationCity?->name ?? 'N/A' }}</strong> 
-                                ({{ $sppd->days_count }} hari × Rp {{ number_format($perdiem_rate, 0, ',', '.') }})
-                            </div>
-                            <div class="text-lg font-bold text-gray-900 dark:text-white mt-2">
-                                Total: Rp {{ number_format($perdiem_rate * $sppd->days_count, 0, ',', '.') }}
+                            <div class="mt-6 flex items-center justify-end space-x-3">
+                                <a href="{{ $this->getBackUrl() }}" 
+                                   class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">
+                                    Batal
+                                </a>
+                                <button type="submit" 
+                                        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                    Simpan
+                                </button>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Representasi Section -->
-                    @if($show_representasi)
-                    <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 mb-6">
-                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">IV. Representatif</h3>
-                        <div class="bg-white dark:bg-gray-700 rounded-lg p-4">
-                            <div class="text-sm text-gray-900 dark:text-white">
-                                <strong>Eselon II atau setara</strong>
-                            </div>
-                            <div class="text-lg font-bold text-gray-900 dark:text-white mt-2">
-                                Total: Rp {{ number_format($representasi_rate, 0, ',', '.') }}
-                            </div>
-                        </div>
-                    </div>
-                    @endif
-
-                    <!-- Notes -->
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Catatan
-                        </label>
-                        <textarea 
-                            wire:model="notes" 
-                            rows="3"
-                            class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                            placeholder="Catatan tambahan..."
-                        ></textarea>
-                        @error('notes') 
-                            <span class="text-red-500 text-sm">{{ $message }}</span> 
-                        @enderror
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">
-                        <a 
-                            href="{{ $this->getBackUrl() }}" 
-                            class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
-                        >
-                            Batal
-                        </a>
-                        <button 
-                            type="submit" 
-                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                            wire:loading.attr="disabled"
-                            wire:loading.class="opacity-50 cursor-not-allowed"
-                        >
-                            <span wire:loading.remove>Buat Kwitansi</span>
-                            <span wire:loading>Menyimpan...</span>
-                        </button>
-                    </div>
-                </form>
+                    </form>
+                @endif
             </div>
         </div>
     </div>

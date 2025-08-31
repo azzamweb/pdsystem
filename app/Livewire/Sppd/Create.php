@@ -47,6 +47,10 @@ class Create extends Component
     public $assignment_title = '';
     public $use_custom_assignment_title = false;
 
+    // PPTK (Pejabat Pelaksana Teknis Kegiatan)
+    #[Rule('nullable|exists:users,id')]
+    public $pptk_user_id = '';
+
     // Bantuan UI
     public $participants = [];
     public $format_string = null;
@@ -209,6 +213,7 @@ class Create extends Component
                 'sppd_date' => $this->sppd_date,
                 'spt_id' => $this->spt->id,
                 'signed_by_user_id' => $this->signed_by_user_id,
+                'pptk_user_id' => $this->pptk_user_id,
                 'assignment_title' => $assignmentTitle,
                 'funding_source' => $this->funding_source,
             ]);
@@ -220,6 +225,9 @@ class Create extends Component
 
             // Create snapshot of signed_by_user data
             $sppd->createSignedByUserSnapshot();
+            
+            // Create snapshot of pptk_user data
+            $sppd->createPptkUserSnapshot();
 
             DB::commit();
             session()->flash('message', 'SPPD berhasil dibuat untuk semua peserta.');

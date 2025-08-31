@@ -382,8 +382,29 @@
                             <td style="word-break: break-word; vertical-align: top; font-size: 10pt;">{{ $sppd->spt?->notaDinas?->start_date ? \Carbon\Carbon::parse($sppd->spt->notaDinas->start_date)->locale('id')->translatedFormat('d F Y') : ($sppd->start_date ? \Carbon\Carbon::parse($sppd->start_date)->locale('id')->translatedFormat('d F Y') : '-') }}</td>
                         </tr>
                         <tr>
-                            <td colspan="3" style="height: 40px;"></td>
+                            
+                            <td colspan="3" style="font-size: 10pt;"><br>Pejabat Pelaksana Teknis Kegiatan<br><br>
+                                @php
+                                    $pptkSnapshot = $sppd->getPptkUserSnapshot();
+                                @endphp
+                                @if($pptkSnapshot['name'])
+                                    {{ ($pptkSnapshot['gelar_depan'] ? $pptkSnapshot['gelar_depan'] . ' ' : '') . $pptkSnapshot['name'] . ($pptkSnapshot['gelar_belakang'] ? ', ' . $pptkSnapshot['gelar_belakang'] : '') }}
+                                    @if($pptkSnapshot['rank_name'])
+                                        <br>{{ $pptkSnapshot['rank_name'] }}
+                                        @if($pptkSnapshot['rank_code'])
+                                            ({{ $pptkSnapshot['rank_code'] }})
+                                        @endif
+                                    @endif
+                                    @if($pptkSnapshot['nip'])
+                                        <br>NIP. {{ $pptkSnapshot['nip'] }}
+                                    @endif
+                                @else
+                                    -
+                                @endif
+                            </td>
                         </tr>
+                       
+                        
                     </table>
                 </td>
             </tr>

@@ -152,6 +152,81 @@
 
         {{ $slot }}
 
+        <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.data('searchableSelect', (config) => ({
+                    options: config.options || [],
+                    selectedValue: config.selectedValue || null,
+                    placeholder: config.placeholder || 'Pilih opsi...',
+                    searchTerm: '',
+                    open: false,
+                    selectedIndex: 0,
+
+                    init() {
+                        // Set initial search term if there's a selected value
+                        if (this.selectedValue) {
+                            const selectedOption = this.options.find(option => option.id == this.selectedValue);
+                            if (selectedOption) {
+                                this.searchTerm = selectedOption.text;
+                            }
+                        }
+
+                        this.$watch('selectedValue', (value) => {
+                            if (value) {
+                                const selectedOption = this.options.find(option => option.id == value);
+                                if (selectedOption) {
+                                    this.searchTerm = selectedOption.text;
+                                }
+                            } else {
+                                this.searchTerm = '';
+                            }
+                        });
+
+                        this.$watch('searchTerm', () => {
+                            this.selectedIndex = 0;
+                        });
+                    },
+
+                    get filteredOptions() {
+                        if (!this.searchTerm) {
+                            return this.options;
+                        }
+                        
+                        const term = this.searchTerm.toLowerCase();
+                        return this.options.filter(option => 
+                            option.text.toLowerCase().includes(term) ||
+                            option.name.toLowerCase().includes(term) ||
+                            (option.nip && option.nip.toLowerCase().includes(term))
+                        );
+                    },
+
+                    selectOption(option) {
+                        this.selectedValue = option.id;
+                        this.searchTerm = option.text;
+                        this.open = false;
+                    },
+
+                    selectNext() {
+                        if (this.selectedIndex < this.filteredOptions.length - 1) {
+                            this.selectedIndex++;
+                        }
+                    },
+
+                    selectPrevious() {
+                        if (this.selectedIndex > 0) {
+                            this.selectedIndex--;
+                        }
+                    },
+
+                    selectCurrent() {
+                        if (this.filteredOptions.length > 0) {
+                            this.selectOption(this.filteredOptions[this.selectedIndex]);
+                        }
+                    }
+                }));
+            });
+        </script>
+
         @livewireScripts
         @fluxScripts
     </body>
