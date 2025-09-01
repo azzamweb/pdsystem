@@ -105,14 +105,14 @@ class NotaDinasList extends Component
     {
         $notaDinas = NotaDinas::with(['spt', 'supportingDocuments'])->find($notaDinasId);
         if ($notaDinas) {
-            // Cek apakah Nota Dinas sudah memiliki SPT
-            if ($notaDinas->spt) {
+            // Cek apakah Nota Dinas sudah memiliki SPT yang aktif
+            if ($notaDinas->spt && $notaDinas->spt->exists) {
                 session()->flash('error', 'Nota Dinas tidak dapat dihapus karena sudah memiliki Surat Perintah Tugas (SPT). Hapus SPT terlebih dahulu.');
                 return;
             }
             
-            // Cek apakah ada dokumen pendukung yang terkait
-            if ($notaDinas->supportingDocuments && $notaDinas->supportingDocuments->count() > 0) {
+            // Cek apakah ada dokumen pendukung yang aktif
+            if ($notaDinas->supportingDocuments && $notaDinas->supportingDocuments->where('is_active', true)->count() > 0) {
                 session()->flash('error', 'Nota Dinas tidak dapat dihapus karena masih memiliki dokumen pendukung. Hapus dokumen pendukung terlebih dahulu.');
                 return;
             }
@@ -136,7 +136,9 @@ class NotaDinasList extends Component
 
     public function render()
     {
-        $query = NotaDinas::with(['spt', 'requestingUnit', 'toUser', 'fromUser', 'participants.user.position.echelon', 'participants.user.rank', 'destinationCity', 'supportingDocuments'])
+        $query = NotaDinas::with(['spt', 'requestingUnit', 'toUser', 'fromUser', 'participants.user.position.echelon', 'participants.user.rank', 'destinationCity', 'supportingDocuments' => function($query) {
+            $query->where('is_active', true);
+        }])
             ->orderBy('created_at', 'desc');
 
         // Search

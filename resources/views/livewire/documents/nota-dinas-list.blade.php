@@ -238,7 +238,11 @@
                                         </a>
 
                                         <!-- Delete -->
-                                        @if($notaDinas->spt || ($notaDinas->supportingDocuments && $notaDinas->supportingDocuments->count() > 0))
+                                        @php
+                                            $hasActiveSpt = $notaDinas->spt && $notaDinas->spt->exists;
+                                            $hasActiveSupportingDocs = $notaDinas->supportingDocuments && $notaDinas->supportingDocuments->where('is_active', true)->count() > 0;
+                                        @endphp
+                                        @if($hasActiveSpt || $hasActiveSupportingDocs)
                                             <button 
                                                 disabled
                                                 class="flex w-full items-center px-4 py-2 text-sm text-gray-400 dark:text-gray-500 cursor-not-allowed"

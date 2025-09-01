@@ -48,7 +48,7 @@ class Create extends Component
     public $use_custom_assignment_title = false;
 
     // PPTK (Pejabat Pelaksana Teknis Kegiatan)
-    #[Rule('nullable|exists:users,id')]
+    #[Rule('required|exists:users,id')]
     public $pptk_user_id = '';
 
     // Bantuan UI
@@ -169,6 +169,7 @@ class Create extends Component
             'transport_mode_ids.*' => 'exists:transport_modes,id',
             'signed_by_user_id' => 'required|exists:users,id',
             'assignment_title' => 'nullable|string',
+            'pptk_user_id' => 'required|exists:users,id',
         ]);
 
         if (!$this->spt) {

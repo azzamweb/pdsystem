@@ -222,9 +222,9 @@
                     ];
                 })) }},
                 selectedValue: @entangle('pptk_user_id'),
-                placeholder: 'Cari dan pilih PPTK (opsional)...'
+                placeholder: 'Cari dan pilih PPTK...'
             })">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">PPTK (Pejabat Pelaksana Teknis Kegiatan)</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">PPTK (Pejabat Pelaksana Teknis Kegiatan) <span class="text-red-500">*</span></label>
                 
                 <!-- Search Input -->
                 <div class="relative mt-1">
@@ -237,7 +237,7 @@
                         @keydown.arrow-down.prevent="selectNext()"
                         @keydown.arrow-up.prevent="selectPrevious()"
                         @keydown.enter.prevent="selectCurrent()"
-                        placeholder="Cari dan pilih PPTK (opsional)..."
+                        placeholder="Cari dan pilih PPTK..."
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                         :class="{ 'border-blue-500': open }"
                     >
@@ -272,6 +272,9 @@
                 </div>
                 
                 @error('pptk_user_id')<p class="text-sm text-red-600 mt-1">{{ $message }}</p>@enderror
+                @if(!$pptk_user_id)
+                    <p class="text-xs text-red-600 mt-1">PPTK wajib dipilih.</p>
+                @endif
             </div>
 
             <div>
