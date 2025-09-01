@@ -137,50 +137,238 @@
                                     @endphp
                                     
                                     @if($receipts->count() > 0)
-                                        <!-- Informasi Kwitansi - Compact & Informative -->
-                                        <div class="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
-                                            <!-- Header Status -->
-                                            <div class="flex items-center gap-2 mb-3">
-                                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                </svg>
-                                                <span class="text-sm font-medium text-green-800 dark:text-green-200">{{ $receipts->count() }} Kwitansi Tersedia</span>
+                                        <!-- Kwitansi Table -->
+                                        <div class="overflow-x-auto">
+                                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                                <thead class="bg-gray-50 dark:bg-gray-800">
+                                                    <tr>
+                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                                            Nomor & Tanggal
+                                                        </th>
+                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                                            Penerima Pembayaran
+                                                        </th>
+                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                                            Bendahara
+                                                        </th>
+                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                                            Jumlah
+                                                        </th>
+                                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                                            Status
+                                                        </th>
+                                                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                                            Aksi
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                                                    @foreach($receipts as $receipt)
+                                                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
+                                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                                <div class="text-sm font-medium text-gray-900 dark:text-white">
+                                                                    {{ $receipt->receipt_no ?? 'Kwitansi Manual' }}
+                                                                </div>
+                                                                <div class="text-sm text-gray-500 dark:text-gray-400">
+                                                                    {{ $receipt->receipt_date ? \Carbon\Carbon::parse($receipt->receipt_date)->format('d/m/Y') : '-' }}
+                                                                </div>
+                                                            </td>
+                                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                                <div class="text-sm font-medium text-gray-900 dark:text-white">
+                                                                    {{ $receipt->payeeUser->fullNameWithTitles() ?? 'N/A' }}
+                                                                </div>
+                                                                <div class="text-sm text-gray-500 dark:text-gray-400">
+                                                                    {{ $receipt->payeeUser->nip ?? 'N/A' }}
+                                                                </div>
+                                                            </td>
+                                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                                <div class="text-sm font-medium text-gray-900 dark:text-white">
+                                                                    {{ $receipt->treasurerUser->fullNameWithTitles() ?? 'N/A' }}
+                                                                </div>
+                                                                <div class="text-sm text-gray-500 dark:text-gray-400">
+                                                                    {{ $receipt->treasurer_title ?? 'N/A' }}
+                                                                </div>
+                                                            </td>
+                                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                                <div class="text-sm font-medium text-gray-900 dark:text-white">
+                                                                    Rp {{ number_format($receipt->total_amount, 0, ',', '.') }}
+                                                                </div>
+                                                            </td>
+                                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
+                                                                    @if($receipt->status === 'DRAFT') bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
+                                                                    @elseif($receipt->status === 'APPROVED') bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+                                                                    @else bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200 @endif">
+                                                                    {{ $receipt->status }}
+                                                                </span>
+                                                            </td>
+                                                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                                <div class="relative" x-data="{ open: false }">
+                                                                    <!-- Dropdown trigger -->
+                                                                    <button 
+                                                                        @click="open = !open"
+                                                                        @click.away="open = false"
+                                                                        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 rounded"
+                                                                        title="Aksi"
+                                                                    >
+                                                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                                            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
+                                                                        </svg>
+                                                                    </button>
+
+                                                                    <!-- Dropdown menu -->
+                                                                    <div 
+                                                                        x-show="open"
+                                                                        x-transition:enter="transition ease-out duration-100"
+                                                                        x-transition:enter-start="transform opacity-0 scale-95"
+                                                                        x-transition:enter-end="transform opacity-100 scale-100"
+                                                                        x-transition:leave="transition ease-in duration-75"
+                                                                        x-transition:leave-start="transform opacity-100 scale-100"
+                                                                        x-transition:leave-end="transform opacity-0 scale-95"
+                                                                        class="fixed z-[99999] w-48 rounded-md bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                                                                        style="display: none;"
+                                                                        x-ref="dropdown"
+                                                                        x-init="$watch('open', value => {
+                                                                            if (value) {
+                                                                                setTimeout(() => {
+                                                                                    const button = $el.previousElementSibling;
+                                                                                    const buttonRect = button.getBoundingClientRect();
+                                                                                    
+                                                                                    // Position to the left and above the button with smaller gap
+                                                                                    const top = buttonRect.top - $el.offsetHeight - 4;
+                                                                                    const left = buttonRect.left - $el.offsetWidth - 4;
+                                                                                    
+                                                                                    $el.style.top = Math.max(4, top) + 'px';
+                                                                                    $el.style.left = Math.max(4, left) + 'px';
+                                                                                }, 10);
+                                                                            }
+                                                                        })"
+                                                                    >
+                                                                        <div class="py-1">
+                                                                            <!-- Cetak -->
+                                                                            <a 
+                                                                                href="{{ route('receipts.show', $receipt) }}" 
+                                                                                target="_blank"
+                                                                                class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                                                            >
+                                                                                <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                                                                                </svg>
+                                                                                Cetak
+                                                                            </a>
+
+                                                                            <!-- Edit -->
+                                                                            <a 
+                                                                                href="{{ route('receipts.edit', $receipt) }}"
+                                                                                class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                                                            >
+                                                                                <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                                                                </svg>
+                                                                                Edit
+                                                                            </a>
+
+                                                                            <!-- Delete -->
+                                                                            <button 
+                                                                                wire:click="deleteReceipt({{ $receipt->id }})"
+                                                                                wire:confirm="Apakah Anda yakin ingin menghapus kwitansi ini?"
+                                                                                class="flex w-full items-center px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                                                            >
+                                                                                <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                                                </svg>
+                                                                                Hapus
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        
+                                        @php
+                                            // Check if there are still participants without receipts
+                                            $allParticipants = $selectedSppd->spt->notaDinas->participants;
+                                            $participantsWithReceipts = \App\Models\Receipt::where('sppd_id', $selectedSppdId)
+                                                ->pluck('payee_user_id')
+                                                ->toArray();
+                                            $availableParticipants = $allParticipants->filter(function ($participant) use ($participantsWithReceipts) {
+                                                return !in_array($participant->user_id, $participantsWithReceipts);
+                                            })->sort(function ($a, $b) {
+                                                // 1. Sort by eselon (position_echelon_id) - lower number = higher eselon
+                                                $ea = $a->user_position_echelon_id_snapshot ?? $a->user?->position?->echelon?->id ?? 999999;
+                                                $eb = $b->user_position_echelon_id_snapshot ?? $b->user?->position?->echelon?->id ?? 999999;
+                                                if ($ea !== $eb) return $ea <=> $eb;
+                                                
+                                                // 2. Sort by rank (rank_id) - higher number = higher rank
+                                                $ra = $a->user_rank_id_snapshot ?? $a->user?->rank?->id ?? 0;
+                                                $rb = $b->user_rank_id_snapshot ?? $b->user?->rank?->id ?? 0;
+                                                if ($ra !== $rb) return $rb <=> $ra; // DESC order for rank
+                                                
+                                                // 3. Sort by NIP (alphabetical)
+                                                $na = (string)($a->user_nip_snapshot ?? $a->user?->nip ?? '');
+                                                $nb = (string)($b->user_nip_snapshot ?? $b->user?->nip ?? '');
+                                                return strcmp($na, $nb);
+                                            })->values();
+                                        @endphp
+                                        
+                                        @if($availableParticipants->count() > 0)
+                                            <!-- Status Info for Additional Kwitansi -->
+                                            <div class="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md mb-4 mt-4">
+                                                <div class="flex items-center gap-2">
+                                                    <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                                    </svg>
+                                                    <span class="text-sm font-medium text-yellow-800 dark:text-yellow-200">Masih Ada Peserta Tanpa Kwitansi</span>
+                                                </div>
+                                                <p class="text-xs text-yellow-700 dark:text-yellow-300 mt-1">
+                                                    {{ $availableParticipants->count() }} peserta masih belum dibuatkan kwitansi
+                                                </p>
+                                            </div>
+
+                                            <!-- Peserta yang Belum Memiliki Kwitansi -->
+                                            <div class="mb-4">
+                                                <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Peserta yang Belum Memiliki Kwitansi:</h4>
+                                                <div class="space-y-1">
+                                                    @foreach($availableParticipants->take(3) as $participant)
+                                                        <div class="text-xs text-gray-600 dark:text-gray-400">
+                                                            • {{ $participant->user->fullNameWithTitles() }} ({{ $participant->user->position?->name ?? 'N/A' }})
+                                                        </div>
+                                                    @endforeach
+                                                    @if($availableParticipants->count() > 3)
+                                                        <div class="text-xs text-gray-500 dark:text-gray-500">
+                                                            ... dan {{ $availableParticipants->count() - 3 }} peserta lainnya
+                                                        </div>
+                                                    @endif
+                                                </div>
                                             </div>
                                             
-                                            <!-- Daftar Kwitansi -->
-                                            <div class="space-y-2 max-h-32 overflow-y-auto">
-                                                @foreach($receipts as $receipt)
-                                                    <div class="flex items-center justify-between p-2 bg-white dark:bg-gray-700 rounded text-xs">
-                                                        <div class="flex-1 min-w-0">
-                                                            <div class="font-medium text-gray-900 dark:text-white truncate">
-                                                                {{ $receipt->doc_no ?? 'No. Kwitansi' }}
-                                                            </div>
-                                                            <div class="text-gray-500 dark:text-gray-400">
-                                                                {{ $receipt->payeeUser->name ?? 'N/A' }} - 
-                                                                Rp {{ number_format($receipt->total_amount, 0, ',', '.') }}
-                                                            </div>
-                                                        </div>
-                                                        <div class="flex items-center space-x-1 ml-2">
-                                                            <a href="{{ route('receipts.show', $receipt) }}" 
-                                                               target="_blank"
-                                                               class="text-green-600 hover:text-green-800 p-1 rounded hover:bg-green-50" 
-                                                               title="Cetak Kwitansi">
-                                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
-                                                                </svg>
-                                                            </a>
-                                                            <a href="{{ route('receipts.edit', $receipt) }}" 
-                                                               class="text-blue-600 hover:text-blue-800 p-1 rounded hover:bg-blue-50" 
-                                                               title="Edit Kwitansi">
-                                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                                                </svg>
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                @endforeach
+                                            <!-- Action Button -->
+                                            <button 
+                                                wire:click="createKwitansi"
+                                                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+                                            >
+                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                                </svg>
+                                                Buat Kwitansi
+                                            </button>
+                                        @else
+                                            <div class="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md mt-4">
+                                                <div class="flex items-center gap-2">
+                                                    <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                    </svg>
+                                                    <span class="text-sm font-medium text-green-800 dark:text-green-200">Semua Peserta Sudah Memiliki Kwitansi</span>
+                                                </div>
+                                                <p class="text-xs text-green-700 dark:text-green-300 mt-1">
+                                                    Kwitansi untuk semua peserta SPPD ini sudah dibuat
+                                                </p>
                                             </div>
-                                        </div>
+                                        @endif
                                     @else
                                         @php
                                             // Check if the selected SPPD has receipts
@@ -208,25 +396,90 @@
                                                 <p class="text-xs text-green-700 dark:text-green-300 mt-1">Kwitansi untuk SPPD ini sudah dibuat</p>
                                             </div>
                                         @else
-                                            <div class="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md">
-                                                <div class="flex items-center gap-2">
-                                                    <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                                                    </svg>
-                                                    <span class="text-sm font-medium text-yellow-800 dark:text-yellow-200">Kwitansi Belum Dibuat</span>
-                                                </div>
-                                                <p class="text-xs text-yellow-700 dark:text-yellow-300 mt-1">Buat kwitansi untuk SPPD ini</p>
-                                            </div>
+                                            @php
+                                                // Get all participants from Nota Dinas
+                                                $allParticipants = $selectedSppd->spt->notaDinas->participants;
+                                                
+                                                // Get participants who already have receipts for this SPPD
+                                                $participantsWithReceipts = \App\Models\Receipt::where('sppd_id', $selectedSppdId)
+                                                    ->pluck('payee_user_id')
+                                                    ->toArray();
+                                                
+                                                // Get available participants and sort them
+                                                $availableParticipants = $allParticipants->filter(function ($participant) use ($participantsWithReceipts) {
+                                                    return !in_array($participant->user_id, $participantsWithReceipts);
+                                                })->sort(function ($a, $b) {
+                                                    // 1. Sort by eselon (position_echelon_id) - lower number = higher eselon
+                                                    $ea = $a->user_position_echelon_id_snapshot ?? $a->user?->position?->echelon?->id ?? 999999;
+                                                    $eb = $b->user_position_echelon_id_snapshot ?? $b->user?->position?->echelon?->id ?? 999999;
+                                                    if ($ea !== $eb) return $ea <=> $eb;
+                                                    
+                                                    // 2. Sort by rank (rank_id) - higher number = higher rank
+                                                    $ra = $a->user_rank_id_snapshot ?? $a->user?->rank?->id ?? 0;
+                                                    $rb = $b->user_rank_id_snapshot ?? $b->user?->rank?->id ?? 0;
+                                                    if ($ra !== $rb) return $rb <=> $ra; // DESC order for rank
+                                                    
+                                                    // 3. Sort by NIP (alphabetical)
+                                                    $na = (string)($a->user_nip_snapshot ?? $a->user?->nip ?? '');
+                                                    $nb = (string)($b->user_nip_snapshot ?? $b->user?->nip ?? '');
+                                                    return strcmp($na, $nb);
+                                                })->values();
+                                            @endphp
                                             
-                                            <button 
-                                                wire:click="createKwitansi"
-                                                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
-                                            >
-                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                                </svg>
-                                                Buat Kwitansi
-                                            </button>
+                                            @if($availableParticipants->count() > 0)
+                                                <!-- Status Info -->
+                                                <div class="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md mb-4">
+                                                    <div class="flex items-center gap-2">
+                                                        <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                                        </svg>
+                                                        <span class="text-sm font-medium text-yellow-800 dark:text-yellow-200">Kwitansi Belum Dibuat</span>
+                                                    </div>
+                                                    <p class="text-xs text-yellow-700 dark:text-yellow-300 mt-1">
+                                                        {{ $availableParticipants->count() }} peserta tersedia untuk dibuatkan kwitansi
+                                                    </p>
+                                                </div>
+
+                                                <!-- Peserta yang Belum Memiliki Kwitansi -->
+                                                <div class="mb-4">
+                                                    <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Peserta yang Belum Memiliki Kwitansi:</h4>
+                                                    <div class="space-y-1">
+                                                        @foreach($availableParticipants->take(3) as $participant)
+                                                            <div class="text-xs text-gray-600 dark:text-gray-400">
+                                                                • {{ $participant->user->fullNameWithTitles() }} ({{ $participant->user->position?->name ?? 'N/A' }})
+                                                            </div>
+                                                        @endforeach
+                                                        @if($availableParticipants->count() > 3)
+                                                            <div class="text-xs text-gray-500 dark:text-gray-500">
+                                                                ... dan {{ $availableParticipants->count() - 3 }} peserta lainnya
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Action Button -->
+                                                <button 
+                                                    wire:click="createKwitansi"
+                                                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+                                                >
+                                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                                    </svg>
+                                                    Buat Kwitansi
+                                                </button>
+                                            @else
+                                                <div class="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
+                                                    <div class="flex items-center gap-2">
+                                                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                        </svg>
+                                                        <span class="text-sm font-medium text-green-800 dark:text-green-200">Semua Peserta Sudah Memiliki Kwitansi</span>
+                                                    </div>
+                                                    <p class="text-xs text-green-700 dark:text-green-300 mt-1">
+                                                        Kwitansi untuk semua peserta SPPD ini sudah dibuat
+                                                    </p>
+                                                </div>
+                                            @endif
                                         @endif
                                     @endif
                                 </div>

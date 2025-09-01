@@ -29,6 +29,9 @@ class Edit extends Component
 
     public $receipt_no = '';
 
+    #[Rule('required|exists:travel_grades,id')]
+    public $travel_grade_id = '';
+
     // Available users for selection
     public $approvalUsers = [];
     public $treasurerUsers = [];
@@ -43,7 +46,7 @@ class Edit extends Component
             return;
         }
 
-        $this->receipt = Receipt::with(['sppd.spt.notaDinas', 'sppd.user'])->findOrFail($this->receipt_id);
+        $this->receipt = Receipt::with(['sppd.spt.notaDinas.participants.user', 'payeeUser', 'treasurerUser'])->findOrFail($this->receipt_id);
         
         // Prefill values
         $this->account_code = $this->receipt->account_code;
@@ -51,6 +54,7 @@ class Edit extends Component
         $this->treasurer_title = $this->receipt->treasurer_title;
         $this->receipt_date = $this->receipt->receipt_date ?: now()->format('Y-m-d');
         $this->receipt_no = $this->receipt->receipt_no;
+        $this->travel_grade_id = $this->receipt->travel_grade_id;
         
         // Load users for treasurer (bendahara) - semua user untuk searchable select
         $this->treasurerUsers = User::with(['position', 'unit'])
@@ -68,6 +72,7 @@ class Edit extends Component
         // Update receipt
         $this->receipt->update([
             'account_code' => $this->account_code,
+            'travel_grade_id' => $this->travel_grade_id,
             'treasurer_user_id' => $this->treasurer_user_id,
             'treasurer_title' => $this->treasurer_title,
             'receipt_date' => $this->receipt_date,

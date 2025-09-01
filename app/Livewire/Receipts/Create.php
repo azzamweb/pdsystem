@@ -23,6 +23,9 @@ class Create extends Component
     public $account_code = '';
 
     #[Rule('required|exists:users,id')]
+    public $payee_user_id = '';
+
+    #[Rule('required|exists:users,id')]
     public $treasurer_user_id = '';
 
     #[Rule('required|in:Bendahara Pengeluaran,Bendahara Pengeluaran Pembantu')]
@@ -33,9 +36,13 @@ class Create extends Component
 
     public $receipt_no = '';
 
+    #[Rule('required|exists:travel_grades,id')]
+    public $travel_grade_id = '';
+
     // Available users for selection
     public $approvalUsers = [];
     public $treasurerUsers = [];
+    public $availableParticipants = [];
     
     // Available SPPDs for selection
     public $availableSppds = [];
@@ -65,11 +72,26 @@ class Create extends Component
     {
         $this->spt = \App\Models\Spt::with(['notaDinas.participants.user', 'sppds'])->findOrFail($this->spt_id);
         
-        // Get SPPDs that don't have receipts yet
-        $this->availableSppds = $this->spt->sppds()
-            ->whereDoesntHave('receipts')
-            ->with(['spt.notaDinas.participants.user'])
-            ->get();
+        // Get all SPPDs for this SPT
+        $allSppds = $this->spt->sppds()->with(['spt.notaDinas.participants.user'])->get();
+        
+        // Filter SPPDs that have participants without receipts
+        $this->availableSppds = $allSppds->filter(function ($sppd) {
+            // Get all participants from Nota Dinas
+            $allParticipants = $sppd->spt->notaDinas->participants;
+            
+            // Get participants who already have receipts for this SPPD
+            $participantsWithReceipts = Receipt::where('sppd_id', $sppd->id)
+                ->pluck('payee_user_id')
+                ->toArray();
+            
+            // Check if there are participants without receipts
+            $availableParticipants = $allParticipants->filter(function ($participant) use ($participantsWithReceipts) {
+                return !in_array($participant->user_id, $participantsWithReceipts);
+            });
+            
+            return $availableParticipants->count() > 0;
+        });
         
         if ($this->availableSppds->isEmpty()) {
             session()->flash('error', 'Tidak ada SPPD yang tersedia untuk dibuatkan kwitansi');
@@ -100,14 +122,104 @@ class Create extends Component
         // Set default receipt date
         $this->receipt_date = now()->format('Y-m-d');
         
+        // Load available participants (those who don't have receipts yet)
+        $this->loadAvailableParticipants();
+        
+        // Check if there are available participants for this SPPD
+        if ($this->availableParticipants->isEmpty()) {
+            session()->flash('error', 'SPPD ini sudah memiliki kwitansi untuk semua peserta');
+            $this->redirect(route('documents'));
+            return;
+        }
+        
+        // Auto-fill fields from existing receipt if available
+        $this->autoFillFromExistingReceipt();
+        
         // Load users for approval and treasurer
         $this->loadUsers();
+    }
+
+    public function loadAvailableParticipants()
+    {
+        if (!$this->sppd || !$this->sppd->spt || !$this->sppd->spt->notaDinas) {
+            $this->availableParticipants = collect();
+            return;
+        }
+
+        // Get all participants from Nota Dinas
+        $allParticipants = $this->sppd->spt->notaDinas->participants;
+
+        // Get participants who already have receipts for this SPPD
+        $participantsWithReceipts = Receipt::where('sppd_id', $this->sppd_id)
+            ->pluck('payee_user_id')
+            ->toArray();
+
+        // Filter out participants who already have receipts and sort them
+        $this->availableParticipants = $allParticipants->filter(function ($participant) use ($participantsWithReceipts) {
+            return !in_array($participant->user_id, $participantsWithReceipts);
+        })->sort(function ($a, $b) {
+            // 1. Sort by eselon (position_echelon_id) - lower number = higher eselon
+            $ea = $a->user_position_echelon_id_snapshot ?? $a->user?->position?->echelon?->id ?? 999999;
+            $eb = $b->user_position_echelon_id_snapshot ?? $b->user?->position?->echelon?->id ?? 999999;
+            if ($ea !== $eb) return $ea <=> $eb;
+            
+            // 2. Sort by rank (rank_id) - higher number = higher rank
+            $ra = $a->user_rank_id_snapshot ?? $a->user?->rank?->id ?? 0;
+            $rb = $b->user_rank_id_snapshot ?? $b->user?->rank?->id ?? 0;
+            if ($ra !== $rb) return $rb <=> $ra; // DESC order for rank
+            
+            // 3. Sort by NIP (alphabetical)
+            $na = (string)($a->user_nip_snapshot ?? $a->user?->nip ?? '');
+            $nb = (string)($b->user_nip_snapshot ?? $b->user?->nip ?? '');
+            return strcmp($na, $nb);
+        })->values();
+
+        // Set default payee if available
+        if ($this->availableParticipants->count() > 0 && empty($this->payee_user_id)) {
+            $firstParticipant = $this->availableParticipants->first();
+            $this->payee_user_id = $firstParticipant->user_id;
+            
+            // Set default travel grade from snapshot or user data
+            $this->travel_grade_id = $firstParticipant->user_travel_grade_id_snapshot ?? 
+                                   $firstParticipant->user?->travel_grade_id ?? '';
+        }
     }
 
     public function loadUsers()
     {
         // Treasurer users are now loaded directly in the view using searchableSelect
         $this->treasurerUsers = collect(); // Empty collection since we load directly in view
+    }
+
+    public function autoFillFromExistingReceipt()
+    {
+        // Get the first existing receipt for this SPPD to auto-fill common fields
+        $existingReceipt = Receipt::where('sppd_id', $this->sppd_id)->first();
+        
+        if ($existingReceipt) {
+            // Auto-fill common fields that are usually the same for receipts in the same SPPD
+            $this->account_code = $existingReceipt->account_code ?? $this->account_code;
+            $this->treasurer_user_id = $existingReceipt->treasurer_user_id ?? $this->treasurer_user_id;
+            $this->treasurer_title = $existingReceipt->treasurer_title ?? $this->treasurer_title;
+            $this->receipt_date = $existingReceipt->receipt_date ?? $this->receipt_date;
+            $this->travel_grade_id = $existingReceipt->travel_grade_id ?? $this->travel_grade_id;
+        }
+    }
+
+    public function updatedPayeeUserId($value)
+    {
+        if ($value && $this->sppd && $this->sppd->spt && $this->sppd->spt->notaDinas) {
+            // Find the selected participant
+            $selectedParticipant = $this->sppd->spt->notaDinas->participants
+                ->where('user_id', $value)
+                ->first();
+            
+            if ($selectedParticipant) {
+                // Update travel grade from snapshot or user data
+                $this->travel_grade_id = $selectedParticipant->user_travel_grade_id_snapshot ?? 
+                                       $selectedParticipant->user?->travel_grade_id ?? '';
+            }
+        }
     }
 
     public function selectSppd($sppdId)
@@ -120,36 +232,37 @@ class Create extends Component
     {
         $this->validate();
 
-        // Prevent duplicate receipt for the same SPPD
-        $existingReceipt = Receipt::where('sppd_id', $this->sppd_id)->first();
+        // Prevent duplicate receipt for the same participant in the same SPPD
+        $existingReceipt = Receipt::where('sppd_id', $this->sppd_id)
+            ->where('payee_user_id', $this->payee_user_id)
+            ->first();
         if ($existingReceipt) {
-            session()->flash('error', 'Kwitansi untuk SPPD ini sudah ada.');
+            session()->flash('error', 'Kwitansi untuk peserta ini sudah ada.');
             return;
         }
 
-        // Generate document number
-        $docNumberResult = DocumentNumberService::generate('KWT', Auth::user()->unit_id);
-
-        // Get the first participant from Nota Dinas as payee
-        $firstParticipant = $this->sppd->spt->notaDinas->participants->first();
-        if (!$firstParticipant) {
-            session()->flash('error', 'Tidak ada peserta dalam Nota Dinas');
+        // Get the selected participant
+        $selectedParticipant = $this->sppd->spt->notaDinas->participants
+            ->where('user_id', $this->payee_user_id)
+            ->first();
+        if (!$selectedParticipant) {
+            session()->flash('error', 'Peserta yang dipilih tidak ditemukan dalam Nota Dinas');
             return;
         }
 
-        // Create receipt
+        // Create receipt with manual numbering (no automatic numbering for receipts)
         $receipt = Receipt::create([
-            'doc_no' => $docNumberResult['doc_no'],
-            'number_is_manual' => $docNumberResult['is_manual'],
-            'number_manual_reason' => $docNumberResult['manual_reason'],
-            'number_format_id' => $docNumberResult['format_id'],
-            'number_sequence_id' => $docNumberResult['sequence_id'],
-            'number_scope_unit_id' => Auth::user()->unit_id,
+            'doc_no' => null, // Manual numbering for receipts
+            'number_is_manual' => true,
+            'number_manual_reason' => 'Kwitansi menggunakan penomoran manual',
+            'number_format_id' => null,
+            'number_sequence_id' => null,
+            'number_scope_unit_id' => null, // Not needed for manual numbering
             'sppd_id' => $this->sppd_id,
-            'travel_grade_id' => $firstParticipant->user->travel_grade_id,
+            'travel_grade_id' => $this->travel_grade_id, // Use travel grade from form
             'receipt_no' => $this->receipt_no ?: null,
             'receipt_date' => $this->receipt_date,
-            'payee_user_id' => $firstParticipant->user_id,
+            'payee_user_id' => $selectedParticipant->user_id,
             'account_code' => $this->account_code,
             'treasurer_user_id' => $this->treasurer_user_id,
             'treasurer_title' => $this->treasurer_title,

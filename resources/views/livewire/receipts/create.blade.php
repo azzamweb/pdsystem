@@ -29,16 +29,45 @@
                         </p>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             @foreach($availableSppds as $availableSppd)
+                                @php
+                                    // Get participants who already have receipts for this SPPD
+                                    $participantsWithReceipts = \App\Models\Receipt::where('sppd_id', $availableSppd->id)
+                                        ->pluck('payee_user_id')
+                                        ->toArray();
+                                    
+                                    // Get available participants and sort them
+                                    $availableParticipants = $availableSppd->spt->notaDinas->participants->filter(function ($participant) use ($participantsWithReceipts) {
+                                        return !in_array($participant->user_id, $participantsWithReceipts);
+                                    })->sort(function ($a, $b) {
+                                        // 1. Sort by eselon (position_echelon_id) - lower number = higher eselon
+                                        $ea = $a->user_position_echelon_id_snapshot ?? $a->user?->position?->echelon?->id ?? 999999;
+                                        $eb = $b->user_position_echelon_id_snapshot ?? $b->user?->position?->echelon?->id ?? 999999;
+                                        if ($ea !== $eb) return $ea <=> $eb;
+                                        
+                                        // 2. Sort by rank (rank_id) - higher number = higher rank
+                                        $ra = $a->user_rank_id_snapshot ?? $a->user?->rank?->id ?? 0;
+                                        $rb = $b->user_rank_id_snapshot ?? $b->user?->rank?->id ?? 0;
+                                        if ($ra !== $rb) return $rb <=> $ra; // DESC order for rank
+                                        
+                                        // 3. Sort by NIP (alphabetical)
+                                        $na = (string)($a->user_nip_snapshot ?? $a->user?->nip ?? '');
+                                        $nb = (string)($b->user_nip_snapshot ?? $b->user?->nip ?? '');
+                                        return strcmp($na, $nb);
+                                    })->values();
+                                @endphp
                                 <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
                                      wire:click="selectSppd({{ $availableSppd->id }})">
                                     <div class="font-medium text-gray-900 dark:text-white">
                                         {{ $availableSppd->doc_no }}
                                     </div>
                                     <div class="text-sm text-gray-600 dark:text-gray-400">
-                                        {{ $availableSppd->spt->notaDinas->participants->first()?->user->fullNameWithTitles() ?? 'N/A' }}
+                                        {{ $availableParticipants->first()?->user->fullNameWithTitles() ?? 'N/A' }}
                                     </div>
                                     <div class="text-xs text-gray-500 dark:text-gray-500">
-                                        NIP: {{ $availableSppd->spt->notaDinas->participants->first()?->user->nip ?? 'N/A' }}
+                                        NIP: {{ $availableParticipants->first()?->user->nip ?? 'N/A' }}
+                                    </div>
+                                    <div class="text-xs text-blue-600 dark:text-blue-400 mt-2">
+                                        {{ $availableParticipants->count() }} peserta tersedia untuk kwitansi
                                     </div>
                                 </div>
                             @endforeach
@@ -133,6 +162,57 @@
                         </div>
                         @endif
 
+                        <!-- Auto-fill Information -->
+                        @php
+                            $existingReceipt = \App\Models\Receipt::where('sppd_id', $sppd->id)->first();
+                        @endphp
+                        @if($existingReceipt)
+                        <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-6">
+                            <h3 class="text-lg font-semibold text-green-800 dark:text-green-200 mb-3 flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Auto-fill dari Kwitansi Sebelumnya
+                            </h3>
+                            <p class="text-sm text-green-700 dark:text-green-300 mb-3">
+                                Beberapa field telah diisi otomatis berdasarkan kwitansi pertama yang sudah dibuat untuk SPPD ini. 
+                                Anda dapat mengubah nilai-nilai ini jika diperlukan.
+                            </p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+                                @if($existingReceipt->account_code)
+                                <div class="space-y-1">
+                                    <span class="font-medium text-gray-700 dark:text-gray-300">Kode Rekening:</span>
+                                    <p class="text-green-700 dark:text-green-300 font-mono">{{ $existingReceipt->account_code }}</p>
+                                </div>
+                                @endif
+                                @if($existingReceipt->treasurer_user_id)
+                                <div class="space-y-1">
+                                    <span class="font-medium text-gray-700 dark:text-gray-300">Bendahara:</span>
+                                    <p class="text-green-700 dark:text-green-300">{{ $existingReceipt->treasurerUser->fullNameWithTitles() ?? 'N/A' }}</p>
+                                </div>
+                                @endif
+                                @if($existingReceipt->treasurer_title)
+                                <div class="space-y-1">
+                                    <span class="font-medium text-gray-700 dark:text-gray-300">Titel Bendahara:</span>
+                                    <p class="text-green-700 dark:text-green-300">{{ $existingReceipt->treasurer_title }}</p>
+                                </div>
+                                @endif
+                                @if($existingReceipt->receipt_date)
+                                <div class="space-y-1">
+                                    <span class="font-medium text-gray-700 dark:text-gray-300">Tanggal Kwitansi:</span>
+                                    <p class="text-green-700 dark:text-green-300">{{ \Carbon\Carbon::parse($existingReceipt->receipt_date)->format('d/m/Y') }}</p>
+                                </div>
+                                @endif
+                                @if($existingReceipt->travel_grade_id)
+                                <div class="space-y-1">
+                                    <span class="font-medium text-gray-700 dark:text-gray-300">Tingkat Perjalanan Dinas:</span>
+                                    <p class="text-green-700 dark:text-green-300">{{ $existingReceipt->travelGrade->name ?? 'N/A' }} ({{ $existingReceipt->travelGrade->code ?? 'N/A' }})</p>
+                                </div>
+                                @endif
+                            </div>
+                        </div>
+                        @endif
+
                         <!-- SPPD Information -->
                         <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-6">
                             <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Informasi SPPD</h3>
@@ -194,6 +274,80 @@
                                         placeholder="Contoh: 2.2.1.01.01.0001"
                                     />
                                     @error('account_code') 
+                                        <span class="text-red-500 text-sm">{{ $message }}</span> 
+                                    @enderror
+                                </div>
+
+                                <!-- Peserta (Penerima Pembayaran) -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        Peserta (Penerima Pembayaran) <span class="text-red-500">*</span>
+                                    </label>
+                                    @if($availableParticipants->count() > 0)
+                                        <select 
+                                            wire:model="payee_user_id" 
+                                            class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                        >
+                                            <option value="">Pilih Peserta</option>
+                                            @foreach($availableParticipants as $participant)
+                                                <option value="{{ $participant->user_id }}">
+                                                    {{ $participant->user->fullNameWithTitles() }} 
+                                                    ({{ $participant->user->position?->name ?? 'N/A' }} - {{ $participant->user->unit?->name ?? 'N/A' }})
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                            Hanya menampilkan peserta yang belum memiliki kwitansi untuk SPPD ini.
+                                        </div>
+                                    @else
+                                        <div class="px-3 py-2 border border-gray-300 rounded-md bg-gray-100 dark:bg-gray-700 dark:border-gray-600 text-gray-500 dark:text-gray-400">
+                                            Tidak ada peserta yang tersedia untuk dibuatkan kwitansi.
+                                        </div>
+                                    @endif
+                                    @error('payee_user_id') 
+                                        <span class="text-red-500 text-sm">{{ $message }}</span> 
+                                    @enderror
+                                </div>
+
+                                <!-- Tingkat Perjalanan Dinas -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        Tingkat Perjalanan Dinas <span class="text-red-500">*</span>
+                                    </label>
+                                    @php
+                                        $travelGrades = \App\Models\TravelGrade::orderBy('name')->get();
+                                    @endphp
+                                    <select 
+                                        wire:model="travel_grade_id" 
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                    >
+                                        <option value="">Pilih Tingkat Perjalanan Dinas</option>
+                                        @foreach($travelGrades as $travelGrade)
+                                            <option value="{{ $travelGrade->id }}">
+                                                {{ $travelGrade->name }} ({{ $travelGrade->code }})
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                        @if($payee_user_id)
+                                            @php
+                                                $selectedParticipant = $sppd->spt->notaDinas->participants->where('user_id', $payee_user_id)->first();
+                                                $hasTravelGrade = $selectedParticipant?->user_travel_grade_id_snapshot || $selectedParticipant?->user?->travel_grade_id;
+                                            @endphp
+                                            @if($hasTravelGrade)
+                                                <span class="text-green-600 dark:text-green-400">
+                                                    ✓ Tingkat perjalanan dinas peserta sudah ditentukan
+                                                </span>
+                                            @else
+                                                <span class="text-yellow-600 dark:text-yellow-400">
+                                                    ⚠ Tingkat perjalanan dinas peserta belum ditentukan, silakan pilih tingkat perjalanan dinas
+                                                </span>
+                                            @endif
+                                        @else
+                                            Pilih peserta terlebih dahulu untuk melihat status tingkat perjalanan dinas
+                                        @endif
+                                    </div>
+                                    @error('travel_grade_id') 
                                         <span class="text-red-500 text-sm">{{ $message }}</span> 
                                     @enderror
                                 </div>
@@ -309,10 +463,10 @@
                                         type="text" 
                                         wire:model="receipt_no" 
                                         class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                        placeholder="Nomor dari aplikasi SIPD (opsional)"
+                                        placeholder="Contoh: KWT-001/2024 atau nomor dari SIPD"
                                     />
                                     <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                        Nomor kwitansi akan diisi dari aplikasi SIPD. Bisa dikosongkan untuk sementara.
+                                        Nomor kwitansi dapat diisi manual sesuai format yang diinginkan atau nomor dari aplikasi SIPD. Bisa dikosongkan untuk sementara.
                                     </div>
                                     @error('receipt_no') 
                                         <span class="text-red-500 text-sm">{{ $message }}</span> 

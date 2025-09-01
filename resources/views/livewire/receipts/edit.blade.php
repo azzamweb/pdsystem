@@ -21,6 +21,77 @@
                 @endif
 
                 <form wire:submit="update">
+                    <!-- Informasi Nota Dinas dan SPT sebagai Referensi -->
+                    @if($receipt->sppd->spt && $receipt->sppd->spt->notaDinas)
+                    <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+                        <h3 class="text-lg font-semibold text-blue-800 dark:text-blue-200 mb-3 flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Informasi Nota Dinas & SPT (Referensi)
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                            <!-- Nota Dinas Info -->
+                            <div class="space-y-1">
+                                <span class="font-medium text-gray-700 dark:text-gray-300">Nomor Nota Dinas:</span>
+                                <p class="text-gray-900 dark:text-white font-mono">{{ $receipt->sppd->spt->notaDinas->doc_no }}</p>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="font-medium text-gray-700 dark:text-gray-300">Tanggal Nota Dinas:</span>
+                                <p class="text-gray-900 dark:text-white">{{ $receipt->sppd->spt->notaDinas->nd_date ? \Carbon\Carbon::parse($receipt->sppd->spt->notaDinas->nd_date)->locale('id')->translatedFormat('d F Y') : '-' }}</p>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="font-medium text-gray-700 dark:text-gray-300">Bidang Pengaju:</span>
+                                <p class="text-gray-900 dark:text-white">{{ $receipt->sppd->spt->notaDinas->requestingUnit->name ?? '-' }}</p>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="font-medium text-gray-700 dark:text-gray-300">Dari:</span>
+                                <p class="text-gray-900 dark:text-white">{{ $receipt->sppd->spt->notaDinas->fromUser->fullNameWithTitles() ?? '-' }}</p>
+                                <p class="text-xs text-gray-600 dark:text-gray-400">{{ $receipt->sppd->spt->notaDinas->fromUser->position->name ?? '-' }}</p>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="font-medium text-gray-700 dark:text-gray-300">Kepada:</span>
+                                <p class="text-gray-900 dark:text-white">{{ $receipt->sppd->spt->notaDinas->toUser->fullNameWithTitles() ?? '-' }}</p>
+                                <p class="text-xs text-gray-600 dark:text-gray-400">{{ $receipt->sppd->spt->notaDinas->toUser->position->name ?? '-' }}</p>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="font-medium text-gray-700 dark:text-gray-300">Tujuan:</span>
+                                <p class="text-gray-900 dark:text-white">{{ $receipt->sppd->spt->notaDinas->destinationCity->name ?? '-' }}, {{ $receipt->sppd->spt->notaDinas->destinationCity->province->name ?? '-' }}</p>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="font-medium text-gray-700 dark:text-gray-300">Periode Perjalanan:</span>
+                                <p class="text-gray-900 dark:text-white">
+                                    {{ $receipt->sppd->spt->notaDinas->start_date ? \Carbon\Carbon::parse($receipt->sppd->spt->notaDinas->start_date)->locale('id')->translatedFormat('d F Y') : '-' }}
+                                    s.d
+                                    {{ $receipt->sppd->spt->notaDinas->end_date ? \Carbon\Carbon::parse($receipt->sppd->spt->notaDinas->end_date)->locale('id')->translatedFormat('d F Y') : '-' }}
+                                </p>
+                                <p class="text-xs text-gray-600 dark:text-gray-400">
+                                    ({{ $receipt->sppd->spt->notaDinas->start_date && $receipt->sppd->spt->notaDinas->end_date ? \Carbon\Carbon::parse($receipt->sppd->spt->notaDinas->start_date)->diffInDays(\Carbon\Carbon::parse($receipt->sppd->spt->notaDinas->end_date)) + 1 : 0 }} hari)
+                                </p>
+                            </div>
+                            <div class="space-y-1 md:col-span-2 lg:col-span-3">
+                                <span class="font-medium text-gray-700 dark:text-gray-300">Hal:</span>
+                                <p class="text-gray-900 dark:text-white">{{ $receipt->sppd->spt->notaDinas->hal }}</p>
+                            </div>
+                            
+                            <!-- SPT Info -->
+                            <div class="space-y-1">
+                                <span class="font-medium text-gray-700 dark:text-gray-300">Nomor SPT:</span>
+                                <p class="text-gray-900 dark:text-white font-mono">{{ $receipt->sppd->spt->doc_no }}</p>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="font-medium text-gray-700 dark:text-gray-300">Tanggal SPT:</span>
+                                <p class="text-gray-900 dark:text-white">{{ $receipt->sppd->spt->spt_date ? \Carbon\Carbon::parse($receipt->sppd->spt->spt_date)->locale('id')->translatedFormat('d F Y') : '-' }}</p>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="font-medium text-gray-700 dark:text-gray-300">Penandatangan SPT:</span>
+                                <p class="text-gray-900 dark:text-white">{{ $receipt->sppd->spt->signedByUser->fullNameWithTitles() ?? '-' }}</p>
+                                <p class="text-xs text-gray-600 dark:text-gray-400">{{ $receipt->sppd->spt->signedByUser->position->name ?? '-' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
                     <!-- SPPD Information -->
                     <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-6">
                         <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Informasi SPPD</h3>
@@ -35,13 +106,31 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    Tanggal SPPD
+                                </label>
+                                <div class="text-sm text-gray-900 dark:text-white">
+                                    {{ $receipt->sppd->sppd_date ? \Carbon\Carbon::parse($receipt->sppd->sppd_date)->locale('id')->translatedFormat('d F Y') : '-' }}
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                     Tujuan
                                 </label>
                                 <div class="text-sm text-gray-900 dark:text-white">
                                     {{ $receipt->sppd->spt?->notaDinas?->destinationCity?->name ?? 'N/A' }}, {{ $receipt->sppd->spt?->notaDinas?->destinationCity?->province?->name ?? 'N/A' }}
                                 </div>
                             </div>
-                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    Penerima Pembayaran
+                                </label>
+                                <div class="text-sm text-gray-900 dark:text-white">
+                                    {{ $receipt->payeeUser->fullNameWithTitles() ?? 'N/A' }}
+                                </div>
+                                <div class="text-xs text-gray-600 dark:text-gray-400">
+                                    {{ $receipt->payeeUser->position?->name ?? 'N/A' }} - {{ $receipt->payeeUser->unit?->name ?? 'N/A' }}
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -60,6 +149,45 @@
                                     placeholder="Contoh: 2.2.1.01.01.0001"
                                 />
                                 @error('account_code') 
+                                    <span class="text-red-500 text-sm">{{ $message }}</span> 
+                                @enderror
+                            </div>
+
+                            <!-- Tingkat Perjalanan Dinas -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    Tingkat Perjalanan Dinas <span class="text-red-500">*</span>
+                                </label>
+                                @php
+                                    $travelGrades = \App\Models\TravelGrade::orderBy('name')->get();
+                                @endphp
+                                <select 
+                                    wire:model="travel_grade_id" 
+                                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                >
+                                    <option value="">Pilih Tingkat Perjalanan Dinas</option>
+                                    @foreach($travelGrades as $travelGrade)
+                                        <option value="{{ $travelGrade->id }}">
+                                            {{ $travelGrade->name }} ({{ $travelGrade->code }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                    @php
+                                        $selectedParticipant = $receipt->sppd->spt->notaDinas->participants->where('user_id', $receipt->payee_user_id)->first();
+                                        $hasTravelGrade = $selectedParticipant?->user_travel_grade_id_snapshot || $selectedParticipant?->user?->travel_grade_id;
+                                    @endphp
+                                    @if($hasTravelGrade)
+                                        <span class="text-green-600 dark:text-green-400">
+                                            ✓ Tingkat perjalanan dinas peserta sudah ditentukan
+                                        </span>
+                                    @else
+                                        <span class="text-yellow-600 dark:text-yellow-400">
+                                            ⚠ Tingkat perjalanan dinas peserta belum ditentukan, silakan pilih tingkat perjalanan dinas
+                                        </span>
+                                    @endif
+                                </div>
+                                @error('travel_grade_id') 
                                     <span class="text-red-500 text-sm">{{ $message }}</span> 
                                 @enderror
                             </div>

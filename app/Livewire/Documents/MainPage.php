@@ -176,15 +176,25 @@ class MainPage extends Component
             return;
         }
         
-        // Check if the selected SPPD already has a receipt
-        $sppd = \App\Models\Sppd::find($this->selectedSppdId);
+        // Check if the selected SPPD has participants without receipts
+        $sppd = \App\Models\Sppd::with(['spt.notaDinas.participants.user'])->find($this->selectedSppdId);
         if (!$sppd) {
             session()->flash('error', 'SPPD tidak ditemukan');
             return;
         }
         
-        if ($sppd->receipts()->exists()) {
-            session()->flash('error', 'SPPD ini sudah memiliki kwitansi');
+        // Check if there are participants without receipts
+        $allParticipants = $sppd->spt->notaDinas->participants;
+        $participantsWithReceipts = \App\Models\Receipt::where('sppd_id', $this->selectedSppdId)
+            ->pluck('payee_user_id')
+            ->toArray();
+        
+        $availableParticipants = $allParticipants->filter(function ($participant) use ($participantsWithReceipts) {
+            return !in_array($participant->user_id, $participantsWithReceipts);
+        });
+        
+        if ($availableParticipants->isEmpty()) {
+            session()->flash('error', 'SPPD ini sudah memiliki kwitansi untuk semua peserta');
             return;
         }
         
@@ -244,6 +254,37 @@ class MainPage extends Component
             
         } catch (\Exception $e) {
             session()->flash('error', 'Gagal menghapus dokumen pendukung: ' . $e->getMessage());
+        }
+    }
+
+    public function deleteReceipt($receiptId)
+    {
+        try {
+            $receipt = \App\Models\Receipt::findOrFail($receiptId);
+            
+            // Store current state before deletion
+            $sppdId = $receipt->sppd_id;
+            $sptId = $receipt->sppd->spt_id;
+            $notaDinasId = $receipt->sppd->spt->nota_dinas_id;
+            
+            // Store receipt info for confirmation message
+            $receiptNo = $receipt->receipt_no ?? 'Kwitansi Manual';
+            
+            // Delete the receipt
+            $receipt->delete();
+            
+            session()->flash('message', "Kwitansi '{$receiptNo}' berhasil dihapus.");
+            
+            // Refresh the data to update the UI
+            $this->refreshData();
+            
+            // Maintain the current state after deletion
+            $this->selectedNotaDinasId = $notaDinasId;
+            $this->selectedSptId = $sptId;
+            $this->selectedSppdId = $sppdId;
+            
+        } catch (\Exception $e) {
+            session()->flash('error', 'Gagal menghapus kwitansi: ' . $e->getMessage());
         }
     }
 

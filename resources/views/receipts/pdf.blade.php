@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kwitansi - {{ $receipt->doc_no }}</title>
+    <title>Kwitansi - {{ $receipt->receipt_no ?? 'Manual' }}</title>
     <style>
         body {
             font-family: 'Times New Roman', serif;
@@ -91,7 +91,7 @@
 <body>
     <div class="header">
         <div class="title">KWITANSI</div>
-        <div class="doc-no">Nomor: {{ $receipt->doc_no }}</div>
+        <div class="doc-no">Nomor: {{ $receipt->receipt_no ?? 'Manual' }}</div>
     </div>
 
     <div class="content">
