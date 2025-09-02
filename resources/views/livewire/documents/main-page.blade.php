@@ -247,7 +247,7 @@
                                                                         <div class="py-1">
                                                                             <!-- Cetak -->
                                                                             <a 
-                                                                                href="{{ route('receipts.show', $receipt) }}" 
+                                                                                href="{{ route('receipts.pdf', $receipt) }}" 
                                                                                 target="_blank"
                                                                                 class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                                                                             >

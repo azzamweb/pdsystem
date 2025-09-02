@@ -275,8 +275,14 @@ Route::middleware('auth')->group(function () {
     Route::get('receipts', ReceiptIndex::class)->name('receipts.index');
     Route::get('receipts/create', ReceiptCreate::class)->name('receipts.create');
     Route::get('receipts/{receipt}/edit', \App\Livewire\Receipts\Edit::class)->name('receipts.edit');
+    
+    // Receipts PDF Routes
+    Route::get('receipts/{receipt}/pdf', [App\Http\Controllers\ReceiptController::class, 'generatePdf'])->name('receipts.pdf');
+    Route::get('receipts/{receipt}/pdf/download', [App\Http\Controllers\ReceiptController::class, 'downloadPdf'])->name('receipts.pdf-download');
+    
+    // Redirect show SPPD langsung ke PDF
     Route::get('receipts/{receipt}', function(\App\Models\Receipt $receipt) {
-        return view('receipts.pdf', compact('receipt'));
+        return redirect()->route('receipts.pdf', $receipt);
     })->name('receipts.show');
 
     // Trip Reports CRUD
