@@ -11,11 +11,11 @@ class Index extends Component
     use WithPagination;
 
     public $search = '';
-    public $orgPlaceFilter = '';
+    public $districtFilter = '';
 
     protected $queryString = [
         'search' => ['except' => ''],
-        'orgPlaceFilter' => ['except' => ''],
+        'districtFilter' => ['except' => ''],
     ];
 
     public function updatingSearch()
@@ -23,38 +23,38 @@ class Index extends Component
         $this->resetPage();
     }
 
-    public function updatingOrgPlaceFilter()
+    public function updatingDistrictFilter()
     {
         $this->resetPage();
     }
 
     public function render()
     {
-        $query = DistrictPerdiemRate::with(['district'])
+        $query = DistrictPerdiemRate::with(['district', 'travelGrade'])
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
-                    $q->where('org_place_name', 'like', '%' . $this->search . '%')
-                      ->orWhereHas('district', function ($districtQuery) {
+                    $q->whereHas('district', function ($districtQuery) {
                           $districtQuery->where('name', 'like', '%' . $this->search . '%');
+                      })
+                      ->orWhereHas('travelGrade', function ($gradeQuery) {
+                          $gradeQuery->where('name', 'like', '%' . $this->search . '%');
                       });
                 });
             })
-            ->when($this->orgPlaceFilter, function ($query) {
-                $query->where('org_place_name', $this->orgPlaceFilter);
+            ->when($this->districtFilter, function ($query) {
+                $query->where('district_id', $this->districtFilter);
             })
-            ->orderBy('org_place_name')
-            ->orderBy('daily_rate', 'desc');
+            ->orderBy('district_id')
+            ->orderBy('travel_grade_id')
+            ->orderBy('perdiem_rate', 'desc');
 
         $districtPerdiemRates = $query->paginate(10);
 
-        $orgPlaces = DistrictPerdiemRate::distinct()
-            ->pluck('org_place_name')
-            ->sort()
-            ->values();
+        $districts = \App\Models\District::orderBy('name')->get();
 
         return view('livewire.district-perdiem-rates.index', [
             'districtPerdiemRates' => $districtPerdiemRates,
-            'orgPlaces' => $orgPlaces,
+            'districts' => $districts,
         ]);
     }
 }

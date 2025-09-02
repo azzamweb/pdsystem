@@ -10,16 +10,13 @@ class DistrictPerdiemRate extends Model
     use HasFactory;
 
     protected $fillable = [
-        'org_place_name',
         'district_id',
-        'unit',
-        'daily_rate',
-        'is_active',
+        'travel_grade_id',
+        'perdiem_rate',
     ];
 
     protected $casts = [
-        'daily_rate' => 'decimal:2',
-        'is_active' => 'boolean',
+        'perdiem_rate' => 'decimal:2',
     ];
 
     /**
@@ -31,18 +28,26 @@ class DistrictPerdiemRate extends Model
     }
 
     /**
+     * Get the travel grade that owns the perdiem rate.
+     */
+    public function travelGrade()
+    {
+        return $this->belongsTo(TravelGrade::class);
+    }
+
+    /**
      * Get the display name attribute.
      */
     public function getDisplayNameAttribute()
     {
-        return "{$this->org_place_name} - {$this->district->name}";
+        return "{$this->district->name} - {$this->travelGrade->name}";
     }
 
     /**
-     * Scope a query to only include active rates.
+     * Get the formatted perdiem rate attribute.
      */
-    public function scopeActive($query)
+    public function getFormattedPerdiemRateAttribute()
     {
-        return $query->where('is_active', true);
+        return 'Rp ' . number_format($this->perdiem_rate, 0, ',', '.');
     }
 }
