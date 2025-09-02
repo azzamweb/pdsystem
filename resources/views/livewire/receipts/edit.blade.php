@@ -329,12 +329,85 @@
                                 @enderror
                             </div>
 
-                            <!-- Perhitungan Biaya (hanya tampil jika travel grade sudah dipilih) -->
+                            <!-- Reference Rates & Perhitungan Biaya (hanya tampil jika travel grade sudah dipilih) -->
                             @if($travel_grade_id)
                             <div class="border-t border-gray-200 dark:border-gray-600 pt-6">
+                                <!-- Reference Rates Section -->
+                                @if($airfareRate || $lodgingCap || $perdiemDailyRate || $representationRate)
+                                <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-6">
+                                    <h4 class="text-md font-medium text-yellow-800 dark:text-yellow-200 mb-3 flex items-center">
+                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                        </svg>
+                                        Referensi Tarif Maksimal
+                                    </h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                                        @if($airfareRate)
+                                        <div class="space-y-1">
+                                            <span class="font-medium text-gray-700 dark:text-gray-300">Tiket Pesawat:</span>
+                                            <p class="text-yellow-700 dark:text-yellow-300 font-mono">
+                                                Rp {{ number_format($airfareRate, 0, ',', '.') }}
+                                            </p>
+                                            <p class="text-xs text-gray-600 dark:text-gray-400">
+                                                {{ $airfareOrigin }} → {{ $airfareDestination }}
+                                            </p>
+                                        </div>
+                                        @endif
+                                        
+                                        @if($lodgingCap)
+                                        <div class="space-y-1">
+                                            <span class="font-medium text-gray-700 dark:text-gray-300">Maksimal Penginapan:</span>
+                                            <p class="text-yellow-700 dark:text-yellow-300 font-mono">
+                                                Rp {{ number_format($lodgingCap, 0, ',', '.') }}
+                                            </p>
+                                            <p class="text-xs text-gray-600 dark:text-gray-400">
+                                                Provinsi {{ $lodgingProvince }}
+                                            </p>
+                                        </div>
+                                        @endif
+                                        
+                                        @if($perdiemDailyRate)
+                                        <div class="space-y-1">
+                                            <span class="font-medium text-gray-700 dark:text-gray-300">Uang Harian per Hari:</span>
+                                            <p class="text-yellow-700 dark:text-yellow-300 font-mono">
+                                                Rp {{ number_format($perdiemDailyRate, 0, ',', '.') }}
+                                            </p>
+                                            <p class="text-xs text-gray-600 dark:text-gray-400">
+                                                {{ ucfirst(str_replace('_', ' ', $perdiemTripType)) }} - {{ $perdiemProvince }}
+                                            </p>
+                                        </div>
+                                        @endif
+                                        
+                                        @if($perdiemTotalAmount)
+                                        <div class="space-y-1">
+                                            <span class="font-medium text-gray-700 dark:text-gray-300">Total Uang Harian:</span>
+                                            <p class="text-yellow-700 dark:text-yellow-300 font-mono">
+                                                Rp {{ number_format($perdiemTotalAmount, 0, ',', '.') }}
+                                            </p>
+                                            <p class="text-xs text-gray-600 dark:text-gray-400">
+                                                {{ $this->calculateTripDays($receipt->sppd->spt->notaDinas) }} hari
+                                            </p>
+                                        </div>
+                                        @endif
+                                        
+                                        @if($representationRate)
+                                        <div class="space-y-1">
+                                            <span class="font-medium text-gray-700 dark:text-gray-300">Tarif Representasi:</span>
+                                            <p class="text-yellow-700 dark:text-yellow-300 font-mono">
+                                                Rp {{ number_format($representationRate, 0, ',', '.') }}
+                                            </p>
+                                            <p class="text-xs text-gray-600 dark:text-gray-400">
+                                                {{ ucfirst(str_replace('_', ' ', $representationTripType)) }}
+                                            </p>
+                                        </div>
+                                        @endif
+                                    </div>
+                                </div>
+                                @endif
+                                
                                 <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
                                     <svg class="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
                                     </svg>
                                     Perhitungan Biaya
                                 </h3>
@@ -350,6 +423,66 @@
                                             </button>
                                         </div>
                                         
+                                        <!-- Reference rate warning for transport -->
+                                        @if($transportIntraProvince || $transportIntraDistrict || $airfareRate)
+                                        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-3">
+                                            <div class="text-xs text-blue-700 dark:text-blue-300">
+                                                <strong>Referensi Tarif:</strong>
+                                                @if($transportIntraProvince)
+                                                    <span class="block">Dalam Provinsi: Rp {{ number_format($transportIntraProvince, 0, ',', '.') }}</span>
+                                                @endif
+                                                @if($transportIntraDistrict)
+                                                    <span class="block">Dalam Kabupaten: Rp {{ number_format($transportIntraDistrict, 0, ',', '.') }}</span>
+                                                @endif
+                                                @if($airfareRate)
+                                                    <span class="block">Tiket Pesawat: Rp {{ number_format($airfareRate, 0, ',', '.') }}</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        @endif
+
+                                        <!-- Notification for transport without reference rates -->
+                                        <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 mb-3">
+                                            <div class="text-xs text-yellow-700 dark:text-yellow-300">
+                                                <strong>ℹ️ Informasi:</strong>
+                                                <span class="block">• Tiket Pesawat, Transport Dalam Provinsi, dan Transport Dalam Kabupaten akan otomatis terisi dengan tarif standar</span>
+                                                <span class="block">• Kendaraan Dinas, Taxi, RORO, Tol, dan Parkir & Penginapan perlu diisi manual sesuai ketentuan</span>
+                                                <span class="block">• ⚠️ Nilai manual yang melebihi tarif referensi akan ditampilkan peringatan</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Warning Banner for Excessive Values -->
+                                        @if($hasExcessiveValues)
+                                        <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-3">
+                                            <div class="flex items-start">
+                                                <div class="flex-shrink-0">
+                                                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                                    </svg>
+                                                </div>
+                                                <div class="ml-3">
+                                                    <h3 class="text-sm font-medium text-red-800 dark:text-red-200">
+                                                        ⚠️ Nilai Melebihi Standar Referensi
+                                                    </h3>
+                                                    <div class="mt-2 text-sm text-red-700 dark:text-red-300">
+                                                        <p class="mb-2">Terdapat nilai yang melebihi standar referensi. Silakan sesuaikan terlebih dahulu sebelum menyimpan kwitansi:</p>
+                                                        <ul class="list-disc list-inside space-y-1">
+                                                            @foreach($excessiveValueDetails as $detail)
+                                                            <li>
+                                                                <strong>{{ $detail['type'] }}:</strong> 
+                                                                Rp {{ number_format($detail['manual_value'], 0, ',', '.') }} 
+                                                                (melebihi Rp {{ number_format($detail['reference_value'], 0, ',', '.') }} 
+                                                                sebesar Rp {{ number_format($detail['excess_amount'], 0, ',', '.') }} 
+                                                                atau {{ $detail['excess_percentage'] }}%)
+                                                            </li>
+                                                            @endforeach
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @endif
+                                        
                                         @if(count($transportLines) > 0)
                                             <div class="space-y-3">
                                                 @foreach($transportLines as $index => $line)
@@ -357,7 +490,7 @@
                                                     <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
                                                         <div>
                                                             <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Jenis</label>
-                                                            <select wire:model="transportLines.{{ $index }}.component" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                                            <select wire:model.live="transportLines.{{ $index }}.component" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                                                 <option value="">Pilih Jenis</option>
                                                                 <option value="AIRFARE">Tiket Pesawat</option>
                                                                 <option value="INTRA_PROV">Transport Dalam Provinsi</option>
@@ -368,14 +501,54 @@
                                                                 <option value="TOLL">Tol</option>
                                                                 <option value="PARKIR_INAP">Parkir & Penginapan</option>
                                                             </select>
+                                                            
+                                                            <!-- Rate Info Display -->
+                                                            @if($line['rate_info'])
+                                                            <div class="mt-1 text-xs {{ $line['has_reference'] ? 'text-green-600 dark:text-green-400' : ($line['is_overridden'] ? 'text-blue-600 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400') }}">
+                                                                @if($line['has_reference'])
+                                                                    ✓ {{ $line['rate_info'] }}
+                                                                @elseif($line['is_overridden'])
+                                                                    ✏️ {{ $line['rate_info'] }}
+                                                                @else
+                                                                    ℹ {{ $line['rate_info'] }}
+                                                                @endif
+                                                            </div>
+                                                            @endif
                                                         </div>
                                                         <div>
                                                             <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Jumlah</label>
                                                             <input type="number" wire:model="transportLines.{{ $index }}.qty" min="0" step="0.5" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                                         </div>
                                                         <div>
-                                                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Harga Satuan</label>
-                                                            <input type="number" wire:model="transportLines.{{ $index }}.unit_amount" min="0" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                                Harga Satuan
+                                                                @if($line['has_reference'])
+                                                                    <span class="text-green-600 dark:text-green-400">✓ Auto-filled</span>
+                                                                @endif
+                                                                @if($line['is_overridden'])
+                                                                    <span class="text-blue-600 dark:text-blue-400">✏️ Manual</span>
+                                                                @endif
+                                                            </label>
+                                                            <input type="number" 
+                                                                wire:model.live="transportLines.{{ $index }}.unit_amount" 
+                                                                min="0" 
+                                                                class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white {{ $line['has_reference'] ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-600' : ($line['is_overridden'] ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-600' : '') }}"
+                                                                {{ $line['has_reference'] ? 'readonly' : '' }}
+                                                                placeholder="{{ $line['has_reference'] ? 'Otomatis terisi' : 'Masukkan harga satuan' }}">
+                                                            
+                                                            <!-- Warning for manual values exceeding reference -->
+                                                            @if($line['exceeds_reference'])
+                                                            <div class="mt-1 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded text-xs">
+                                                                <div class="text-red-700 dark:text-red-300 font-medium">
+                                                                    ⚠️ Nilai melebihi tarif referensi!
+                                                                </div>
+                                                                <div class="text-red-600 dark:text-red-400 mt-1">
+                                                                    <span class="block">• Tarif referensi: Rp {{ number_format($line['original_reference_rate'], 0, ',', '.') }}</span>
+                                                                    <span class="block">• Kelebihan: Rp {{ number_format($line['excess_amount'], 0, ',', '.') }} ({{ $line['excess_percentage'] }}%)</span>
+                                                                    <span class="block">• Saran: Gunakan tarif referensi untuk efisiensi anggaran</span>
+                                                                </div>
+                                                            </div>
+                                                            @endif
                                                         </div>
                                                         <div>
                                                             <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Total</label>
@@ -383,7 +556,14 @@
                                                                 Rp {{ number_format($line['qty'] * $line['unit_amount'], 0, ',', '.') }}
                                                             </div>
                                                         </div>
-                                                        <div class="flex items-end">
+                                                        <div class="flex items-end space-x-2">
+                                                            @if($line['has_reference'])
+                                                                <button type="button" 
+                                                                    wire:click="overrideTransportRate({{ $index }})" 
+                                                                    class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-xs">
+                                                                    Edit Manual
+                                                                </button>
+                                                            @endif
                                                             <button type="button" wire:click="removeTransportLine({{ $index }})" class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 text-sm">
                                                                 Hapus
                                                             </button>
@@ -407,6 +587,17 @@
                                                 + Tambah
                                             </button>
                                         </div>
+                                        
+                                        <!-- Reference rate warning for lodging -->
+                                        @if($lodgingCap)
+                                        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-3">
+                                            <div class="text-xs text-blue-700 dark:text-blue-300">
+                                                <strong>Referensi Tarif:</strong>
+                                                <span class="block">Maksimal per Malam: Rp {{ number_format($lodgingCap, 0, ',', '.') }}</span>
+                                                <span class="block">Provinsi: {{ $lodgingProvince }}</span>
+                                            </div>
+                                        </div>
+                                        @endif
                                         
                                         @if(count($lodgingLines) > 0)
                                             <div class="space-y-3">
@@ -452,6 +643,18 @@
                                             </button>
                                         </div>
                                         
+                                        <!-- Reference rate warning for perdiem -->
+                                        @if($perdiemDailyRate)
+                                        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-3">
+                                            <div class="text-xs text-blue-700 dark:text-blue-300">
+                                                <strong>Referensi Tarif:</strong>
+                                                <span class="block">Tarif per Hari: Rp {{ number_format($perdiemDailyRate, 0, ',', '.') }}</span>
+                                                <span class="block">Provinsi: {{ $perdiemProvince }}</span>
+                                                <span class="block">Jenis Perjalanan: {{ ucfirst(str_replace('_', ' ', $perdiemTripType)) }}</span>
+                                            </div>
+                                        </div>
+                                        @endif
+                                        
                                         @if(count($perdiemLines) > 0)
                                             <div class="space-y-3">
                                                 @foreach($perdiemLines as $index => $line)
@@ -495,6 +698,17 @@
                                                 + Tambah
                                             </button>
                                         </div>
+                                        
+                                        <!-- Reference rate warning for representation -->
+                                        @if($representationRate)
+                                        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-3">
+                                            <div class="text-xs text-blue-700 dark:text-blue-300">
+                                                <strong>Referensi Tarif:</strong>
+                                                <span class="block">Tarif Representasi: Rp {{ number_format($representationRate, 0, ',', '.') }}</span>
+                                                <span class="block">Jenis Perjalanan: {{ ucfirst(str_replace('_', ' ', $representationTripType)) }}</span>
+                                            </div>
+                                        </div>
+                                        @endif
                                         
                                         @if(count($representationLines) > 0)
                                             <div class="space-y-3">

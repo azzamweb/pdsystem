@@ -71,6 +71,10 @@ class Create extends Component
     public $transportIntraProvince = null;
     public $transportIntraDistrict = null;
 
+    // Validation properties for excessive values
+    public $hasExcessiveValues = false;
+    public $excessiveValueDetails = [];
+
     public function mount($sppd_id = null): void
     {
         $this->sppd_id = $sppd_id ?? request()->query('sppd_id');
@@ -284,6 +288,13 @@ class Create extends Component
             'component' => '',
             'qty' => 1,
             'unit_amount' => 0,
+            'rate_info' => '',
+            'has_reference' => false,
+            'original_reference_rate' => 0,
+            'is_overridden' => false,
+            'exceeds_reference' => false,
+            'excess_amount' => 0,
+            'excess_percentage' => 0,
         ];
     }
 
@@ -379,7 +390,249 @@ class Create extends Component
 
     public function updatedTransportLines()
     {
+        // Check if any transport component has changed and auto-fill rates
+        foreach ($this->transportLines as $index => $line) {
+            if (isset($line['component']) && !empty($line['component'])) {
+                $this->autoFillTransportRate($index, $line['component']);
+            }
+        }
+        
+        // Check if any manual values exceed reference rates
+        foreach ($this->transportLines as $index => $line) {
+            if ($line['is_overridden']) {
+                $this->checkManualValueExceedsReference($index);
+            }
+        }
+        
+        // Check all excessive values for warning banner
+        $this->checkAllExcessiveValues();
+        
         $this->calculateTotal();
+    }
+
+    // Method untuk handle perubahan nilai manual pada transport lines
+    public function updatedTransportLinesUnitAmount($value, $key)
+    {
+        // Jika nilai berubah dan ini adalah transport yang sudah di-override, check excessive
+        $index = explode('.', $key)[1];
+        if (isset($this->transportLines[$index]) && $this->transportLines[$index]['is_overridden']) {
+            $this->checkManualValueExceedsReference($index);
+            $this->checkAllExcessiveValues();
+        }
+        
+        $this->calculateTotal();
+    }
+
+    private function autoFillTransportRate($index, $component)
+    {
+        if (!$component || !$this->sppd || !$this->sppd->spt->notaDinas) {
+            return;
+        }
+
+        $referenceRateService = new ReferenceRateService();
+        $notaDinas = $this->sppd->spt->notaDinas;
+        $destinationCity = $notaDinas->destinationCity;
+        $originPlace = $notaDinas->originPlace;
+        $defaultOriginCity = $referenceRateService->getDefaultOriginCity();
+
+        $unitAmount = null;
+        $rateInfo = '';
+
+        switch ($component) {
+            case 'AIRFARE':
+                $unitAmount = $defaultOriginCity ? $referenceRateService->getAirfareRate(
+                    $defaultOriginCity->id, 
+                    $destinationCity->id
+                ) : null;
+                $rateInfo = $defaultOriginCity ? "Tiket Pesawat: {$defaultOriginCity->name} → {$destinationCity->name}" : '';
+                break;
+
+            case 'INTRA_PROV':
+                $unitAmount = $originPlace ? $referenceRateService->getIntraProvinceTransportRate(
+                    $originPlace->id, 
+                    $destinationCity->id
+                ) : null;
+                $rateInfo = $originPlace ? "Transport Dalam Provinsi: {$originPlace->name} → {$destinationCity->name}" : '';
+                break;
+
+            case 'INTRA_DISTRICT':
+                $unitAmount = $originPlace && $destinationCity->district_id ? $referenceRateService->getIntraDistrictTransportRate(
+                    $originPlace->id, 
+                    $destinationCity->district_id
+                ) : null;
+                $rateInfo = $originPlace && $destinationCity->district_id ? "Transport Dalam Kabupaten: {$originPlace->name} → {$destinationCity->district_id}" : '';
+                break;
+
+            case 'OFFICIAL_VEHICLE':
+                // Kendaraan dinas biasanya flat rate atau berdasarkan jarak
+                $unitAmount = 0; // User input manual
+                $rateInfo = "Kendaraan Dinas - Input manual sesuai ketentuan";
+                break;
+
+            case 'TAXI':
+                // Taxi biasanya flat rate atau berdasarkan ketentuan
+                $unitAmount = 0; // User input manual
+                $rateInfo = "Taxi - Input manual sesuai ketentuan";
+                break;
+
+            case 'RORO':
+                // Kapal RORO biasanya flat rate
+                $unitAmount = 0; // User input manual
+                $rateInfo = "Kapal RORO - Input manual sesuai ketentuan";
+                break;
+
+            case 'TOLL':
+                // Tol biasanya flat rate
+                $unitAmount = 0; // User input manual
+                $rateInfo = "Tol - Input manual sesuai ketentuan";
+                break;
+
+            case 'PARKIR_INAP':
+                // Parkir & penginapan biasanya flat rate
+                $unitAmount = 0; // User input manual
+                $rateInfo = "Parkir & Penginapan - Input manual sesuai ketentuan";
+                break;
+        }
+
+        // Update the transport line with auto-filled data
+        if (isset($this->transportLines[$index])) {
+            // Jangan override nilai manual yang sudah ada
+            if (!$this->transportLines[$index]['is_overridden']) {
+                $this->transportLines[$index]['unit_amount'] = $unitAmount ?? 0;
+            }
+            
+            $this->transportLines[$index]['rate_info'] = $rateInfo;
+            $this->transportLines[$index]['has_reference'] = $unitAmount !== null;
+            $this->transportLines[$index]['original_reference_rate'] = $unitAmount ?? 0;
+            
+            // Jika ini auto-fill baru, reset status override
+            if (!$this->transportLines[$index]['is_overridden']) {
+                $this->transportLines[$index]['is_overridden'] = false;
+                $this->transportLines[$index]['exceeds_reference'] = false;
+                $this->transportLines[$index]['excess_amount'] = 0;
+                $this->transportLines[$index]['excess_percentage'] = 0;
+            }
+        }
+    }
+
+    public function overrideTransportRate($index)
+    {
+        if (isset($this->transportLines[$index])) {
+            // Simpan nilai referensi asli sebelum di-override
+            if (!isset($this->transportLines[$index]['original_reference_rate']) || $this->transportLines[$index]['original_reference_rate'] == 0) {
+                $this->transportLines[$index]['original_reference_rate'] = $this->transportLines[$index]['unit_amount'];
+            }
+            
+            $this->transportLines[$index]['has_reference'] = false;
+            $this->transportLines[$index]['rate_info'] = 'Nilai diubah manual oleh user';
+            $this->transportLines[$index]['is_overridden'] = true;
+            
+            // Reset status excessive
+            $this->transportLines[$index]['exceeds_reference'] = false;
+            $this->transportLines[$index]['excess_amount'] = 0;
+            $this->transportLines[$index]['excess_percentage'] = 0;
+        }
+    }
+
+    public function checkManualValueExceedsReference($index)
+    {
+        if (!isset($this->transportLines[$index]) || !$this->transportLines[$index]['is_overridden']) {
+            return false;
+        }
+
+        $line = $this->transportLines[$index];
+        $manualValue = $line['unit_amount'];
+        $referenceValue = $line['original_reference_rate'] ?? 0;
+
+        if ($manualValue > $referenceValue && $referenceValue > 0) {
+            $this->transportLines[$index]['exceeds_reference'] = true;
+            $this->transportLines[$index]['excess_amount'] = $manualValue - $referenceValue;
+            $this->transportLines[$index]['excess_percentage'] = round((($manualValue - $referenceValue) / $referenceValue) * 100, 1);
+        } else {
+            $this->transportLines[$index]['exceeds_reference'] = false;
+            $this->transportLines[$index]['excess_amount'] = 0;
+            $this->transportLines[$index]['excess_percentage'] = 0;
+        }
+
+        return $this->transportLines[$index]['exceeds_reference'];
+    }
+
+    public function checkAllExcessiveValues()
+    {
+        $this->hasExcessiveValues = false;
+        $this->excessiveValueDetails = [];
+
+        // Check transport lines
+        foreach ($this->transportLines as $index => $line) {
+            if ($line['exceeds_reference']) {
+                $this->hasExcessiveValues = true;
+                $this->excessiveValueDetails[] = [
+                    'type' => 'Transport',
+                    'component' => $line['component'],
+                    'index' => $index,
+                    'manual_value' => $line['unit_amount'],
+                    'reference_value' => $line['original_reference_rate'],
+                    'excess_amount' => $line['excess_amount'],
+                    'excess_percentage' => $line['excess_percentage']
+                ];
+            }
+        }
+
+        // Check lodging lines
+        if ($this->lodgingCap) {
+            foreach ($this->lodgingLines as $index => $line) {
+                if (($line['unit_amount'] ?? 0) > $this->lodgingCap) {
+                    $this->hasExcessiveValues = true;
+                    $this->excessiveValueDetails[] = [
+                        'type' => 'Penginapan',
+                        'component' => 'LODGING',
+                        'index' => $index,
+                        'manual_value' => $line['unit_amount'],
+                        'reference_value' => $this->lodgingCap,
+                        'excess_amount' => $line['unit_amount'] - $this->lodgingCap,
+                        'excess_percentage' => round((($line['unit_amount'] - $this->lodgingCap) / $this->lodgingCap) * 100, 1)
+                    ];
+                }
+            }
+        }
+
+        // Check perdiem lines
+        if ($this->perdiemDailyRate) {
+            foreach ($this->perdiemLines as $index => $line) {
+                if (($line['unit_amount'] ?? 0) > $this->perdiemDailyRate) {
+                    $this->hasExcessiveValues = true;
+                    $this->excessiveValueDetails[] = [
+                        'type' => 'Uang Harian',
+                        'component' => 'PERDIEM',
+                        'index' => $index,
+                        'manual_value' => $line['unit_amount'],
+                        'reference_value' => $this->perdiemDailyRate,
+                        'excess_amount' => $line['unit_amount'] - $this->perdiemDailyRate,
+                        'excess_percentage' => round((($line['unit_amount'] - $this->perdiemDailyRate) / $this->perdiemDailyRate) * 100, 1)
+                    ];
+                }
+            }
+        }
+
+        // Check representation lines
+        if ($this->representationRate) {
+            foreach ($this->representationLines as $index => $line) {
+                if (($line['unit_amount'] ?? 0) > $this->representationRate) {
+                    $this->hasExcessiveValues = true;
+                    $this->excessiveValueDetails[] = [
+                        'type' => 'Representatif',
+                        'component' => 'REPRESENTATION',
+                        'index' => $index,
+                        'manual_value' => $line['unit_amount'],
+                        'reference_value' => $this->representationRate,
+                        'excess_amount' => $line['unit_amount'] - $this->representationRate,
+                        'excess_percentage' => round((($line['unit_amount'] - $this->representationRate) / $this->representationRate) * 100, 1)
+                    ];
+                }
+            }
+        }
+
+        return $this->hasExcessiveValues;
     }
 
     public function updatedLodgingLines()
@@ -556,6 +809,12 @@ class Create extends Component
     public function save()
     {
         $this->validate();
+
+        // Check for excessive values before saving
+        if ($this->checkAllExcessiveValues()) {
+            session()->flash('error', 'Terdapat nilai yang melebihi standar referensi. Silakan sesuaikan terlebih dahulu sebelum menyimpan.');
+            return;
+        }
 
         // Prevent duplicate receipt for the same participant in the same SPPD
         $existingReceipt = Receipt::where('sppd_id', $this->sppd_id)
