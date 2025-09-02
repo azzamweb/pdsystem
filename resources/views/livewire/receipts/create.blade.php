@@ -61,13 +61,13 @@
                                         {{ $availableSppd->doc_no }}
                                     </div>
                                     <div class="text-sm text-gray-600 dark:text-gray-400">
-                                        {{ $availableParticipants->first()?->user->fullNameWithTitles() ?? 'N/A' }}
+                                        {{ count($availableParticipants) > 0 ? $availableParticipants[0]['user_name_snapshot'] : 'N/A' }}
                                     </div>
                                     <div class="text-xs text-gray-500 dark:text-gray-500">
-                                        NIP: {{ $availableParticipants->first()?->user->nip ?? 'N/A' }}
+                                        NIP: {{ count($availableParticipants) > 0 ? $availableParticipants[0]['user_nip_snapshot'] : 'N/A' }}
                                     </div>
                                     <div class="text-xs text-blue-600 dark:text-blue-400 mt-2">
-                                        {{ $availableParticipants->count() }} peserta tersedia untuk kwitansi
+                                        {{ count($availableParticipants) }} peserta tersedia untuk kwitansi
                                     </div>
                                 </div>
                             @endforeach
@@ -283,16 +283,16 @@
                                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                         Peserta (Penerima Pembayaran) <span class="text-red-500">*</span>
                                     </label>
-                                    @if($availableParticipants->count() > 0)
+                                    @if(count($availableParticipants) > 0)
                                         <select 
                                             wire:model="payee_user_id" 
                                             class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                                         >
                                             <option value="">Pilih Peserta</option>
                                             @foreach($availableParticipants as $participant)
-                                                <option value="{{ $participant->user_id }}">
-                                                    {{ $participant->user->fullNameWithTitles() }} 
-                                                    ({{ $participant->user->position?->name ?? 'N/A' }} - {{ $participant->user->unit?->name ?? 'N/A' }})
+                                                <option value="{{ $participant['user_id'] }}">
+                                                    {{ $participant['user_name_snapshot'] }} 
+                                                    ({{ $participant['user_position_name_snapshot'] ?? 'N/A' }} - {{ $participant['user_rank_name_snapshot'] ?? 'N/A' }})
                                                 </option>
                                             @endforeach
                                         </select>
@@ -477,9 +477,82 @@
                             </div>
 
 
-                                <!-- Perhitungan Biaya (hanya tampil jika travel grade sudah dipilih) -->
+                                <!-- Reference Rates & Perhitungan Biaya (hanya tampil jika travel grade sudah dipilih) -->
                                 @if($travel_grade_id)
                                 <div class="border-t border-gray-200 dark:border-gray-600 pt-6">
+                                    <!-- Reference Rates Section -->
+                                    @if($airfareRate || $lodgingCap || $perdiemDailyRate || $representationRate)
+                                    <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-6">
+                                        <h4 class="text-md font-medium text-yellow-800 dark:text-yellow-200 mb-3 flex items-center">
+                                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                            </svg>
+                                            Referensi Tarif Maksimal
+                                        </h4>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                                            @if($airfareRate)
+                                            <div class="space-y-1">
+                                                <span class="font-medium text-gray-700 dark:text-gray-300">Tiket Pesawat:</span>
+                                                <p class="text-yellow-700 dark:text-yellow-300 font-mono">
+                                                    Rp {{ number_format($airfareRate, 0, ',', '.') }}
+                                                </p>
+                                                <p class="text-xs text-gray-600 dark:text-gray-400">
+                                                    {{ $airfareOrigin }} → {{ $airfareDestination }}
+                                                </p>
+                                            </div>
+                                            @endif
+                                            
+                                            @if($lodgingCap)
+                                            <div class="space-y-1">
+                                                <span class="font-medium text-gray-700 dark:text-gray-300">Maksimal Penginapan:</span>
+                                                <p class="text-yellow-700 dark:text-yellow-300 font-mono">
+                                                    Rp {{ number_format($lodgingCap, 0, ',', '.') }}
+                                                </p>
+                                                <p class="text-xs text-gray-600 dark:text-gray-400">
+                                                    Provinsi {{ $lodgingProvince }}
+                                                </p>
+                                            </div>
+                                            @endif
+                                            
+                                            @if($perdiemDailyRate)
+                                            <div class="space-y-1">
+                                                <span class="font-medium text-gray-700 dark:text-gray-300">Uang Harian per Hari:</span>
+                                                <p class="text-yellow-700 dark:text-yellow-300 font-mono">
+                                                    Rp {{ number_format($perdiemDailyRate, 0, ',', '.') }}
+                                                </p>
+                                                <p class="text-xs text-gray-600 dark:text-gray-400">
+                                                    {{ ucfirst(str_replace('_', ' ', $perdiemTripType)) }} - {{ $perdiemProvince }}
+                                                </p>
+                                            </div>
+                                            @endif
+                                            
+                                            @if($perdiemTotalAmount)
+                                            <div class="space-y-1">
+                                                <span class="font-medium text-gray-700 dark:text-gray-300">Total Uang Harian:</span>
+                                                <p class="text-yellow-700 dark:text-yellow-300 font-mono">
+                                                    Rp {{ number_format($perdiemTotalAmount, 0, ',', '.') }}
+                                                </p>
+                                                <p class="text-xs text-gray-600 dark:text-gray-400">
+                                                    {{ $this->calculateTripDays($sppd->spt->notaDinas) }} hari
+                                                </p>
+                                            </div>
+                                            @endif
+                                            
+                                            @if($representationRate)
+                                            <div class="space-y-1">
+                                                <span class="font-medium text-gray-700 dark:text-gray-300">Tarif Representasi:</span>
+                                                <p class="text-yellow-700 dark:text-yellow-300 font-mono">
+                                                    Rp {{ number_format($representationRate, 0, ',', '.') }}
+                                                </p>
+                                                <p class="text-xs text-gray-600 dark:text-gray-400">
+                                                    {{ ucfirst(str_replace('_', ' ', $representationTripType)) }}
+                                                </p>
+                                            </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    @endif
+                                    
                                     <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
                                         <svg class="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
@@ -497,6 +570,24 @@
                                                     + Tambah
                                                 </button>
                                             </div>
+                                            
+                                            <!-- Reference rate warning for transport -->
+                                            @if($transportIntraProvince || $transportIntraDistrict || $airfareRate)
+                                            <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-3">
+                                                <div class="text-xs text-blue-700 dark:text-blue-300">
+                                                    <strong>Referensi Tarif:</strong>
+                                                    @if($transportIntraProvince)
+                                                        <span class="block">Dalam Provinsi: Rp {{ number_format($transportIntraProvince, 0, ',', '.') }}</span>
+                                                    @endif
+                                                    @if($transportIntraDistrict)
+                                                        <span class="block">Dalam Kabupaten: Rp {{ number_format($transportIntraDistrict, 0, ',', '.') }}</span>
+                                                    @endif
+                                                    @if($airfareRate)
+                                                        <span class="block">Tiket Pesawat: Rp {{ number_format($airfareRate, 0, ',', '.') }}</span>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            @endif
                                             
                                             @if(count($transportLines) > 0)
                                                 <div class="space-y-3">
@@ -556,6 +647,16 @@
                                                 </button>
                                             </div>
                                             
+                                            <!-- Reference rate warning for lodging -->
+                                            @if($lodgingCap)
+                                            <div class="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-3 mb-3">
+                                                <div class="text-xs text-orange-700 dark:text-orange-300">
+                                                    <strong>⚠️ Batas Maksimal:</strong> Rp {{ number_format($lodgingCap, 0, ',', '.') }} per malam
+                                                    <br><span class="text-gray-600 dark:text-gray-400">Provinsi: {{ $lodgingProvince }}</span>
+                                                </div>
+                                            </div>
+                                            @endif
+                                            
                                             @if(count($lodgingLines) > 0)
                                                 <div class="space-y-3">
                                                     @foreach($lodgingLines as $index => $line)
@@ -600,6 +701,23 @@
                                                 </button>
                                             </div>
                                             
+                                            <!-- Reference rate warning for perdiem -->
+                                            @if($perdiemDailyRate)
+                                            <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3 mb-3">
+                                                <div class="text-xs text-green-700 dark:text-green-300">
+                                                    <strong>💰 Tarif Standar:</strong> Rp {{ number_format($perdiemDailyRate, 0, ',', '.') }} per hari
+                                                    <br><span class="text-gray-600 dark:text-gray-400">
+                                                        {{ ucfirst(str_replace('_', ' ', $perdiemTripType)) }} - {{ $perdiemProvince }}
+                                                    </span>
+                                                    @if($perdiemTotalAmount)
+                                                    <br><span class="text-green-600 dark:text-green-400 font-medium">
+                                                        Total untuk {{ $this->calculateTripDays($sppd->spt->notaDinas) }} hari: Rp {{ number_format($perdiemTotalAmount, 0, ',', '.') }}
+                                                    </span>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            @endif
+                                            
                                             @if(count($perdiemLines) > 0)
                                                 <div class="space-y-3">
                                                     @foreach($perdiemLines as $index => $line)
@@ -643,6 +761,18 @@
                                                     + Tambah
                                                 </button>
                                             </div>
+                                            
+                                            <!-- Reference rate warning for representation -->
+                                            @if($representationRate)
+                                            <div class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-3 mb-3">
+                                                <div class="text-xs text-purple-700 dark:text-purple-300">
+                                                    <strong>🎯 Tarif Standar:</strong> Rp {{ number_format($representationRate, 0, ',', '.') }} per unit
+                                                    <br><span class="text-gray-600 dark:text-gray-400">
+                                                        {{ ucfirst(str_replace('_', ' ', $representationTripType)) }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            @endif
                                             
                                             @if(count($representationLines) > 0)
                                                 <div class="space-y-3">

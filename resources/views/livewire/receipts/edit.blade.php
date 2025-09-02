@@ -153,6 +153,22 @@
                                 @enderror
                             </div>
 
+                            <!-- Peserta (Penerima Pembayaran) - Read Only -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    Peserta (Penerima Pembayaran)
+                                </label>
+                                <div class="px-3 py-2 border border-gray-300 rounded-md bg-gray-100 dark:bg-gray-700 dark:border-gray-600 text-gray-900 dark:text-white">
+                                    {{ $receipt->payeeUser->fullNameWithTitles() ?? 'N/A' }}
+                                    <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                                        {{ $receipt->payeeUser->position?->name ?? 'N/A' }} - {{ $receipt->payeeUser->unit?->name ?? 'N/A' }}
+                                    </div>
+                                </div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                    Peserta tidak dapat diubah setelah kwitansi dibuat
+                                </div>
+                            </div>
+
                             <!-- Tingkat Perjalanan Dinas -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -188,6 +204,127 @@
                                     @endif
                                 </div>
                                 @error('travel_grade_id') 
+                                    <span class="text-red-500 text-sm">{{ $message }}</span> 
+                                @enderror
+                            </div>
+
+                            <!-- Nama Bendahara -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    Nama Bendahara <span class="text-red-500">*</span>
+                                </label>
+                                <div x-data="searchableSelect({
+                                    options: {{ Js::from(\App\Models\User::orderBy('name')->get()->map(function($user) {
+                                        return [
+                                            'id' => $user->id,
+                                            'text' => $user->fullNameWithTitles() . ' (' . trim(($user->position?->name ?? '') . ' ' . ($user->unit?->name ?? '')) . ')',
+                                            'name' => $user->name,
+                                            'nip' => $user->nip,
+                                            'position' => $user->position?->name,
+                                            'unit' => $user->unit?->name
+                                        ];
+                                    })) }},
+                                    selectedValue: @entangle('treasurer_user_id'),
+                                    placeholder: 'Cari dan pilih bendahara...'
+                                })">
+                                    <!-- Search Input -->
+                                    <div class="relative mt-1">
+                                        <input 
+                                            type="text" 
+                                            x-ref="searchInput"
+                                            x-model="searchTerm"
+                                            @click="open = true"
+                                            @keydown.escape="open = false"
+                                            @keydown.arrow-down.prevent="selectNext()"
+                                            @keydown.arrow-up.prevent="selectPrevious()"
+                                            @keydown.enter.prevent="selectCurrent()"
+                                            placeholder="Cari dan pilih bendahara..."
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                            :class="{ 'border-blue-500': open }"
+                                        >
+                                        
+                                        <!-- Dropdown -->
+                                        <div 
+                                            x-show="open" 
+                                            x-transition:enter="transition ease-out duration-200"
+                                            x-transition:enter-start="opacity-0 transform scale-95"
+                                            x-transition:enter-end="opacity-100 transform scale-100"
+                                            x-transition:leave="transition ease-in duration-150"
+                                            x-transition:leave-start="opacity-100 transform scale-100"
+                                            x-transition:leave-end="opacity-0 transform scale-95"
+                                            @click.away="open = false"
+                                            class="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg max-h-60 overflow-y-auto"
+                                        >
+                                            <template x-for="(option, index) in filteredOptions" :key="option.id">
+                                                <div 
+                                                    @click="selectOption(option)"
+                                                    class="px-3 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+                                                    :class="{ 'bg-blue-100 dark:bg-blue-900': index === selectedIndex }"
+                                                >
+                                                    <div class="font-medium" x-text="option.text"></div>
+                                                    <div class="text-sm text-gray-500 dark:text-gray-400" x-text="'NIP: ' + (option.nip || '-')"></div>
+                                                </div>
+                                            </template>
+                                            
+                                            <div x-show="filteredOptions.length === 0" class="px-3 py-2 text-gray-500 dark:text-gray-400">
+                                                Tidak ada hasil yang ditemukan
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @error('treasurer_user_id') 
+                                    <span class="text-red-500 text-sm">{{ $message }}</span> 
+                                @enderror
+                            </div>
+
+                            <!-- Titel Bendahara -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    Titel Bendahara <span class="text-red-500">*</span>
+                                </label>
+                                <select 
+                                    wire:model="treasurer_title" 
+                                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                >
+                                    <option value="">Pilih Titel</option>
+                                    <option value="Bendahara Pengeluaran">Bendahara Pengeluaran</option>
+                                    <option value="Bendahara Pengeluaran Pembantu">Bendahara Pengeluaran Pembantu</option>
+                                </select>
+                                @error('treasurer_title') 
+                                    <span class="text-red-500 text-sm">{{ $message }}</span> 
+                                @enderror
+                            </div>
+
+                            <!-- Tanggal Kwitansi -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    Tanggal Kwitansi <span class="text-red-500">*</span>
+                                </label>
+                                <input 
+                                    type="date" 
+                                    wire:model="receipt_date" 
+                                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                />
+                                @error('receipt_date') 
+                                    <span class="text-red-500 text-sm">{{ $message }}</span> 
+                                @enderror
+                            </div>
+
+                            <!-- Nomor Kwitansi -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    Nomor Kwitansi (SIPD)
+                                </label>
+                                <input 
+                                    type="text" 
+                                    wire:model="receipt_no" 
+                                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                    placeholder="Contoh: KWT-001/2024 atau nomor dari SIPD"
+                                />
+                                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                    Nomor kwitansi dapat diisi manual sesuai format yang diinginkan atau nomor dari aplikasi SIPD. Bisa dikosongkan untuk sementara.
+                                </div>
+                                @error('receipt_no') 
                                     <span class="text-red-500 text-sm">{{ $message }}</span> 
                                 @enderror
                             </div>
@@ -453,92 +590,6 @@
                             </div>
                             @endif
 
-                            <!-- Nama Bendahara -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Nama Bendahara <span class="text-red-500">*</span>
-                                </label>
-                                <div x-data="searchableSelect({
-                                    options: {{ Js::from(\App\Models\User::orderBy('name')->get()->map(function($user) {
-                                        return [
-                                            'id' => $user->id,
-                                            'text' => $user->fullNameWithTitles() . ' (' . trim(($user->position?->name ?? '') . ' ' . ($user->unit?->name ?? '')) . ')',
-                                            'name' => $user->name,
-                                            'nip' => $user->nip,
-                                            'position' => $user->position?->name,
-                                            'unit' => $user->unit?->name
-                                        ];
-                                    })) }},
-                                    selectedValue: @entangle('treasurer_user_id'),
-                                    placeholder: 'Cari dan pilih bendahara...'
-                                })">
-                                    <!-- Search Input -->
-                                    <div class="relative mt-1">
-                                        <input 
-                                            type="text" 
-                                            x-ref="searchInput"
-                                            x-model="searchTerm"
-                                            @click="open = true"
-                                            @keydown.escape="open = false"
-                                            @keydown.arrow-down.prevent="selectNext()"
-                                            @keydown.arrow-up.prevent="selectPrevious()"
-                                            @keydown.enter.prevent="selectCurrent()"
-                                            placeholder="Cari dan pilih bendahara..."
-                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                            :class="{ 'border-blue-500': open }"
-                                        >
-                                        
-                                        <!-- Dropdown -->
-                                        <div 
-                                            x-show="open" 
-                                            x-transition:enter="transition ease-out duration-200"
-                                            x-transition:enter-start="opacity-0 transform scale-95"
-                                            x-transition:enter-end="opacity-100 transform scale-100"
-                                            x-transition:leave="transition ease-in duration-150"
-                                            x-transition:leave-start="opacity-100 transform scale-100"
-                                            x-transition:leave-end="opacity-0 transform scale-95"
-                                            @click.away="open = false"
-                                            class="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg max-h-60 overflow-y-auto"
-                                        >
-                                            <template x-for="(option, index) in filteredOptions" :key="option.id">
-                                                <div 
-                                                    @click="selectOption(option)"
-                                                    class="px-3 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
-                                                    :class="{ 'bg-blue-100 dark:bg-blue-900': index === selectedIndex }"
-                                                >
-                                                    <div class="font-medium" x-text="option.text"></div>
-                                                    <div class="text-sm text-gray-500 dark:text-gray-400" x-text="'NIP: ' + (option.nip || '-')"></div>
-                                                </div>
-                                            </template>
-                                            
-                                            <div x-show="filteredOptions.length === 0" class="px-3 py-2 text-gray-500 dark:text-gray-400">
-                                                Tidak ada hasil yang ditemukan
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                @error('treasurer_user_id') 
-                                    <span class="text-red-500 text-sm">{{ $message }}</span> 
-                                @enderror
-                            </div>
-
-                            <!-- Titel Bendahara -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Titel Bendahara <span class="text-red-500">*</span>
-                                </label>
-                                <select 
-                                    wire:model="treasurer_title" 
-                                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                >
-                                    <option value="">Pilih Titel</option>
-                                    <option value="Bendahara Pengeluaran">Bendahara Pengeluaran</option>
-                                    <option value="Bendahara Pengeluaran Pembantu">Bendahara Pengeluaran Pembantu</option>
-                                </select>
-                                @error('treasurer_title') 
-                                    <span class="text-red-500 text-sm">{{ $message }}</span> 
-                                @enderror
-                            </div>
 
                             <!-- Tanggal Kwitansi -->
                             <div>

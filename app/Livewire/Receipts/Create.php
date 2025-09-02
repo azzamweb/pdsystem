@@ -6,6 +6,7 @@ use App\Models\Receipt;
 use App\Models\Sppd;
 use App\Models\User;
 use App\Services\DocumentNumberService;
+use App\Services\ReferenceRateService;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
@@ -55,6 +56,21 @@ class Create extends Component
     public $otherLines = [];
     public $totalAmount = 0;
 
+    // Computed properties for reference rates
+    public $airfareRate = null;
+    public $airfareOrigin = '';
+    public $airfareDestination = '';
+    public $lodgingCap = null;
+    public $lodgingProvince = '';
+    public $perdiemDailyRate = null;
+    public $perdiemTotalAmount = null;
+    public $perdiemProvince = '';
+    public $perdiemTripType = '';
+    public $representationRate = null;
+    public $representationTripType = '';
+    public $transportIntraProvince = null;
+    public $transportIntraDistrict = null;
+
     public function mount($sppd_id = null): void
     {
         $this->sppd_id = $sppd_id ?? request()->query('sppd_id');
@@ -101,7 +117,7 @@ class Create extends Component
             return $availableParticipants->count() > 0;
         });
         
-        if ($this->availableSppds->isEmpty()) {
+        if (empty($this->availableSppds)) {
             session()->flash('error', 'Tidak ada SPPD yang tersedia untuk dibuatkan kwitansi');
             $this->redirect(route('documents'));
             return;
@@ -134,7 +150,7 @@ class Create extends Component
         $this->loadAvailableParticipants();
         
         // Check if there are available participants for this SPPD
-        if ($this->availableParticipants->isEmpty()) {
+        if (empty($this->availableParticipants)) {
             session()->flash('error', 'SPPD ini sudah memiliki kwitansi untuk semua peserta');
             $this->redirect(route('documents'));
             return;
@@ -150,7 +166,7 @@ class Create extends Component
     public function loadAvailableParticipants()
     {
         if (!$this->sppd || !$this->sppd->spt || !$this->sppd->spt->notaDinas) {
-            $this->availableParticipants = collect();
+            $this->availableParticipants = [];
             return;
         }
 
@@ -163,7 +179,7 @@ class Create extends Component
             ->toArray();
 
         // Filter out participants who already have receipts and sort them
-        $this->availableParticipants = $allParticipants->filter(function ($participant) use ($participantsWithReceipts) {
+        $filteredParticipants = $allParticipants->filter(function ($participant) use ($participantsWithReceipts) {
             return !in_array($participant->user_id, $participantsWithReceipts);
         })->sort(function ($a, $b) {
             // 1. Sort by eselon (position_echelon_id) - lower number = higher eselon
@@ -172,7 +188,7 @@ class Create extends Component
             if ($ea !== $eb) return $ea <=> $eb;
             
             // 2. Sort by rank (rank_id) - higher number = higher rank
-            $ra = $a->user_rank_id_snapshot ?? $a->user?->rank?->id ?? 0;
+            $ra = $a->user_rank_id_snapshot ?? $b->user?->rank?->id ?? 0;
             $rb = $b->user_rank_id_snapshot ?? $b->user?->rank?->id ?? 0;
             if ($ra !== $rb) return $rb <=> $ra; // DESC order for rank
             
@@ -182,14 +198,25 @@ class Create extends Component
             return strcmp($na, $nb);
         })->values();
 
+        // Convert to simple array for Livewire serialization
+        $this->availableParticipants = $filteredParticipants->map(function ($participant) {
+            return [
+                'user_id' => $participant->user_id,
+                'user_name_snapshot' => $participant->user_name_snapshot,
+                'user_position_name_snapshot' => $participant->user_position_name_snapshot,
+                'user_rank_name_snapshot' => $participant->user_rank_name_snapshot,
+                'user_nip_snapshot' => $participant->user_nip_snapshot,
+                'user_travel_grade_id_snapshot' => $participant->user_travel_grade_id_snapshot,
+            ];
+        })->toArray();
+
         // Set default payee if available
-        if ($this->availableParticipants->count() > 0 && empty($this->payee_user_id)) {
-            $firstParticipant = $this->availableParticipants->first();
-            $this->payee_user_id = $firstParticipant->user_id;
+        if (count($this->availableParticipants) > 0 && empty($this->payee_user_id)) {
+            $firstParticipant = $this->availableParticipants[0];
+            $this->payee_user_id = $firstParticipant['user_id'];
             
             // Set default travel grade from snapshot or user data
-            $this->travel_grade_id = $firstParticipant->user_travel_grade_id_snapshot ?? 
-                                   $firstParticipant->user?->travel_grade_id ?? '';
+            $this->travel_grade_id = $firstParticipant['user_travel_grade_id_snapshot'] ?? '';
         }
     }
 
@@ -216,16 +243,15 @@ class Create extends Component
 
     public function updatedPayeeUserId($value)
     {
-        if ($value && $this->sppd && $this->sppd->spt && $this->sppd->spt->notaDinas) {
-            // Find the selected participant
-            $selectedParticipant = $this->sppd->spt->notaDinas->participants
+        if ($value && $this->availableParticipants) {
+            // Find the selected participant from available participants
+            $selectedParticipant = collect($this->availableParticipants)
                 ->where('user_id', $value)
                 ->first();
             
             if ($selectedParticipant) {
-                // Update travel grade from snapshot or user data
-                $this->travel_grade_id = $selectedParticipant->user_travel_grade_id_snapshot ?? 
-                                       $selectedParticipant->user?->travel_grade_id ?? '';
+                // Update travel grade from snapshot
+                $this->travel_grade_id = $selectedParticipant['user_travel_grade_id_snapshot'] ?? '';
             }
         }
     }
@@ -369,6 +395,100 @@ class Create extends Component
     public function updatedOtherLines()
     {
         $this->calculateTotal();
+    }
+
+    public function updatedTravelGradeId()
+    {
+        // Auto-fill from existing receipt if available
+        if ($this->sppd) {
+            $existingReceipt = Receipt::where('sppd_id', $this->sppd->id)->first();
+            if ($existingReceipt) {
+                $this->account_code = $existingReceipt->account_code ?: $this->account_code;
+                $this->treasurer_user_id = $existingReceipt->treasurer_user_id ?: $this->treasurer_user_id;
+                $this->treasurer_title = $existingReceipt->treasurer_title ?: $this->treasurer_title;
+                $this->receipt_date = $existingReceipt->receipt_date ?: $this->receipt_date;
+            }
+        }
+
+        // Calculate reference rates when travel grade is selected
+        $this->calculateReferenceRates();
+    }
+
+    /**
+     * Calculate reference rates for the current trip
+     */
+    public function calculateReferenceRates()
+    {
+        if (!$this->sppd || !$this->travel_grade_id) {
+            return;
+        }
+
+        $referenceRateService = new ReferenceRateService();
+        $notaDinas = $this->sppd->spt->notaDinas;
+        $destinationCity = $notaDinas->destinationCity;
+        $originPlace = $notaDinas->originPlace;
+        $tripType = $referenceRateService->getTripType($notaDinas);
+        
+        // Get default origin city (Pekanbaru)
+        $defaultOriginCity = $referenceRateService->getDefaultOriginCity();
+        
+        // Set individual properties for Livewire serialization
+        $this->airfareRate = $defaultOriginCity ? $referenceRateService->getAirfareRate(
+            $defaultOriginCity->id, 
+            $destinationCity->id
+        ) : null;
+        $this->airfareOrigin = $defaultOriginCity ? $defaultOriginCity->name : 'Pekanbaru';
+        $this->airfareDestination = $destinationCity->name;
+        
+        $this->lodgingCap = $referenceRateService->getLodgingCap(
+            $destinationCity->province_id, 
+            $this->travel_grade_id
+        );
+        $this->lodgingProvince = $destinationCity->province->name ?? 'N/A';
+        
+        $this->perdiemDailyRate = $referenceRateService->getPerdiemRate(
+            $destinationCity->province_id, 
+            $this->travel_grade_id, 
+            $tripType
+        );
+        $this->perdiemTotalAmount = $referenceRateService->calculateTotalPerdiem(
+            $destinationCity->province_id, 
+            $this->travel_grade_id, 
+            $tripType, 
+            $this->calculateTripDays($notaDinas)
+        );
+        $this->perdiemProvince = $destinationCity->province->name ?? 'N/A';
+        $this->perdiemTripType = $tripType;
+        
+        $this->representationRate = $referenceRateService->getRepresentationRate(
+            $this->travel_grade_id, 
+            $tripType
+        );
+        $this->representationTripType = $tripType;
+        
+        $this->transportIntraProvince = $originPlace ? $referenceRateService->getIntraProvinceTransportRate(
+            $originPlace->id, 
+            $destinationCity->id
+        ) : null;
+        $this->transportIntraDistrict = $originPlace && $destinationCity->district_id ? $referenceRateService->getIntraDistrictTransportRate(
+            $originPlace->id, 
+            $destinationCity->district_id
+        ) : null;
+    }
+
+    /**
+     * Calculate trip days from start and end date
+     */
+    public function calculateTripDays($notaDinas)
+    {
+        if (!$notaDinas->start_date || !$notaDinas->end_date) {
+            return 1;
+        }
+
+        $startDate = \Carbon\Carbon::parse($notaDinas->start_date);
+        $endDate = \Carbon\Carbon::parse($notaDinas->end_date);
+        
+        return $startDate->diffInDays($endDate) + 1;
     }
 
     private function createReceiptLines($receipt)
