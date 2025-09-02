@@ -192,6 +192,267 @@
                                 @enderror
                             </div>
 
+                            <!-- Perhitungan Biaya (hanya tampil jika travel grade sudah dipilih) -->
+                            @if($travel_grade_id)
+                            <div class="border-t border-gray-200 dark:border-gray-600 pt-6">
+                                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center">
+                                    <svg class="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                    </svg>
+                                    Perhitungan Biaya
+                                </h3>
+                                
+                                <!-- Komponen Biaya -->
+                                <div class="space-y-4">
+                                    <!-- 1. Biaya Transportasi -->
+                                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                                        <div class="flex items-center justify-between mb-3">
+                                            <h4 class="font-medium text-gray-900 dark:text-white">1. Biaya Transportasi</h4>
+                                            <button type="button" wire:click="addTransportLine" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium">
+                                                + Tambah
+                                            </button>
+                                        </div>
+                                        
+                                        @if(count($transportLines) > 0)
+                                            <div class="space-y-3">
+                                                @foreach($transportLines as $index => $line)
+                                                <div class="bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 p-3">
+                                                    <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+                                                        <div>
+                                                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Jenis</label>
+                                                            <select wire:model="transportLines.{{ $index }}.component" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                                                <option value="">Pilih Jenis</option>
+                                                                <option value="AIRFARE">Tiket Pesawat</option>
+                                                                <option value="INTRA_PROV">Transport Dalam Provinsi</option>
+                                                                <option value="INTRA_DISTRICT">Transport Dalam Kabupaten</option>
+                                                                <option value="OFFICIAL_VEHICLE">Kendaraan Dinas</option>
+                                                                <option value="TAXI">Taxi</option>
+                                                                <option value="RORO">Kapal RORO</option>
+                                                                <option value="TOLL">Tol</option>
+                                                                <option value="PARKIR_INAP">Parkir & Penginapan</option>
+                                                            </select>
+                                                        </div>
+                                                        <div>
+                                                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Jumlah</label>
+                                                            <input type="number" wire:model="transportLines.{{ $index }}.qty" min="0" step="0.5" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                                        </div>
+                                                        <div>
+                                                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Harga Satuan</label>
+                                                            <input type="number" wire:model="transportLines.{{ $index }}.unit_amount" min="0" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                                        </div>
+                                                        <div>
+                                                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Total</label>
+                                                            <div class="px-2 py-1 text-sm bg-gray-100 dark:bg-gray-600 rounded font-mono">
+                                                                Rp {{ number_format($line['qty'] * $line['unit_amount'], 0, ',', '.') }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex items-end">
+                                                            <button type="button" wire:click="removeTransportLine({{ $index }})" class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 text-sm">
+                                                                Hapus
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <div class="text-center py-4 text-gray-500 dark:text-gray-400 text-sm">
+                                                Belum ada biaya transportasi yang ditambahkan
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    <!-- 2. Biaya Penginapan -->
+                                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                                        <div class="flex items-center justify-between mb-3">
+                                            <h4 class="font-medium text-gray-900 dark:text-white">2. Biaya Penginapan</h4>
+                                            <button type="button" wire:click="addLodgingLine" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium">
+                                                + Tambah
+                                            </button>
+                                        </div>
+                                        
+                                        @if(count($lodgingLines) > 0)
+                                            <div class="space-y-3">
+                                                @foreach($lodgingLines as $index => $line)
+                                                <div class="bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 p-3">
+                                                    <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                                                        <div>
+                                                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Jumlah Malam</label>
+                                                            <input type="number" wire:model="lodgingLines.{{ $index }}.qty" min="0" step="0.5" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                                        </div>
+                                                        <div>
+                                                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Tarif per Malam</label>
+                                                            <input type="number" wire:model="lodgingLines.{{ $index }}.unit_amount" min="0" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                                        </div>
+                                                        <div>
+                                                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Total</label>
+                                                            <div class="px-2 py-1 text-sm bg-gray-100 dark:bg-gray-600 rounded font-mono">
+                                                                Rp {{ number_format($line['qty'] * $line['unit_amount'], 0, ',', '.') }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex items-end">
+                                                            <button type="button" wire:click="removeLodgingLine({{ $index }})" class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 text-sm">
+                                                                Hapus
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <div class="text-center py-4 text-gray-500 dark:text-gray-400 text-sm">
+                                                Belum ada biaya penginapan yang ditambahkan
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    <!-- 3. Uang Harian (Perdiem) -->
+                                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                                        <div class="flex items-center justify-between mb-3">
+                                            <h4 class="font-medium text-gray-900 dark:text-white">3. Uang Harian (Perdiem)</h4>
+                                            <button type="button" wire:click="addPerdiemLine" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium">
+                                                + Tambah
+                                            </button>
+                                        </div>
+                                        
+                                        @if(count($perdiemLines) > 0)
+                                            <div class="space-y-3">
+                                                @foreach($perdiemLines as $index => $line)
+                                                <div class="bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 p-3">
+                                                    <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                                                        <div>
+                                                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Jumlah Hari</label>
+                                                            <input type="number" wire:model="perdiemLines.{{ $index }}.qty" min="0" step="0.5" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                                        </div>
+                                                        <div>
+                                                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Tarif per Hari</label>
+                                                            <input type="number" wire:model="perdiemLines.{{ $index }}.unit_amount" min="0" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                                        </div>
+                                                        <div>
+                                                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Total</label>
+                                                            <div class="px-2 py-1 text-sm bg-gray-100 dark:bg-gray-600 rounded font-mono">
+                                                                Rp {{ number_format($line['qty'] * $line['unit_amount'], 0, ',', '.') }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex items-end">
+                                                            <button type="button" wire:click="removePerdiemLine({{ $index }})" class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 text-sm">
+                                                                Hapus
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <div class="text-center py-4 text-gray-500 dark:text-gray-400 text-sm">
+                                                Belum ada uang harian yang ditambahkan
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    <!-- 4. Biaya Representatif -->
+                                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                                        <div class="flex items-center justify-between mb-3">
+                                            <h4 class="font-medium text-gray-900 dark:text-white">4. Biaya Representatif</h4>
+                                            <button type="button" wire:click="addRepresentationLine" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium">
+                                                + Tambah
+                                            </button>
+                                        </div>
+                                        
+                                        @if(count($representationLines) > 0)
+                                            <div class="space-y-3">
+                                                @foreach($representationLines as $index => $line)
+                                                <div class="bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 p-3">
+                                                    <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                                                        <div>
+                                                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Jumlah</label>
+                                                            <input type="number" wire:model="representationLines.{{ $index }}.qty" min="0" step="0.5" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                                        </div>
+                                                        <div>
+                                                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Harga Satuan</label>
+                                                            <input type="number" wire:model="representationLines.{{ $index }}.unit_amount" min="0" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                                        </div>
+                                                        <div>
+                                                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Total</label>
+                                                            <div class="px-2 py-1 text-sm bg-gray-100 dark:bg-gray-600 rounded font-mono">
+                                                                Rp {{ number_format($line['qty'] * $line['unit_amount'], 0, ',', '.') }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex items-end">
+                                                            <button type="button" wire:click="removeRepresentationLine({{ $index }})" class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 text-sm">
+                                                                Hapus
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <div class="text-center py-4 text-gray-500 dark:text-gray-400 text-sm">
+                                                Belum ada biaya representatif yang ditambahkan
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    <!-- 5. Biaya Lainnya -->
+                                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                                        <div class="flex items-center justify-between mb-3">
+                                            <h4 class="font-medium text-gray-900 dark:text-white">5. Biaya Lainnya</h4>
+                                            <button type="button" wire:click="addOtherLine" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium">
+                                                + Tambah
+                                            </button>
+                                        </div>
+                                        
+                                        @if(count($otherLines) > 0)
+                                            <div class="space-y-3">
+                                                @foreach($otherLines as $index => $line)
+                                                <div class="bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 p-3">
+                                                    <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+                                                        <div>
+                                                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Keterangan</label>
+                                                            <input type="text" wire:model="otherLines.{{ $index }}.remark" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Contoh: Rapid Test">
+                                                        </div>
+                                                        <div>
+                                                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Jumlah</label>
+                                                            <input type="number" wire:model="otherLines.{{ $index }}.qty" min="0" step="0.5" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                                        </div>
+                                                        <div>
+                                                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Harga Satuan</label>
+                                                            <input type="number" wire:model="otherLines.{{ $index }}.unit_amount" min="0" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                                        </div>
+                                                        <div>
+                                                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Total</label>
+                                                            <div class="px-2 py-1 text-sm bg-gray-100 dark:bg-gray-600 rounded font-mono">
+                                                                Rp {{ number_format($line['qty'] * $line['unit_amount'], 0, ',', '.') }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex items-end">
+                                                            <button type="button" wire:click="removeOtherLine({{ $index }})" class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 text-sm">
+                                                                Hapus
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <div class="text-center py-4 text-gray-500 dark:text-gray-400 text-sm">
+                                                Belum ada biaya lainnya yang ditambahkan
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    <!-- Total Keseluruhan -->
+                                    <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+                                        <h4 class="font-medium text-gray-900 dark:text-white mb-3">Total Keseluruhan</h4>
+                                        <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                                            Rp {{ number_format($totalAmount, 0, ',', '.') }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
+
                             <!-- Nama Bendahara -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">

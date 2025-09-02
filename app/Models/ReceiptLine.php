@@ -11,11 +11,16 @@ class ReceiptLine extends Model
 
     protected $fillable = [
         'receipt_id', 'component', 'qty', 'unit', 'unit_amount', 'line_total', 
-        'is_no_lodging', 'destination_city', 'remark',
+        'ref_table', 'ref_id', 'cap_amount', 'is_over_cap', 'over_cap_amount', 'remark',
     ];
 
     protected $casts = [
-        'is_no_lodging' => 'boolean',
+        'qty' => 'decimal:2',
+        'unit_amount' => 'decimal:2',
+        'line_total' => 'decimal:2',
+        'cap_amount' => 'decimal:2',
+        'is_over_cap' => 'boolean',
+        'over_cap_amount' => 'decimal:2',
     ];
 
     public function receipt() { return $this->belongsTo(Receipt::class); }

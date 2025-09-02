@@ -47,6 +47,14 @@ class Create extends Component
     // Available SPPDs for selection
     public $availableSppds = [];
 
+    // Perhitungan biaya properties
+    public $perdiemLines = [];
+    public $transportLines = [];
+    public $lodgingLines = [];
+    public $representationLines = [];
+    public $otherLines = [];
+    public $totalAmount = 0;
+
     public function mount($sppd_id = null): void
     {
         $this->sppd_id = $sppd_id ?? request()->query('sppd_id');
@@ -228,6 +236,203 @@ class Create extends Component
         $this->loadSppdData();
     }
 
+    // Method untuk mengelola perhitungan biaya
+    public function addPerdiemLine()
+    {
+        $this->perdiemLines[] = [
+            'qty' => 1,
+            'unit_amount' => 0,
+        ];
+    }
+
+    public function removePerdiemLine($index)
+    {
+        unset($this->perdiemLines[$index]);
+        $this->perdiemLines = array_values($this->perdiemLines);
+        $this->calculateTotal();
+    }
+
+    public function addTransportLine()
+    {
+        $this->transportLines[] = [
+            'component' => '',
+            'qty' => 1,
+            'unit_amount' => 0,
+        ];
+    }
+
+    public function removeTransportLine($index)
+    {
+        unset($this->transportLines[$index]);
+        $this->transportLines = array_values($this->transportLines);
+        $this->calculateTotal();
+    }
+
+    public function addLodgingLine()
+    {
+        $this->lodgingLines[] = [
+            'qty' => 1,
+            'unit_amount' => 0,
+        ];
+    }
+
+    public function removeLodgingLine($index)
+    {
+        unset($this->lodgingLines[$index]);
+        $this->lodgingLines = array_values($this->lodgingLines);
+        $this->calculateTotal();
+    }
+
+    public function addRepresentationLine()
+    {
+        $this->representationLines[] = [
+            'qty' => 1,
+            'unit_amount' => 0,
+        ];
+    }
+
+    public function removeRepresentationLine($index)
+    {
+        unset($this->representationLines[$index]);
+        $this->representationLines = array_values($this->representationLines);
+        $this->calculateTotal();
+    }
+
+    public function addOtherLine()
+    {
+        $this->otherLines[] = [
+            'remark' => '',
+            'qty' => 1,
+            'unit_amount' => 0,
+        ];
+    }
+
+    public function removeOtherLine($index)
+    {
+        unset($this->otherLines[$index]);
+        $this->otherLines = array_values($this->otherLines);
+        $this->calculateTotal();
+    }
+
+    public function calculateTotal()
+    {
+        $total = 0;
+
+        // Hitung total transportasi
+        foreach ($this->transportLines as $line) {
+            $total += ($line['qty'] ?? 0) * ($line['unit_amount'] ?? 0);
+        }
+
+        // Hitung total penginapan
+        foreach ($this->lodgingLines as $line) {
+            $total += ($line['qty'] ?? 0) * ($line['unit_amount'] ?? 0);
+        }
+
+        // Hitung total uang harian
+        foreach ($this->perdiemLines as $line) {
+            $total += ($line['qty'] ?? 0) * ($line['unit_amount'] ?? 0);
+        }
+
+        // Hitung total representatif
+        foreach ($this->representationLines as $line) {
+            $total += ($line['qty'] ?? 0) * ($line['unit_amount'] ?? 0);
+        }
+
+        // Hitung total biaya lainnya
+        foreach ($this->otherLines as $line) {
+            $total += ($line['qty'] ?? 0) * ($line['unit_amount'] ?? 0);
+        }
+
+        $this->totalAmount = $total;
+    }
+
+    public function updatedPerdiemLines()
+    {
+        $this->calculateTotal();
+    }
+
+    public function updatedTransportLines()
+    {
+        $this->calculateTotal();
+    }
+
+    public function updatedLodgingLines()
+    {
+        $this->calculateTotal();
+    }
+
+    public function updatedRepresentationLines()
+    {
+        $this->calculateTotal();
+    }
+
+    public function updatedOtherLines()
+    {
+        $this->calculateTotal();
+    }
+
+    private function createReceiptLines($receipt)
+    {
+        // Create perdiem lines
+        foreach ($this->perdiemLines as $line) {
+            if (($line['qty'] ?? 0) > 0 && ($line['unit_amount'] ?? 0) > 0) {
+                \App\Models\ReceiptLine::create([
+                    'receipt_id' => $receipt->id,
+                    'component' => 'PERDIEM',
+                    'qty' => $line['qty'],
+                    'unit' => 'Hari',
+                    'unit_amount' => $line['unit_amount'],
+                    'line_total' => $line['qty'] * $line['unit_amount'],
+                ]);
+            }
+        }
+
+        // Create transport lines
+        foreach ($this->transportLines as $line) {
+            if (($line['qty'] ?? 0) > 0 && ($line['unit_amount'] ?? 0) > 0 && !empty($line['component'])) {
+                \App\Models\ReceiptLine::create([
+                    'receipt_id' => $receipt->id,
+                    'component' => $line['component'],
+                    'qty' => $line['qty'],
+                    'unit' => $this->getUnitForComponent($line['component']),
+                    'unit_amount' => $line['unit_amount'],
+                    'line_total' => $line['qty'] * $line['unit_amount'],
+                ]);
+            }
+        }
+
+        // Create other lines
+        foreach ($this->otherLines as $line) {
+            if (($line['qty'] ?? 0) > 0 && ($line['unit_amount'] ?? 0) > 0 && !empty($line['remark'])) {
+                \App\Models\ReceiptLine::create([
+                    'receipt_id' => $receipt->id,
+                    'component' => 'LAINNYA',
+                    'qty' => $line['qty'],
+                    'unit' => 'Unit',
+                    'unit_amount' => $line['unit_amount'],
+                    'line_total' => $line['qty'] * $line['unit_amount'],
+                    'remark' => $line['remark'],
+                ]);
+            }
+        }
+    }
+
+    private function getUnitForComponent($component)
+    {
+        $units = [
+            'AIRFARE' => 'Tiket',
+            'INTRA_PROV' => 'Trip',
+            'INTRA_DISTRICT' => 'Trip',
+            'OFFICIAL_VEHICLE' => 'Trip',
+            'TAXI' => 'Trip',
+            'RORO' => 'Tiket',
+            'TOLL' => 'Trip',
+            'PARKIR_INAP' => 'Unit',
+        ];
+
+        return $units[$component] ?? 'Unit';
+    }
+
     public function save()
     {
         $this->validate();
@@ -250,6 +455,9 @@ class Create extends Component
             return;
         }
 
+        // Calculate total amount
+        $this->calculateTotal();
+
         // Create receipt with manual numbering (no automatic numbering for receipts)
         $receipt = Receipt::create([
             'doc_no' => null, // Manual numbering for receipts
@@ -266,12 +474,15 @@ class Create extends Component
             'account_code' => $this->account_code,
             'treasurer_user_id' => $this->treasurer_user_id,
             'treasurer_title' => $this->treasurer_title,
-            'total_amount' => 0, // Will be calculated later
+            'total_amount' => $this->totalAmount,
             'status' => 'DRAFT',
         ]);
 
         // Create treasurer snapshot
         $receipt->createTreasurerUserSnapshot();
+
+        // Create receipt lines
+        $this->createReceiptLines($receipt);
 
         session()->flash('message', 'Kwitansi berhasil dibuat.');
 
