@@ -75,6 +75,10 @@ class Create extends Component
     public $hasExcessiveValues = false;
     public $excessiveValueDetails = [];
 
+    // Travel grade properties
+    public $hasTravelGradeWarning = false;
+    public $travelGradeWarningMessage = '';
+
     public function mount($sppd_id = null): void
     {
         $this->sppd_id = $sppd_id ?? request()->query('sppd_id');
@@ -163,6 +167,9 @@ class Create extends Component
         // Auto-fill fields from existing receipt if available
         $this->autoFillFromExistingReceipt();
         
+        // ✅ MEMASTIKAN: Travel grade selalu dari snapshot participant
+        $this->ensureTravelGradeFromSnapshot();
+        
         // Load users for approval and treasurer
         $this->loadUsers();
     }
@@ -219,8 +226,11 @@ class Create extends Component
             $firstParticipant = $this->availableParticipants[0];
             $this->payee_user_id = $firstParticipant['user_id'];
             
-            // Set default travel grade from snapshot or user data
+            // ✅ PRIORITAS UTAMA: Set travel grade dari snapshot participant
             $this->travel_grade_id = $firstParticipant['user_travel_grade_id_snapshot'] ?? '';
+            
+            // Check travel grade warning
+            $this->checkTravelGradeWarning($firstParticipant);
         }
     }
 
@@ -241,7 +251,10 @@ class Create extends Component
             $this->treasurer_user_id = $existingReceipt->treasurer_user_id ?? $this->treasurer_user_id;
             $this->treasurer_title = $existingReceipt->treasurer_title ?? $this->treasurer_title;
             $this->receipt_date = $existingReceipt->receipt_date ?? $this->receipt_date;
-            $this->travel_grade_id = $existingReceipt->travel_grade_id ?? $this->travel_grade_id;
+            
+            // ❌ JANGAN override travel_grade_id dari existing receipt
+            // Travel grade harus selalu mengikuti snapshot participant
+            // $this->travel_grade_id = $existingReceipt->travel_grade_id ?? $this->travel_grade_id;
         }
     }
 
@@ -254,11 +267,16 @@ class Create extends Component
                 ->first();
             
             if ($selectedParticipant) {
-                // Update travel grade from snapshot
+                // ✅ PRIORITAS UTAMA: Update travel grade dari snapshot participant
                 $this->travel_grade_id = $selectedParticipant['user_travel_grade_id_snapshot'] ?? '';
+                
+                // Check travel grade warning
+                $this->checkTravelGradeWarning($selectedParticipant);
             }
         }
     }
+
+
 
     public function selectSppd($sppdId)
     {
@@ -652,7 +670,7 @@ class Create extends Component
 
     public function updatedTravelGradeId()
     {
-        // Auto-fill from existing receipt if available
+        // Auto-fill from existing receipt if available (EXCEPT travel_grade_id)
         if ($this->sppd) {
             $existingReceipt = Receipt::where('sppd_id', $this->sppd->id)->first();
             if ($existingReceipt) {
@@ -663,8 +681,65 @@ class Create extends Component
             }
         }
 
+        // Update travel grade di user dan snapshot jika ada payee_user_id
+        if ($this->travel_grade_id && $this->payee_user_id && $this->sppd) {
+            $this->updateUserTravelGrade($this->payee_user_id, $this->travel_grade_id);
+            $this->updateNotaDinasParticipantSnapshot($this->payee_user_id, $this->travel_grade_id);
+        }
+
         // Calculate reference rates when travel grade is selected
         $this->calculateReferenceRates();
+    }
+
+    private function updateUserTravelGrade($userId, $travelGradeId)
+    {
+        $user = User::find($userId);
+        if ($user && $user->travel_grade_id != $travelGradeId) {
+            $user->update(['travel_grade_id' => $travelGradeId]);
+        }
+    }
+
+    private function updateNotaDinasParticipantSnapshot($userId, $travelGradeId)
+    {
+        if (!$this->sppd || !$this->sppd->spt || !$this->sppd->spt->notaDinas) {
+            return;
+        }
+
+        $notaDinas = $this->sppd->spt->notaDinas;
+        $participant = $notaDinas->participants()->where('user_id', $userId)->first();
+        
+        if ($participant) {
+            $participant->update(['user_travel_grade_id_snapshot' => $travelGradeId]);
+        }
+    }
+
+    private function checkTravelGradeWarning($participant)
+    {
+        $this->hasTravelGradeWarning = false;
+        $this->travelGradeWarningMessage = '';
+
+        if (empty($participant['user_travel_grade_id_snapshot'])) {
+            $this->hasTravelGradeWarning = true;
+            $this->travelGradeWarningMessage = 'Peserta belum memiliki tingkat perjalanan dinas. Silakan pilih tingkat perjalanan dinas yang sesuai.';
+        }
+    }
+
+    /**
+     * Memastikan travel grade selalu mengikuti snapshot participant
+     * Jangan pernah override dengan data dari existing receipt
+     */
+    private function ensureTravelGradeFromSnapshot()
+    {
+        if ($this->payee_user_id && $this->availableParticipants) {
+            $selectedParticipant = collect($this->availableParticipants)
+                ->where('user_id', $this->payee_user_id)
+                ->first();
+            
+            if ($selectedParticipant && !empty($selectedParticipant['user_travel_grade_id_snapshot'])) {
+                // Pastikan travel grade mengikuti snapshot
+                $this->travel_grade_id = $selectedParticipant['user_travel_grade_id_snapshot'];
+            }
+        }
     }
 
     /**

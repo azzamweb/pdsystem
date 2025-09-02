@@ -52,6 +52,10 @@ class Edit extends Component
     public $hasExcessiveValues = false;
     public $excessiveValueDetails = [];
 
+    // Travel grade properties
+    public $hasTravelGradeWarning = false;
+    public $travelGradeWarningMessage = '';
+
     // Computed properties for reference rates
     public $airfareRate = null;
     public $airfareOrigin = '';
@@ -99,6 +103,9 @@ class Edit extends Component
         if ($this->travel_grade_id) {
             $this->loadReferenceRates();
         }
+
+        // Check travel grade warning
+        $this->checkTravelGradeWarning();
     }
 
     private function loadReceiptLines()
@@ -478,6 +485,46 @@ class Edit extends Component
         return $this->hasExcessiveValues;
     }
 
+    private function updateUserTravelGrade($userId, $travelGradeId)
+    {
+        $user = User::find($userId);
+        if ($user && $user->travel_grade_id != $travelGradeId) {
+            $user->update(['travel_grade_id' => $travelGradeId]);
+        }
+    }
+
+    private function updateNotaDinasParticipantSnapshot($userId, $travelGradeId)
+    {
+        if (!$this->receipt || !$this->receipt->sppd || !$this->receipt->sppd->spt || !$this->receipt->sppd->spt->notaDinas) {
+            return;
+        }
+
+        $notaDinas = $this->receipt->sppd->spt->notaDinas;
+        $participant = $notaDinas->participants()->where('user_id', $userId)->first();
+        
+        if ($participant) {
+            $participant->update(['user_travel_grade_id_snapshot' => $travelGradeId]);
+        }
+    }
+
+    private function checkTravelGradeWarning()
+    {
+        if (!$this->receipt || !$this->receipt->sppd || !$this->receipt->sppd->spt || !$this->receipt->sppd->spt->notaDinas) {
+            return;
+        }
+
+        $notaDinas = $this->receipt->sppd->spt->notaDinas;
+        $participant = $notaDinas->participants()->where('user_id', $this->receipt->payee_user_id)->first();
+        
+        if ($participant && empty($participant->user_travel_grade_id_snapshot)) {
+            $this->hasTravelGradeWarning = true;
+            $this->travelGradeWarningMessage = 'Peserta belum memiliki tingkat perjalanan dinas. Silakan pilih tingkat perjalanan dinas yang sesuai.';
+        } else {
+            $this->hasTravelGradeWarning = false;
+            $this->travelGradeWarningMessage = '';
+        }
+    }
+
     public function addLodgingLine()
     {
         $this->lodgingLines[] = [
@@ -526,7 +573,14 @@ class Edit extends Component
 
     public function updatedTravelGradeId($value)
     {
-        if ($value) {
+        if ($value && $this->receipt) {
+            // Update travel grade di user jika berbeda dengan yang ada
+            $this->updateUserTravelGrade($this->receipt->payee_user_id, $value);
+            
+            // Update snapshot di nota dinas participant
+            $this->updateNotaDinasParticipantSnapshot($this->receipt->payee_user_id, $value);
+            
+            // Reload reference rates dengan travel grade baru
             $this->loadReferenceRates();
         }
     }

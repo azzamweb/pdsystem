@@ -330,21 +330,26 @@
                                     </select>
                                     <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                         @if($payee_user_id)
-                                            @php
-                                                $selectedParticipant = $sppd->spt->notaDinas->participants->where('user_id', $payee_user_id)->first();
-                                                $hasTravelGrade = $selectedParticipant?->user_travel_grade_id_snapshot || $selectedParticipant?->user?->travel_grade_id;
-                                            @endphp
-                                            @if($hasTravelGrade)
-                                                <span class="text-green-600 dark:text-green-400">
-                                                    ✓ Tingkat perjalanan dinas peserta sudah ditentukan
-                                                </span>
+                                            @if($hasTravelGradeWarning)
+                                                <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 mt-2">
+                                                    <div class="text-yellow-700 dark:text-yellow-300">
+                                                        <strong>⚠️ Peringatan:</strong> {{ $travelGradeWarningMessage }}
+                                                    </div>
+                                                </div>
                                             @else
-                                                <span class="text-yellow-600 dark:text-yellow-400">
-                                                    ⚠ Tingkat perjalanan dinas peserta belum ditentukan, silakan pilih tingkat perjalanan dinas
-                                                </span>
+                                                <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3 mt-2">
+                                                    <div class="text-green-700 dark:text-green-300">
+                                                        <strong>✓ Status:</strong> Tingkat perjalanan dinas peserta sudah ditentukan
+                                                    </div>
+                                                    <div class="text-green-600 dark:text-green-400 text-xs mt-1">
+                                                        📋 Menggunakan data snapshot dari nota dinas
+                                                    </div>
+                                                </div>
                                             @endif
                                         @else
-                                            Pilih peserta terlebih dahulu untuk melihat status tingkat perjalanan dinas
+                                            <div class="text-gray-500 dark:text-gray-400">
+                                                Pilih peserta terlebih dahulu untuk melihat status tingkat perjalanan dinas
+                                            </div>
                                         @endif
                                     </div>
                                     @error('travel_grade_id') 
