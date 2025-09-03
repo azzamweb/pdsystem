@@ -80,6 +80,74 @@
   $perDiemRate   = $lines->firstWhere('category','per_diem')['rate'] ?? null;
   $fmtNights = $lodgingNights ? "({$lodgingNights} Malam)" : "(1 Malam)";
   $fmtPerDiem = ($perDiemDays && $perDiemRate) ? "({$perDiemDays} hari x ".money_id($perDiemRate).")" : "";
+
+  // Kategori transportasi yang dinamis berdasarkan data kwitansi
+  $transportCategories = [];
+  
+  // Debug: Tampilkan semua lines yang ada
+  // dd($lines->toArray());
+  
+  // Debug: Tampilkan receipt lines yang ada
+  // dd($receipt->lines);
+  
+  // Debug: Tampilkan receipt object
+  dd($receipt);
+  
+  if ($lines->count() > 0) {
+    // Ambil semua kategori transportasi yang ada pada data kwitansi
+    $transportLines = $lines->filter(function($line) {
+      $category = $line['category'] ?? '';
+      return strpos($category, 'transport') === 0 || 
+             strpos($category, 'pesawat') !== false || 
+             strpos($category, 'provinsi') !== false ||
+             strpos($category, 'udara') !== false;
+    });
+    
+    foreach ($transportLines as $line) {
+      $categoryName = '';
+      $category = $line['category'] ?? '';
+      
+      // Mapping kategori yang lebih fleksibel
+      if (strpos($category, 'pesawat') !== false || strpos($category, 'udara') !== false) {
+        $categoryName = 'Tiket Pesawat';
+      } elseif (strpos($category, 'provinsi') !== false) {
+        $categoryName = 'Transport Dalam Provinsi';
+      } elseif (strpos($category, 'laut') !== false) {
+        $categoryName = 'Laut';
+      } elseif (strpos($category, 'darat') !== false && strpos($category, 'roro') !== false) {
+        $categoryName = 'Darat/Roro';
+      } elseif (strpos($category, 'darat') !== false) {
+        $categoryName = 'Darat';
+      } elseif (strpos($category, 'taksi') !== false) {
+        $categoryName = 'Taksi';
+      } else {
+        // Jika tidak ada yang cocok, gunakan nama kategori asli
+        $categoryName = ucfirst(str_replace(['transport_', '_'], ['', ' '], $category));
+      }
+      
+      $transportCategories[] = [
+        'name' => $categoryName,
+        'amount' => $line['amount'] ?? $line['line_total'] ?? 0,
+        'qty' => $line['qty'] ?? 1,
+        'unit' => $line['unit'] ?? '-',
+        'original_category' => $category // untuk debugging
+      ];
+    }
+  }
+  
+  // Debug: Tampilkan hasil transport categories
+  // dd($transportCategories);
+  
+  // Jika tidak ada data transportasi, gunakan default
+  if (empty($transportCategories)) {
+    $transportCategories = [
+      ['name' => 'Laut', 'amount' => 0, 'qty' => 1, 'unit' => '-'],
+      ['name' => 'Darat', 'amount' => 0, 'qty' => 1, 'unit' => '-'],
+      ['name' => 'Darat/Roro', 'amount' => 0, 'qty' => 1, 'unit' => '-'],
+      ['name' => 'Udara', 'amount' => 0, 'qty' => 1, 'unit' => '-'],
+      ['name' => 'Taksi', 'amount' => 0, 'qty' => 1, 'unit' => '-']
+    ];
+  }
 @endphp
 
   <div class="topbar">Kas No : {{ $receipt->receipt_no ?? '__________________' }}</div>
@@ -226,21 +294,25 @@
         <td class="text-center">1.</td>
         <td>
           Transportasi
-          <div>- Laut</div>
-          <div>- Darat</div>
-          <div>- Darat/Roro</div>
-          <div>- Udara</div>
-          <div>- Taksi</div>
+          @foreach($transportCategories as $transport)
+          <div>- {{ $transport['name'] }}</div>
+          @endforeach
         </td>
-        <td class="text-right"><div>-</div><div>-</div><div>-</div><div>-</div><div>-</div></td>
         <td class="text-right">
-          <div>{{ $transport['laut']  ? money_id($transport['laut'])  : '-' }}</div>
-          <div>{{ $transport['darat'] ? money_id($transport['darat']) : '-' }}</div>
-          <div>{{ $transport['roro']  ? money_id($transport['roro'])  : '-' }}</div>
-          <div>{{ $transport['udara'] ? money_id($transport['udara']) : '-' }}</div>
-          <div>{{ $transport['taksi'] ? money_id($transport['taksi']) : '-' }}</div>
+          @foreach($transportCategories as $transport)
+          <div>-</div>
+          @endforeach
         </td>
-        <td class="text-right"><div>-</div><div>-</div><div>-</div><div>-</div><div>-</div></td>
+        <td class="text-right">
+          @foreach($transportCategories as $transport)
+          <div>{{ $transport['amount'] > 0 ? money_id($transport['amount']) : '-' }}</div>
+          @endforeach
+        </td>
+        <td class="text-right">
+          @foreach($transportCategories as $transport)
+          <div>-</div>
+          @endforeach
+        </td>
       </tr>
 
       <tr>
