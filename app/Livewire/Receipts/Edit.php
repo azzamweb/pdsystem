@@ -115,12 +115,14 @@ class Edit extends Component
         foreach ($receiptLines as $line) {
             if ($line->component === 'PERDIEM') {
                 $this->perdiemLines[] = [
+                    'category' => 'per_diem',
                     'qty' => $line->qty,
                     'unit_amount' => $line->unit_amount,
                 ];
             } elseif (in_array($line->component, ['AIRFARE', 'INTRA_PROV', 'INTRA_DISTRICT', 'OFFICIAL_VEHICLE', 'TAXI', 'RORO', 'TOLL', 'PARKIR_INAP'])) {
                 $this->transportLines[] = [
                     'component' => $line->component,
+                    'category' => 'transport',
                     'qty' => $line->qty,
                     'unit_amount' => $line->unit_amount,
                     'rate_info' => '',
@@ -133,16 +135,19 @@ class Edit extends Component
                 ];
             } elseif ($line->component === 'LODGING') {
                 $this->lodgingLines[] = [
+                    'category' => 'lodging',
                     'qty' => $line->qty,
                     'unit_amount' => $line->unit_amount,
                 ];
             } elseif ($line->component === 'REPRESENTATION') {
                 $this->representationLines[] = [
+                    'category' => 'representation',
                     'qty' => $line->qty,
                     'unit_amount' => $line->unit_amount,
                 ];
             } elseif ($line->component === 'LAINNYA') {
                 $this->otherLines[] = [
+                    'category' => 'other',
                     'remark' => $line->remark,
                     'qty' => $line->qty,
                     'unit_amount' => $line->unit_amount,
@@ -259,6 +264,7 @@ class Edit extends Component
     {
         $this->transportLines[] = [
             'component' => '',
+            'category' => 'transport',
             'qty' => 1,
             'unit_amount' => 0,
             'rate_info' => '',
@@ -528,6 +534,7 @@ class Edit extends Component
     public function addLodgingLine()
     {
         $this->lodgingLines[] = [
+            'category' => 'lodging',
             'qty' => 1,
             'unit_amount' => 0,
         ];
@@ -543,6 +550,7 @@ class Edit extends Component
     public function addRepresentationLine()
     {
         $this->representationLines[] = [
+            'category' => 'representation',
             'qty' => 1,
             'unit_amount' => 0,
         ];
@@ -558,6 +566,7 @@ class Edit extends Component
     public function addOtherLine()
     {
         $this->otherLines[] = [
+            'category' => 'other',
             'remark' => '',
             'qty' => 1,
             'unit_amount' => 0,
@@ -689,6 +698,7 @@ class Edit extends Component
                 \App\Models\ReceiptLine::create([
                     'receipt_id' => $receipt->id,
                     'component' => 'PERDIEM',
+                    'category' => $line['category'] ?? 'per_diem',
                     'qty' => $line['qty'],
                     'unit' => 'Hari',
                     'unit_amount' => $line['unit_amount'],
@@ -703,6 +713,7 @@ class Edit extends Component
                 \App\Models\ReceiptLine::create([
                     'receipt_id' => $receipt->id,
                     'component' => $line['component'],
+                    'category' => $line['category'] ?? 'transport',
                     'qty' => $line['qty'],
                     'unit' => $this->getUnitForComponent($line['component']),
                     'unit_amount' => $line['unit_amount'],
@@ -717,6 +728,7 @@ class Edit extends Component
                 \App\Models\ReceiptLine::create([
                     'receipt_id' => $receipt->id,
                     'component' => 'LODGING',
+                    'category' => $line['category'] ?? 'lodging',
                     'qty' => $line['qty'],
                     'unit' => 'Malam',
                     'unit_amount' => $line['unit_amount'],
@@ -730,9 +742,10 @@ class Edit extends Component
             if (($line['qty'] ?? 0) > 0 && ($line['unit_amount'] ?? 0) > 0) {
                 \App\Models\ReceiptLine::create([
                     'receipt_id' => $receipt->id,
-                    'component' => 'REPRESENTATION',
+                    'component' => 'REPRESENTASI',
+                    'category' => $line['category'] ?? 'representation',
                     'qty' => $line['qty'],
-                    'unit' => 'Unit',
+                    'unit' => 'Hari',
                     'unit_amount' => $line['unit_amount'],
                     'line_total' => $line['qty'] * $line['unit_amount'],
                 ]);
@@ -745,6 +758,7 @@ class Edit extends Component
                 \App\Models\ReceiptLine::create([
                     'receipt_id' => $receipt->id,
                     'component' => 'LAINNYA',
+                    'category' => $line['category'] ?? 'other',
                     'qty' => $line['qty'],
                     'unit' => 'Unit',
                     'unit_amount' => $line['unit_amount'],

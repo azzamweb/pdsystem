@@ -62,22 +62,34 @@
       : '-';
   function money_id($n){ return 'Rp ' . number_format((float)($n ?? 0), 0, ',', '.'); }
 
-  // (opsional) penjumlahan otomatis per kategori jika kamu punya $receipt->lines
+  // Debug: Tampilkan struktur data lines
   $lines = collect($receipt->lines ?? []);
-  $byCat = fn($keys)=>$lines->whereIn('category',(array)$keys)->sum('amount');
+  
+  // Debug: Tampilkan data lines untuk troubleshooting
+  // dd($lines->toArray());
+  
+  // Debug: Tampilkan informasi receipt
+  // echo "Receipt ID: " . $receipt->id . "<br>";
+  // echo "Total lines: " . $lines->count() . "<br>";
+  // if ($lines->count() > 0) {
+  //   echo "Sample line: " . json_encode($lines->first()) . "<br>";
+  // }
+  
+  // Gunakan field category yang baru untuk pengelompokan yang lebih mudah
+  $byCat = fn($keys)=>$lines->whereIn('category',(array)$keys)->sum('line_total');
   $transport = [
-    'laut'  => $byCat(['transport_laut']),
-    'darat' => $byCat(['transport_darat']),
-    'roro'  => $byCat(['transport_roro','transport_darat_roro']),
-    'udara' => $byCat(['transport_udara']),
-    'taksi' => $byCat(['transport_taksi']),
+    'laut'  => $byCat(['transport']), // Semua transport akan masuk ke sini
+    'darat' => $byCat(['transport']), // Semua transport akan masuk ke sini
+    'roro'  => $byCat(['transport']), // Semua transport akan masuk ke sini
+    'udara' => $byCat(['transport']), // Semua transport akan masuk ke sini
+    'taksi' => $byCat(['transport']), // Semua transport akan masuk ke sini
   ];
   $lodgingAmount = $byCat(['lodging']);
   $perDiemAmount = $byCat(['per_diem']);
   $reprAmount    = $byCat(['representation']);
   $lodgingNights = $lines->firstWhere('category','lodging')['qty'] ?? null;
-  $perDiemDays   = $lines->firstWhere('category','per_diem')['qty'] ?? null;
-  $perDiemRate   = $lines->firstWhere('category','per_diem')['rate'] ?? null;
+  $perDiemDays   = $lines->firstWhere('component','PERDIEM')['qty'] ?? null;
+  $perDiemRate   = $lines->firstWhere('component','PERDIEM')['unit_amount'] ?? null;
   $fmtNights = $lodgingNights ? "({$lodgingNights} Malam)" : "(1 Malam)";
   $fmtPerDiem = ($perDiemDays && $perDiemRate) ? "({$perDiemDays} hari x ".money_id($perDiemRate).")" : "";
 
@@ -90,62 +102,55 @@
   // Debug: Tampilkan receipt lines yang ada
   // dd($receipt->lines);
   
-  // Debug: Tampilkan receipt object
-  dd($receipt);
+  // Ambil data transportasi yang dinamis berdasarkan data kwitansi
+  $transportCategories = [];
   
   if ($lines->count() > 0) {
     // Ambil semua kategori transportasi yang ada pada data kwitansi
     $transportLines = $lines->filter(function($line) {
-      $category = $line['category'] ?? '';
-      return strpos($category, 'transport') === 0 || 
-             strpos($category, 'pesawat') !== false || 
-             strpos($category, 'provinsi') !== false ||
-             strpos($category, 'udara') !== false;
+      return ($line['category'] ?? '') === 'transport';
     });
     
     foreach ($transportLines as $line) {
       $categoryName = '';
-      $category = $line['category'] ?? '';
+      $component = $line['component'] ?? '';
       
-      // Mapping kategori yang lebih fleksibel
-      if (strpos($category, 'pesawat') !== false || strpos($category, 'udara') !== false) {
+      // Mapping kategori yang lebih fleksibel berdasarkan component
+      if ($component === 'AIRFARE') {
         $categoryName = 'Tiket Pesawat';
-      } elseif (strpos($category, 'provinsi') !== false) {
+      } elseif ($component === 'INTRA_PROV') {
         $categoryName = 'Transport Dalam Provinsi';
-      } elseif (strpos($category, 'laut') !== false) {
-        $categoryName = 'Laut';
-      } elseif (strpos($category, 'darat') !== false && strpos($category, 'roro') !== false) {
-        $categoryName = 'Darat/Roro';
-      } elseif (strpos($category, 'darat') !== false) {
-        $categoryName = 'Darat';
-      } elseif (strpos($category, 'taksi') !== false) {
-        $categoryName = 'Taksi';
+      } elseif ($component === 'INTRA_DISTRICT') {
+        $categoryName = 'Transport Dalam Kabupaten';
+      } elseif ($component === 'OFFICIAL_VEHICLE') {
+        $categoryName = 'Kendaraan Dinas';
+      } elseif ($component === 'TAXI') {
+        $categoryName = 'Taxi';
+      } elseif ($component === 'RORO') {
+        $categoryName = 'Kapal RORO';
+      } elseif ($component === 'TOLL') {
+        $categoryName = 'Tol';
+      } elseif ($component === 'PARKIR_INAP') {
+        $categoryName = 'Parkir & Penginapan';
       } else {
-        // Jika tidak ada yang cocok, gunakan nama kategori asli
-        $categoryName = ucfirst(str_replace(['transport_', '_'], ['', ' '], $category));
+        // Jika tidak ada yang cocok, gunakan nama component asli
+        $categoryName = ucfirst(str_replace(['_'], [' '], $component));
       }
       
       $transportCategories[] = [
         'name' => $categoryName,
-        'amount' => $line['amount'] ?? $line['line_total'] ?? 0,
+        'amount' => $line['line_total'] ?? 0,
         'qty' => $line['qty'] ?? 1,
         'unit' => $line['unit'] ?? '-',
-        'original_category' => $category // untuk debugging
+        'original_component' => $component
       ];
     }
   }
   
-  // Debug: Tampilkan hasil transport categories
-  // dd($transportCategories);
-  
-  // Jika tidak ada data transportasi, gunakan default
+  // Jika tidak ada data transportasi, tampilkan pesan
   if (empty($transportCategories)) {
     $transportCategories = [
-      ['name' => 'Laut', 'amount' => 0, 'qty' => 1, 'unit' => '-'],
-      ['name' => 'Darat', 'amount' => 0, 'qty' => 1, 'unit' => '-'],
-      ['name' => 'Darat/Roro', 'amount' => 0, 'qty' => 1, 'unit' => '-'],
-      ['name' => 'Udara', 'amount' => 0, 'qty' => 1, 'unit' => '-'],
-      ['name' => 'Taksi', 'amount' => 0, 'qty' => 1, 'unit' => '-']
+      ['name' => 'Tidak ada data transportasi', 'amount' => 0, 'qty' => 1, 'unit' => '-']
     ];
   }
 @endphp
@@ -182,8 +187,7 @@
             <div class="col-content">
               <div class="block-title">SETUJU DIBAYAR</div>
               <div class="muted">KUASA PENGGUNA ANGGARAN</div>
-              <div class="mt-6"></div>
-              <div class="mt-6"></div>
+             
               <div class="mt-6"></div>
               <div class="mt-6"></div>
               <div class="mt-6"></div>
@@ -203,8 +207,7 @@
               <div class="block-title">LUNAS DIBAYAR</div>
               <div class="muted">PADA TGL.</div>
               <div class="muted">{{ $receipt->treasurer_title ?? 'Bendahara Pengeluaran Pembantu' }}</div>
-              <div class="mt-6"></div>
-              <div class="mt-6"></div>
+              
               <div class="mt-6"></div>
               <div class="mt-6"></div>
               <div class="mt-6"></div>
@@ -290,54 +293,98 @@
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <td class="text-center">1.</td>
-        <td>
-          Transportasi
-          @foreach($transportCategories as $transport)
-          <div>- {{ $transport['name'] }}</div>
-          @endforeach
-        </td>
-        <td class="text-right">
-          @foreach($transportCategories as $transport)
-          <div>-</div>
-          @endforeach
-        </td>
-        <td class="text-right">
-          @foreach($transportCategories as $transport)
-          <div>{{ $transport['amount'] > 0 ? money_id($transport['amount']) : '-' }}</div>
-          @endforeach
-        </td>
-        <td class="text-right">
-          @foreach($transportCategories as $transport)
-          <div>-</div>
-          @endforeach
-        </td>
-      </tr>
+      @php
+        $categoryNames = [
+          'transport' => 'Transportasi',
+          'lodging' => 'Penginapan',
+          'per_diem' => 'Uang Harian',
+          'representation' => 'Representatif',
+          'other' => 'Biaya Lainnya'
+        ];
+        
+        $allCategories = ['transport', 'lodging', 'per_diem', 'representation', 'other'];
+        $existingCategories = $lines->pluck('category')->unique()->toArray();
+      @endphp
 
-      <tr>
-        <td class="text-center">2.</td>
-        <td>Penginapan {{ $fmtNights }}</td>
-        <td class="text-right">-</td>
-        <td class="text-right">{{ $lodgingAmount ? money_id($lodgingAmount) : '-' }}</td>
-        <td class="text-right">-</td>
-      </tr>
+      @foreach($allCategories as $index => $category)
+        @php
+          $categoryLines = $lines->where('category', $category);
+          $hasData = $categoryLines->count() > 0;
+        @endphp
 
-      <tr>
-        <td class="text-center">3.</td>
-        <td>Uang Harian {!! $fmtPerDiem ? '<span class="block-title">'.$fmtPerDiem.'</span>' : '' !!}</td>
-        <td class="text-right">-</td>
-        <td class="text-right">{{ $perDiemAmount ? money_id($perDiemAmount) : '-' }}</td>
-        <td class="text-right">-</td>
-      </tr>
+        <!-- Header Kategori -->
+        <tr>
+          <td class="text-center">{{ $index + 1 }}.</td>
+          <td>{{ $categoryNames[$category] ?? ucfirst($category) }}</td>
+          <td class="text-right">-</td>
+          <td class="text-right">-</td>
+          <td class="text-right">-</td>
+        </tr>
 
-      <tr>
-        <td class="text-center">4.</td>
-        <td>Representatif</td>
-        <td class="text-right">-</td>
-        <td class="text-right">{{ $reprAmount ? money_id($reprAmount) : '-' }}</td>
-        <td class="text-right">-</td>
-      </tr>
+        @if($hasData)
+          <!-- Detail Items untuk kategori ini -->
+          @foreach($categoryLines as $line)
+          <tr>
+            <td></td>
+            <td style="padding-left: 20px;">
+              - 
+              @switch($line->component)
+                @case('AIRFARE')
+                  Tiket Pesawat
+                  @break
+                @case('INTRA_PROV')
+                  Transport Dalam Provinsi
+                  @break
+                @case('INTRA_DISTRICT')
+                  Transport Dalam Kabupaten
+                  @break
+                @case('OFFICIAL_VEHICLE')
+                  Kendaraan Dinas
+                  @break
+                @case('TAXI')
+                  Taxi
+                  @break
+                @case('RORO')
+                  Kapal RORO
+                  @break
+                @case('TOLL')
+                  Tol
+                  @break
+                @case('PARKIR_INAP')
+                  Parkir & Penginapan
+                  @break
+                @case('LODGING')
+                  {{ $line->qty > 1 ? $line->qty . ' Malam' : '1 Malam' }}
+                  @break
+                @case('PERDIEM')
+                  {{ $line->qty > 1 ? $line->qty . ' hari x ' . money_id($line->unit_amount) : '1 hari x ' . money_id($line->unit_amount) }}
+                  @break
+                @case('REPRESENTASI')
+                  Biaya representatif
+                  @break
+                @case('LAINNYA')
+                  {{ $line->remark ?: 'Biaya tambahan' }}
+                  @break
+                @default
+                  {{ ucfirst(str_replace('_', ' ', $line->component)) }}
+              @endswitch
+            </td>
+            <td class="text-right">-</td>
+            <td class="text-right">{{ money_id($line->line_total) }}</td>
+            <td class="text-right">-</td>
+          </tr>
+          @endforeach
+        @else
+          <!-- Jika tidak ada data untuk kategori ini -->
+          <tr>
+            <td></td>
+            <td style="padding-left: 20px;">- Tidak ada data</td>
+            <td class="text-right">-</td>
+            <td class="text-right">-</td>
+            <td class="text-right">-</td>
+          </tr>
+        @endif
+      @endforeach
 
       <tr>
         <td class="text-center" colspan="2" style="font-weight:bold;">JUMLAH</td>
@@ -369,3 +416,4 @@
   </div>
 </body>
 </html>
+

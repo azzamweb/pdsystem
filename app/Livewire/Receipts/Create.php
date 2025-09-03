@@ -288,6 +288,7 @@ class Create extends Component
     public function addPerdiemLine()
     {
         $this->perdiemLines[] = [
+            'category' => 'per_diem', // Set default category for per diem lines
             'qty' => 1,
             'unit_amount' => 0,
         ];
@@ -304,6 +305,7 @@ class Create extends Component
     {
         $this->transportLines[] = [
             'component' => '',
+            'category' => 'transport', // Set default category for transport lines
             'qty' => 1,
             'unit_amount' => 0,
             'rate_info' => '',
@@ -326,6 +328,7 @@ class Create extends Component
     public function addLodgingLine()
     {
         $this->lodgingLines[] = [
+            'category' => 'lodging', // Set default category for lodging lines
             'qty' => 1,
             'unit_amount' => 0,
         ];
@@ -341,6 +344,7 @@ class Create extends Component
     public function addRepresentationLine()
     {
         $this->representationLines[] = [
+            'category' => 'representation', // Set default category for representation lines
             'qty' => 1,
             'unit_amount' => 0,
         ];
@@ -356,6 +360,7 @@ class Create extends Component
     public function addOtherLine()
     {
         $this->otherLines[] = [
+            'category' => 'other', // Set default category for other lines
             'remark' => '',
             'qty' => 1,
             'unit_amount' => 0,
@@ -827,6 +832,7 @@ class Create extends Component
                 \App\Models\ReceiptLine::create([
                     'receipt_id' => $receipt->id,
                     'component' => 'PERDIEM',
+                    'category' => $line['category'] ?? 'per_diem',
                     'qty' => $line['qty'],
                     'unit' => 'Hari',
                     'unit_amount' => $line['unit_amount'],
@@ -841,8 +847,39 @@ class Create extends Component
                 \App\Models\ReceiptLine::create([
                     'receipt_id' => $receipt->id,
                     'component' => $line['component'],
+                    'category' => $line['category'] ?? 'transport',
                     'qty' => $line['qty'],
                     'unit' => $this->getUnitForComponent($line['component']),
+                    'unit_amount' => $line['unit_amount'],
+                    'line_total' => $line['qty'] * $line['unit_amount'],
+                ]);
+            }
+        }
+
+        // Create lodging lines
+        foreach ($this->lodgingLines as $line) {
+            if (($line['qty'] ?? 0) > 0 && ($line['unit_amount'] ?? 0) > 0) {
+                \App\Models\ReceiptLine::create([
+                    'receipt_id' => $receipt->id,
+                    'component' => 'LODGING',
+                    'category' => $line['category'] ?? 'lodging',
+                    'qty' => $line['qty'],
+                    'unit' => 'Malam',
+                    'unit_amount' => $line['unit_amount'],
+                    'line_total' => $line['qty'] * $line['unit_amount'],
+                ]);
+            }
+        }
+
+        // Create representation lines
+        foreach ($this->representationLines as $line) {
+            if (($line['qty'] ?? 0) > 0 && ($line['unit_amount'] ?? 0) > 0) {
+                \App\Models\ReceiptLine::create([
+                    'receipt_id' => $receipt->id,
+                    'component' => 'REPRESENTASI',
+                    'category' => $line['category'] ?? 'representation',
+                    'qty' => $line['qty'],
+                    'unit' => 'Hari',
                     'unit_amount' => $line['unit_amount'],
                     'line_total' => $line['qty'] * $line['unit_amount'],
                 ]);
@@ -855,6 +892,7 @@ class Create extends Component
                 \App\Models\ReceiptLine::create([
                     'receipt_id' => $receipt->id,
                     'component' => 'LAINNYA',
+                    'category' => $line['category'] ?? 'other',
                     'qty' => $line['qty'],
                     'unit' => 'Unit',
                     'unit_amount' => $line['unit_amount'],
