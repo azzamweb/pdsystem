@@ -332,6 +332,7 @@ class Create extends Component
             'component' => 'LODGING', // Default component
             'qty' => 1,
             'unit_amount' => 0,
+            'no_lodging' => false, // Checkbox "tidak menginap"
             'rate_info' => '',
             'has_reference' => false,
             'original_reference_rate' => 0,
@@ -693,6 +694,24 @@ class Create extends Component
         $this->calculateTotal();
     }
 
+    // Method untuk handle perubahan checkbox "tidak menginap"
+    public function updatedLodgingLinesNoLodging($value, $key)
+    {
+        $index = explode('.', $key)[1];
+        if (isset($this->lodgingLines[$index])) {
+            // Reset override status when checkbox changes
+            $this->lodgingLines[$index]['is_overridden'] = false;
+            $this->lodgingLines[$index]['exceeds_reference'] = false;
+            $this->lodgingLines[$index]['excess_amount'] = 0;
+            $this->lodgingLines[$index]['excess_percentage'] = 0;
+            
+            // Auto-fill with new rate based on checkbox
+            $this->autoFillLodgingRate($index);
+        }
+        
+        $this->calculateTotal();
+    }
+
     // Method untuk handle perubahan nilai manual pada lodging lines
     public function updatedLodgingLinesUnitAmount($value, $key)
     {
@@ -716,12 +735,22 @@ class Create extends Component
         $notaDinas = $this->sppd->spt->notaDinas;
         $destinationCity = $notaDinas->destinationCity;
 
-        $unitAmount = $referenceRateService->getLodgingCap(
+        $baseLodgingCap = $referenceRateService->getLodgingCap(
             $destinationCity->province_id, 
             $this->travel_grade_id
         );
         
-        $rateInfo = $unitAmount ? "Penginapan: {$destinationCity->province->name} (Grade {$this->travel_grade_id})" : '';
+        // Check if "tidak menginap" is selected
+        $isNoLodging = $this->lodgingLines[$index]['no_lodging'] ?? false;
+        
+        if ($isNoLodging && $baseLodgingCap) {
+            // 30% dari tarif maksimal penginapan
+            $unitAmount = $baseLodgingCap * 0.3;
+            $rateInfo = "Tidak Menginap (30% dari tarif penginapan): {$destinationCity->province->name} (Grade {$this->travel_grade_id})";
+        } else {
+            $unitAmount = $baseLodgingCap;
+            $rateInfo = $unitAmount ? "Penginapan: {$destinationCity->province->name} (Grade {$this->travel_grade_id})" : '';
+        }
 
         // Update the lodging line with auto-filled data
         if (isset($this->lodgingLines[$index])) {

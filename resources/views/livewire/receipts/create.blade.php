@@ -762,6 +762,15 @@
                                                             </div>
                                                             <div>
                                                                 <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                                    <input type="checkbox" wire:model.live="lodgingLines.{{ $index }}.no_lodging" class="mr-2">
+                                                                    Tidak Menginap
+                                                                </label>
+                                                                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                                                    (30% dari tarif penginapan)
+                                                                </div>
+                                                            </div>
+                                                            <div>
+                                                                <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
                                                                     Tarif per Malam
                                                                     @if($line['has_reference'])
                                                                         <span class="text-green-600 dark:text-green-400">✓ Referensi</span>
