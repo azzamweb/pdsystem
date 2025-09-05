@@ -114,10 +114,30 @@ class Edit extends Component
         
         foreach ($receiptLines as $line) {
             if ($line->component === 'PERDIEM') {
+                // Check if this is a manual override by comparing with reference rate
+                $referenceRateService = new ReferenceRateService();
+                $notaDinas = $this->receipt->sppd->spt->notaDinas;
+                $destinationCity = $notaDinas->destinationCity;
+                $referenceRate = $referenceRateService->getPerdiemRate(
+                    $destinationCity->province_id, 
+                    $this->travel_grade_id,
+                    $referenceRateService->getTripType($notaDinas)
+                );
+                
+                $isOverridden = $referenceRate && $line->unit_amount != $referenceRate;
+                $rateInfo = $referenceRate ? "Uang Harian: {$destinationCity->province->name} (Grade {$this->travel_grade_id})" : '';
+                
                 $this->perdiemLines[] = [
                     'category' => 'per_diem',
                     'qty' => $line->qty,
                     'unit_amount' => $line->unit_amount,
+                    'rate_info' => $rateInfo,
+                    'has_reference' => (bool)$referenceRate,
+                    'original_reference_rate' => $referenceRate ?? 0,
+                    'is_overridden' => $isOverridden,
+                    'exceeds_reference' => $isOverridden && $line->unit_amount > $referenceRate,
+                    'excess_amount' => $isOverridden && $line->unit_amount > $referenceRate ? $line->unit_amount - $referenceRate : 0,
+                    'excess_percentage' => $isOverridden && $referenceRate > 0 ? (($line->unit_amount - $referenceRate) / $referenceRate) * 100 : 0,
                 ];
             } elseif (in_array($line->component, ['AIRFARE', 'INTRA_PROV', 'INTRA_DISTRICT', 'OFFICIAL_VEHICLE', 'TAXI', 'RORO', 'TOLL', 'PARKIR_INAP'])) {
                 $this->transportLines[] = [
@@ -271,10 +291,30 @@ class Edit extends Component
     // Method untuk mengelola perhitungan biaya
     public function addPerdiemLine()
     {
+        // Calculate days count from start_date and end_date in Nota Dinas
+        $daysCount = 1; // Default value
+        if ($this->receipt?->sppd?->spt?->notaDinas?->start_date && $this->receipt?->sppd?->spt?->notaDinas?->end_date) {
+            $startDate = \Carbon\Carbon::parse($this->receipt->sppd->spt->notaDinas->start_date);
+            $endDate = \Carbon\Carbon::parse($this->receipt->sppd->spt->notaDinas->end_date);
+            $daysCount = $startDate->diffInDays($endDate) + 1; // +1 to include both start and end dates
+        }
+        
         $this->perdiemLines[] = [
-            'qty' => 1,
+            'category' => 'per_diem', // Set default category for per diem lines
+            'qty' => $daysCount, // Auto-fill with travel days from Nota Dinas
             'unit_amount' => 0,
+            'rate_info' => '',
+            'has_reference' => false,
+            'original_reference_rate' => 0,
+            'is_overridden' => false,
+            'exceeds_reference' => false,
+            'excess_amount' => 0,
+            'excess_percentage' => 0,
         ];
+        
+        // Auto-fill the newly added perdiem line
+        $index = count($this->perdiemLines) - 1;
+        $this->autoFillPerdiemRate($index);
     }
 
     public function removePerdiemLine($index)
@@ -480,20 +520,18 @@ class Edit extends Component
         }
 
         // Check perdiem lines
-        if ($this->perdiemDailyRate) {
-            foreach ($this->perdiemLines as $index => $line) {
-                if (($line['unit_amount'] ?? 0) > $this->perdiemDailyRate) {
-                    $this->hasExcessiveValues = true;
-                    $this->excessiveValueDetails[] = [
-                        'type' => 'Uang Harian',
-                        'component' => 'PERDIEM',
-                        'index' => $index,
-                        'manual_value' => $line['unit_amount'],
-                        'reference_value' => $this->perdiemDailyRate,
-                        'excess_amount' => $line['unit_amount'] - $this->perdiemDailyRate,
-                        'excess_percentage' => round((($line['unit_amount'] - $this->perdiemDailyRate) / $this->perdiemDailyRate) * 100, 1)
-                    ];
-                }
+        foreach ($this->perdiemLines as $index => $line) {
+            if ($line['exceeds_reference']) {
+                $this->hasExcessiveValues = true;
+                $this->excessiveValueDetails[] = [
+                    'type' => 'Uang Harian',
+                    'component' => 'PERDIEM',
+                    'index' => $index,
+                    'manual_value' => $line['unit_amount'],
+                    'reference_value' => $line['original_reference_rate'],
+                    'excess_amount' => $line['excess_amount'],
+                    'excess_percentage' => $line['excess_percentage']
+                ];
             }
         }
 
@@ -666,10 +704,6 @@ class Edit extends Component
         $this->totalAmount = $total;
     }
 
-    public function updatedPerdiemLines()
-    {
-        $this->calculateTotal();
-    }
 
     public function updatedTransportLines()
     {
@@ -722,6 +756,40 @@ class Edit extends Component
         
         // Check all excessive values for warning banner
         $this->checkAllExcessiveValues();
+        
+        $this->calculateTotal();
+    }
+
+    // Method untuk handle perubahan perdiem lines
+    public function updatedPerdiemLines()
+    {
+        // Auto-fill perdiem rates for all perdiem lines
+        foreach ($this->perdiemLines as $index => $line) {
+            $this->autoFillPerdiemRate($index);
+        }
+        
+        // Check if any manual values exceed reference rates
+        foreach ($this->perdiemLines as $index => $line) {
+            if ($line['is_overridden']) {
+                $this->checkPerdiemValueExceedsReference($index);
+            }
+        }
+        
+        // Check all excessive values for warning banner
+        $this->checkAllExcessiveValues();
+        
+        $this->calculateTotal();
+    }
+
+    // Method untuk handle perubahan nilai manual pada perdiem lines
+    public function updatedPerdiemLinesUnitAmount($value, $key)
+    {
+        // Jika nilai berubah dan ini adalah perdiem yang sudah di-override, check excessive
+        $index = explode('.', $key)[1];
+        if (isset($this->perdiemLines[$index]) && $this->perdiemLines[$index]['is_overridden']) {
+            $this->checkPerdiemValueExceedsReference($index);
+            $this->checkAllExcessiveValues();
+        }
         
         $this->calculateTotal();
     }
@@ -802,6 +870,43 @@ class Edit extends Component
         }
     }
 
+    private function autoFillPerdiemRate($index)
+    {
+        if (!$this->receipt->sppd || !$this->receipt->sppd->spt->notaDinas || !$this->travel_grade_id) {
+            return;
+        }
+
+        $referenceRateService = new ReferenceRateService();
+        $notaDinas = $this->receipt->sppd->spt->notaDinas;
+        $destinationCity = $notaDinas->destinationCity;
+
+        // Get perdiem rate based on province, travel grade, and trip type
+        $perdiemRate = $referenceRateService->getPerdiemRate(
+            $destinationCity->province_id, 
+            $this->travel_grade_id,
+            $referenceRateService->getTripType($notaDinas)
+        );
+        
+        $rateInfo = $perdiemRate ? "Uang Harian: {$destinationCity->province->name} (Grade {$this->travel_grade_id})" : '';
+
+        // Update the perdiem line with auto-filled data
+        if (isset($this->perdiemLines[$index])) {
+            // Jangan override nilai manual yang sudah ada
+            if (!$this->perdiemLines[$index]['is_overridden']) {
+                $this->perdiemLines[$index]['unit_amount'] = $perdiemRate ?? 0;
+                $this->perdiemLines[$index]['has_reference'] = $perdiemRate !== null;
+                $this->perdiemLines[$index]['is_overridden'] = false;
+                $this->perdiemLines[$index]['exceeds_reference'] = false;
+                $this->perdiemLines[$index]['excess_amount'] = 0;
+                $this->perdiemLines[$index]['excess_percentage'] = 0;
+            }
+            
+            // Update rate info dan original reference rate (ini selalu bisa diupdate)
+            $this->perdiemLines[$index]['rate_info'] = $rateInfo;
+            $this->perdiemLines[$index]['original_reference_rate'] = $perdiemRate ?? 0;
+        }
+    }
+
     public function overrideLodgingRate($index)
     {
         if (isset($this->lodgingLines[$index])) {
@@ -818,6 +923,25 @@ class Edit extends Component
             $this->lodgingLines[$index]['exceeds_reference'] = false;
             $this->lodgingLines[$index]['excess_amount'] = 0;
             $this->lodgingLines[$index]['excess_percentage'] = 0;
+        }
+    }
+
+    public function overridePerdiemRate($index)
+    {
+        if (isset($this->perdiemLines[$index])) {
+            // Simpan nilai referensi asli sebelum di-override
+            if (!isset($this->perdiemLines[$index]['original_reference_rate']) || $this->perdiemLines[$index]['original_reference_rate'] == 0) {
+                $this->perdiemLines[$index]['original_reference_rate'] = $this->perdiemLines[$index]['unit_amount'];
+            }
+            
+            $this->perdiemLines[$index]['has_reference'] = false;
+            $this->perdiemLines[$index]['rate_info'] = 'Nilai diubah manual oleh user';
+            $this->perdiemLines[$index]['is_overridden'] = true;
+            
+            // Reset status excessive
+            $this->perdiemLines[$index]['exceeds_reference'] = false;
+            $this->perdiemLines[$index]['excess_amount'] = 0;
+            $this->perdiemLines[$index]['excess_percentage'] = 0;
         }
     }
 
@@ -844,6 +968,34 @@ class Edit extends Component
             $this->lodgingLines[$index]['exceeds_reference'] = false;
             $this->lodgingLines[$index]['excess_amount'] = 0;
             $this->lodgingLines[$index]['excess_percentage'] = 0;
+            
+            return false;
+        }
+    }
+
+    public function checkPerdiemValueExceedsReference($index)
+    {
+        if (!isset($this->perdiemLines[$index]) || !$this->perdiemLines[$index]['is_overridden']) {
+            return false;
+        }
+
+        $line = $this->perdiemLines[$index];
+        $manualValue = $line['unit_amount'];
+        $referenceValue = $line['original_reference_rate'] ?? 0;
+
+        if ($referenceValue > 0 && $manualValue > $referenceValue) {
+            $excessAmount = $manualValue - $referenceValue;
+            $excessPercentage = round(($excessAmount / $referenceValue) * 100, 1);
+            
+            $this->perdiemLines[$index]['exceeds_reference'] = true;
+            $this->perdiemLines[$index]['excess_amount'] = $excessAmount;
+            $this->perdiemLines[$index]['excess_percentage'] = $excessPercentage;
+            
+            return true;
+        } else {
+            $this->perdiemLines[$index]['exceeds_reference'] = false;
+            $this->perdiemLines[$index]['excess_amount'] = 0;
+            $this->perdiemLines[$index]['excess_percentage'] = 0;
             
             return false;
         }
