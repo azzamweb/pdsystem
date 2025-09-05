@@ -329,9 +329,21 @@ class Create extends Component
     {
         $this->lodgingLines[] = [
             'category' => 'lodging', // Set default category for lodging lines
+            'component' => 'LODGING', // Default component
             'qty' => 1,
             'unit_amount' => 0,
+            'rate_info' => '',
+            'has_reference' => false,
+            'original_reference_rate' => 0,
+            'is_overridden' => false,
+            'exceeds_reference' => false,
+            'excess_amount' => 0,
+            'excess_percentage' => 0,
         ];
+        
+        // Auto-fill the newly added lodging line
+        $index = count($this->lodgingLines) - 1;
+        $this->autoFillLodgingRate($index);
     }
 
     public function removeLodgingLine($index)
@@ -663,7 +675,117 @@ class Create extends Component
 
     public function updatedLodgingLines()
     {
+        // Auto-fill lodging rates for all lodging lines
+        foreach ($this->lodgingLines as $index => $line) {
+            $this->autoFillLodgingRate($index);
+        }
+        
+        // Check if any manual values exceed reference rates
+        foreach ($this->lodgingLines as $index => $line) {
+            if ($line['is_overridden']) {
+                $this->checkLodgingValueExceedsReference($index);
+            }
+        }
+        
+        // Check all excessive values for warning banner
+        $this->checkAllExcessiveValues();
+        
         $this->calculateTotal();
+    }
+
+    // Method untuk handle perubahan nilai manual pada lodging lines
+    public function updatedLodgingLinesUnitAmount($value, $key)
+    {
+        // Jika nilai berubah dan ini adalah lodging yang sudah di-override, check excessive
+        $index = explode('.', $key)[1];
+        if (isset($this->lodgingLines[$index]) && $this->lodgingLines[$index]['is_overridden']) {
+            $this->checkLodgingValueExceedsReference($index);
+            $this->checkAllExcessiveValues();
+        }
+        
+        $this->calculateTotal();
+    }
+
+    private function autoFillLodgingRate($index)
+    {
+        if (!$this->sppd || !$this->sppd->spt->notaDinas || !$this->travel_grade_id) {
+            return;
+        }
+
+        $referenceRateService = new ReferenceRateService();
+        $notaDinas = $this->sppd->spt->notaDinas;
+        $destinationCity = $notaDinas->destinationCity;
+
+        $unitAmount = $referenceRateService->getLodgingCap(
+            $destinationCity->province_id, 
+            $this->travel_grade_id
+        );
+        
+        $rateInfo = $unitAmount ? "Penginapan: {$destinationCity->province->name} (Grade {$this->travel_grade_id})" : '';
+
+        // Update the lodging line with auto-filled data
+        if (isset($this->lodgingLines[$index])) {
+            // Jangan override nilai manual yang sudah ada
+            if (!$this->lodgingLines[$index]['is_overridden']) {
+                $this->lodgingLines[$index]['unit_amount'] = $unitAmount ?? 0;
+                $this->lodgingLines[$index]['has_reference'] = $unitAmount !== null;
+                $this->lodgingLines[$index]['is_overridden'] = false;
+                $this->lodgingLines[$index]['exceeds_reference'] = false;
+                $this->lodgingLines[$index]['excess_amount'] = 0;
+                $this->lodgingLines[$index]['excess_percentage'] = 0;
+            }
+            
+            // Update rate info dan original reference rate (ini selalu bisa diupdate)
+            $this->lodgingLines[$index]['rate_info'] = $rateInfo;
+            $this->lodgingLines[$index]['original_reference_rate'] = $unitAmount ?? 0;
+        }
+    }
+
+    public function overrideLodgingRate($index)
+    {
+        if (isset($this->lodgingLines[$index])) {
+            // Simpan nilai referensi asli sebelum di-override
+            if (!isset($this->lodgingLines[$index]['original_reference_rate']) || $this->lodgingLines[$index]['original_reference_rate'] == 0) {
+                $this->lodgingLines[$index]['original_reference_rate'] = $this->lodgingLines[$index]['unit_amount'];
+            }
+            
+            $this->lodgingLines[$index]['has_reference'] = false;
+            $this->lodgingLines[$index]['rate_info'] = 'Nilai diubah manual oleh user';
+            $this->lodgingLines[$index]['is_overridden'] = true;
+            
+            // Reset status excessive
+            $this->lodgingLines[$index]['exceeds_reference'] = false;
+            $this->lodgingLines[$index]['excess_amount'] = 0;
+            $this->lodgingLines[$index]['excess_percentage'] = 0;
+        }
+    }
+
+    public function checkLodgingValueExceedsReference($index)
+    {
+        if (!isset($this->lodgingLines[$index]) || !$this->lodgingLines[$index]['is_overridden']) {
+            return false;
+        }
+
+        $line = $this->lodgingLines[$index];
+        $manualValue = $line['unit_amount'];
+        $referenceValue = $line['original_reference_rate'] ?? 0;
+
+        if ($referenceValue > 0 && $manualValue > $referenceValue) {
+            $excessAmount = $manualValue - $referenceValue;
+            $excessPercentage = round(($excessAmount / $referenceValue) * 100, 1);
+            
+            $this->lodgingLines[$index]['exceeds_reference'] = true;
+            $this->lodgingLines[$index]['excess_amount'] = $excessAmount;
+            $this->lodgingLines[$index]['excess_percentage'] = $excessPercentage;
+            
+            return true;
+        } else {
+            $this->lodgingLines[$index]['exceeds_reference'] = false;
+            $this->lodgingLines[$index]['excess_amount'] = 0;
+            $this->lodgingLines[$index]['excess_percentage'] = 0;
+            
+            return false;
+        }
     }
 
     public function updatedRepresentationLines()
@@ -864,7 +986,7 @@ class Create extends Component
             if (($line['qty'] ?? 0) > 0 && ($line['unit_amount'] ?? 0) > 0) {
                 \App\Models\ReceiptLine::create([
                     'receipt_id' => $receipt->id,
-                    'component' => 'LODGING',
+                    'component' => $line['component'] ?? 'LODGING',
                     'category' => $line['category'] ?? 'lodging',
                     'qty' => $line['qty'],
                     'unit' => 'Malam',

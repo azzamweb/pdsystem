@@ -609,8 +609,48 @@
                                                             <input type="number" wire:model="lodgingLines.{{ $index }}.qty" min="0" step="0.5" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                                         </div>
                                                         <div>
-                                                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Tarif per Malam</label>
-                                                            <input type="number" wire:model="lodgingLines.{{ $index }}.unit_amount" min="0" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                                Tarif per Malam
+                                                                @if($line['has_reference'])
+                                                                    <span class="text-green-600 dark:text-green-400">✓ Referensi</span>
+                                                                @endif
+                                                                @if($line['is_overridden'])
+                                                                    <span class="text-blue-600 dark:text-blue-400">✏️ Manual</span>
+                                                                @endif
+                                                            </label>
+                                                            <input type="number" 
+                                                                wire:model.live="lodgingLines.{{ $index }}.unit_amount" 
+                                                                min="0" 
+                                                                class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white {{ $line['has_reference'] ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-600' : ($line['is_overridden'] ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-600' : '') }}"
+                                                                {{ $line['has_reference'] ? 'readonly' : '' }}
+                                                                placeholder="{{ $line['has_reference'] ? 'Otomatis terisi' : 'Masukkan tarif per malam' }}">
+                                                            
+                                                            <!-- Rate Info Display -->
+                                                            @if($line['rate_info'])
+                                                            <div class="mt-1 text-xs {{ $line['has_reference'] ? 'text-green-600 dark:text-green-400' : ($line['is_overridden'] ? 'text-blue-600 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400') }}">
+                                                                @if($line['has_reference'])
+                                                                    ✓ {{ $line['rate_info'] }}
+                                                                @elseif($line['is_overridden'])
+                                                                    ✏️ {{ $line['rate_info'] }}
+                                                                @else
+                                                                    {{ $line['rate_info'] }}
+                                                                @endif
+                                                            </div>
+                                                            @endif
+                                                            
+                                                            <!-- Warning for manual values exceeding reference -->
+                                                            @if($line['exceeds_reference'])
+                                                            <div class="mt-1 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded text-xs">
+                                                                <div class="text-red-700 dark:text-red-300 font-medium">
+                                                                    ⚠️ Nilai melebihi tarif referensi!
+                                                                </div>
+                                                                <div class="text-red-600 dark:text-red-400 mt-1">
+                                                                    <span class="block">• Tarif referensi: Rp {{ number_format($line['original_reference_rate'], 0, ',', '.') }}</span>
+                                                                    <span class="block">• Nilai manual: Rp {{ number_format($line['unit_amount'], 0, ',', '.') }}</span>
+                                                                    <span class="block">• Kelebihan: Rp {{ number_format($line['excess_amount'], 0, ',', '.') }} ({{ $line['excess_percentage'] }}%)</span>
+                                                                </div>
+                                                            </div>
+                                                            @endif
                                                         </div>
                                                         <div>
                                                             <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Total</label>
@@ -618,7 +658,14 @@
                                                                 Rp {{ number_format((float)($line['qty'] ?? 0) * (float)($line['unit_amount'] ?? 0), 0, ',', '.') }}
                                                             </div>
                                                         </div>
-                                                        <div class="flex items-end">
+                                                        <div class="flex items-end space-x-2">
+                                                            @if($line['has_reference'])
+                                                                <button type="button" 
+                                                                    wire:click="overrideLodgingRate({{ $index }})" 
+                                                                    class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-xs">
+                                                                    Edit Manual
+                                                                </button>
+                                                            @endif
                                                             <button type="button" wire:click="removeLodgingLine({{ $index }})" class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 text-sm">
                                                                 Hapus
                                                             </button>
