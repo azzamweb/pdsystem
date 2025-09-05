@@ -395,25 +395,30 @@
     </tbody>
   </table>
 
-  <!-- TTD bawah -->
-  <div class="signatures">
-    <div class="sign-box">
-      <div>Mengetahui</div>
-      <div class="muted">Pejabat Pelaksana Teknis Kegiatan</div>
-      <div class="sign-place"></div>
-      @php($pptk = $receipt->sppd->getPptkUserSnapshot())
-      <div class="name">{{ ($pptk['name'] ?? null) ?: ($receipt->sppd->pptkUser?->fullNameWithTitles() ?? '-') }}</div>
-      <div class="muted">NIP. {{ ($pptk['nip'] ?? null) ?: ($receipt->sppd->pptkUser?->nip ?? '-') }}</div>
-    </div>
-    <div class="sign-box">
-      <div>Bengkalis, {{ $receipt->receipt_date ? \Carbon\Carbon::parse($receipt->receipt_date)->locale('id')->translatedFormat('d F Y') : '__________' }}</div>
-      <div>Dihitung Oleh :</div>
-      <div class="muted">{{ $receipt->treasurer_title ?? 'Bendahara Pengeluaran Pembantu' }}</div>
-      <div class="sign-place"></div>
-      <div class="name">{{ $receipt->getTreasurerUserSnapshot()['name'] ?? ($receipt->sppd->pptkUser?->fullNameWithTitles() ?? '-') }}</div>
-      <div class="muted">NIP. {{ $receipt->getTreasurerUserSnapshot()['nip'] ?? ($receipt->sppd->pptkUser?->nip ?? '-') }}</div>
-    </div>
-  </div>
+  <!-- TTD bawah menggunakan tabel 2 kolom -->
+  <table style="width: 100%; border-collapse: collapse; margin-top: 16px;">
+    <tr>
+      <!-- Kolom 1: Mengetahui -->
+      <td style="width: 50%; text-align: center; vertical-align: bottom; padding: 8px;">
+        <div>Mengetahui</div>
+        <div class="muted">Pejabat Pelaksana Teknis Kegiatan</div>
+        <div class="sign-place"></div>
+        @php($pptk = $receipt->sppd->getPptkUserSnapshot())
+        <div class="name">{{ ($pptk['name'] ?? null) ?: ($receipt->sppd->pptkUser?->fullNameWithTitles() ?? '-') }}</div>
+        <div class="muted">NIP. {{ ($pptk['nip'] ?? null) ?: ($receipt->sppd->pptkUser?->nip ?? '-') }}</div>
+      </td>
+      
+      <!-- Kolom 2: Dihitung Oleh -->
+      <td style="width: 50%; text-align: center; vertical-align: bottom; padding: 8px;">
+        <div>Bengkalis, {{ $receipt->receipt_date ? \Carbon\Carbon::parse($receipt->receipt_date)->locale('id')->translatedFormat('d F Y') : '__________' }}</div>
+        <div>Dihitung Oleh :</div>
+        <div class="muted">{{ $receipt->treasurer_title ?? 'Bendahara Pengeluaran Pembantu' }}</div>
+        <div class="sign-place"></div>
+        <div class="name">{{ $receipt->getTreasurerUserSnapshot()['name'] ?? ($receipt->sppd->pptkUser?->fullNameWithTitles() ?? '-') }}</div>
+        <div class="muted">NIP. {{ $receipt->getTreasurerUserSnapshot()['nip'] ?? ($receipt->sppd->pptkUser?->nip ?? '-') }}</div>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>
 
