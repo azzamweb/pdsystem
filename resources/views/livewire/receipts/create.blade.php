@@ -706,7 +706,7 @@
                                                             <div>
                                                                 <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Total</label>
                                                                 <div class="px-2 py-1 text-sm bg-gray-100 dark:bg-gray-600 rounded font-mono">
-                                                                    Rp {{ number_format($line['qty'] * $line['unit_amount'], 0, ',', '.') }}
+                                                                    Rp {{ number_format((float)($line['qty'] ?? 0) * (float)($line['unit_amount'] ?? 0), 0, ',', '.') }}
                                                                 </div>
                                                             </div>
                                                                                                                     <div class="flex items-end space-x-2">
@@ -767,7 +767,7 @@
                                                             <div>
                                                                 <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Total</label>
                                                                 <div class="px-2 py-1 text-sm bg-gray-100 dark:bg-gray-600 rounded font-mono">
-                                                                    Rp {{ number_format($line['qty'] * $line['unit_amount'], 0, ',', '.') }}
+                                                                    Rp {{ number_format((float)($line['qty'] ?? 0) * (float)($line['unit_amount'] ?? 0), 0, ',', '.') }}
                                                                 </div>
                                                             </div>
                                                             <div class="flex items-end">
@@ -828,7 +828,7 @@
                                                             <div>
                                                                 <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Total</label>
                                                                 <div class="px-2 py-1 text-sm bg-gray-100 dark:bg-gray-600 rounded font-mono">
-                                                                    Rp {{ number_format($line['qty'] * $line['unit_amount'], 0, ',', '.') }}
+                                                                    Rp {{ number_format((float)($line['qty'] ?? 0) * (float)($line['unit_amount'] ?? 0), 0, ',', '.') }}
                                                                 </div>
                                                             </div>
                                                             <div class="flex items-end">
@@ -884,7 +884,7 @@
                                                             <div>
                                                                 <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Total</label>
                                                                 <div class="px-2 py-1 text-sm bg-gray-100 dark:bg-gray-600 rounded font-mono">
-                                                                    Rp {{ number_format($line['qty'] * $line['unit_amount'], 0, ',', '.') }}
+                                                                    Rp {{ number_format((float)($line['qty'] ?? 0) * (float)($line['unit_amount'] ?? 0), 0, ',', '.') }}
                                                                 </div>
                                                             </div>
                                                             <div class="flex items-end">
@@ -932,7 +932,7 @@
                                                             <div>
                                                                 <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Total</label>
                                                                 <div class="px-2 py-1 text-sm bg-gray-100 dark:bg-gray-600 rounded font-mono">
-                                                                    Rp {{ number_format($line['qty'] * $line['unit_amount'], 0, ',', '.') }}
+                                                                    Rp {{ number_format((float)($line['qty'] ?? 0) * (float)($line['unit_amount'] ?? 0), 0, ',', '.') }}
                                                                 </div>
                                                             </div>
                                                             <div class="flex items-end">

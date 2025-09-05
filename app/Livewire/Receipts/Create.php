@@ -380,27 +380,27 @@ class Create extends Component
 
         // Hitung total transportasi
         foreach ($this->transportLines as $line) {
-            $total += ($line['qty'] ?? 0) * ($line['unit_amount'] ?? 0);
+            $total += (float)($line['qty'] ?? 0) * (float)($line['unit_amount'] ?? 0);
         }
 
         // Hitung total penginapan
         foreach ($this->lodgingLines as $line) {
-            $total += ($line['qty'] ?? 0) * ($line['unit_amount'] ?? 0);
+            $total += (float)($line['qty'] ?? 0) * (float)($line['unit_amount'] ?? 0);
         }
 
         // Hitung total uang harian
         foreach ($this->perdiemLines as $line) {
-            $total += ($line['qty'] ?? 0) * ($line['unit_amount'] ?? 0);
+            $total += (float)($line['qty'] ?? 0) * (float)($line['unit_amount'] ?? 0);
         }
 
         // Hitung total representatif
         foreach ($this->representationLines as $line) {
-            $total += ($line['qty'] ?? 0) * ($line['unit_amount'] ?? 0);
+            $total += (float)($line['qty'] ?? 0) * (float)($line['unit_amount'] ?? 0);
         }
 
         // Hitung total biaya lainnya
         foreach ($this->otherLines as $line) {
-            $total += ($line['qty'] ?? 0) * ($line['unit_amount'] ?? 0);
+            $total += (float)($line['qty'] ?? 0) * (float)($line['unit_amount'] ?? 0);
         }
 
         $this->totalAmount = $total;
@@ -525,7 +525,10 @@ class Create extends Component
             }
             
             $this->transportLines[$index]['rate_info'] = $rateInfo;
-            $this->transportLines[$index]['has_reference'] = $unitAmount !== null;
+            // Jangan ubah has_reference jika sudah di-override
+            if (!$this->transportLines[$index]['is_overridden']) {
+                $this->transportLines[$index]['has_reference'] = $unitAmount !== null;
+            }
             $this->transportLines[$index]['original_reference_rate'] = $unitAmount ?? 0;
             
             // Jika ini auto-fill baru, reset status override
@@ -836,7 +839,7 @@ class Create extends Component
                     'qty' => $line['qty'],
                     'unit' => 'Hari',
                     'unit_amount' => $line['unit_amount'],
-                    'line_total' => $line['qty'] * $line['unit_amount'],
+                    'line_total' => (float)($line['qty'] ?? 0) * (float)($line['unit_amount'] ?? 0),
                 ]);
             }
         }
@@ -851,7 +854,7 @@ class Create extends Component
                     'qty' => $line['qty'],
                     'unit' => $this->getUnitForComponent($line['component']),
                     'unit_amount' => $line['unit_amount'],
-                    'line_total' => $line['qty'] * $line['unit_amount'],
+                    'line_total' => (float)($line['qty'] ?? 0) * (float)($line['unit_amount'] ?? 0),
                 ]);
             }
         }
@@ -866,7 +869,7 @@ class Create extends Component
                     'qty' => $line['qty'],
                     'unit' => 'Malam',
                     'unit_amount' => $line['unit_amount'],
-                    'line_total' => $line['qty'] * $line['unit_amount'],
+                    'line_total' => (float)($line['qty'] ?? 0) * (float)($line['unit_amount'] ?? 0),
                 ]);
             }
         }
@@ -881,7 +884,7 @@ class Create extends Component
                     'qty' => $line['qty'],
                     'unit' => 'Hari',
                     'unit_amount' => $line['unit_amount'],
-                    'line_total' => $line['qty'] * $line['unit_amount'],
+                    'line_total' => (float)($line['qty'] ?? 0) * (float)($line['unit_amount'] ?? 0),
                 ]);
             }
         }
@@ -896,7 +899,7 @@ class Create extends Component
                     'qty' => $line['qty'],
                     'unit' => 'Unit',
                     'unit_amount' => $line['unit_amount'],
-                    'line_total' => $line['qty'] * $line['unit_amount'],
+                    'line_total' => (float)($line['qty'] ?? 0) * (float)($line['unit_amount'] ?? 0),
                     'remark' => $line['remark'],
                 ]);
             }
