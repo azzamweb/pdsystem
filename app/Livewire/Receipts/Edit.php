@@ -153,7 +153,7 @@ class Edit extends Component
                     'excess_amount' => 0,
                     'excess_percentage' => 0,
                 ];
-            } elseif ($line->component === 'LODGING' || in_array($line->component, ['HOTEL', 'PENGINAPAN', 'WISMA', 'ASRAMA', 'LAINNYA'])) {
+            } elseif ($line->component === 'LODGING' || in_array($line->component, ['HOTEL', 'PENGINAPAN', 'WISMA', 'ASRAMA'])) {
                 // Check if this is a manual override by comparing with reference rate
                 $referenceRateService = new ReferenceRateService();
                 $notaDinas = $this->receipt->sppd->spt->notaDinas;
@@ -215,6 +215,7 @@ class Edit extends Component
                     'remark' => $line->remark,
                     'qty' => $line->qty,
                     'unit_amount' => $line->unit_amount,
+                    'no_lodging' => $line->no_lodging ?? false,
                 ];
             }
         }
@@ -685,6 +686,7 @@ class Edit extends Component
             'remark' => '',
             'qty' => 1,
             'unit_amount' => 0,
+            'no_lodging' => false,
         ];
     }
 
@@ -1259,6 +1261,7 @@ class Edit extends Component
                     'qty' => $line['qty'],
                     'unit' => 'Unit',
                     'unit_amount' => $line['unit_amount'],
+                    'no_lodging' => $line['no_lodging'] ?? false,
                     'line_total' => (float)($line['qty'] ?? 0) * (float)($line['unit_amount'] ?? 0),
                     'remark' => $line['remark'],
                 ]);
