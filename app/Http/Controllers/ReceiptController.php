@@ -5,11 +5,31 @@ namespace App\Http\Controllers;
 use App\Models\Receipt;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Helpers\PermissionHelper;
 
 class ReceiptController extends Controller
 {
     public function generatePdf(Receipt $receipt)
     {
+        // Check if user can view receipts
+        if (!PermissionHelper::can('receipts.view')) {
+            abort(403, 'Anda tidak memiliki izin untuk melihat kwitansi.');
+        }
+
+        // Check unit scope for bendahara pengeluaran pembantu
+        if (!PermissionHelper::canAccessAllData()) {
+            $userUnitId = PermissionHelper::getUserUnitId();
+            if ($userUnitId) {
+                $hasAccess = $receipt->sppd->spt->notaDinas->participants()
+                    ->where('unit_id', $userUnitId)
+                    ->exists();
+                
+                if (!$hasAccess) {
+                    abort(403, 'Anda hanya dapat melihat kwitansi dari bidang Anda.');
+                }
+            }
+        }
+
         // Load relationships yang diperlukan untuk PDF kwitansi lengkap
         $receipt->load([
             'sppd.spt.notaDinas.participants.user',
@@ -53,6 +73,25 @@ class ReceiptController extends Controller
     
     public function downloadPdf(Receipt $receipt)
     {
+        // Check if user can view receipts
+        if (!PermissionHelper::can('receipts.view')) {
+            abort(403, 'Anda tidak memiliki izin untuk melihat kwitansi.');
+        }
+
+        // Check unit scope for bendahara pengeluaran pembantu
+        if (!PermissionHelper::canAccessAllData()) {
+            $userUnitId = PermissionHelper::getUserUnitId();
+            if ($userUnitId) {
+                $hasAccess = $receipt->sppd->spt->notaDinas->participants()
+                    ->where('unit_id', $userUnitId)
+                    ->exists();
+                
+                if (!$hasAccess) {
+                    abort(403, 'Anda hanya dapat melihat kwitansi dari bidang Anda.');
+                }
+            }
+        }
+
         // Load relationships yang diperlukan untuk PDF kwitansi lengkap
         $receipt->load([
             'sppd.spt.notaDinas.participants.user',

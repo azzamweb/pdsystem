@@ -7,6 +7,7 @@ use Livewire\Attributes\On;
 use App\Models\NotaDinas;
 use App\Models\Spt;
 use App\Models\Sppd;
+use App\Helpers\PermissionHelper;
 
 
 class MainPage extends Component
@@ -94,6 +95,11 @@ class MainPage extends Component
 
     public function mount()
     {
+        // Check if user can view documents
+        if (!PermissionHelper::can('documents.view')) {
+            abort(403, 'Anda tidak memiliki izin untuk melihat dokumen.');
+        }
+
         // Check for query parameters first
         $notaDinasId = request()->query('nota_dinas_id');
         $sptId = request()->query('spt_id');

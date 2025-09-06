@@ -5,11 +5,31 @@ namespace App\Http\Controllers;
 use App\Models\NotaDinas;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Helpers\PermissionHelper;
 
 class NotaDinasController extends Controller
 {
     public function generatePdf(NotaDinas $notaDinas)
     {
+        // Check if user can view nota dinas
+        if (!PermissionHelper::can('nota-dinas.view')) {
+            abort(403, 'Anda tidak memiliki izin untuk melihat nota dinas.');
+        }
+
+        // Check unit scope for bendahara pengeluaran pembantu
+        if (!PermissionHelper::canAccessAllData()) {
+            $userUnitId = PermissionHelper::getUserUnitId();
+            if ($userUnitId) {
+                $hasAccess = $notaDinas->participants()
+                    ->where('unit_id', $userUnitId)
+                    ->exists();
+                
+                if (!$hasAccess) {
+                    abort(403, 'Anda hanya dapat melihat nota dinas dari bidang Anda.');
+                }
+            }
+        }
+
         // Load relationships yang diperlukan
         $notaDinas->load(['participants.user', 'requestingUnit', 'destinationCity', 'toUser', 'fromUser', 'spt']);
         
@@ -39,6 +59,25 @@ class NotaDinasController extends Controller
     
     public function downloadPdf(NotaDinas $notaDinas)
     {
+        // Check if user can view nota dinas
+        if (!PermissionHelper::can('nota-dinas.view')) {
+            abort(403, 'Anda tidak memiliki izin untuk melihat nota dinas.');
+        }
+
+        // Check unit scope for bendahara pengeluaran pembantu
+        if (!PermissionHelper::canAccessAllData()) {
+            $userUnitId = PermissionHelper::getUserUnitId();
+            if ($userUnitId) {
+                $hasAccess = $notaDinas->participants()
+                    ->where('unit_id', $userUnitId)
+                    ->exists();
+                
+                if (!$hasAccess) {
+                    abort(403, 'Anda hanya dapat melihat nota dinas dari bidang Anda.');
+                }
+            }
+        }
+
         // Load relationships yang diperlukan
         $notaDinas->load(['participants.user', 'requestingUnit', 'destinationCity', 'toUser', 'fromUser', 'spt']);
         

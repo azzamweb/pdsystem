@@ -10,11 +10,17 @@ use App\Models\Rank;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Helpers\PermissionHelper;
 
 class RekapPegawaiController extends Controller
 {
     public function generatePdf(Request $request)
     {
+        // Check if user can view rekapitulasi
+        if (!PermissionHelper::canViewRekap()) {
+            abort(403, 'Anda tidak memiliki izin untuk melihat rekapitulasi.');
+        }
+
         // Get filter parameters
         $search = $request->get('search', '');
         $unit_filter = $request->get('unit_filter', '');
@@ -30,6 +36,14 @@ class RekapPegawaiController extends Controller
             'rank',
             'travelGrade'
         ]);
+
+        // Apply unit scope filtering for bendahara pengeluaran pembantu and sekretariat
+        if (!PermissionHelper::canAccessAllData()) {
+            $userUnitId = PermissionHelper::getUserUnitId();
+            if ($userUnitId) {
+                $query->where('unit_id', $userUnitId);
+            }
+        }
 
         // Apply filters
         if ($search) {
