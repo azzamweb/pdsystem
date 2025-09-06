@@ -375,11 +375,30 @@ class Create extends Component
 
     public function addRepresentationLine()
     {
+        // Calculate days count from start_date and end_date in Nota Dinas
+        $daysCount = 1; // Default value
+        if ($this->sppd?->spt?->notaDinas?->start_date && $this->sppd?->spt?->notaDinas?->end_date) {
+            $startDate = \Carbon\Carbon::parse($this->sppd->spt->notaDinas->start_date);
+            $endDate = \Carbon\Carbon::parse($this->sppd->spt->notaDinas->end_date);
+            $daysCount = $startDate->diffInDays($endDate) + 1; // +1 to include both start and end dates
+        }
+        
         $this->representationLines[] = [
             'category' => 'representation', // Set default category for representation lines
-            'qty' => 1,
+            'qty' => $daysCount, // Auto-fill with travel days from Nota Dinas
             'unit_amount' => 0,
+            'rate_info' => '',
+            'has_reference' => false,
+            'original_reference_rate' => 0,
+            'is_overridden' => false,
+            'exceeds_reference' => false,
+            'excess_amount' => 0,
+            'excess_percentage' => 0,
         ];
+        
+        // Auto-fill the newly added representation line
+        $index = count($this->representationLines) - 1;
+        $this->autoFillRepresentationRate($index);
     }
 
     public function removeRepresentationLine($index)
@@ -667,20 +686,18 @@ class Create extends Component
         }
 
         // Check representation lines
-        if ($this->representationRate) {
-            foreach ($this->representationLines as $index => $line) {
-                if (($line['unit_amount'] ?? 0) > $this->representationRate) {
-                    $this->hasExcessiveValues = true;
-                    $this->excessiveValueDetails[] = [
-                        'type' => 'Representatif',
-                        'component' => 'REPRESENTATION',
-                        'index' => $index,
-                        'manual_value' => $line['unit_amount'],
-                        'reference_value' => $this->representationRate,
-                        'excess_amount' => $line['unit_amount'] - $this->representationRate,
-                        'excess_percentage' => round((($line['unit_amount'] - $this->representationRate) / $this->representationRate) * 100, 1)
-                    ];
-                }
+        foreach ($this->representationLines as $index => $line) {
+            if ($line['exceeds_reference']) {
+                $this->hasExcessiveValues = true;
+                $this->excessiveValueDetails[] = [
+                    'type' => 'Representatif',
+                    'component' => 'REPRESENTASI',
+                    'index' => $index,
+                    'manual_value' => $line['unit_amount'],
+                    'reference_value' => $line['original_reference_rate'],
+                    'excess_amount' => $line['excess_amount'],
+                    'excess_percentage' => $line['excess_percentage']
+                ];
             }
         }
 
@@ -772,6 +789,37 @@ class Create extends Component
         $this->calculateTotal();
     }
 
+    // Method untuk handle perubahan representation lines
+    public function updatedRepresentationLines()
+    {
+        // Auto-fill representation rates for all representation lines
+        foreach ($this->representationLines as $index => $line) {
+            $this->autoFillRepresentationRate($index);
+        }
+        
+        // Check for excessive values
+        foreach ($this->representationLines as $index => $line) {
+            if ($line['is_overridden']) {
+                $this->checkRepresentationValueExceedsReference($index);
+            }
+        }
+        
+        $this->calculateTotal();
+    }
+
+    // Method untuk handle perubahan nilai manual pada representation lines
+    public function updatedRepresentationLinesUnitAmount($value, $key)
+    {
+        // Jika nilai berubah dan ini adalah representation yang sudah di-override, check excessive
+        $index = explode('.', $key)[1];
+        if (isset($this->representationLines[$index]) && $this->representationLines[$index]['is_overridden']) {
+            $this->checkRepresentationValueExceedsReference($index);
+            $this->checkAllExcessiveValues();
+        }
+        
+        $this->calculateTotal();
+    }
+
     private function autoFillLodgingRate($index)
     {
         if (!$this->sppd || !$this->sppd->spt->notaDinas || !$this->travel_grade_id) {
@@ -854,6 +902,55 @@ class Create extends Component
         }
     }
 
+    private function autoFillRepresentationRate($index)
+    {
+        if (!$this->sppd || !$this->sppd->spt->notaDinas || !$this->travel_grade_id) {
+            return;
+        }
+
+        $referenceRateService = new ReferenceRateService();
+        $notaDinas = $this->sppd->spt->notaDinas;
+        $destinationCity = $notaDinas->destinationCity;
+
+        if (!$destinationCity) {
+            return;
+        }
+
+        // Get trip type from Nota Dinas
+        $tripType = $referenceRateService->getTripType($notaDinas);
+
+        // Get representation rate based on travel grade and trip type
+        $representationRate = $referenceRateService->getRepresentationRate(
+            $this->travel_grade_id,
+            $tripType
+        );
+
+        // Create rate info
+        $rateInfo = '';
+        if ($representationRate !== null) {
+            $rateInfo = "Representatif: {$destinationCity->province->name} (Grade {$this->travel_grade_id})";
+        } else {
+            $rateInfo = "Tidak ada referensi representatif untuk {$destinationCity->province->name} (Grade {$this->travel_grade_id})";
+        }
+
+        // Update the representation line with auto-filled data
+        if (isset($this->representationLines[$index])) {
+            // Jangan override nilai manual yang sudah ada
+            if (!$this->representationLines[$index]['is_overridden']) {
+                $this->representationLines[$index]['unit_amount'] = $representationRate ?? 0;
+                $this->representationLines[$index]['has_reference'] = $representationRate !== null;
+                $this->representationLines[$index]['is_overridden'] = false;
+                $this->representationLines[$index]['exceeds_reference'] = false;
+                $this->representationLines[$index]['excess_amount'] = 0;
+                $this->representationLines[$index]['excess_percentage'] = 0;
+            }
+            
+            // Update rate info dan original reference rate (ini selalu bisa diupdate)
+            $this->representationLines[$index]['rate_info'] = $rateInfo;
+            $this->representationLines[$index]['original_reference_rate'] = $representationRate ?? 0;
+        }
+    }
+
     public function overrideLodgingRate($index)
     {
         if (isset($this->lodgingLines[$index])) {
@@ -889,6 +986,53 @@ class Create extends Component
             $this->perdiemLines[$index]['exceeds_reference'] = false;
             $this->perdiemLines[$index]['excess_amount'] = 0;
             $this->perdiemLines[$index]['excess_percentage'] = 0;
+        }
+    }
+
+    public function overrideRepresentationRate($index)
+    {
+        if (isset($this->representationLines[$index])) {
+            // Simpan nilai referensi asli sebelum di-override
+            if (!isset($this->representationLines[$index]['original_reference_rate']) || $this->representationLines[$index]['original_reference_rate'] == 0) {
+                $this->representationLines[$index]['original_reference_rate'] = $this->representationLines[$index]['unit_amount'];
+            }
+            
+            $this->representationLines[$index]['has_reference'] = false;
+            $this->representationLines[$index]['rate_info'] = 'Nilai diubah manual oleh user';
+            $this->representationLines[$index]['is_overridden'] = true;
+            
+            // Reset status excessive
+            $this->representationLines[$index]['exceeds_reference'] = false;
+            $this->representationLines[$index]['excess_amount'] = 0;
+            $this->representationLines[$index]['excess_percentage'] = 0;
+        }
+    }
+
+    public function checkRepresentationValueExceedsReference($index)
+    {
+        if (!isset($this->representationLines[$index]) || !$this->representationLines[$index]['is_overridden']) {
+            return false;
+        }
+
+        $line = $this->representationLines[$index];
+        $manualValue = $line['unit_amount'];
+        $referenceValue = $line['original_reference_rate'] ?? 0;
+
+        if ($referenceValue > 0 && $manualValue > $referenceValue) {
+            $excessAmount = $manualValue - $referenceValue;
+            $excessPercentage = round(($excessAmount / $referenceValue) * 100, 1);
+            
+            $this->representationLines[$index]['exceeds_reference'] = true;
+            $this->representationLines[$index]['excess_amount'] = $excessAmount;
+            $this->representationLines[$index]['excess_percentage'] = $excessPercentage;
+            
+            return true;
+        } else {
+            $this->representationLines[$index]['exceeds_reference'] = false;
+            $this->representationLines[$index]['excess_amount'] = 0;
+            $this->representationLines[$index]['excess_percentage'] = 0;
+            
+            return false;
         }
     }
 
@@ -948,10 +1092,6 @@ class Create extends Component
         }
     }
 
-    public function updatedRepresentationLines()
-    {
-        $this->calculateTotal();
-    }
 
     public function updatedOtherLines()
     {
