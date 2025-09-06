@@ -61,6 +61,51 @@
       ? \Carbon\Carbon::parse($receipt->receipt_date)->locale('id')->translatedFormat('F Y')
       : '-';
   function money_id($n){ return 'Rp ' . number_format((float)($n ?? 0), 0, ',', '.'); }
+  
+  // Function to check if lodging is "tidak menginap" using database field
+  function isNoLodging($line, $receipt) {
+    if ($line->component !== 'LODGING') return false;
+    
+    // Use the no_lodging field from database if available
+    if (isset($line->no_lodging)) {
+      return (bool)$line->no_lodging;
+    }
+    
+    // Fallback: detect based on amount (for backward compatibility)
+    $notaDinas = $receipt->sppd->spt->notaDinas;
+    $destinationCity = $notaDinas->destinationCity;
+    $travelGradeId = $receipt->travel_grade_id;
+    
+    if (!$destinationCity || !$travelGradeId) return false;
+    
+    $referenceRateService = new \App\Services\ReferenceRateService();
+    $referenceRate = $referenceRateService->getLodgingCap($destinationCity->id, $travelGradeId);
+    
+    if (!$referenceRate) return false;
+    
+    // Check if current amount is approximately 30% of reference rate
+    $expectedAmount = $referenceRate * 0.3;
+    $tolerance = 100; // 100 rupiah tolerance untuk mengatasi floating point issues
+    
+    // Additional check: make sure it's significantly less than full rate
+    $isSignificantlyLess = $line->unit_amount < ($referenceRate * 0.5);
+    
+    return $isSignificantlyLess && abs($line->unit_amount - $expectedAmount) <= $tolerance;
+  }
+  
+  // Function to get reference rate for display
+  function getReferenceRate($line, $receipt) {
+    if ($line->component !== 'LODGING') return null;
+    
+    $notaDinas = $receipt->sppd->spt->notaDinas;
+    $destinationCity = $notaDinas->destinationCity;
+    $travelGradeId = $receipt->travel_grade_id;
+    
+    if (!$destinationCity || !$travelGradeId) return null;
+    
+    $referenceRateService = new \App\Services\ReferenceRateService();
+    return $referenceRateService->getLodgingCap($destinationCity->province_id, $travelGradeId);
+  }
 
   // Debug: Tampilkan struktur data lines
   $lines = collect($receipt->lines ?? []);
@@ -68,11 +113,12 @@
   // Debug: Tampilkan data lines untuk troubleshooting
   // dd($lines->toArray());
   
-  // Debug: Tampilkan informasi receipt
-  // echo "Receipt ID: " . $receipt->id . "<br>";
-  // echo "Total lines: " . $lines->count() . "<br>";
+  // Debug: Tampilkan informasi receipt (uncomment untuk debug)
+  // echo "<!-- Debug: Receipt ID: " . $receipt->id . " -->";
+  // echo "<!-- Debug: Total lines: " . $lines->count() . " -->";
+  // echo "<!-- Debug: Travel Grade ID: " . ($receipt->travel_grade_id ?? 'null') . " -->";
   // if ($lines->count() > 0) {
-  //   echo "Sample line: " . json_encode($lines->first()) . "<br>";
+  //   echo "<!-- Debug: Sample line: " . json_encode($lines->first()) . " -->";
   // }
   
   // Gunakan field category yang baru untuk pengelompokan yang lebih mudah
@@ -316,9 +362,9 @@
         <tr>
           <td class="text-center">{{ $index + 1 }}.</td>
           <td>{{ $categoryNames[$category] ?? ucfirst($category) }}</td>
-          <td class="text-right">-</td>
-          <td class="text-right">-</td>
-          <td class="text-right">-</td>
+          <td class="text-right"></td>
+          <td class="text-right"></td>
+          <td class="text-right"></td>
         </tr>
 
         @if($hasData)
@@ -330,43 +376,57 @@
               - 
               @switch($line->component)
                 @case('AIRFARE')
-                  Tiket Pesawat
+                  Tiket Pesawat ({{ number_format($line->qty, 0, ',', '.') }} x {{ money_id($line->unit_amount) }})
                   @break
                 @case('INTRA_PROV')
-                  Transport Dalam Provinsi
+                  Transport Dalam Provinsi ({{ number_format($line->qty, 0, ',', '.') }} x {{ money_id($line->unit_amount) }})
                   @break
                 @case('INTRA_DISTRICT')
-                  Transport Dalam Kabupaten
+                  Transport Dalam Kabupaten ({{ number_format($line->qty, 0, ',', '.') }} x {{ money_id($line->unit_amount) }})
                   @break
                 @case('OFFICIAL_VEHICLE')
-                  Kendaraan Dinas
+                  Kendaraan Dinas ({{ number_format($line->qty, 0, ',', '.') }} x {{ money_id($line->unit_amount) }})
                   @break
                 @case('TAXI')
-                  Taxi
+                  Taxi ({{ number_format($line->qty, 0, ',', '.') }} x {{ money_id($line->unit_amount) }})
                   @break
                 @case('RORO')
-                  Kapal RORO
+                  Kapal RORO ({{ number_format($line->qty, 0, ',', '.') }} x {{ money_id($line->unit_amount) }})
                   @break
                 @case('TOLL')
-                  Tol
+                  Tol ({{ number_format($line->qty, 0, ',', '.') }} x {{ money_id($line->unit_amount) }})
                   @break
                 @case('PARKIR_INAP')
-                  Parkir & Penginapan
+                  Parkir & Penginapan ({{ number_format($line->qty, 0, ',', '.') }} x {{ money_id($line->unit_amount) }})
                   @break
                 @case('LODGING')
-                  {{ $line->qty > 1 ? $line->qty . ' Malam' : '1 Malam' }}
+                  @php
+                    $isNoLodging = isNoLodging($line, $receipt);
+                    $referenceRate = getReferenceRate($line, $receipt);
+                    // Debug: uncomment untuk melihat nilai
+                    // echo "<!-- Debug LODGING: unit_amount=" . $line->unit_amount . ", referenceRate=" . $referenceRate . ", isNoLodging=" . ($isNoLodging ? 'true' : 'false') . " -->";
+                    // if ($referenceRate) {
+                    //   $expectedAmount = $referenceRate * 0.3;
+                    //   echo "<!-- Debug: expectedAmount=" . $expectedAmount . ", difference=" . abs($line->unit_amount - $expectedAmount) . " -->";
+                    // }
+                  @endphp
+                  @if($isNoLodging && $referenceRate)
+                    ({{ number_format($line->qty, 0, ',', '.') }} Malam x (30% x {{ money_id($referenceRate) }}))
+                  @else
+                    ({{ number_format($line->qty, 0, ',', '.') }} Malam x {{ money_id($line->unit_amount) }})
+                  @endif
                   @break
                 @case('PERDIEM')
-                  {{ $line->qty > 1 ? $line->qty . ' hari x ' . money_id($line->unit_amount) : '1 hari x ' . money_id($line->unit_amount) }}
+                  ({{ number_format($line->qty, 0, ',', '.') }} hari x {{ money_id($line->unit_amount) }})
                   @break
                 @case('REPRESENTASI')
-                  Biaya representatif
+                  Biaya representatif ({{ number_format($line->qty, 0, ',', '.') }} x {{ money_id($line->unit_amount) }})
                   @break
                 @case('LAINNYA')
-                  {{ $line->remark ?: 'Biaya tambahan' }}
+                  {{ $line->remark ?: 'Biaya tambahan' }} ({{ number_format($line->qty, 0, ',', '.') }} x {{ money_id($line->unit_amount) }})
                   @break
                 @default
-                  {{ ucfirst(str_replace('_', ' ', $line->component)) }}
+                  {{ ucfirst(str_replace('_', ' ', $line->component)) }} ({{ number_format($line->qty, 0, ',', '.') }} x {{ money_id($line->unit_amount) }})
               @endswitch
             </td>
             <td class="text-right">-</td>

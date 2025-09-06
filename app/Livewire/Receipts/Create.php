@@ -729,6 +729,9 @@ class Create extends Component
     {
         $index = explode('.', $key)[1];
         if (isset($this->lodgingLines[$index])) {
+            // Update the no_lodging field
+            $this->lodgingLines[$index]['no_lodging'] = (bool)$value;
+            
             // Reset override status when checkbox changes
             $this->lodgingLines[$index]['is_overridden'] = false;
             $this->lodgingLines[$index]['exceeds_reference'] = false;
@@ -862,6 +865,9 @@ class Create extends Component
             // Update rate info dan original reference rate (ini selalu bisa diupdate)
             $this->lodgingLines[$index]['rate_info'] = $rateInfo;
             $this->lodgingLines[$index]['original_reference_rate'] = $unitAmount ?? 0;
+            
+            // Preserve the no_lodging field value
+            $this->lodgingLines[$index]['no_lodging'] = $isNoLodging;
         }
     }
 
@@ -1291,6 +1297,7 @@ class Create extends Component
                     'qty' => $line['qty'],
                     'unit' => 'Malam',
                     'unit_amount' => $line['unit_amount'],
+                    'no_lodging' => $line['no_lodging'] ?? false,
                     'line_total' => (float)($line['qty'] ?? 0) * (float)($line['unit_amount'] ?? 0),
                 ]);
             }
