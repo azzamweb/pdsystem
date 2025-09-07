@@ -3,6 +3,7 @@
 namespace App\Livewire\RepresentationRates;
 
 use App\Models\RepresentationRate;
+use App\Helpers\PermissionHelper;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
@@ -33,6 +34,11 @@ class Index extends Component
 
     public function delete($id)
     {
+        // Check if user has permission to delete reference rates
+        if (!PermissionHelper::can('reference-rates.delete')) {
+            session()->flash('error', 'Anda tidak memiliki izin untuk menghapus data.');
+            return;
+        }
         $representationRate = RepresentationRate::findOrFail($id);
         $representationRate->delete();
         session()->flash('message', 'Tarif representasi berhasil dihapus');

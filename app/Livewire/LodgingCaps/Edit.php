@@ -5,6 +5,7 @@ namespace App\Livewire\LodgingCaps;
 use App\Models\LodgingCap;
 use App\Models\Province;
 use App\Models\TravelGrade;
+use App\Helpers\PermissionHelper;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
@@ -34,6 +35,11 @@ class Edit extends Component
 
     public function mount(LodgingCap $lodgingCap)
     {
+        // Check if user has permission to edit reference rates
+        if (!PermissionHelper::can('reference-rates.edit')) {
+            abort(403, 'Anda tidak memiliki izin untuk mengedit batas tarif penginapan.');
+        }
+        
         $this->lodgingCap = $lodgingCap;
         $this->province_id = $lodgingCap->province_id;
         $this->travel_grade_id = $lodgingCap->travel_grade_id;
@@ -42,6 +48,12 @@ class Edit extends Component
 
     public function update()
     {
+        // Check if user has permission to edit reference rates
+        if (!PermissionHelper::can('reference-rates.edit')) {
+            session()->flash('error', 'Anda tidak memiliki izin untuk mengedit batas tarif penginapan.');
+            return;
+        }
+        
         $this->validate();
 
         // Check for duplicate combination (excluding current record)

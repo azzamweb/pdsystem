@@ -4,6 +4,7 @@ namespace App\Livewire\DistrictPerdiemRates;
 
 use App\Models\DistrictPerdiemRate;
 use App\Models\District;
+use App\Helpers\PermissionHelper;
 use Livewire\Component;
 use Livewire\Attributes\Rule;
 
@@ -22,6 +23,11 @@ class Edit extends Component
 
     public function mount(DistrictPerdiemRate $districtPerdiemRate)
     {
+        // Check if user has permission to edit reference rates
+        if (!PermissionHelper::can('reference-rates.edit')) {
+            abort(403, 'Anda tidak memiliki izin untuk mengedit data.');
+        }
+        
         $this->districtPerdiemRate = $districtPerdiemRate;
         $this->district_id = $districtPerdiemRate->district_id;
         $this->travel_grade_id = $districtPerdiemRate->travel_grade_id;
@@ -30,6 +36,12 @@ class Edit extends Component
 
     public function update()
     {
+        // Check if user has permission to edit reference rates
+        if (!PermissionHelper::can('reference-rates.edit')) {
+            session()->flash('error', 'Anda tidak memiliki izin untuk mengedit data.');
+            return;
+        }
+        
         $this->validate();
 
         // Check for duplicate (excluding current record)

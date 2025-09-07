@@ -4,6 +4,7 @@ namespace App\Livewire\DistrictPerdiemRates;
 
 use App\Models\DistrictPerdiemRate;
 use App\Models\District;
+use App\Helpers\PermissionHelper;
 use Livewire\Component;
 use Livewire\Attributes\Rule;
 
@@ -18,8 +19,22 @@ class Create extends Component
     #[Rule('required|numeric|min:0')]
     public $perdiem_rate = '';
 
+    public function mount()
+    {
+        // Check if user has permission to create reference rates
+        if (!PermissionHelper::can('reference-rates.create')) {
+            abort(403, 'Anda tidak memiliki izin untuk membuat data.');
+        }
+    }
+
     public function save()
     {
+        // Check if user has permission to create reference rates
+        if (!PermissionHelper::can('reference-rates.create')) {
+            session()->flash('error', 'Anda tidak memiliki izin untuk membuat data.');
+            return;
+        }
+        
         $this->validate();
 
         // Check for duplicate

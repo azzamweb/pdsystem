@@ -3,9 +3,12 @@
         <div class="px-4 py-6 sm:px-0">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold text-gray-900">Tarif Uang Harian Kecamatan</h2>
-                <a href="{{ route('district-perdiem-rates.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                @if(\App\Helpers\PermissionHelper::can('reference-rates.create'))
+<a href="{{ route('district-perdiem-rates.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                     + Tambah Tarif
+                
                 </a>
+                @endif
             </div>
 
             @if (session()->has('message'))

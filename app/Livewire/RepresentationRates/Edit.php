@@ -4,6 +4,7 @@ namespace App\Livewire\RepresentationRates;
 
 use App\Models\RepresentationRate;
 use App\Models\TravelGrade;
+use App\Helpers\PermissionHelper;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
@@ -38,6 +39,11 @@ class Edit extends Component
 
     public function mount(RepresentationRate $representationRate)
     {
+        // Check if user has permission to edit reference rates
+        if (!PermissionHelper::can('reference-rates.edit')) {
+            abort(403, 'Anda tidak memiliki izin untuk mengedit data.');
+        }
+        
         $this->representationRate = $representationRate;
         $this->travel_grade_id = $representationRate->travel_grade_id;
         $this->satuan = $representationRate->satuan;
@@ -47,6 +53,12 @@ class Edit extends Component
 
     public function update()
     {
+        // Check if user has permission to edit reference rates
+        if (!PermissionHelper::can('reference-rates.edit')) {
+            session()->flash('error', 'Anda tidak memiliki izin untuk mengedit data.');
+            return;
+        }
+        
         $this->validate();
 
         // Check for duplicate travel grade (excluding current record)

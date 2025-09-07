@@ -3,6 +3,7 @@
 namespace App\Livewire\AirfareRefs;
 
 use App\Models\AirfareRef;
+use App\Helpers\PermissionHelper;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
@@ -33,6 +34,11 @@ class Index extends Component
 
     public function delete($id)
     {
+        // Check if user has permission to delete reference rates
+        if (!PermissionHelper::can('reference-rates.delete')) {
+            session()->flash('error', 'Anda tidak memiliki izin untuk menghapus data.');
+            return;
+        }
         $airfareRef = AirfareRef::findOrFail($id);
         $airfareRef->delete();
         session()->flash('message', 'Referensi tiket pesawat berhasil dihapus');

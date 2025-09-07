@@ -3,6 +3,7 @@
 namespace App\Livewire\OfficialVehicleTransportRefs;
 
 use App\Models\OfficialVehicleTransportRef;
+use App\Helpers\PermissionHelper;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
@@ -27,6 +28,12 @@ class Index extends Component
 
     public function delete(OfficialVehicleTransportRef $transportRef)
     {
+        // Check if user has permission to delete reference rates
+        if (!PermissionHelper::can('reference-rates.delete')) {
+            session()->flash('error', 'Anda tidak memiliki izin untuk menghapus data.');
+            return;
+        }
+        
         try {
             $transportRef->delete();
             session()->flash('message', 'Referensi transportasi kendaraan dinas berhasil dihapus');

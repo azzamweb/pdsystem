@@ -13,13 +13,15 @@
                 </svg>
                 Kembali ke Referensi Tarif
             </a>
-            <a href="{{ route('official-vehicle-transport-refs.create') }}"
+            @if(\App\Helpers\PermissionHelper::can('reference-rates.create'))
+<a href="{{ route('official-vehicle-transport-refs.create') }}"
                class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                 </svg>
                 Tambah Referensi
             </a>
+@endif
         </div>
     </div>
 
@@ -124,7 +126,8 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex items-center justify-end space-x-2">
-                                    <a href="{{ route('official-vehicle-transport-refs.edit', $transportRef) }}"
+                                    @if(\App\Helpers\PermissionHelper::can('reference-rates.edit'))
+<a href="{{ route('official-vehicle-transport-refs.edit', $transportRef) }}"
                                        class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 p-1 rounded"
                                        title="Edit"
                                     >
@@ -132,6 +135,8 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                         </svg>
                                     </a>
+@endif
+                                    @if(\App\Helpers\PermissionHelper::can('reference-rates.delete'))
                                     <button
                                         wire:click="delete({{ $transportRef }})"
                                         wire:confirm="Apakah Anda yakin ingin menghapus referensi transportasi {{ $transportRef->display_name }}?"
@@ -142,6 +147,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                         </svg>
                                     </button>
+                                    @endif
                                 </div>
                             </td>
                         </tr>

@@ -3,6 +3,7 @@
 namespace App\Livewire\AtCostComponents;
 
 use App\Models\AtCostComponent;
+use App\Helpers\PermissionHelper;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Rule;
@@ -20,6 +21,11 @@ class Edit extends Component
 
     public function mount(AtCostComponent $component)
     {
+        // Check if user has permission to edit reference rates
+        if (!PermissionHelper::can('reference-rates.edit')) {
+            abort(403, 'Anda tidak memiliki izin untuk mengedit data.');
+        }
+        
         $this->component = $component;
         $this->code = $this->component->code;
         $this->name = $this->component->name;
@@ -27,6 +33,12 @@ class Edit extends Component
 
     public function save()
     {
+        // Check if user has permission to edit reference rates
+        if (!PermissionHelper::can('reference-rates.edit')) {
+            session()->flash('error', 'Anda tidak memiliki izin untuk mengedit data.');
+            return;
+        }
+        
         $this->validate([
             'code' => 'required|string|max:50|unique:atcost_components,code,' . $this->component->id,
             'name' => 'required|string|max:255',

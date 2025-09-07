@@ -3,6 +3,7 @@
 namespace App\Livewire\DistrictPerdiemRates;
 
 use App\Models\DistrictPerdiemRate;
+use App\Helpers\PermissionHelper;
 use Livewire\Component;
 use Livewire\WithPagination;
 

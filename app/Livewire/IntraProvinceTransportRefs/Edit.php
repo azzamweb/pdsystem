@@ -5,6 +5,7 @@ namespace App\Livewire\IntraProvinceTransportRefs;
 use App\Models\IntraProvinceTransportRef;
 use App\Models\OrgPlace;
 use App\Models\City;
+use App\Helpers\PermissionHelper;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Rule;
@@ -25,6 +26,11 @@ class Edit extends Component
 
     public function mount(IntraProvinceTransportRef $transportRef)
     {
+        // Check if user has permission to edit reference rates
+        if (!PermissionHelper::can('reference-rates.edit')) {
+            abort(403, 'Anda tidak memiliki izin untuk mengedit data.');
+        }
+        
         $this->transportRef = $transportRef;
         $this->origin_place_id = $this->transportRef->origin_place_id;
         $this->destination_city_id = $this->transportRef->destination_city_id;

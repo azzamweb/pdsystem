@@ -4,6 +4,7 @@ namespace App\Livewire\AirfareRefs;
 
 use App\Models\AirfareRef;
 use App\Models\City;
+use App\Helpers\PermissionHelper;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
@@ -38,6 +39,11 @@ class Edit extends Component
 
     public function mount(AirfareRef $airfareRef)
     {
+        // Check if user has permission to edit reference rates
+        if (!PermissionHelper::can('reference-rates.edit')) {
+            abort(403, 'Anda tidak memiliki izin untuk mengedit data.');
+        }
+        
         $this->airfareRef = $airfareRef;
         $this->origin_city_id = $airfareRef->origin_city_id;
         $this->destination_city_id = $airfareRef->destination_city_id;
@@ -47,6 +53,12 @@ class Edit extends Component
 
     public function update()
     {
+        // Check if user has permission to edit reference rates
+        if (!PermissionHelper::can('reference-rates.edit')) {
+            session()->flash('error', 'Anda tidak memiliki izin untuk mengedit data.');
+            return;
+        }
+        
         $this->validate();
 
         // Check for duplicate combination (excluding current record)

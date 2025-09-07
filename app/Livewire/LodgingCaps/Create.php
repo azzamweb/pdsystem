@@ -5,6 +5,7 @@ namespace App\Livewire\LodgingCaps;
 use App\Models\LodgingCap;
 use App\Models\Province;
 use App\Models\TravelGrade;
+use App\Helpers\PermissionHelper;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
@@ -31,8 +32,22 @@ class Create extends Component
         'cap_amount.min' => 'Batas tarif minimal 0',
     ];
 
+    public function mount()
+    {
+        // Check if user has permission to create reference rates
+        if (!PermissionHelper::can('reference-rates.create')) {
+            abort(403, 'Anda tidak memiliki izin untuk membuat batas tarif penginapan.');
+        }
+    }
+
     public function save()
     {
+        // Check if user has permission to create reference rates
+        if (!PermissionHelper::can('reference-rates.create')) {
+            session()->flash('error', 'Anda tidak memiliki izin untuk membuat batas tarif penginapan.');
+            return;
+        }
+        
         $this->validate();
 
         // Check for duplicate combination

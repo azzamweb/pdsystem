@@ -5,6 +5,7 @@ namespace App\Livewire\PerdiemRates;
 use App\Models\PerdiemRate;
 use App\Models\Province;
 use App\Models\TravelGrade;
+use App\Helpers\PermissionHelper;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
@@ -44,6 +45,11 @@ class Edit extends Component
 
     public function mount(PerdiemRate $perdiemRate)
     {
+        // Check if user has permission to edit reference rates
+        if (!PermissionHelper::can('reference-rates.edit')) {
+            abort(403, 'Anda tidak memiliki izin untuk mengedit tarif uang harian.');
+        }
+        
         $this->perdiemRate = $perdiemRate;
         $this->province_id = $perdiemRate->province_id;
         $this->satuan = $perdiemRate->satuan;
@@ -54,6 +60,12 @@ class Edit extends Component
 
     public function update()
     {
+        // Check if user has permission to edit reference rates
+        if (!PermissionHelper::can('reference-rates.edit')) {
+            session()->flash('error', 'Anda tidak memiliki izin untuk mengedit tarif uang harian.');
+            return;
+        }
+        
         $this->validate();
 
         // Check for duplicate province (excluding current record)

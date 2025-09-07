@@ -3,6 +3,7 @@
 namespace App\Livewire\AtCostComponents;
 
 use App\Models\AtCostComponent;
+use App\Helpers\PermissionHelper;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
@@ -21,6 +22,12 @@ class Index extends Component
 
     public function delete(AtCostComponent $component)
     {
+        // Check if user has permission to delete reference rates
+        if (!PermissionHelper::can('reference-rates.delete')) {
+            session()->flash('error', 'Anda tidak memiliki izin untuk menghapus data.');
+            return;
+        }
+        
         try {
             $component->delete();
             session()->flash('message', 'Komponen at-cost berhasil dihapus');

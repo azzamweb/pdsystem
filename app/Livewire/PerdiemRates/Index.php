@@ -3,6 +3,7 @@
 namespace App\Livewire\PerdiemRates;
 
 use App\Models\PerdiemRate;
+use App\Helpers\PermissionHelper;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
@@ -33,6 +34,12 @@ class Index extends Component
 
     public function delete($id)
     {
+        // Check if user has permission to delete reference rates
+        if (!PermissionHelper::can('reference-rates.delete')) {
+            session()->flash('error', 'Anda tidak memiliki izin untuk menghapus tarif uang harian.');
+            return;
+        }
+        
         $perdiemRate = PerdiemRate::findOrFail($id);
         $perdiemRate->delete();
         session()->flash('message', 'Tarif uang harian berhasil dihapus');

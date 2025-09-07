@@ -5,6 +5,7 @@ namespace App\Livewire\PerdiemRates;
 use App\Models\PerdiemRate;
 use App\Models\Province;
 use App\Models\TravelGrade;
+use App\Helpers\PermissionHelper;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
@@ -41,8 +42,22 @@ class Create extends Component
         'diklat.min' => 'Tarif diklat minimal 0',
     ];
 
+    public function mount()
+    {
+        // Check if user has permission to create reference rates
+        if (!PermissionHelper::can('reference-rates.create')) {
+            abort(403, 'Anda tidak memiliki izin untuk membuat tarif uang harian.');
+        }
+    }
+
     public function save()
     {
+        // Check if user has permission to create reference rates
+        if (!PermissionHelper::can('reference-rates.create')) {
+            session()->flash('error', 'Anda tidak memiliki izin untuk membuat tarif uang harian.');
+            return;
+        }
+        
         $this->validate();
 
         // Check for duplicate province

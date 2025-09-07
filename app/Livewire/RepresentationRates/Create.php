@@ -4,6 +4,7 @@ namespace App\Livewire\RepresentationRates;
 
 use App\Models\RepresentationRate;
 use App\Models\TravelGrade;
+use App\Helpers\PermissionHelper;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
@@ -35,8 +36,22 @@ class Create extends Component
         'dalam_kota_gt8h.min' => 'Tarif dalam kota >8 jam minimal 0',
     ];
 
+    public function mount()
+    {
+        // Check if user has permission to create reference rates
+        if (!PermissionHelper::can('reference-rates.create')) {
+            abort(403, 'Anda tidak memiliki izin untuk membuat data.');
+        }
+    }
+
     public function save()
     {
+        // Check if user has permission to create reference rates
+        if (!PermissionHelper::can('reference-rates.create')) {
+            session()->flash('error', 'Anda tidak memiliki izin untuk membuat data.');
+            return;
+        }
+        
         $this->validate();
 
         // Check for duplicate travel grade
