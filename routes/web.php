@@ -114,7 +114,7 @@ Route::middleware('guest')->group(function () {
     Route::get('reset-password/{token}', ResetPassword::class)->name('password.reset');
 });
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'user.role'])->group(function () {
     Route::get('verify-email', VerifyEmail::class)->name('verification.notice');
     Route::get('confirm-password', ConfirmPassword::class)->name('password.confirm');
     Route::view('dashboard', 'dashboard')->name('dashboard');
@@ -134,6 +134,11 @@ Route::middleware('auth')->group(function () {
     Route::get('users', UserIndex::class)->name('users.index');
     Route::get('users/create', UserCreate::class)->name('users.create');
     Route::get('users/{user}/edit', UserEdit::class)->name('users.edit');
+                Route::get('users/{user}/permissions', \App\Livewire\Users\ManagePermissions::class)->name('users.permissions');
+                
+                // Role Management Routes
+                Route::get('roles', \App\Livewire\Roles\Index::class)->name('roles.index');
+                Route::get('roles/{role}/permissions', \App\Livewire\Roles\ManageRolePermissions::class)->name('roles.permissions');
 
     // Rank CRUD
     Route::get('ranks', RankIndex::class)->name('ranks.index');

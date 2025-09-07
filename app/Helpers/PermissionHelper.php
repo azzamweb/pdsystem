@@ -71,10 +71,7 @@ class PermissionHelper
      */
     public static function canAccessAllData(): bool
     {
-        if (!Auth::check()) {
-            return false;
-        }
-        return Auth::user()->hasAnyRole(['super-admin', 'admin', 'bendahara-pengeluaran']);
+        return self::hasAnyRole(['super-admin', 'admin', 'bendahara-pengeluaran']);
     }
 
     /**
@@ -156,5 +153,121 @@ class PermissionHelper
         ];
 
         return $roleDisplayNames[$roleName] ?? ucfirst(str_replace('-', ' ', $roleName));
+    }
+
+    /**
+     * Check if user is super admin
+     */
+    public static function isSuperAdmin(): bool
+    {
+        return self::hasRole('super-admin');
+    }
+
+    /**
+     * Check if user can manage users (admin or super-admin)
+     */
+    public static function canManageUsers(): bool
+    {
+        return self::hasAnyRole(['admin', 'super-admin']);
+    }
+
+    /**
+     * Check if user can manage permissions (only super-admin)
+     */
+    public static function canManagePermissions(): bool
+    {
+        return self::hasRole('super-admin');
+    }
+
+    /**
+     * Check if user can manage master data
+     */
+    public static function canManageMasterData(): bool
+    {
+        return self::canAny([
+            'master-data.create',
+            'master-data.edit',
+            'master-data.delete'
+        ]);
+    }
+
+    /**
+     * Check if user can manage reference rates
+     */
+    public static function canManageReferenceRates(): bool
+    {
+        return self::canAny([
+            'reference-rates.create',
+            'reference-rates.edit',
+            'reference-rates.delete'
+        ]);
+    }
+
+    /**
+     * Check if user can manage locations
+     */
+    public static function canManageLocations(): bool
+    {
+        return self::canAny([
+            'locations.create',
+            'locations.edit',
+            'locations.delete'
+        ]);
+    }
+
+    /**
+     * Get user's permission summary for display
+     */
+    public static function getUserPermissionSummary(): array
+    {
+        if (!Auth::check()) {
+            return [];
+        }
+
+        $user = Auth::user();
+        $permissions = $user->getAllPermissions()->pluck('name')->toArray();
+
+        return [
+            'system' => [
+                'manage_users' => in_array('system.manage-users', $permissions),
+                'manage_permissions' => in_array('system.manage-permissions', $permissions),
+                'access_all_data' => in_array('system.access-all-data', $permissions),
+            ],
+            'master_data' => [
+                'view' => in_array('master-data.view', $permissions),
+                'create' => in_array('master-data.create', $permissions),
+                'edit' => in_array('master-data.edit', $permissions),
+                'delete' => in_array('master-data.delete', $permissions),
+            ],
+            'users' => [
+                'view' => in_array('users.view', $permissions),
+                'create' => in_array('users.create', $permissions),
+                'edit' => in_array('users.edit', $permissions),
+                'delete' => in_array('users.delete', $permissions),
+            ],
+            'documents' => [
+                'view' => in_array('documents.view', $permissions),
+                'create' => in_array('documents.create', $permissions),
+                'edit' => in_array('documents.edit', $permissions),
+                'delete' => in_array('documents.delete', $permissions),
+                'approve' => in_array('documents.approve', $permissions),
+            ],
+            'rekap' => [
+                'view' => in_array('rekap.view', $permissions),
+                'export' => in_array('rekap.export', $permissions),
+            ],
+            'reference_rates' => [
+                'view' => in_array('reference-rates.view', $permissions),
+                'create' => in_array('reference-rates.create', $permissions),
+                'edit' => in_array('reference-rates.edit', $permissions),
+                'delete' => in_array('reference-rates.delete', $permissions),
+            ],
+            'locations' => [
+                'view' => in_array('locations.view', $permissions),
+                'create' => in_array('locations.create', $permissions),
+                'edit' => in_array('locations.edit', $permissions),
+                'delete' => in_array('locations.delete', $permissions),
+            ],
+        ];
     }
 }

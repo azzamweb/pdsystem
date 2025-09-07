@@ -5,6 +5,7 @@ namespace App\Livewire\TravelRoutes;
 use App\Models\TravelRoute;
 use App\Models\OrgPlace;
 use App\Models\TransportMode;
+use App\Helpers\PermissionHelper;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
@@ -39,6 +40,11 @@ class Edit extends Component
 
     public function mount(TravelRoute $travelRoute)
     {
+        // Check if user has permission to edit locations
+        if (!PermissionHelper::can('locations.edit')) {
+            abort(403, 'Anda tidak memiliki izin untuk mengedit rute perjalanan.');
+        }
+        
         $this->travelRoute = $travelRoute;
         $this->origin_place_id = $travelRoute->origin_place_id;
         $this->destination_place_id = $travelRoute->destination_place_id;
@@ -76,6 +82,12 @@ class Edit extends Component
 
     public function update()
     {
+        // Check if user has permission to edit locations
+        if (!PermissionHelper::can('locations.edit')) {
+            session()->flash('error', 'Anda tidak memiliki izin untuk mengedit rute perjalanan.');
+            return;
+        }
+        
         $this->validate();
 
         // Ensure class is null if not AIR mode

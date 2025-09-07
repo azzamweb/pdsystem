@@ -10,6 +10,7 @@
 
             <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+                    @if(\App\Helpers\PermissionHelper::can('menu.provinces'))
                     <!-- Data Provinsi -->
                     <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                         <div class="flex items-center">
@@ -32,7 +33,9 @@
                             </div>
                         </div>
                     </div>
+                    @endif
 
+                    @if(\App\Helpers\PermissionHelper::can('menu.cities'))
                     <!-- Data Kota/Kabupaten -->
                     <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                         <div class="flex items-center">
@@ -55,7 +58,9 @@
                             </div>
                         </div>
                     </div>
+                    @endif
 
+                    @if(\App\Helpers\PermissionHelper::can('menu.districts'))
                     <!-- Data Kecamatan -->
                     <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                         <div class="flex items-center">
@@ -79,7 +84,9 @@
                             </div>
                         </div>
                     </div>
+                    @endif
 
+                    @if(\App\Helpers\PermissionHelper::can('menu.org-places'))
                     <!-- Data Kedudukan -->
                     <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                         <div class="flex items-center">
@@ -102,7 +109,9 @@
                             </div>
                         </div>
                     </div>
+                    @endif
 
+                    @if(\App\Helpers\PermissionHelper::can('menu.transport-modes'))
                     <!-- Data Moda Transportasi -->
                     <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                         <div class="flex items-center">
@@ -125,7 +134,9 @@
                             </div>
                         </div>
                     </div>
+                    @endif
 
+                    @if(\App\Helpers\PermissionHelper::can('menu.travel-routes'))
                     <!-- Data Rute Perjalanan -->
                     <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                         <div class="flex items-center">
@@ -148,6 +159,7 @@
                             </div>
                         </div>
                     </div>
+                    @endif
                 </div>
             </div>
         </div>

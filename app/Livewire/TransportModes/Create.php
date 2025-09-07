@@ -3,6 +3,7 @@
 namespace App\Livewire\TransportModes;
 
 use App\Models\TransportMode;
+use App\Helpers\PermissionHelper;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
@@ -25,8 +26,22 @@ class Create extends Component
         'name.max' => 'Nama moda transportasi maksimal 100 karakter',
     ];
 
+    public function mount()
+    {
+        // Check if user has permission to create locations
+        if (!PermissionHelper::can('locations.create')) {
+            abort(403, 'Anda tidak memiliki izin untuk membuat moda transportasi.');
+        }
+    }
+
     public function save()
     {
+        // Check if user has permission to create locations
+        if (!PermissionHelper::can('locations.create')) {
+            session()->flash('error', 'Anda tidak memiliki izin untuk membuat moda transportasi.');
+            return;
+        }
+        
         $this->validate();
 
         TransportMode::create([

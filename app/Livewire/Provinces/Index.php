@@ -3,6 +3,7 @@
 namespace App\Livewire\Provinces;
 
 use App\Models\Province;
+use App\Helpers\PermissionHelper;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
@@ -33,6 +34,12 @@ class Index extends Component
 
     public function delete($id)
     {
+        // Check if user has permission to delete locations
+        if (!PermissionHelper::can('locations.delete')) {
+            session()->flash('error', 'Anda tidak memiliki izin untuk menghapus provinsi.');
+            return;
+        }
+        
         $province = Province::findOrFail($id);
         
         // Check if province has cities

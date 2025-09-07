@@ -3,6 +3,7 @@
 namespace App\Livewire\TravelRoutes;
 
 use App\Models\TravelRoute;
+use App\Helpers\PermissionHelper;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
@@ -33,6 +34,12 @@ class Index extends Component
 
     public function delete($id)
     {
+        // Check if user has permission to delete locations
+        if (!PermissionHelper::can('locations.delete')) {
+            session()->flash('error', 'Anda tidak memiliki izin untuk menghapus rute perjalanan.');
+            return;
+        }
+        
         $travelRoute = TravelRoute::findOrFail($id);
         $travelRoute->delete();
         session()->flash('message', 'Rute perjalanan berhasil dihapus');

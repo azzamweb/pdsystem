@@ -7,6 +7,8 @@ use App\Models\Unit;
 use App\Models\Position;
 use App\Models\Rank;
 use App\Models\TravelGrade;
+use App\Helpers\PermissionHelper;
+use Spatie\Permission\Models\Role;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -39,6 +41,7 @@ class Edit extends Component
     public $is_signer = false;
     public $is_non_staff = false;
     public $travel_grade_id = '';
+    public $roles = [];
 
     // Mutators to handle empty strings for foreign key fields
     public function setUnitIdProperty($value)
@@ -66,10 +69,13 @@ class Edit extends Component
         $this->birth_date = ($value === '' || $value === null) ? null : $value;
     }
 
-
-
     public function mount(User $user)
     {
+        // Check if user has permission to edit users
+        if (!PermissionHelper::can('users.edit')) {
+            abort(403, 'Anda tidak memiliki izin untuk mengedit user.');
+        }
+        
         $this->user = $user;
         $this->name = $user->name;
         $this->email = $user->email;
@@ -96,6 +102,11 @@ class Edit extends Component
         
         // Set travel grade
         $this->travel_grade_id = $user->travel_grade_id;
+        
+        // Set roles (only if user can manage permissions)
+        if (PermissionHelper::canManagePermissions()) {
+            $this->roles = $user->roles->pluck('name')->toArray();
+        }
     }
 
     protected function rules()
@@ -124,6 +135,8 @@ class Edit extends Component
             'is_signer' => 'boolean',
             'is_non_staff' => 'boolean',
             'travel_grade_id' => 'nullable|exists:travel_grades,id',
+            'roles' => 'array',
+            'roles.*' => 'exists:roles,name',
         ];
     }
 
@@ -140,6 +153,11 @@ class Edit extends Component
         }
         
         $this->user->update($validated);
+        
+        // Update roles (only if user can manage permissions)
+        if (PermissionHelper::canManagePermissions()) {
+            $this->user->syncRoles($validated['roles'] ?? []);
+        }
         
         session()->flash('message', 'Data pegawai berhasil diperbarui.');
         
@@ -158,7 +176,9 @@ class Edit extends Component
             ->get();
         $ranks = Rank::orderBy('code', 'desc')->get(); // Pangkat tertinggi (IV/e) first
         $travelGrades = TravelGrade::orderBy('name')->get();
+        $availableRoles = Role::orderBy('name')->get();
+        $canManageRoles = PermissionHelper::canManagePermissions();
 
-        return view('livewire.users.edit', compact('units', 'positions', 'ranks', 'travelGrades'));
+        return view('livewire.users.edit', compact('units', 'positions', 'ranks', 'travelGrades', 'availableRoles', 'canManageRoles'));
     }
 }

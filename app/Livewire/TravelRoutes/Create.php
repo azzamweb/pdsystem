@@ -5,6 +5,7 @@ namespace App\Livewire\TravelRoutes;
 use App\Models\TravelRoute;
 use App\Models\OrgPlace;
 use App\Models\TransportMode;
+use App\Helpers\PermissionHelper;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
@@ -63,8 +64,22 @@ class Create extends Component
         $this->class = $value === '' ? null : $value;
     }
 
+    public function mount()
+    {
+        // Check if user has permission to create locations
+        if (!PermissionHelper::can('locations.create')) {
+            abort(403, 'Anda tidak memiliki izin untuk membuat rute perjalanan.');
+        }
+    }
+
     public function save()
     {
+        // Check if user has permission to create locations
+        if (!PermissionHelper::can('locations.create')) {
+            session()->flash('error', 'Anda tidak memiliki izin untuk membuat rute perjalanan.');
+            return;
+        }
+        
         $this->validate();
 
         // Ensure class is null if not AIR mode

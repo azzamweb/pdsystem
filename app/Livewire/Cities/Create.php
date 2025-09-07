@@ -4,6 +4,7 @@ namespace App\Livewire\Cities;
 
 use App\Models\City;
 use App\Models\Province;
+use App\Helpers\PermissionHelper;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
@@ -32,6 +33,14 @@ class Create extends Component
         'type.in' => 'Tipe harus KAB atau KOTA',
     ];
 
+    public function mount()
+    {
+        // Check if user has permission to create locations
+        if (!PermissionHelper::can('locations.create')) {
+            abort(403, 'Anda tidak memiliki izin untuk membuat kota/kabupaten.');
+        }
+    }
+
     public function setProvinceIdProperty($value)
     {
         $this->province_id = $value === '' ? null : $value;
@@ -39,6 +48,12 @@ class Create extends Component
 
     public function save()
     {
+        // Check if user has permission to create locations
+        if (!PermissionHelper::can('locations.create')) {
+            session()->flash('error', 'Anda tidak memiliki izin untuk membuat kota/kabupaten.');
+            return;
+        }
+        
         $this->validate();
 
         // Manual conversion for empty string to null

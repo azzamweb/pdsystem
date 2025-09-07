@@ -14,21 +14,32 @@
            
 
             <flux:navlist variant="outline">
+                @if(\App\Helpers\PermissionHelper::can('menu.dashboard'))
                 <flux:navlist.group :heading="__('Platform')" class="grid">
                     <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
                 </flux:navlist.group>
+                @endif
 
+                @if(\App\Helpers\PermissionHelper::can('menu.documents'))
                 <flux:navlist.group :heading="__('Dokumen')" class="grid">
                     <flux:navlist.item icon="document-text" :href="route('documents')" :current="request()->routeIs('documents')" wire:navigate>{{ __('Dokumen') }}</flux:navlist.item>
                 </flux:navlist.group>
+                @endif
 
+                @if(\App\Helpers\PermissionHelper::can('menu.master-data'))
                 <flux:navlist.item icon="users" :href="route('master-data.index')" :current="request()->routeIs('master-data.*')" wire:navigate>{{ __('Master Data') }}</flux:navlist.item>
+                @endif
 
+                @if(\App\Helpers\PermissionHelper::can('menu.location-routes'))
                 <flux:navlist.item icon="map" :href="route('location-routes.index')" :current="request()->routeIs('location-routes.*')" wire:navigate>{{ __('Ref Lokasi & Rute') }}</flux:navlist.item>
+                @endif
 
+                @if(\App\Helpers\PermissionHelper::can('menu.reference-rates'))
                 <flux:navlist.item icon="calculator" :href="route('reference-rates.index')" :current="request()->routeIs('reference-rates.*')" wire:navigate>{{ __('Referensi Tarif') }}</flux:navlist.item>
+                @endif
             </flux:navlist>
 
+            @if(\App\Helpers\PermissionHelper::can('menu.rekap'))
             <flux:navlist variant="outline">
                 <flux:navlist.group :heading="__('Rekapitulasi')" class="grid">
                     <flux:navlist.item icon="document-text" :href="route('rekap.nota-dinas')" :current="request()->routeIs('rekap.nota-dinas')" wire:navigate>{{ __('Rekap Nota Dinas') }}</flux:navlist.item>
@@ -36,19 +47,31 @@
                     <flux:navlist.item icon="users" :href="route('rekap.pegawai')" :current="request()->routeIs('rekap.pegawai')" wire:navigate>{{ __('Rekap Pegawai') }}</flux:navlist.item>
                 </flux:navlist.group>
             </flux:navlist>
+            @endif
 
             <flux:spacer />
 
+            @if(\App\Helpers\PermissionHelper::can('menu.configuration'))
             <flux:navlist variant="outline">
                 <flux:navlist.group :heading="__('Configuration')" class="grid">
-
-                <flux:navlist.item :href="route('organization.show')" icon="building-office-2" wire:navigate>{{ __('Organisasi') }}</flux:navlist.item>
-                <flux:navlist.item icon="shield-check" :href="route('ranks.index')" :current="request()->routeIs('ranks.*')" wire:navigate>{{ __('Data Pangkat') }}</flux:navlist.item>
-                <flux:navlist.item icon="hashtag" :href="route('doc-number-formats.index')" :current="request()->routeIs('doc-number-formats.*')" wire:navigate>{{ __('Format Penomoran Dokumen') }}</flux:navlist.item>
-                <flux:navlist.item icon="hashtag" :href="route('number-sequences.index')" :current="request()->routeIs('number-sequences.*')" wire:navigate>{{ __('Number Sequence') }}</flux:navlist.item>
-                <flux:navlist.item icon="document-text" :href="route('document-numbers.index')" :current="request()->routeIs('document-numbers.*')" wire:navigate>{{ __('Riwayat Nomor Dokumen') }}</flux:navlist.item>
-        </flux:navlist.group>
+                    @if(\App\Helpers\PermissionHelper::can('menu.organization'))
+                    <flux:navlist.item :href="route('organization.show')" icon="building-office-2" wire:navigate>{{ __('Organisasi') }}</flux:navlist.item>
+                    @endif
+                    @if(\App\Helpers\PermissionHelper::can('menu.ranks'))
+                    <flux:navlist.item icon="shield-check" :href="route('ranks.index')" :current="request()->routeIs('ranks.*')" wire:navigate>{{ __('Data Pangkat') }}</flux:navlist.item>
+                    @endif
+                    @if(\App\Helpers\PermissionHelper::can('menu.doc-number-formats'))
+                    <flux:navlist.item icon="hashtag" :href="route('doc-number-formats.index')" :current="request()->routeIs('doc-number-formats.*')" wire:navigate>{{ __('Format Penomoran Dokumen') }}</flux:navlist.item>
+                    @endif
+                    @if(\App\Helpers\PermissionHelper::can('menu.number-sequences'))
+                    <flux:navlist.item icon="hashtag" :href="route('number-sequences.index')" :current="request()->routeIs('number-sequences.*')" wire:navigate>{{ __('Number Sequence') }}</flux:navlist.item>
+                    @endif
+                    @if(\App\Helpers\PermissionHelper::can('menu.document-numbers'))
+                    <flux:navlist.item icon="document-text" :href="route('document-numbers.index')" :current="request()->routeIs('document-numbers.*')" wire:navigate>{{ __('Riwayat Nomor Dokumen') }}</flux:navlist.item>
+                    @endif
+                </flux:navlist.group>
             </flux:navlist>
+            @endif
 
             
 

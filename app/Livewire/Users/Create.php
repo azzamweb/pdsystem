@@ -7,6 +7,8 @@ use App\Models\Unit;
 use App\Models\Position;
 use App\Models\Rank;
 use App\Models\TravelGrade;
+use App\Helpers\PermissionHelper;
+use Spatie\Permission\Models\Role;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -37,6 +39,7 @@ class Create extends Component
     public $is_signer = false;
     public $is_non_staff = false;
     public $travel_grade_id = '';
+    public $roles = [];
 
     // Mutators to handle empty strings for foreign key fields
     public function setUnitIdProperty($value)
@@ -62,6 +65,14 @@ class Create extends Component
     public function setBirthDateProperty($value)
     {
         $this->birth_date = ($value === '' || $value === null) ? null : $value;
+    }
+
+    public function mount()
+    {
+        // Check if user has permission to create users
+        if (!PermissionHelper::can('users.create')) {
+            abort(403, 'Anda tidak memiliki izin untuk membuat user.');
+        }
     }
 
 
@@ -91,6 +102,8 @@ class Create extends Component
             'is_signer' => 'boolean',
             'is_non_staff' => 'boolean',
             'travel_grade_id' => 'nullable|exists:travel_grades,id',
+            'roles' => 'array',
+            'roles.*' => 'exists:roles,name',
         ];
     }
 
@@ -107,7 +120,12 @@ class Create extends Component
             }
         }
         
-        User::create($validated);
+        $user = User::create($validated);
+        
+        // Assign roles to user (only if user can manage permissions)
+        if (PermissionHelper::canManagePermissions() && !empty($validated['roles'])) {
+            $user->assignRole($validated['roles']);
+        }
         
         session()->flash('message', 'Data pegawai berhasil ditambahkan.');
         
@@ -126,7 +144,9 @@ class Create extends Component
             ->get();
         $ranks = Rank::orderBy('code', 'desc')->get(); // Pangkat tertinggi (IV/e) first
         $travelGrades = TravelGrade::orderBy('name')->get();
+        $availableRoles = Role::orderBy('name')->get();
+        $canManageRoles = PermissionHelper::canManagePermissions();
 
-        return view('livewire.users.create', compact('units', 'positions', 'ranks', 'travelGrades'));
+        return view('livewire.users.create', compact('units', 'positions', 'ranks', 'travelGrades', 'availableRoles', 'canManageRoles'));
     }
 }

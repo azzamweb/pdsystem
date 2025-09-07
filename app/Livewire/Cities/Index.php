@@ -3,6 +3,7 @@
 namespace App\Livewire\Cities;
 
 use App\Models\City;
+use App\Helpers\PermissionHelper;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
@@ -33,6 +34,12 @@ class Index extends Component
 
     public function delete($id)
     {
+        // Check if user has permission to delete locations
+        if (!PermissionHelper::can('locations.delete')) {
+            session()->flash('error', 'Anda tidak memiliki izin untuk menghapus kota/kabupaten.');
+            return;
+        }
+        
         $city = City::findOrFail($id);
         
         // Check if city has districts

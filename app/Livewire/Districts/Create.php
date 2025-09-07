@@ -5,6 +5,7 @@ namespace App\Livewire\Districts;
 use App\Models\City;
 use App\Models\District;
 use App\Models\Province;
+use App\Helpers\PermissionHelper;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
@@ -41,8 +42,22 @@ class Create extends Component
         $this->city_id = ''; // Reset city selection when province changes
     }
 
+    public function mount()
+    {
+        // Check if user has permission to create locations
+        if (!PermissionHelper::can('locations.create')) {
+            abort(403, 'Anda tidak memiliki izin untuk membuat kecamatan.');
+        }
+    }
+
     public function save()
     {
+        // Check if user has permission to create locations
+        if (!PermissionHelper::can('locations.create')) {
+            session()->flash('error', 'Anda tidak memiliki izin untuk membuat kecamatan.');
+            return;
+        }
+        
         $this->validate();
 
         // Manual conversion for empty string to null

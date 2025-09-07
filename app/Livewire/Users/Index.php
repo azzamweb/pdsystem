@@ -3,6 +3,7 @@
 namespace App\Livewire\Users;
 
 use App\Models\User;
+use App\Helpers\PermissionHelper;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -22,6 +23,12 @@ class Index extends Component
 
     public function delete(User $user)
     {
+        // Check if user has permission to delete users
+        if (!PermissionHelper::can('users.delete')) {
+            session()->flash('error', 'Anda tidak memiliki izin untuk menghapus user.');
+            return;
+        }
+        
         try {
             $user->delete();
             session()->flash('message', 'Data pegawai berhasil dihapus.');

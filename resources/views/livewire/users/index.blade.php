@@ -13,6 +13,7 @@
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Kelola data pegawai dalam sistem</p>
             </div>
         </div>
+        @if(\App\Helpers\PermissionHelper::can('users.create'))
         <a href="{{ route('users.create') }}" 
            class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -20,6 +21,7 @@
             </svg>
             Tambah Pegawai
         </a>
+        @endif
     </div>
 
     @if (session('message'))
@@ -150,6 +152,7 @@
                                         class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg z-50 border border-gray-200 dark:border-gray-700"
                                     >
                                         <div class="py-1">
+                                            @if(\App\Helpers\PermissionHelper::can('users.edit'))
                                             <a href="{{ route('users.edit', $user) }}"
                                                 class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                                             >
@@ -158,6 +161,18 @@
                                                 </svg>
                                                 Edit
                                             </a>
+                                            @endif
+                                            @if(\App\Helpers\PermissionHelper::canManagePermissions())
+                                            <a href="{{ route('users.permissions', $user) }}"
+                                                class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                            >
+                                                <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                                                </svg>
+                                                Kelola Permissions
+                                            </a>
+                                            @endif
+                                            @if(\App\Helpers\PermissionHelper::can('users.delete'))
                                             <button 
                                                 wire:click="delete({{ $user->id }})"
                                                 wire:confirm="Apakah Anda yakin ingin menghapus data pegawai ini?"
@@ -168,6 +183,7 @@
                                                 </svg>
                                                 Hapus
                                             </button>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>

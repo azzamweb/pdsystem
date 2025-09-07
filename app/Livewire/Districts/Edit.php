@@ -5,6 +5,7 @@ namespace App\Livewire\Districts;
 use App\Models\City;
 use App\Models\District;
 use App\Models\Province;
+use App\Helpers\PermissionHelper;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
@@ -32,6 +33,11 @@ class Edit extends Component
 
     public function mount(District $district)
     {
+        // Check if user has permission to edit locations
+        if (!PermissionHelper::can('locations.edit')) {
+            abort(403, 'Anda tidak memiliki izin untuk mengedit kecamatan.');
+        }
+        
         $this->district = $district;
         $this->kemendagri_code = $district->kemendagri_code;
         $this->city_id = $district->city_id;
@@ -52,6 +58,12 @@ class Edit extends Component
 
     public function update()
     {
+        // Check if user has permission to edit locations
+        if (!PermissionHelper::can('locations.edit')) {
+            session()->flash('error', 'Anda tidak memiliki izin untuk mengedit kecamatan.');
+            return;
+        }
+        
         $this->validate([
             'kemendagri_code' => 'required|string|max:10|unique:districts,kemendagri_code,' . $this->district->id,
             'city_id' => 'required|exists:cities,id',

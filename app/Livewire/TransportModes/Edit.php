@@ -3,6 +3,7 @@
 namespace App\Livewire\TransportModes;
 
 use App\Models\TransportMode;
+use App\Helpers\PermissionHelper;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
@@ -27,6 +28,11 @@ class Edit extends Component
 
     public function mount(TransportMode $transportMode)
     {
+        // Check if user has permission to edit locations
+        if (!PermissionHelper::can('locations.edit')) {
+            abort(403, 'Anda tidak memiliki izin untuk mengedit moda transportasi.');
+        }
+        
         $this->transportMode = $transportMode;
         $this->code = $transportMode->code;
         $this->name = $transportMode->name;
@@ -34,6 +40,12 @@ class Edit extends Component
 
     public function update()
     {
+        // Check if user has permission to edit locations
+        if (!PermissionHelper::can('locations.edit')) {
+            session()->flash('error', 'Anda tidak memiliki izin untuk mengedit moda transportasi.');
+            return;
+        }
+        
         $this->validate([
             'code' => 'required|string|max:20|unique:transport_modes,code,' . $this->transportMode->id,
             'name' => 'required|string|max:100',

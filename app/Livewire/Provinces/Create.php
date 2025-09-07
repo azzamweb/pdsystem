@@ -3,6 +3,7 @@
 namespace App\Livewire\Provinces;
 
 use App\Models\Province;
+use App\Helpers\PermissionHelper;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
@@ -23,8 +24,22 @@ class Create extends Component
         'name.required' => 'Nama provinsi wajib diisi',
     ];
 
+    public function mount()
+    {
+        // Check if user has permission to create locations
+        if (!PermissionHelper::can('locations.create')) {
+            abort(403, 'Anda tidak memiliki izin untuk membuat provinsi.');
+        }
+    }
+
     public function save()
     {
+        // Check if user has permission to create locations
+        if (!PermissionHelper::can('locations.create')) {
+            session()->flash('error', 'Anda tidak memiliki izin untuk membuat provinsi.');
+            return;
+        }
+        
         $this->validate();
 
         Province::create([

@@ -210,6 +210,51 @@
                     </div>
                 </div>
 
+                <!-- Role Assignment (Only for Super Admin) -->
+                @if($canManageRoles)
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Penugasan Role</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Role User</label>
+                            <div class="space-y-2">
+                                @foreach($availableRoles as $role)
+                                    <div class="flex items-center space-x-2">
+                                        <input type="checkbox" wire:model="roles" value="{{ $role->name }}" id="role_{{ $role->id }}" 
+                                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+                                        <label for="role_{{ $role->id }}" class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                            {{ ucfirst(str_replace('-', ' ', $role->name)) }}
+                                        </label>
+                                    </div>
+                                @endforeach
+                            </div>
+                            @error('roles') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                                <strong>Catatan:</strong> User tanpa role tidak dapat mengakses sistem. Pastikan untuk memberikan role yang sesuai.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                @else
+                <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                                Informasi Role
+                            </h3>
+                            <div class="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
+                                <p>User yang dibuat akan memiliki role default sesuai dengan unit kerjanya. Untuk mengubah role, hubungi Super Admin.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endif
+
                 <!-- Additional Settings -->
                 <div>
                     <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Pengaturan Tambahan</h3>

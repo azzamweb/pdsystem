@@ -3,6 +3,7 @@
 namespace App\Livewire\OrgPlaces;
 
 use App\Models\OrgPlace;
+use App\Helpers\PermissionHelper;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
@@ -33,6 +34,12 @@ class Index extends Component
 
     public function delete($id)
     {
+        // Check if user has permission to delete locations
+        if (!PermissionHelper::can('locations.delete')) {
+            session()->flash('error', 'Anda tidak memiliki izin untuk menghapus kedudukan.');
+            return;
+        }
+        
         $orgPlace = OrgPlace::findOrFail($id);
         $orgPlace->delete();
         session()->flash('message', 'Kedudukan organisasi berhasil dihapus');
