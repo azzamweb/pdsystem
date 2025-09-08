@@ -240,7 +240,7 @@ class GlobalRekap extends Component
                     });
                     
                     foreach ($sortedReceipts as $receipt) {
-                        $groupedLines = $this->groupReceiptLinesByCategory($receipt->lines);
+                        $groupedLines = $this->groupReceiptLinesByCategory($receipt->lines, $nd, $receipt->payeeUser->rank_id ?? null);
                         
                         // Find categories with multiple items
                         $categoriesWithMultipleItems = [];
@@ -631,7 +631,7 @@ class GlobalRekap extends Component
     /**
      * Group receipt lines by category for display
      */
-    private function groupReceiptLinesByCategory($lines)
+    private function groupReceiptLinesByCategory($lines, $notaDinas, $travelGradeId)
     {
         $grouped = [
             'transport' => [],
@@ -643,7 +643,8 @@ class GlobalRekap extends Component
 
         foreach ($lines as $line) {
             $category = $this->getReceiptLineCategory($line->component);
-            $grouped[$category][] = [
+            
+            $lineData = [
                 'component' => $line->component,
                 'desc' => $line->desc,
                 'qty' => $line->qty,
@@ -651,6 +652,13 @@ class GlobalRekap extends Component
                 'line_total' => $line->line_total,
                 'no_lodging' => $line->no_lodging,
             ];
+
+            // Add reference rate for lodging lines
+            if ($category === 'lodging') {
+                $lineData['reference_rate'] = $this->getLodgingReferenceRate($notaDinas, $travelGradeId);
+            }
+
+            $grouped[$category][] = $lineData;
         }
 
         return $grouped;
@@ -683,6 +691,22 @@ class GlobalRekap extends Component
         
         // Other costs
         return 'other';
+    }
+
+    /**
+     * Get reference rate for lodging calculation
+     */
+    private function getLodgingReferenceRate($notaDinas, $travelGradeId)
+    {
+        if (!$notaDinas || !$notaDinas->destinationCity || !$travelGradeId) {
+            return null;
+        }
+
+        $referenceRateService = new \App\Services\ReferenceRateService();
+        return $referenceRateService->getLodgingCap(
+            $notaDinas->destinationCity->province_id, 
+            $travelGradeId
+        );
     }
 
     public function render()

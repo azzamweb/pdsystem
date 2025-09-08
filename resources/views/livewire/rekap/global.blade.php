@@ -369,9 +369,10 @@
                                             {{-- Additional row for specific category --}}
                                             <div class="text-gray-700 dark:text-gray-300">
                                                 <div class="font-medium">
-                                                    ({{ number_format($item['receipt_line']['line']['qty'], 0, ',', '.') }} x Rp {{ number_format($item['receipt_line']['line']['unit_amount'], 0, ',', '.') }})
-                                                    @if($item['receipt_line']['line']['no_lodging'])
-                                                        <span class="text-gray-500 dark:text-gray-400">(30%)</span>
+                                                    @if($item['receipt_line']['line']['no_lodging'] && isset($item['receipt_line']['line']['reference_rate']))
+                                                        ({{ number_format($item['receipt_line']['line']['qty'], 0, ',', '.') }} x (30% x Rp {{ number_format($item['receipt_line']['line']['reference_rate'], 0, ',', '.') }}))
+                                                    @else
+                                                        ({{ number_format($item['receipt_line']['line']['qty'], 0, ',', '.') }} x Rp {{ number_format($item['receipt_line']['line']['unit_amount'], 0, ',', '.') }})
                                                     @endif
                                                 </div>
                                             </div>
@@ -381,9 +382,10 @@
                                                 @foreach($item['receipt_lines']['lodging'] as $line)
                                                     <div class="text-gray-700 dark:text-gray-300">
                                                         <div class="font-medium">
-                                                            ({{ number_format($line['qty'], 0, ',', '.') }} x Rp {{ number_format($line['unit_amount'], 0, ',', '.') }})
-                                                            @if($line['no_lodging'])
-                                                                <span class="text-gray-500 dark:text-gray-400">(30%)</span>
+                                                            @if($line['no_lodging'] && isset($line['reference_rate']))
+                                                                ({{ number_format($line['qty'], 0, ',', '.') }} x (30% x Rp {{ number_format($line['reference_rate'], 0, ',', '.') }}))
+                                                            @else
+                                                                ({{ number_format($line['qty'], 0, ',', '.') }} x Rp {{ number_format($line['unit_amount'], 0, ',', '.') }})
                                                             @endif
                                                         </div>
                                                     </div>
