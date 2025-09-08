@@ -131,6 +131,7 @@ class GlobalRekap extends Component
                 'originPlace',
                 'destinationCity',
                 'requestingUnit',
+                'supportingDocuments',
                 'spt.signedByUser',
                 'spt.sppds.signedByUser',
                 'spt.sppds.pptkUser',
@@ -213,7 +214,7 @@ class GlobalRekap extends Component
                         ($nd->spt->tripReport->report_no ?: $nd->spt->tripReport->doc_no ?: 'LAP-' . $nd->spt->tripReport->id) : null,
                     'trip_report_date' => $nd->spt && $nd->spt->tripReport ? $nd->spt->tripReport->report_date : null,
                     // Supporting documents
-                    'supporting_documents' => collect(),
+                    'supporting_documents' => $this->getSupportingDocuments($nd),
                 ];
                 
                 // If SPPD has receipts, create rows with proper structure
@@ -716,6 +717,26 @@ class GlobalRekap extends Component
         );
     }
 
+    private function getSupportingDocuments($notaDinas)
+    {
+        $documents = collect();
+        
+        // Get supporting documents from Nota Dinas
+        if ($notaDinas && $notaDinas->supportingDocuments) {
+            foreach ($notaDinas->supportingDocuments as $doc) {
+                $documents->push([
+                    'name' => $doc->title ?: $doc->file_name, // Use title if available, fallback to file_name
+                    'file_path' => $doc->file_path,
+                    'file_name' => $doc->file_name,
+                    'document_type' => $doc->document_type ?: 'Nota Dinas',
+                    'file_size' => $doc->file_size,
+                    'mime_type' => $doc->mime_type
+                ]);
+            }
+        }
+        
+        return $documents;
+    }
 
     public function render()
     {

@@ -656,7 +656,34 @@
                                     
                                     <!-- Dokumen Pendukung -->
                                     <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600" style="width: 200px;">
-                                        <span class="text-gray-400 dark:text-gray-500">-</span>
+                                        @if(isset($item['supporting_documents']) && $item['supporting_documents'] && count($item['supporting_documents']) > 0)
+                                            <div class="space-y-2">
+                                                @foreach($item['supporting_documents'] as $doc)
+                                                    <div class="flex items-start space-x-2">
+                                                        <svg class="w-4 h-4 text-gray-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                                        </svg>
+                                                        <div class="flex-1 min-w-0">
+                                                            <a href="{{ Storage::url($doc['file_path']) }}" 
+                                                               target="_blank" 
+                                                               download="{{ $doc['file_name'] }}"
+                                                               class="block text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-600 text-xs font-medium hover:underline truncate" 
+                                                               title="Download: {{ $doc['name'] }} ({{ $doc['file_name'] }})">
+                                                                {{ $doc['name'] }}
+                                                            </a>
+                                                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                                                {{ $doc['document_type'] }}
+                                                                @if(isset($doc['file_size']) && $doc['file_size'])
+                                                                    • {{ number_format($doc['file_size'] / 1024, 1) }} KB
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <span class="text-gray-400 dark:text-gray-500">-</span>
+                                        @endif
                                     </td>
                                 </tr>
                             @empty
