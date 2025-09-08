@@ -135,8 +135,8 @@ class GlobalRekap extends Component
                 'spt.sppds.signedByUser',
                 'spt.sppds.pptkUser',
                 'spt.sppds.transportModes',
-                        'spt.sppds.receipts.payeeUser.rank',
-                        'spt.sppds.receipts.lines',
+                'spt.sppds.receipts.payeeUser.rank',
+                'spt.sppds.receipts.lines',
                 'spt.tripReport'
             ]);
 
@@ -212,6 +212,8 @@ class GlobalRekap extends Component
                     'trip_report_number' => $nd->spt && $nd->spt->tripReport ? 
                         ($nd->spt->tripReport->report_no ?: $nd->spt->tripReport->doc_no ?: 'LAP-' . $nd->spt->tripReport->id) : null,
                     'trip_report_date' => $nd->spt && $nd->spt->tripReport ? $nd->spt->tripReport->report_date : null,
+                    // Supporting documents
+                    'supporting_documents' => collect(),
                 ];
                 
                 // If SPPD has receipts, create rows with proper structure
@@ -271,6 +273,7 @@ class GlobalRekap extends Component
                             'receipt_id' => $receipt->id,
                             'receipt_number' => $receipt->receipt_no ?: $receipt->doc_no ?: 'KW-' . $receipt->id,
                             'receipt_date' => $receipt->receipt_date,
+                            'receipt_total' => $receipt->lines->sum('line_total'),
                             'participant_name' => $receipt->payeeUser ? 
                                 ($receipt->payeeUser->gelar_depan ? $receipt->payeeUser->gelar_depan . ' ' : '') .
                                 $receipt->payeeUser->name .
@@ -326,6 +329,7 @@ class GlobalRekap extends Component
                                 'receipt_id' => $receipt->id,
                                 'receipt_number' => null, // Don't show receipt number on additional rows
                                 'receipt_date' => null, // Don't show receipt date on additional rows
+                                'receipt_total' => null, // Don't show receipt total on additional rows
                                 'participant_name' => null, // Don't show participant name on additional rows
                                 'participant_nip' => null, // Don't show participant NIP on additional rows
                                 'participant_rank' => null, // Don't show participant rank on additional rows
@@ -360,6 +364,7 @@ class GlobalRekap extends Component
                                 'trip_report_id' => null,
                                 'trip_report_number' => null,
                                 'trip_report_date' => null,
+                                'supporting_documents' => null,
                             ], $additionalRowData);
                             
                             $rekapData->push($additionalRowData);
@@ -371,6 +376,7 @@ class GlobalRekap extends Component
                         'receipt_id' => null,
                         'receipt_number' => null,
                         'receipt_date' => null,
+                        'receipt_total' => null,
                         'participant_name' => null,
                         'participant_nip' => null,
                         'participant_rank' => null,
@@ -709,6 +715,7 @@ class GlobalRekap extends Component
             $travelGradeId
         );
     }
+
 
     public function render()
     {

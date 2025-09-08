@@ -66,7 +66,7 @@
         <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
             <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
                 <div class="overflow-x-auto shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
-                    <table class="min-w-full divide-y divide-gray-300 dark:divide-gray-700 border border-gray-300 dark:border-gray-600" style="min-width: 2750px;">
+                    <table class="min-w-full divide-y divide-gray-300 dark:divide-gray-700 border border-gray-300 dark:border-gray-600" style="min-width: 2950px;">
                         <thead class="bg-gray-50 dark:bg-gray-800">
                             <tr>
                                 <th scope="col" class="px-3 py-3.5 text-center text-xs font-semibold text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800" style="width: 480px;" colspan="3">Nota Dinas</th>
@@ -79,6 +79,8 @@
                                 <th scope="col" class="px-3 py-3.5 text-center text-xs font-semibold text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800" style="width: 225px;" colspan="3">Uang Harian</th>
                                 <th scope="col" class="px-3 py-3.5 text-center text-xs font-semibold text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800" style="width: 225px;" colspan="3">Representatif</th>
                                 <th scope="col" class="px-3 py-3.5 text-center text-xs font-semibold text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800" style="width: 300px;" colspan="3">Biaya Lainnya</th>
+                                <th scope="col" class="px-3 py-3.5 text-center text-xs font-semibold text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800" style="width: 150px;">Total Kwitansi</th>
+                                <th scope="col" class="px-3 py-3.5 text-center text-xs font-semibold text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800" style="width: 200px;">Dokumen Pendukung</th>
                             </tr>
                             <tr>
                                 <!-- Nota Dinas sub-columns -->
@@ -118,6 +120,8 @@
                                 <th scope="col" class="px-3 py-2 text-center text-xs font-medium text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700" style="width: 100px;">Uraian</th>
                                 <th scope="col" class="px-3 py-2 text-center text-xs font-medium text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700" style="width: 100px;">Nilai</th>
                                 <th scope="col" class="px-3 py-2 text-center text-xs font-medium text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700" style="width: 100px;">Deskripsi</th>
+                                <th scope="col" class="px-3 py-2 text-center text-xs font-medium text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700" style="width: 150px;">Total Kwitansi</th>
+                                <th scope="col" class="px-3 py-2 text-center text-xs font-medium text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700" style="width: 200px;">Dokumen Pendukung</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-900">
@@ -638,10 +642,26 @@
                                             <span class="text-gray-400 dark:text-gray-500">-</span>
                                         @endif
                                     </td>
+                                    
+                                    <!-- Total Kwitansi -->
+                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600 text-right whitespace-nowrap" style="width: 150px;">
+                                        @if($item['receipt_total'] !== null)
+                                            <div class="font-semibold text-gray-900 dark:text-white">
+                                                Rp {{ number_format($item['receipt_total'], 0, ',', '.') }}
+                                            </div>
+                                        @else
+                                            <span class="text-gray-400 dark:text-gray-500">-</span>
+                                        @endif
+                                    </td>
+                                    
+                                    <!-- Dokumen Pendukung -->
+                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600" style="width: 200px;">
+                                        <span class="text-gray-400 dark:text-gray-500">-</span>
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="27" class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 text-center dark:text-white">
+                                    <td colspan="29" class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 text-center dark:text-white">
                                         @if($loading)
                                             <div class="flex items-center justify-center">
                                                 <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
