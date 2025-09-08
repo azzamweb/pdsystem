@@ -65,64 +65,74 @@
 
         <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
             <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-                <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
-                    <table class="min-w-full divide-y divide-gray-300 dark:divide-gray-700">
+                <div class="overflow-x-auto shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
+                    <table class="min-w-full divide-y divide-gray-300 dark:divide-gray-700" style="min-width: 1750px;">
                         <thead class="bg-gray-50 dark:bg-gray-800">
                             <tr>
-                                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6 dark:text-white">No. Nota Dinas</th>
-                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Asal & Tujuan</th>
-                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Maksud</th>
-                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">No. & Tanggal SPT</th>
-                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Penandatangan SPT</th>
-                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">No. & Tanggal SPPD</th>
-                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Penandatangan SPPD</th>
-                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Alat Angkutan</th>
-                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Nama PPTK</th>
-                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">No. & Tanggal Laporan</th>
+                                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-xs font-semibold text-gray-900 sm:pl-6 dark:text-white whitespace-nowrap" style="width: 180px;">No. Nota Dinas</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold text-gray-900 dark:text-white whitespace-nowrap" style="width: 200px;">Asal & Tujuan</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold text-gray-900 dark:text-white" style="width: 100px;">Maksud</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold text-gray-900 dark:text-white whitespace-nowrap" style="width: 150px;">No. & Tanggal SPT</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold text-gray-900 dark:text-white whitespace-nowrap" style="width: 200px;">Penandatangan SPT</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold text-gray-900 dark:text-white whitespace-nowrap" style="width: 150px;">No. & Tanggal SPPD</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold text-gray-900 dark:text-white whitespace-nowrap" style="width: 200px;">Penandatangan SPPD</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold text-gray-900 dark:text-white whitespace-nowrap" style="width: 120px;">Alat Angkutan</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold text-gray-900 dark:text-white whitespace-nowrap" style="width: 200px;">Nama PPTK</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold text-gray-900 dark:text-white whitespace-nowrap" style="width: 150px;">No. & Tanggal Laporan</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold text-gray-900 dark:text-white whitespace-nowrap" style="width: 3000px;">Nama Peserta</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold text-gray-900 dark:text-white whitespace-nowrap" style="width: 150px;">No. & Tanggal Kwitansi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-900">
                             @forelse($rekapData as $item)
                                 <tr>
                                     <!-- No. & Tanggal -->
-                                    <td class="py-4 pl-4 pr-3 text-sm sm:pl-6">
-                                        <div class="font-medium text-gray-900 dark:text-white">
-                                            <a href="{{ route('nota-dinas.show', $item['id']) }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-600">
-                                                {{ $item['number'] ?: 'N/A' }}
-                                            </a>
-                                        </div>
-                                        <div class="text-gray-500 dark:text-gray-400">
-                                            {{ $item['date'] ? \Carbon\Carbon::parse($item['date'])->format('d/m/Y') : 'N/A' }}
-                                        </div>
-                                        @if($item['requesting_unit'])
-                                            <div class="text-xs text-gray-400 mt-1">
-                                                Bidang: {{ $item['requesting_unit'] }}
+                                    <td class="py-4 pl-4 pr-3 text-xs sm:pl-6 whitespace-nowrap" style="width: 180px;">
+                                        @if($item['id'])
+                                            <div class="font-medium text-gray-900 dark:text-white">
+                                                <a href="{{ route('nota-dinas.show', $item['id']) }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-600">
+                                                    {{ $item['number'] ?: 'N/A' }}
+                                                </a>
                                             </div>
+                                            <div class="text-gray-500 dark:text-gray-400">
+                                                {{ $item['date'] ? \Carbon\Carbon::parse($item['date'])->format('d/m/Y') : 'N/A' }}
+                                            </div>
+                                            @if($item['requesting_unit'])
+                                                <div class="text-xs text-gray-400 mt-1">
+                                                    Bidang: {{ $item['requesting_unit'] }}
+                                                </div>
+                                            @endif
+                                        @else
+                                            <span class="text-gray-400 dark:text-gray-500">-</span>
                                         @endif
                                     </td>
                                     
                                     <!-- Asal & Tujuan -->
-                                    <td class="px-3 py-4 text-sm">
-                                        <div class="text-gray-900 dark:text-white">
-                                            <div class="font-medium">{{ $item['origin'] }}</div>
-                                            <div class="text-gray-500 dark:text-gray-400">→ {{ $item['destination'] }}</div>
-                                        </div>
-                                        @if($item['start_date'] && $item['end_date'])
-                                            <div class="mt-1 text-xs text-gray-400">
-                                                {{ \Carbon\Carbon::parse($item['start_date'])->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($item['end_date'])->format('d/m/Y') }}
-                                                <span class="ml-1">({{ $item['duration'] ?: \Carbon\Carbon::parse($item['start_date'])->diffInDays(\Carbon\Carbon::parse($item['end_date'])) + 1 }} Hari)</span>
+                                    <td class="px-3 py-4 text-xs whitespace-nowrap" style="width: 200px;">
+                                        @if($item['origin'])
+                                            <div class="text-gray-900 dark:text-white">
+                                                <div class="font-medium">{{ $item['origin'] }}</div>
+                                                <div class="text-gray-500 dark:text-gray-400">→ {{ $item['destination'] }}</div>
                                             </div>
+                                            @if($item['start_date'] && $item['end_date'])
+                                                <div class="mt-1 text-xs text-gray-400">
+                                                    {{ \Carbon\Carbon::parse($item['start_date'])->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($item['end_date'])->format('d/m/Y') }}
+                                                    <span class="ml-1">({{ $item['duration'] ?: \Carbon\Carbon::parse($item['start_date'])->diffInDays(\Carbon\Carbon::parse($item['end_date'])) + 1 }} Hari)</span>
+                                                </div>
+                                            @endif
+                                        @else
+                                            <span class="text-gray-400 dark:text-gray-500">-</span>
                                         @endif
                                     </td>
                                     
                                     <!-- Maksud -->
-                                    <td class="px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                        {{ $item['maksud'] ?: 'N/A' }}
+                                    <td class="px-3 py-4 text-xs text-gray-500 dark:text-gray-400" style="width: 100px;">
+                                        {{ $item['maksud'] ?: '-' }}
                                     </td>
 
                                     <!-- No. & Tanggal SPT -->
-                                    <td class="px-3 py-4 text-sm">
-                                        @if($item['spt_number'])
+                                    <td class="px-3 py-4 text-xs whitespace-nowrap" style="width: 150px;">
+                                        @if($item['spt_number'] && $item['spt_id'])
                                             <div class="font-medium text-gray-900 dark:text-white">
                                                 <a href="{{ route('spt.pdf', $item['spt_id']) }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-600">
                                                     {{ $item['spt_number'] }}
@@ -137,7 +147,7 @@
                                     </td>
 
                                     <!-- Penandatangan SPT -->
-                                    <td class="px-3 py-4 text-sm">
+                                    <td class="px-3 py-4 text-xs whitespace-nowrap" style="width: 200px;">
                                         @if($item['spt_signer'])
                                             <div class="text-gray-900 dark:text-white">
                                                 {{ $item['spt_signer'] }}
@@ -148,8 +158,8 @@
                                     </td>
 
                                     <!-- No. & Tanggal SPPD -->
-                                    <td class="px-3 py-4 text-sm">
-                                        @if($item['sppd_number'])
+                                    <td class="px-3 py-4 text-xs whitespace-nowrap" style="width: 150px;">
+                                        @if($item['sppd_number'] && $item['sppd_id'])
                                             <div class="font-medium text-gray-900 dark:text-white">
                                                 <a href="{{ route('sppd.pdf', $item['sppd_id']) }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-600">
                                                     {{ $item['sppd_number'] }}
@@ -164,7 +174,7 @@
                                     </td>
 
                                     <!-- Penandatangan SPPD -->
-                                    <td class="px-3 py-4 text-sm">
+                                    <td class="px-3 py-4 text-xs whitespace-nowrap" style="width: 200px;">
                                         @if($item['sppd_signer'])
                                             <div class="text-gray-900 dark:text-white">
                                                 {{ $item['sppd_signer'] }}
@@ -175,7 +185,7 @@
                                     </td>
 
                                     <!-- Alat Angkutan -->
-                                    <td class="px-3 py-4 text-sm">
+                                    <td class="px-3 py-4 text-xs whitespace-nowrap" style="width: 120px;">
                                         @if($item['transport_mode'])
                                             <div class="text-gray-900 dark:text-white">
                                                 {{ $item['transport_mode'] }}
@@ -186,7 +196,7 @@
                                     </td>
 
                                     <!-- Nama PPTK -->
-                                    <td class="px-3 py-4 text-sm">
+                                    <td class="px-3 py-4 text-xs whitespace-nowrap" style="width: 200px;">
                                         @if($item['pptk_name'])
                                             <div class="text-gray-900 dark:text-white">
                                                 {{ $item['pptk_name'] }}
@@ -197,8 +207,8 @@
                                     </td>
 
                                     <!-- No. & Tanggal Laporan -->
-                                    <td class="px-3 py-4 text-sm">
-                                        @if($item['trip_report_number'])
+                                    <td class="px-3 py-4 text-xs whitespace-nowrap" style="width: 150px;">
+                                        @if($item['trip_report_number'] && $item['trip_report_id'])
                                             <div class="font-medium text-gray-900 dark:text-white">
                                                 <a href="{{ route('trip-reports.pdf', $item['trip_report_id']) }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-600">
                                                     {{ $item['trip_report_number'] }}
@@ -211,10 +221,47 @@
                                             <span class="text-gray-400 dark:text-gray-500">-</span>
                                         @endif
                                     </td>
+
+                                    <!-- Nama Peserta -->
+                                    <td class="px-3 py-4 text-xs" style="width: 300px;">
+                                        @if($item['participant_name'])
+                                            <div class="text-gray-900 dark:text-white">
+                                                <div class="font-medium">{{ $item['participant_name'] }}</div>
+                                                @if($item['participant_nip'])
+                                                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                                        NIP: {{ $item['participant_nip'] }}
+                                                    </div>
+                                                @endif
+                                                @if($item['participant_rank'])
+                                                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                                                        {{ $item['participant_rank'] }}
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        @else
+                                            <span class="text-gray-400 dark:text-gray-500">-</span>
+                                        @endif
+                                    </td>
+
+                                    <!-- No. & Tanggal Kwitansi -->
+                                    <td class="px-3 py-4 text-xs whitespace-nowrap" style="width: 100px;">
+                                        @if($item['receipt_number'] && $item['receipt_id'])
+                                            <div class="font-medium text-gray-900 dark:text-white">
+                                                <a href="{{ route('receipts.pdf', $item['receipt_id']) }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-600">
+                                                    {{ $item['receipt_number'] }}
+                                                </a>
+                                            </div>
+                                            <div class="text-gray-500 dark:text-gray-400">
+                                                {{ $item['receipt_date'] ? \Carbon\Carbon::parse($item['receipt_date'])->format('d/m/Y') : 'N/A' }}
+                                            </div>
+                                        @else
+                                            <span class="text-gray-400 dark:text-gray-500">-</span>
+                                        @endif
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="10" class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 text-center dark:text-white">
+                                    <td colspan="12" class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 text-center dark:text-white">
                                         @if($loading)
                                             <div class="flex items-center justify-center">
                                                 <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>

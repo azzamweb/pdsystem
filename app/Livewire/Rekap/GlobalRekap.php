@@ -135,6 +135,7 @@ class GlobalRekap extends Component
                 'spt.sppds.signedByUser',
                 'spt.sppds.pptkUser',
                 'spt.sppds.transportModes',
+                        'spt.sppds.receipts.payeeUser.rank',
                 'spt.tripReport'
             ]);
 
@@ -162,12 +163,15 @@ class GlobalRekap extends Component
             // Get paginated results
             $notaDinas = $query->orderBy('nd_date', 'desc')->paginate($this->perPage);
 
-            // Format data for display - simplified
-            $this->rekapData = $notaDinas->map(function($nd) {
+            // Format data for display - with multiple receipts per SPPD
+            $rekapData = collect();
+            
+            foreach ($notaDinas as $nd) {
                 // Get first SPPD (assuming one SPPD per SPT for now)
                 $sppd = $nd->spt && $nd->spt->sppds->count() > 0 ? $nd->spt->sppds->first() : null;
                 
-                return [
+                // Base data for all rows
+                $baseData = [
                     'id' => $nd->id,
                     'number' => $nd->doc_no,
                     'date' => $nd->nd_date,
@@ -208,7 +212,98 @@ class GlobalRekap extends Component
                         ($nd->spt->tripReport->report_no ?: $nd->spt->tripReport->doc_no ?: 'LAP-' . $nd->spt->tripReport->id) : null,
                     'trip_report_date' => $nd->spt && $nd->spt->tripReport ? $nd->spt->tripReport->report_date : null,
                 ];
-            });
+                
+                // If SPPD has receipts, create a row for each receipt
+                if ($sppd && $sppd->receipts->count() > 0) {
+                    $isFirstRow = true;
+                    // Sort receipts by rank (highest rank first)
+                    $sortedReceipts = $sppd->receipts->sortByDesc(function($receipt) {
+                        if ($receipt->payeeUser && $receipt->payeeUser->rank) {
+                            // Create a sortable value based on rank code
+                            $code = $receipt->payeeUser->rank->code;
+                            // Convert rank code to sortable number (higher rank = higher number)
+                            if (strpos($code, 'IV/') === 0) {
+                                return 400 + (int)substr($code, 3, 1);
+                            } elseif (strpos($code, 'III/') === 0) {
+                                return 300 + (int)substr($code, 4, 1);
+                            } elseif (strpos($code, 'II/') === 0) {
+                                return 200 + (int)substr($code, 3, 1);
+                            } elseif (strpos($code, 'I/') === 0) {
+                                return 100 + (int)substr($code, 2, 1);
+                            } else {
+                                // For special ranks like 7A, 6F, etc.
+                                return 500 + (int)$code;
+                            }
+                        }
+                        return 0; // No rank = lowest priority
+                    });
+                    
+                    foreach ($sortedReceipts as $receipt) {
+                        $rowData = [
+                            // Receipt data
+                            'receipt_id' => $receipt->id,
+                            'receipt_number' => $receipt->receipt_no ?: $receipt->doc_no ?: 'KW-' . $receipt->id,
+                            'receipt_date' => $receipt->receipt_date,
+                            'participant_name' => $receipt->payeeUser ? 
+                                ($receipt->payeeUser->gelar_depan ? $receipt->payeeUser->gelar_depan . ' ' : '') .
+                                $receipt->payeeUser->name .
+                                ($receipt->payeeUser->gelar_belakang ? ', ' . $receipt->payeeUser->gelar_belakang : '') : null,
+                            'participant_nip' => $receipt->payeeUser ? $receipt->payeeUser->nip : null,
+                            'participant_rank' => $receipt->payeeUser && $receipt->payeeUser->rank ? 
+                                $receipt->payeeUser->rank->fullName() : null,
+                        ];
+                        
+                        // Only show document info on first row
+                        if ($isFirstRow) {
+                            $rowData = array_merge($baseData, $rowData);
+                            $isFirstRow = false;
+                        } else {
+                            // For subsequent rows, only show receipt info
+                            $rowData = array_merge([
+                                'id' => null,
+                                'number' => null,
+                                'date' => null,
+                                'purpose' => null,
+                                'maksud' => null,
+                                'origin' => null,
+                                'destination' => null,
+                                'requesting_unit' => null,
+                                'start_date' => null,
+                                'end_date' => null,
+                                'duration' => null,
+                                'status' => null,
+                                'spt_id' => null,
+                                'spt_number' => null,
+                                'spt_date' => null,
+                                'spt_signer' => null,
+                                'sppd_id' => null,
+                                'sppd_number' => null,
+                                'sppd_date' => null,
+                                'sppd_signer' => null,
+                                'transport_mode' => null,
+                                'pptk_name' => null,
+                                'trip_report_id' => null,
+                                'trip_report_number' => null,
+                                'trip_report_date' => null,
+                            ], $rowData);
+                        }
+                        
+                        $rekapData->push($rowData);
+                    }
+                } else {
+                    // If no receipts, create one row with empty receipt data
+                    $rekapData->push(array_merge($baseData, [
+                        'receipt_id' => null,
+                        'receipt_number' => null,
+                        'receipt_date' => null,
+                        'participant_name' => null,
+                        'participant_nip' => null,
+                        'participant_rank' => null,
+                    ]));
+                }
+            }
+            
+            $this->rekapData = $rekapData;
 
             $this->totalRecords = $notaDinas->total();
 
