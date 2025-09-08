@@ -325,6 +325,7 @@ class Create extends Component
         $this->transportLines[] = [
             'component' => '',
             'category' => 'transport', // Set default category for transport lines
+            'desc' => '',
             'qty' => 1,
             'unit_amount' => 0,
             'rate_info' => '',
@@ -349,6 +350,7 @@ class Create extends Component
         $this->lodgingLines[] = [
             'category' => 'lodging', // Set default category for lodging lines
             'component' => 'LODGING', // Default component
+            'desc' => '',
             'qty' => 1,
             'unit_amount' => 0,
             'no_lodging' => false, // Checkbox "tidak menginap"
@@ -413,6 +415,7 @@ class Create extends Component
         $this->otherLines[] = [
             'category' => 'other', // Set default category for other lines
             'remark' => '',
+            'desc' => '',
             'qty' => 1,
             'unit_amount' => 0,
         ];
@@ -1282,6 +1285,7 @@ class Create extends Component
                     'qty' => $line['qty'],
                     'unit' => $this->getUnitForComponent($line['component']),
                     'unit_amount' => $line['unit_amount'],
+                    'desc' => $line['desc'] ?? '',
                     'line_total' => (float)($line['qty'] ?? 0) * (float)($line['unit_amount'] ?? 0),
                 ]);
             }
@@ -1298,6 +1302,7 @@ class Create extends Component
                     'unit' => 'Malam',
                     'unit_amount' => $line['unit_amount'],
                     'no_lodging' => $line['no_lodging'] ?? false,
+                    'desc' => $line['desc'] ?? '',
                     'line_total' => (float)($line['qty'] ?? 0) * (float)($line['unit_amount'] ?? 0),
                 ]);
             }
@@ -1328,6 +1333,7 @@ class Create extends Component
                     'qty' => $line['qty'],
                     'unit' => 'Unit',
                     'unit_amount' => $line['unit_amount'],
+                    'desc' => $line['desc'] ?? '',
                     'line_total' => (float)($line['qty'] ?? 0) * (float)($line['unit_amount'] ?? 0),
                     'remark' => $line['remark'],
                 ]);

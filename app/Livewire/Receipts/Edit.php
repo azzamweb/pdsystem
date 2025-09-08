@@ -143,6 +143,7 @@ class Edit extends Component
                 $this->transportLines[] = [
                     'component' => $line->component,
                     'category' => 'transport',
+                    'desc' => $line->desc ?? '',
                     'qty' => $line->qty,
                     'unit_amount' => $line->unit_amount,
                     'rate_info' => '',
@@ -172,6 +173,7 @@ class Edit extends Component
                 $this->lodgingLines[] = [
                     'category' => 'lodging',
                     'component' => $line->component,
+                    'desc' => $line->desc ?? '',
                     'qty' => $line->qty,
                     'unit_amount' => $line->unit_amount,
                     'no_lodging' => $line->no_lodging ?? $isNoLodging,
@@ -213,6 +215,7 @@ class Edit extends Component
                 $this->otherLines[] = [
                     'category' => 'other',
                     'remark' => $line->remark,
+                    'desc' => $line->desc ?? '',
                     'qty' => $line->qty,
                     'unit_amount' => $line->unit_amount,
                     'no_lodging' => $line->no_lodging ?? false,
@@ -1215,6 +1218,7 @@ class Edit extends Component
                     'qty' => $line['qty'],
                     'unit' => $this->getUnitForComponent($line['component']),
                     'unit_amount' => $line['unit_amount'],
+                    'desc' => $line['desc'] ?? '',
                     'line_total' => (float)($line['qty'] ?? 0) * (float)($line['unit_amount'] ?? 0),
                 ]);
             }
@@ -1231,6 +1235,7 @@ class Edit extends Component
                     'unit' => 'Malam',
                     'unit_amount' => $line['unit_amount'],
                     'no_lodging' => $line['no_lodging'] ?? false,
+                    'desc' => $line['desc'] ?? '',
                     'line_total' => (float)($line['qty'] ?? 0) * (float)($line['unit_amount'] ?? 0),
                 ]);
             }
@@ -1262,6 +1267,7 @@ class Edit extends Component
                     'unit' => 'Unit',
                     'unit_amount' => $line['unit_amount'],
                     'no_lodging' => $line['no_lodging'] ?? false,
+                    'desc' => $line['desc'] ?? '',
                     'line_total' => (float)($line['qty'] ?? 0) * (float)($line['unit_amount'] ?? 0),
                     'remark' => $line['remark'],
                 ]);

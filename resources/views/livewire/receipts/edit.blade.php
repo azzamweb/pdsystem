@@ -487,7 +487,7 @@
                                             <div class="space-y-3">
                                                 @foreach($transportLines as $index => $line)
                                                 <div class="bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 p-3">
-                                                    <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+                                                    <div class="grid grid-cols-1 md:grid-cols-6 gap-3">
                                                         <div>
                                                             <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Jenis</label>
                                                             <select wire:model.live="transportLines.{{ $index }}.component" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
@@ -514,6 +514,10 @@
                                                                 @endif
                                                             </div>
                                                             @endif
+                                                        </div>
+                                                        <div>
+                                                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Keterangan Tambahan</label>
+                                                            <input type="text" wire:model="transportLines.{{ $index }}.desc" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Contoh: Garuda Indonesia">
                                                         </div>
                                                         <div>
                                                             <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Jumlah</label>
@@ -603,10 +607,14 @@
                                             <div class="space-y-3">
                                                 @foreach($lodgingLines as $index => $line)
                                                 <div class="bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 p-3">
-                                                    <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                                                    <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
                                                         <div>
                                                             <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Jumlah Malam</label>
                                                             <input type="number" wire:model="lodgingLines.{{ $index }}.qty" min="0" step="0.5" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                                        </div>
+                                                        <div>
+                                                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Keterangan Tambahan</label>
+                                                            <input type="text" wire:model="lodgingLines.{{ $index }}.desc" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Contoh: Hotel Bintang 4">
                                                         </div>
                                                         <div>
                                                             <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -814,10 +822,14 @@
                                             <div class="space-y-3">
                                                 @foreach($otherLines as $index => $line)
                                                 <div class="bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 p-3">
-                                                    <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+                                                    <div class="grid grid-cols-1 md:grid-cols-6 gap-3">
                                                         <div>
                                                             <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Keterangan</label>
                                                             <input type="text" wire:model="otherLines.{{ $index }}.remark" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Contoh: Rapid Test">
+                                                        </div>
+                                                        <div>
+                                                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Keterangan Tambahan</label>
+                                                            <input type="text" wire:model="otherLines.{{ $index }}.desc" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Contoh: Hotel Bintang 4">
                                                         </div>
                                                         <div>
                                                             <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Jumlah</label>

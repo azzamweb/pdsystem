@@ -11,7 +11,7 @@ class ReceiptLine extends Model
 
     protected $fillable = [
         'receipt_id', 'component', 'category', 'qty', 'unit', 'unit_amount', 'no_lodging', 'line_total', 
-        'ref_table', 'ref_id', 'cap_amount', 'is_over_cap', 'over_cap_amount', 'remark',
+        'ref_table', 'ref_id', 'cap_amount', 'is_over_cap', 'over_cap_amount', 'remark', 'desc',
     ];
 
     protected $casts = [
