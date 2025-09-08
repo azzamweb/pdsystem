@@ -474,6 +474,7 @@ class Edit extends Component
             // Jika ini auto-fill baru, reset status override
             if (!$this->transportLines[$index]['is_overridden']) {
                 $this->transportLines[$index]['is_overridden'] = false;
+                // Untuk transport, selalu set exceeds_reference = false karena tidak ada batasan
                 $this->transportLines[$index]['exceeds_reference'] = false;
                 $this->transportLines[$index]['excess_amount'] = 0;
                 $this->transportLines[$index]['excess_percentage'] = 0;
@@ -488,20 +489,14 @@ class Edit extends Component
         }
 
         $line = $this->transportLines[$index];
-        $manualValue = $line['unit_amount'];
-        $referenceValue = $line['original_reference_rate'] ?? 0;
+        
+        // Untuk transport, tidak ada batasan - dibayar sesuai harga real
+        // Selalu set exceeds_reference = false untuk transport
+        $this->transportLines[$index]['exceeds_reference'] = false;
+        $this->transportLines[$index]['excess_amount'] = 0;
+        $this->transportLines[$index]['excess_percentage'] = 0;
 
-        if ($manualValue > $referenceValue && $referenceValue > 0) {
-            $this->transportLines[$index]['exceeds_reference'] = true;
-            $this->transportLines[$index]['excess_amount'] = $manualValue - $referenceValue;
-            $this->transportLines[$index]['excess_percentage'] = round((($manualValue - $referenceValue) / $referenceValue) * 100, 1);
-        } else {
-            $this->transportLines[$index]['exceeds_reference'] = false;
-            $this->transportLines[$index]['excess_amount'] = 0;
-            $this->transportLines[$index]['excess_percentage'] = 0;
-        }
-
-        return $this->transportLines[$index]['exceeds_reference'];
+        return false; // Transport tidak pernah exceeds reference
     }
 
     public function checkAllExcessiveValues()
@@ -509,21 +504,8 @@ class Edit extends Component
         $this->hasExcessiveValues = false;
         $this->excessiveValueDetails = [];
 
-        // Check transport lines
-        foreach ($this->transportLines as $index => $line) {
-            if ($line['exceeds_reference']) {
-                $this->hasExcessiveValues = true;
-                $this->excessiveValueDetails[] = [
-                    'type' => 'Transport',
-                    'component' => $line['component'],
-                    'index' => $index,
-                    'manual_value' => $line['unit_amount'],
-                    'reference_value' => $line['original_reference_rate'],
-                    'excess_amount' => $line['excess_amount'],
-                    'excess_percentage' => $line['excess_percentage']
-                ];
-            }
-        }
+        // Transport lines tidak perlu dicek karena tidak ada batasan
+        // Transport dibayar sesuai harga real tanpa batasan
 
         // Check lodging lines
         if ($this->lodgingCap) {
@@ -756,14 +738,10 @@ class Edit extends Component
             }
         }
         
-        // Check if any manual values exceed reference rates
-        foreach ($this->transportLines as $index => $line) {
-            if ($line['is_overridden']) {
-                $this->checkManualValueExceedsReference($index);
-            }
-        }
+        // Untuk transport, tidak perlu mengecek excessive values karena tidak ada batasan
+        // Transport dibayar sesuai harga real tanpa batasan
         
-        // Check all excessive values for warning banner
+        // Check all excessive values for warning banner (excluding transport)
         $this->checkAllExcessiveValues();
         
         $this->calculateTotal();
@@ -772,12 +750,11 @@ class Edit extends Component
     // Method untuk handle perubahan nilai manual pada transport lines
     public function updatedTransportLinesUnitAmount($value, $key)
     {
-        // Jika nilai berubah dan ini adalah transport yang sudah di-override, check excessive
-        $index = explode('.', $key)[1];
-        if (isset($this->transportLines[$index]) && $this->transportLines[$index]['is_overridden']) {
-            $this->checkManualValueExceedsReference($index);
-            $this->checkAllExcessiveValues();
-        }
+        // Untuk transport, tidak perlu mengecek excessive values karena tidak ada batasan
+        // Transport dibayar sesuai harga real tanpa batasan
+        
+        // Check all excessive values for warning banner (excluding transport)
+        $this->checkAllExcessiveValues();
         
         $this->calculateTotal();
     }
