@@ -297,9 +297,17 @@
                                     </td>
 
                                     <!-- Transportasi - Uraian -->
-                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600 whitespace-nowrap" style="width: 100px;">
-                                        @if(!empty($item['receipt_lines']['transport']))
-                                            <div class="space-y-2">
+                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600" style="width: 100px;">
+                                        @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'transport' && $item['receipt_line']['line'])
+                                            {{-- Additional row for specific category --}}
+                                            <div class="text-gray-700 dark:text-gray-300">
+                                                <div class="font-medium">
+                                                    ({{ number_format($item['receipt_line']['line']['qty'], 0, ',', '.') }} x Rp {{ number_format($item['receipt_line']['line']['unit_amount'], 0, ',', '.') }})
+                                                </div>
+                                            </div>
+                                        @elseif(isset($item['receipt_lines']) && !empty($item['receipt_lines']['transport']))
+                                            {{-- Main row with all categories --}}
+                                            <div class="space-y-1">
                                                 @foreach($item['receipt_lines']['transport'] as $line)
                                                     <div class="text-gray-700 dark:text-gray-300">
                                                         <div class="font-medium">
@@ -314,9 +322,15 @@
                                     </td>
 
                                     <!-- Transportasi - Nilai -->
-                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600 text-right whitespace-nowrap" style="width: 100px;">
-                                        @if(!empty($item['receipt_lines']['transport']))
-                                            <div class="space-y-2">
+                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600 text-right" style="width: 100px;">
+                                        @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'transport' && $item['receipt_line']['line'])
+                                            {{-- Additional row for specific category --}}
+                                            <div class="font-semibold text-gray-900 dark:text-white">
+                                                Rp {{ number_format($item['receipt_line']['line']['line_total'], 0, ',', '.') }}
+                                            </div>
+                                        @elseif(isset($item['receipt_lines']) && !empty($item['receipt_lines']['transport']))
+                                            {{-- Main row with all categories --}}
+                                            <div class="space-y-1">
                                                 @foreach($item['receipt_lines']['transport'] as $line)
                                                     <div class="font-semibold text-gray-900 dark:text-white">
                                                         Rp {{ number_format($line['line_total'], 0, ',', '.') }}
@@ -330,8 +344,14 @@
 
                                     <!-- Transportasi - Deskripsi -->
                                     <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600" style="width: 100px;">
-                                        @if(!empty($item['receipt_lines']['transport']))
-                                            <div class="space-y-2">
+                                        @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'transport' && $item['receipt_line']['line'])
+                                            {{-- Additional row for specific category --}}
+                                            <div class="text-gray-600 dark:text-gray-400 text-xs">
+                                                {{ $item['receipt_line']['line']['desc'] ?: '-' }}
+                                            </div>
+                                        @elseif(isset($item['receipt_lines']) && !empty($item['receipt_lines']['transport']))
+                                            {{-- Main row with all categories --}}
+                                            <div class="space-y-1">
                                                 @foreach($item['receipt_lines']['transport'] as $line)
                                                     <div class="text-gray-600 dark:text-gray-400 text-xs">
                                                         {{ $line['desc'] ?: '-' }}
@@ -344,9 +364,20 @@
                                     </td>
 
                                     <!-- Penginapan - Uraian -->
-                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600 whitespace-nowrap" style="width: 100px;">
-                                        @if(!empty($item['receipt_lines']['lodging']))
-                                            <div class="space-y-2">
+                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600" style="width: 100px;">
+                                        @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'lodging' && $item['receipt_line']['line'])
+                                            {{-- Additional row for specific category --}}
+                                            <div class="text-gray-700 dark:text-gray-300">
+                                                <div class="font-medium">
+                                                    ({{ number_format($item['receipt_line']['line']['qty'], 0, ',', '.') }} x Rp {{ number_format($item['receipt_line']['line']['unit_amount'], 0, ',', '.') }})
+                                                    @if($item['receipt_line']['line']['no_lodging'])
+                                                        <span class="text-gray-500 dark:text-gray-400">(30%)</span>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        @elseif(isset($item['receipt_lines']) && !empty($item['receipt_lines']['lodging']))
+                                            {{-- Main row with all categories --}}
+                                            <div class="space-y-1">
                                                 @foreach($item['receipt_lines']['lodging'] as $line)
                                                     <div class="text-gray-700 dark:text-gray-300">
                                                         <div class="font-medium">
@@ -364,9 +395,15 @@
                                     </td>
 
                                     <!-- Penginapan - Nilai -->
-                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600 text-right whitespace-nowrap" style="width: 100px;">
-                                        @if(!empty($item['receipt_lines']['lodging']))
-                                            <div class="space-y-2">
+                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600 text-right" style="width: 100px;">
+                                        @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'lodging' && $item['receipt_line']['line'])
+                                            {{-- Additional row for specific category --}}
+                                            <div class="font-semibold text-gray-900 dark:text-white">
+                                                Rp {{ number_format($item['receipt_line']['line']['line_total'], 0, ',', '.') }}
+                                            </div>
+                                        @elseif(isset($item['receipt_lines']) && !empty($item['receipt_lines']['lodging']))
+                                            {{-- Main row with all categories --}}
+                                            <div class="space-y-1">
                                                 @foreach($item['receipt_lines']['lodging'] as $line)
                                                     <div class="font-semibold text-gray-900 dark:text-white">
                                                         Rp {{ number_format($line['line_total'], 0, ',', '.') }}
@@ -380,8 +417,14 @@
 
                                     <!-- Penginapan - Deskripsi -->
                                     <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600" style="width: 100px;">
-                                        @if(!empty($item['receipt_lines']['lodging']))
-                                            <div class="space-y-2">
+                                        @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'lodging' && $item['receipt_line']['line'])
+                                            {{-- Additional row for specific category --}}
+                                            <div class="text-gray-600 dark:text-gray-400 text-xs">
+                                                {{ $item['receipt_line']['line']['desc'] ?: '-' }}
+                                            </div>
+                                        @elseif(isset($item['receipt_lines']) && !empty($item['receipt_lines']['lodging']))
+                                            {{-- Main row with all categories --}}
+                                            <div class="space-y-1">
                                                 @foreach($item['receipt_lines']['lodging'] as $line)
                                                     <div class="text-gray-600 dark:text-gray-400 text-xs">
                                                         {{ $line['desc'] ?: '-' }}
@@ -394,9 +437,17 @@
                                     </td>
 
                                     <!-- Uang Harian - Uraian -->
-                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600 whitespace-nowrap" style="width: 75px;">
-                                        @if(!empty($item['receipt_lines']['perdiem']))
-                                            <div class="space-y-2">
+                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600" style="width: 75px;">
+                                        @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'perdiem' && $item['receipt_line']['line'])
+                                            {{-- Additional row for specific category --}}
+                                            <div class="text-gray-700 dark:text-gray-300">
+                                                <div class="font-medium">
+                                                    ({{ number_format($item['receipt_line']['line']['qty'], 0, ',', '.') }} x Rp {{ number_format($item['receipt_line']['line']['unit_amount'], 0, ',', '.') }})
+                                                </div>
+                                            </div>
+                                        @elseif(isset($item['receipt_lines']) && !empty($item['receipt_lines']['perdiem']))
+                                            {{-- Main row with all categories --}}
+                                            <div class="space-y-1">
                                                 @foreach($item['receipt_lines']['perdiem'] as $line)
                                                     <div class="text-gray-700 dark:text-gray-300">
                                                         <div class="font-medium">
@@ -411,9 +462,15 @@
                                     </td>
 
                                     <!-- Uang Harian - Nilai -->
-                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600 text-right whitespace-nowrap" style="width: 75px;">
-                                        @if(!empty($item['receipt_lines']['perdiem']))
-                                            <div class="space-y-2">
+                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600 text-right" style="width: 75px;">
+                                        @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'perdiem' && $item['receipt_line']['line'])
+                                            {{-- Additional row for specific category --}}
+                                            <div class="font-semibold text-gray-900 dark:text-white">
+                                                Rp {{ number_format($item['receipt_line']['line']['line_total'], 0, ',', '.') }}
+                                            </div>
+                                        @elseif(isset($item['receipt_lines']) && !empty($item['receipt_lines']['perdiem']))
+                                            {{-- Main row with all categories --}}
+                                            <div class="space-y-1">
                                                 @foreach($item['receipt_lines']['perdiem'] as $line)
                                                     <div class="font-semibold text-gray-900 dark:text-white">
                                                         Rp {{ number_format($line['line_total'], 0, ',', '.') }}
@@ -427,8 +484,14 @@
 
                                     <!-- Uang Harian - Deskripsi -->
                                     <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600" style="width: 75px;">
-                                        @if(!empty($item['receipt_lines']['perdiem']))
-                                            <div class="space-y-2">
+                                        @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'perdiem' && $item['receipt_line']['line'])
+                                            {{-- Additional row for specific category --}}
+                                            <div class="text-gray-600 dark:text-gray-400 text-xs">
+                                                {{ $item['receipt_line']['line']['desc'] ?: '-' }}
+                                            </div>
+                                        @elseif(isset($item['receipt_lines']) && !empty($item['receipt_lines']['perdiem']))
+                                            {{-- Main row with all categories --}}
+                                            <div class="space-y-1">
                                                 @foreach($item['receipt_lines']['perdiem'] as $line)
                                                     <div class="text-gray-600 dark:text-gray-400 text-xs">
                                                         {{ $line['desc'] ?: '-' }}
@@ -441,9 +504,17 @@
                                     </td>
 
                                     <!-- Representatif - Uraian -->
-                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600 whitespace-nowrap" style="width: 75px;">
-                                        @if(!empty($item['receipt_lines']['representation']))
-                                            <div class="space-y-2">
+                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600" style="width: 75px;">
+                                        @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'representation' && $item['receipt_line']['line'])
+                                            {{-- Additional row for specific category --}}
+                                            <div class="text-gray-700 dark:text-gray-300">
+                                                <div class="font-medium">
+                                                    ({{ number_format($item['receipt_line']['line']['qty'], 0, ',', '.') }} x Rp {{ number_format($item['receipt_line']['line']['unit_amount'], 0, ',', '.') }})
+                                                </div>
+                                            </div>
+                                        @elseif(isset($item['receipt_lines']) && !empty($item['receipt_lines']['representation']))
+                                            {{-- Main row with all categories --}}
+                                            <div class="space-y-1">
                                                 @foreach($item['receipt_lines']['representation'] as $line)
                                                     <div class="text-gray-700 dark:text-gray-300">
                                                         <div class="font-medium">
@@ -458,9 +529,15 @@
                                     </td>
 
                                     <!-- Representatif - Nilai -->
-                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600 text-right whitespace-nowrap" style="width: 75px;">
-                                        @if(!empty($item['receipt_lines']['representation']))
-                                            <div class="space-y-2">
+                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600 text-right" style="width: 75px;">
+                                        @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'representation' && $item['receipt_line']['line'])
+                                            {{-- Additional row for specific category --}}
+                                            <div class="font-semibold text-gray-900 dark:text-white">
+                                                Rp {{ number_format($item['receipt_line']['line']['line_total'], 0, ',', '.') }}
+                                            </div>
+                                        @elseif(isset($item['receipt_lines']) && !empty($item['receipt_lines']['representation']))
+                                            {{-- Main row with all categories --}}
+                                            <div class="space-y-1">
                                                 @foreach($item['receipt_lines']['representation'] as $line)
                                                     <div class="font-semibold text-gray-900 dark:text-white">
                                                         Rp {{ number_format($line['line_total'], 0, ',', '.') }}
@@ -474,8 +551,14 @@
 
                                     <!-- Representatif - Deskripsi -->
                                     <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600" style="width: 75px;">
-                                        @if(!empty($item['receipt_lines']['representation']))
-                                            <div class="space-y-2">
+                                        @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'representation' && $item['receipt_line']['line'])
+                                            {{-- Additional row for specific category --}}
+                                            <div class="text-gray-600 dark:text-gray-400 text-xs">
+                                                {{ $item['receipt_line']['line']['desc'] ?: '-' }}
+                                            </div>
+                                        @elseif(isset($item['receipt_lines']) && !empty($item['receipt_lines']['representation']))
+                                            {{-- Main row with all categories --}}
+                                            <div class="space-y-1">
                                                 @foreach($item['receipt_lines']['representation'] as $line)
                                                     <div class="text-gray-600 dark:text-gray-400 text-xs">
                                                         {{ $line['desc'] ?: '-' }}
@@ -488,9 +571,17 @@
                                     </td>
 
                                     <!-- Biaya Lainnya - Uraian -->
-                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600 whitespace-nowrap" style="width: 100px;">
-                                        @if(!empty($item['receipt_lines']['other']))
-                                            <div class="space-y-2">
+                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600" style="width: 100px;">
+                                        @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'other' && $item['receipt_line']['line'])
+                                            {{-- Additional row for specific category --}}
+                                            <div class="text-gray-700 dark:text-gray-300">
+                                                <div class="font-medium">
+                                                    ({{ number_format($item['receipt_line']['line']['qty'], 0, ',', '.') }} x Rp {{ number_format($item['receipt_line']['line']['unit_amount'], 0, ',', '.') }})
+                                                </div>
+                                            </div>
+                                        @elseif(isset($item['receipt_lines']) && !empty($item['receipt_lines']['other']))
+                                            {{-- Main row with all categories --}}
+                                            <div class="space-y-1">
                                                 @foreach($item['receipt_lines']['other'] as $line)
                                                     <div class="text-gray-700 dark:text-gray-300">
                                                         <div class="font-medium">
@@ -505,9 +596,15 @@
                                     </td>
 
                                     <!-- Biaya Lainnya - Nilai -->
-                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600 text-right whitespace-nowrap" style="width: 100px;">
-                                        @if(!empty($item['receipt_lines']['other']))
-                                            <div class="space-y-2">
+                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600 text-right" style="width: 100px;">
+                                        @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'other' && $item['receipt_line']['line'])
+                                            {{-- Additional row for specific category --}}
+                                            <div class="font-semibold text-gray-900 dark:text-white">
+                                                Rp {{ number_format($item['receipt_line']['line']['line_total'], 0, ',', '.') }}
+                                            </div>
+                                        @elseif(isset($item['receipt_lines']) && !empty($item['receipt_lines']['other']))
+                                            {{-- Main row with all categories --}}
+                                            <div class="space-y-1">
                                                 @foreach($item['receipt_lines']['other'] as $line)
                                                     <div class="font-semibold text-gray-900 dark:text-white">
                                                         Rp {{ number_format($line['line_total'], 0, ',', '.') }}
@@ -521,8 +618,14 @@
 
                                     <!-- Biaya Lainnya - Deskripsi -->
                                     <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600" style="width: 100px;">
-                                        @if(!empty($item['receipt_lines']['other']))
-                                            <div class="space-y-2">
+                                        @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'other' && $item['receipt_line']['line'])
+                                            {{-- Additional row for specific category --}}
+                                            <div class="text-gray-600 dark:text-gray-400 text-xs">
+                                                {{ $item['receipt_line']['line']['desc'] ?: '-' }}
+                                            </div>
+                                        @elseif(isset($item['receipt_lines']) && !empty($item['receipt_lines']['other']))
+                                            {{-- Main row with all categories --}}
+                                            <div class="space-y-1">
                                                 @foreach($item['receipt_lines']['other'] as $line)
                                                     <div class="text-gray-600 dark:text-gray-400 text-xs">
                                                         {{ $line['desc'] ?: '-' }}

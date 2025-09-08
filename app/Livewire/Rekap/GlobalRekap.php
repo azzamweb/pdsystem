@@ -214,7 +214,7 @@ class GlobalRekap extends Component
                     'trip_report_date' => $nd->spt && $nd->spt->tripReport ? $nd->spt->tripReport->report_date : null,
                 ];
                 
-                // If SPPD has receipts, create a row for each receipt
+                // If SPPD has receipts, create rows with proper structure
                 if ($sppd && $sppd->receipts->count() > 0) {
                     $isFirstRow = true;
                     // Sort receipts by rank (highest rank first)
@@ -240,7 +240,27 @@ class GlobalRekap extends Component
                     });
                     
                     foreach ($sortedReceipts as $receipt) {
-                        $rowData = [
+                        $groupedLines = $this->groupReceiptLinesByCategory($receipt->lines);
+                        
+                        // Find categories with multiple items
+                        $categoriesWithMultipleItems = [];
+                        $additionalRows = [];
+                        
+                        foreach ($groupedLines as $category => $lines) {
+                            if (count($lines) > 1) {
+                                $categoriesWithMultipleItems[$category] = $lines;
+                                // Store additional items (skip first one as it will be in main row)
+                                for ($i = 1; $i < count($lines); $i++) {
+                                    $additionalRows[] = [
+                                        'category' => $category,
+                                        'line' => $lines[$i]
+                                    ];
+                                }
+                            }
+                        }
+                        
+                        // Create main row with all categories (first item from each category)
+                        $mainRowData = [
                             // Receipt data
                             'receipt_id' => $receipt->id,
                             'receipt_number' => $receipt->receipt_no ?: $receipt->doc_no ?: 'KW-' . $receipt->id,
@@ -252,17 +272,17 @@ class GlobalRekap extends Component
                             'participant_nip' => $receipt->payeeUser ? $receipt->payeeUser->nip : null,
                             'participant_rank' => $receipt->payeeUser && $receipt->payeeUser->rank ? 
                                 $receipt->payeeUser->rank->fullName() : null,
-                            // Receipt lines grouped by category
-                            'receipt_lines' => $this->groupReceiptLinesByCategory($receipt->lines),
+                            // All receipt lines grouped by category
+                            'receipt_lines' => $groupedLines,
                         ];
                         
                         // Only show document info on first row
                         if ($isFirstRow) {
-                            $rowData = array_merge($baseData, $rowData);
+                            $mainRowData = array_merge($baseData, $mainRowData);
                             $isFirstRow = false;
                         } else {
                             // For subsequent rows, only show receipt info
-                            $rowData = array_merge([
+                            $mainRowData = array_merge([
                                 'id' => null,
                                 'number' => null,
                                 'date' => null,
@@ -288,10 +308,60 @@ class GlobalRekap extends Component
                                 'trip_report_id' => null,
                                 'trip_report_number' => null,
                                 'trip_report_date' => null,
-                            ], $rowData);
+                            ], $mainRowData);
                         }
                         
-                        $rekapData->push($rowData);
+                        $rekapData->push($mainRowData);
+                        
+                        // Create additional rows for categories with multiple items
+                        foreach ($additionalRows as $lineData) {
+                            $additionalRowData = [
+                                // Receipt data
+                                'receipt_id' => $receipt->id,
+                                'receipt_number' => $receipt->receipt_no ?: $receipt->doc_no ?: 'KW-' . $receipt->id,
+                                'receipt_date' => $receipt->receipt_date,
+                                'participant_name' => $receipt->payeeUser ? 
+                                    ($receipt->payeeUser->gelar_depan ? $receipt->payeeUser->gelar_depan . ' ' : '') .
+                                    $receipt->payeeUser->name .
+                                    ($receipt->payeeUser->gelar_belakang ? ', ' . $receipt->payeeUser->gelar_belakang : '') : null,
+                                'participant_nip' => $receipt->payeeUser ? $receipt->payeeUser->nip : null,
+                                'participant_rank' => $receipt->payeeUser && $receipt->payeeUser->rank ? 
+                                    $receipt->payeeUser->rank->fullName() : null,
+                                // Single receipt line for this row
+                                'receipt_line' => $lineData,
+                            ];
+                            
+                            // For additional rows, only show receipt info
+                            $additionalRowData = array_merge([
+                                'id' => null,
+                                'number' => null,
+                                'date' => null,
+                                'purpose' => null,
+                                'maksud' => null,
+                                'origin' => null,
+                                'destination' => null,
+                                'requesting_unit' => null,
+                                'start_date' => null,
+                                'end_date' => null,
+                                'duration' => null,
+                                'status' => null,
+                                'spt_id' => null,
+                                'spt_number' => null,
+                                'spt_date' => null,
+                                'spt_signer' => null,
+                                'sppd_id' => null,
+                                'sppd_number' => null,
+                                'sppd_date' => null,
+                                'sppd_signer' => null,
+                                'transport_mode' => null,
+                                'pptk_name' => null,
+                                'trip_report_id' => null,
+                                'trip_report_number' => null,
+                                'trip_report_date' => null,
+                            ], $additionalRowData);
+                            
+                            $rekapData->push($additionalRowData);
+                        }
                     }
                 } else {
                     // If no receipts, create one row with empty receipt data
