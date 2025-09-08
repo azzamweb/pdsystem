@@ -169,20 +169,33 @@ class Edit extends Component
                     'excess_percentage' => 0,
                 ];
             } elseif ($line->component === 'LODGING' || in_array($line->component, ['HOTEL', 'PENGINAPAN', 'WISMA', 'ASRAMA'])) {
-                // Check if this is a manual override by comparing with reference rate
-                $referenceRateService = new ReferenceRateService();
-                $notaDinas = $this->receipt->sppd->spt->notaDinas;
-                $destinationCity = $notaDinas->destinationCity;
-                $referenceRate = $referenceRateService->getLodgingCap(
-                    $destinationCity->province_id, 
-                    $this->travel_grade_id
-                );
+                // Use snapshot if available, otherwise calculate real-time
+                $referenceRate = $line->reference_rate_snapshot ?? null;
                 
-                $isOverridden = $referenceRate && $line->unit_amount != $referenceRate;
-                $rateInfo = $referenceRate ? "Penginapan: {$destinationCity->province->name} (Grade {$this->travel_grade_id})" : '';
+                if (!$referenceRate) {
+                    // Fallback to real-time calculation
+                    $referenceRateService = new ReferenceRateService();
+                    $notaDinas = $this->receipt->sppd->spt->notaDinas;
+                    $destinationCity = $notaDinas->destinationCity;
+                    $referenceRate = $referenceRateService->getLodgingCap(
+                        $destinationCity->province_id, 
+                        $this->travel_grade_id
+                    );
+                }
                 
-                // Check if this is "tidak menginap" (30% of reference rate)
-                $isNoLodging = $referenceRate && $line->unit_amount == ($referenceRate * 0.3);
+                // Use no_lodging field from database as primary source
+                $isNoLodging = $line->no_lodging ?? false;
+                
+                // Check if this is a manual override
+                $expectedAmount = $isNoLodging ? ($referenceRate * 0.3) : $referenceRate;
+                $isOverridden = $referenceRate && $line->unit_amount != $expectedAmount;
+                
+                // Generate rate info based on no_lodging status
+                if ($isNoLodging && $referenceRate) {
+                    $rateInfo = "Tidak Menginap (30% dari tarif penginapan): {$destinationCity->name}, {$destinationCity->province->name} (Grade {$this->travel_grade_id})";
+                } else {
+                    $rateInfo = $referenceRate ? "Penginapan: {$destinationCity->name}, {$destinationCity->province->name} (Grade {$this->travel_grade_id})" : '';
+                }
                 
                 $this->lodgingLines[] = [
                     'category' => 'lodging',
@@ -190,15 +203,16 @@ class Edit extends Component
                     'desc' => $line->desc ?? '',
                     'qty' => $line->qty,
                     'unit_amount' => $line->unit_amount,
-                    'no_lodging' => $line->no_lodging ?? $isNoLodging,
+                    'no_lodging' => $isNoLodging,
                     'destination_city_id' => $line->destination_city_id ?? null,
+                    'reference_rate_snapshot' => $line->reference_rate_snapshot ?? null,
                     'rate_info' => $rateInfo,
                     'has_reference' => (bool)$referenceRate,
-                    'original_reference_rate' => $referenceRate ?? 0,
+                    'original_reference_rate' => $expectedAmount ?? 0,
                     'is_overridden' => $isOverridden,
-                    'exceeds_reference' => $isOverridden && $line->unit_amount > $referenceRate,
-                    'excess_amount' => $isOverridden && $line->unit_amount > $referenceRate ? $line->unit_amount - $referenceRate : 0,
-                    'excess_percentage' => $isOverridden && $referenceRate > 0 ? (($line->unit_amount - $referenceRate) / $referenceRate) * 100 : 0,
+                    'exceeds_reference' => $isOverridden && $line->unit_amount > $expectedAmount,
+                    'excess_amount' => $isOverridden && $line->unit_amount > $expectedAmount ? $line->unit_amount - $expectedAmount : 0,
+                    'excess_percentage' => $isOverridden && $expectedAmount > 0 ? (($line->unit_amount - $expectedAmount) / $expectedAmount) * 100 : 0,
                 ];
             } elseif (in_array($line->component, ['REPRESENTATION', 'REPRESENTASI'])) {
                 // Check if this is a manual override by comparing with reference rate
@@ -774,11 +788,18 @@ class Edit extends Component
         $this->calculateTotal();
     }
 
-    public function updatedLodgingLines()
+    public function updatedLodgingLines($value, $index)
     {
-        // Auto-fill lodging rates for all lodging lines
-        foreach ($this->lodgingLines as $index => $line) {
-            $this->autoFillLodgingRate($index);
+        // If destination_city_id is updated, recalculate the rate for that specific line
+        if (str_contains($index, 'destination_city_id')) {
+            $lineIndex = explode('.', $index)[0];
+            $this->autoFillLodgingRate($lineIndex);
+        }
+        
+        // If no_lodging is updated, recalculate the rate for that specific line
+        if (str_contains($index, 'no_lodging')) {
+            $lineIndex = explode('.', $index)[0];
+            $this->autoFillLodgingRate($lineIndex);
         }
         
         // Check if any manual values exceed reference rates
@@ -1047,6 +1068,12 @@ class Edit extends Component
                 $this->lodgingLines[$index]['original_reference_rate'] = $this->lodgingLines[$index]['unit_amount'];
             }
             
+            // Pastikan reference_rate_snapshot tersimpan
+            if (!isset($this->lodgingLines[$index]['reference_rate_snapshot']) || $this->lodgingLines[$index]['reference_rate_snapshot'] == 0) {
+                // Recalculate reference rate snapshot
+                $this->autoFillLodgingRate($index);
+            }
+            
             $this->lodgingLines[$index]['has_reference'] = false;
             $this->lodgingLines[$index]['rate_info'] = 'Nilai diubah manual oleh user';
             $this->lodgingLines[$index]['is_overridden'] = true;
@@ -1240,6 +1267,7 @@ class Edit extends Component
                     'unit_amount' => $line['unit_amount'],
                     'no_lodging' => $line['no_lodging'] ?? false,
                     'reference_rate_snapshot' => $line['reference_rate_snapshot'] ?? null,
+                    'destination_city_id' => $line['destination_city_id'] ?? null,
                     'desc' => $line['desc'] ?? '',
                     'line_total' => (float)($line['qty'] ?? 0) * (float)($line['unit_amount'] ?? 0),
                 ]);

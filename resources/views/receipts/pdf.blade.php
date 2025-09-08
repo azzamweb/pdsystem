@@ -72,14 +72,7 @@
     }
     
     // Fallback: detect based on amount (for backward compatibility)
-    $notaDinas = $receipt->sppd->spt->notaDinas;
-    $destinationCity = $notaDinas->destinationCity;
-    $travelGradeId = $receipt->travel_grade_id;
-    
-    if (!$destinationCity || !$travelGradeId) return false;
-    
-    $referenceRateService = new \App\Services\ReferenceRateService();
-    $referenceRate = $referenceRateService->getLodgingCap($destinationCity->id, $travelGradeId);
+    $referenceRate = getReferenceRate($line, $receipt);
     
     if (!$referenceRate) return false;
     
@@ -97,6 +90,12 @@
   function getReferenceRate($line, $receipt) {
     if ($line->component !== 'LODGING') return null;
     
+    // Use snapshot if available (preferred for consistency)
+    if (isset($line->reference_rate_snapshot) && $line->reference_rate_snapshot > 0) {
+      return $line->reference_rate_snapshot;
+    }
+    
+    // Fallback to real-time calculation for backward compatibility
     $notaDinas = $receipt->sppd->spt->notaDinas;
     $destinationCity = $notaDinas->destinationCity;
     $travelGradeId = $receipt->travel_grade_id;
