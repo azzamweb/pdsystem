@@ -322,17 +322,13 @@ class GlobalRekap extends Component
                         // Create additional rows for categories with multiple items
                         foreach ($additionalRows as $lineData) {
                             $additionalRowData = [
-                                // Receipt data
+                                // Receipt data (without participant and receipt info for additional rows)
                                 'receipt_id' => $receipt->id,
-                                'receipt_number' => $receipt->receipt_no ?: $receipt->doc_no ?: 'KW-' . $receipt->id,
-                                'receipt_date' => $receipt->receipt_date,
-                                'participant_name' => $receipt->payeeUser ? 
-                                    ($receipt->payeeUser->gelar_depan ? $receipt->payeeUser->gelar_depan . ' ' : '') .
-                                    $receipt->payeeUser->name .
-                                    ($receipt->payeeUser->gelar_belakang ? ', ' . $receipt->payeeUser->gelar_belakang : '') : null,
-                                'participant_nip' => $receipt->payeeUser ? $receipt->payeeUser->nip : null,
-                                'participant_rank' => $receipt->payeeUser && $receipt->payeeUser->rank ? 
-                                    $receipt->payeeUser->rank->fullName() : null,
+                                'receipt_number' => null, // Don't show receipt number on additional rows
+                                'receipt_date' => null, // Don't show receipt date on additional rows
+                                'participant_name' => null, // Don't show participant name on additional rows
+                                'participant_nip' => null, // Don't show participant NIP on additional rows
+                                'participant_rank' => null, // Don't show participant rank on additional rows
                                 // Single receipt line for this row
                                 'receipt_line' => $lineData,
                             ];

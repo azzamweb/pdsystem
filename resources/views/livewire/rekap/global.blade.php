@@ -260,7 +260,7 @@
                                     </td>
 
                                     <!-- Nama Peserta -->
-                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600" style="width: 300px;">
+                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600 whitespace-nowrap" style="width: 300px;">
                                         @if($item['participant_name'])
                                             <div class="text-gray-900 dark:text-white">
                                                 <div class="font-medium">{{ $item['participant_name'] }}</div>
@@ -297,7 +297,7 @@
                                     </td>
 
                                     <!-- Transportasi - Uraian -->
-                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600" style="width: 100px;">
+                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600 whitespace-nowrap" style="width: 100px;">
                                         @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'transport' && $item['receipt_line']['line'])
                                             {{-- Additional row for specific category --}}
                                             <div class="text-gray-700 dark:text-gray-300">
@@ -322,7 +322,7 @@
                                     </td>
 
                                     <!-- Transportasi - Nilai -->
-                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600 text-right" style="width: 100px;">
+                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600 text-right whitespace-nowrap" style="width: 100px;">
                                         @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'transport' && $item['receipt_line']['line'])
                                             {{-- Additional row for specific category --}}
                                             <div class="font-semibold text-gray-900 dark:text-white">
@@ -364,7 +364,7 @@
                                     </td>
 
                                     <!-- Penginapan - Uraian -->
-                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600" style="width: 100px;">
+                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600 whitespace-nowrap" style="width: 100px;">
                                         @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'lodging' && $item['receipt_line']['line'])
                                             {{-- Additional row for specific category --}}
                                             <div class="text-gray-700 dark:text-gray-300">
@@ -395,7 +395,7 @@
                                     </td>
 
                                     <!-- Penginapan - Nilai -->
-                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600 text-right" style="width: 100px;">
+                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600 text-right whitespace-nowrap" style="width: 100px;">
                                         @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'lodging' && $item['receipt_line']['line'])
                                             {{-- Additional row for specific category --}}
                                             <div class="font-semibold text-gray-900 dark:text-white">
@@ -437,7 +437,7 @@
                                     </td>
 
                                     <!-- Uang Harian - Uraian -->
-                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600" style="width: 75px;">
+                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600 whitespace-nowrap" style="width: 75px;">
                                         @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'perdiem' && $item['receipt_line']['line'])
                                             {{-- Additional row for specific category --}}
                                             <div class="text-gray-700 dark:text-gray-300">
@@ -462,7 +462,7 @@
                                     </td>
 
                                     <!-- Uang Harian - Nilai -->
-                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600 text-right" style="width: 75px;">
+                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600 text-right whitespace-nowrap" style="width: 75px;">
                                         @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'perdiem' && $item['receipt_line']['line'])
                                             {{-- Additional row for specific category --}}
                                             <div class="font-semibold text-gray-900 dark:text-white">
@@ -504,7 +504,7 @@
                                     </td>
 
                                     <!-- Representatif - Uraian -->
-                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600" style="width: 75px;">
+                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600 whitespace-nowrap" style="width: 75px;">
                                         @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'representation' && $item['receipt_line']['line'])
                                             {{-- Additional row for specific category --}}
                                             <div class="text-gray-700 dark:text-gray-300">
@@ -529,7 +529,7 @@
                                     </td>
 
                                     <!-- Representatif - Nilai -->
-                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600 text-right" style="width: 75px;">
+                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600 text-right whitespace-nowrap" style="width: 75px;">
                                         @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'representation' && $item['receipt_line']['line'])
                                             {{-- Additional row for specific category --}}
                                             <div class="font-semibold text-gray-900 dark:text-white">
@@ -571,7 +571,7 @@
                                     </td>
 
                                     <!-- Biaya Lainnya - Uraian -->
-                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600" style="width: 100px;">
+                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600 whitespace-nowrap" style="width: 100px;">
                                         @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'other' && $item['receipt_line']['line'])
                                             {{-- Additional row for specific category --}}
                                             <div class="text-gray-700 dark:text-gray-300">
@@ -596,7 +596,7 @@
                                     </td>
 
                                     <!-- Biaya Lainnya - Nilai -->
-                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600 text-right" style="width: 100px;">
+                                    <td class="px-3 py-4 text-xs border border-gray-300 dark:border-gray-600 text-right whitespace-nowrap" style="width: 100px;">
                                         @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'other' && $item['receipt_line']['line'])
                                             {{-- Additional row for specific category --}}
                                             <div class="font-semibold text-gray-900 dark:text-white">
