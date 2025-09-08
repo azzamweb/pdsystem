@@ -102,8 +102,7 @@ Route::middleware(['auth', 'permission:receipts.view', 'unit.scope'])->group(fun
 
 // Rekapitulasi Routes with Permission Middleware
 Route::middleware(['auth', 'permission:rekap.view', 'unit.scope'])->group(function () {
-    Route::get('rekap/nota-dinas', \App\Livewire\Rekap\NotaDinas::class)->name('rekap.nota-dinas');
-    Route::get('rekap/spt', \App\Livewire\Rekap\Spt::class)->name('rekap.spt');
+    Route::get('rekap/global', \App\Livewire\Rekap\GlobalRekap::class)->name('rekap.global');
     Route::get('rekap/pegawai', \App\Livewire\Rekap\Pegawai::class)->name('rekap.pegawai');
 });
 
