@@ -11,7 +11,7 @@ class ReceiptLine extends Model
 
     protected $fillable = [
         'receipt_id', 'component', 'category', 'qty', 'unit', 'unit_amount', 'no_lodging', 'line_total', 
-        'ref_table', 'ref_id', 'cap_amount', 'is_over_cap', 'over_cap_amount', 'remark', 'desc',
+        'ref_table', 'ref_id', 'cap_amount', 'reference_rate_snapshot', 'is_over_cap', 'over_cap_amount', 'remark', 'desc',
     ];
 
     protected $casts = [
@@ -20,6 +20,7 @@ class ReceiptLine extends Model
         'no_lodging' => 'boolean',
         'line_total' => 'decimal:2',
         'cap_amount' => 'decimal:2',
+        'reference_rate_snapshot' => 'decimal:2',
         'is_over_cap' => 'boolean',
         'over_cap_amount' => 'decimal:2',
     ];

@@ -845,6 +845,7 @@ class Create extends Component
             // Update rate info dan original reference rate (ini selalu bisa diupdate)
             $this->lodgingLines[$index]['rate_info'] = $rateInfo;
             $this->lodgingLines[$index]['original_reference_rate'] = $unitAmount ?? 0;
+            $this->lodgingLines[$index]['reference_rate_snapshot'] = $baseLodgingCap ?? 0;
             
             // Preserve the no_lodging field value
             $this->lodgingLines[$index]['no_lodging'] = $isNoLodging;
@@ -1279,6 +1280,7 @@ class Create extends Component
                     'unit' => 'Malam',
                     'unit_amount' => $line['unit_amount'],
                     'no_lodging' => $line['no_lodging'] ?? false,
+                    'reference_rate_snapshot' => $line['reference_rate_snapshot'] ?? null,
                     'desc' => $line['desc'] ?? '',
                     'line_total' => (float)($line['qty'] ?? 0) * (float)($line['unit_amount'] ?? 0),
                 ]);

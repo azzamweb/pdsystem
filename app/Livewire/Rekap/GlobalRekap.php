@@ -653,9 +653,9 @@ class GlobalRekap extends Component
                 'no_lodging' => $line->no_lodging,
             ];
 
-            // Add reference rate for lodging lines
+            // Add reference rate for lodging lines (use snapshot if available, otherwise calculate)
             if ($category === 'lodging') {
-                $lineData['reference_rate'] = $this->getLodgingReferenceRate($notaDinas, $travelGradeId);
+                $lineData['reference_rate'] = $line->reference_rate_snapshot ?? $this->getLodgingReferenceRate($notaDinas, $travelGradeId);
             }
 
             $grouped[$category][] = $lineData;
