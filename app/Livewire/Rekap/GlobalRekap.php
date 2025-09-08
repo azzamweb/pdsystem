@@ -259,7 +259,13 @@ class GlobalRekap extends Component
                             }
                         }
                         
-                        // Create main row with all categories (first item from each category)
+                        // Create main row with all categories (first item from each category only)
+                        $mainRowLines = [];
+                        foreach ($groupedLines as $category => $lines) {
+                            // Only take the first item from each category
+                            $mainRowLines[$category] = count($lines) > 0 ? [$lines[0]] : [];
+                        }
+                        
                         $mainRowData = [
                             // Receipt data
                             'receipt_id' => $receipt->id,
@@ -272,8 +278,8 @@ class GlobalRekap extends Component
                             'participant_nip' => $receipt->payeeUser ? $receipt->payeeUser->nip : null,
                             'participant_rank' => $receipt->payeeUser && $receipt->payeeUser->rank ? 
                                 $receipt->payeeUser->rank->fullName() : null,
-                            // All receipt lines grouped by category
-                            'receipt_lines' => $groupedLines,
+                            // Only first item from each category
+                            'receipt_lines' => $mainRowLines,
                         ];
                         
                         // Only show document info on first row
