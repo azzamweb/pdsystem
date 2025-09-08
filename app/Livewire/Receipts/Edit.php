@@ -70,6 +70,9 @@ class Edit extends Component
     public $representationTripType = '';
     public $transportIntraProvince = null;
     public $transportIntraDistrict = null;
+    
+    // Available cities for lodging destinations
+    public $availableCities = [];
 
     public function mount($receipt_id = null): void
     {
@@ -99,6 +102,9 @@ class Edit extends Component
         // Load existing receipt lines
         $this->loadReceiptLines();
         
+        // Load available cities for lodging destinations
+        $this->loadAvailableCities();
+        
         // Load reference rates if travel grade is selected
         if ($this->travel_grade_id) {
             $this->loadReferenceRates();
@@ -106,6 +112,14 @@ class Edit extends Component
 
         // Check travel grade warning
         $this->checkTravelGradeWarning();
+    }
+    
+    public function loadAvailableCities()
+    {
+        $this->availableCities = \App\Models\City::with('province')
+            ->orderBy('province_id')
+            ->orderBy('name')
+            ->get();
     }
 
     private function loadReceiptLines()
@@ -177,6 +191,7 @@ class Edit extends Component
                     'qty' => $line->qty,
                     'unit_amount' => $line->unit_amount,
                     'no_lodging' => $line->no_lodging ?? $isNoLodging,
+                    'destination_city_id' => $line->destination_city_id ?? null,
                     'rate_info' => $rateInfo,
                     'has_reference' => (bool)$referenceRate,
                     'original_reference_rate' => $referenceRate ?? 0,
@@ -886,7 +901,18 @@ class Edit extends Component
 
         $referenceRateService = new ReferenceRateService();
         $notaDinas = $this->receipt->sppd->spt->notaDinas;
-        $destinationCity = $notaDinas->destinationCity;
+        
+        // Get destination city - use specific city if selected, otherwise use main destination
+        $destinationCityId = $this->lodgingLines[$index]['destination_city_id'] ?? null;
+        $destinationCity = null;
+        
+        if ($destinationCityId) {
+            $destinationCity = \App\Models\City::find($destinationCityId);
+        }
+        
+        if (!$destinationCity) {
+            $destinationCity = $notaDinas->destinationCity;
+        }
 
         $baseLodgingCap = $referenceRateService->getLodgingCap(
             $destinationCity->province_id, 
@@ -899,10 +925,10 @@ class Edit extends Component
         if ($isNoLodging && $baseLodgingCap) {
             // 30% dari tarif maksimal penginapan
             $unitAmount = $baseLodgingCap * 0.3;
-            $rateInfo = "Tidak Menginap (30% dari tarif penginapan): {$destinationCity->province->name} (Grade {$this->travel_grade_id})";
+            $rateInfo = "Tidak Menginap (30% dari tarif penginapan): {$destinationCity->name}, {$destinationCity->province->name} (Grade {$this->travel_grade_id})";
         } else {
             $unitAmount = $baseLodgingCap;
-            $rateInfo = $unitAmount ? "Penginapan: {$destinationCity->province->name} (Grade {$this->travel_grade_id})" : '';
+            $rateInfo = $unitAmount ? "Penginapan: {$destinationCity->name}, {$destinationCity->province->name} (Grade {$this->travel_grade_id})" : '';
         }
 
         // Update the lodging line with auto-filled data

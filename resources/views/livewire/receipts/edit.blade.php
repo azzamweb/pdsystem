@@ -607,7 +607,16 @@
                                             <div class="space-y-3">
                                                 @foreach($lodgingLines as $index => $line)
                                                 <div class="bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 p-3">
-                                                    <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+                                                    <div class="grid grid-cols-1 md:grid-cols-6 gap-3">
+                                                        <div>
+                                                            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Kota Tujuan</label>
+                                                            <select wire:model.live="lodgingLines.{{ $index }}.destination_city_id" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                                                <option value="">Tujuan Utama</option>
+                                                                @foreach($availableCities as $city)
+                                                                    <option value="{{ $city->id }}">{{ $city->name }}, {{ $city->province->name }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
                                                         <div>
                                                             <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Jumlah Malam</label>
                                                             <input type="number" wire:model="lodgingLines.{{ $index }}.qty" min="0" step="0.5" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">

@@ -11,7 +11,7 @@ class ReceiptLine extends Model
 
     protected $fillable = [
         'receipt_id', 'component', 'category', 'qty', 'unit', 'unit_amount', 'no_lodging', 'line_total', 
-        'ref_table', 'ref_id', 'cap_amount', 'reference_rate_snapshot', 'is_over_cap', 'over_cap_amount', 'remark', 'desc',
+        'ref_table', 'ref_id', 'cap_amount', 'reference_rate_snapshot', 'destination_city_id', 'is_over_cap', 'over_cap_amount', 'remark', 'desc',
     ];
 
     protected $casts = [
@@ -26,4 +26,5 @@ class ReceiptLine extends Model
     ];
 
     public function receipt() { return $this->belongsTo(Receipt::class); }
+    public function destinationCity() { return $this->belongsTo(City::class, 'destination_city_id'); }
 }

@@ -66,6 +66,9 @@ class Create extends Component
     public $perdiemTotalAmount = null;
     public $perdiemProvince = '';
     public $perdiemTripType = '';
+    
+    // Available cities for lodging destinations
+    public $availableCities = [];
     public $representationRate = null;
     public $representationTripType = '';
     public $transportIntraProvince = null;
@@ -172,6 +175,9 @@ class Create extends Component
         
         // Load users for approval and treasurer
         $this->loadUsers();
+        
+        // Load available cities for lodging destinations
+        $this->loadAvailableCities();
     }
 
     public function loadAvailableParticipants()
@@ -239,6 +245,15 @@ class Create extends Component
         // Treasurer users are now loaded directly in the view using searchableSelect
         $this->treasurerUsers = collect(); // Empty collection since we load directly in view
     }
+    
+    public function loadAvailableCities()
+    {
+        $this->availableCities = \App\Models\City::with('province')
+            ->orderBy('province_id')
+            ->orderBy('name')
+            ->get();
+    }
+    
 
     public function autoFillFromExistingReceipt()
     {
@@ -354,6 +369,7 @@ class Create extends Component
             'qty' => 1,
             'unit_amount' => 0,
             'no_lodging' => false, // Checkbox "tidak menginap"
+            'destination_city_id' => null, // For transit destinations
             'rate_info' => '',
             'has_reference' => false,
             'original_reference_rate' => 0,
@@ -684,8 +700,14 @@ class Create extends Component
         return $this->hasExcessiveValues;
     }
 
-    public function updatedLodgingLines()
+    public function updatedLodgingLines($value, $index)
     {
+        // If destination_city_id is updated, recalculate the rate for that specific line
+        if (str_contains($index, 'destination_city_id')) {
+            $lineIndex = explode('.', $index)[0];
+            $this->autoFillLodgingRate($lineIndex);
+        }
+        
         // Auto-fill lodging rates for all lodging lines
         foreach ($this->lodgingLines as $index => $line) {
             $this->autoFillLodgingRate($index);
@@ -811,7 +833,18 @@ class Create extends Component
 
         $referenceRateService = new ReferenceRateService();
         $notaDinas = $this->sppd->spt->notaDinas;
-        $destinationCity = $notaDinas->destinationCity;
+        
+        // Get destination city - use specific city if selected, otherwise use main destination
+        $destinationCityId = $this->lodgingLines[$index]['destination_city_id'] ?? null;
+        $destinationCity = null;
+        
+        if ($destinationCityId) {
+            $destinationCity = \App\Models\City::find($destinationCityId);
+        }
+        
+        if (!$destinationCity) {
+            $destinationCity = $notaDinas->destinationCity;
+        }
 
         $baseLodgingCap = $referenceRateService->getLodgingCap(
             $destinationCity->province_id, 
@@ -824,10 +857,10 @@ class Create extends Component
         if ($isNoLodging && $baseLodgingCap) {
             // 30% dari tarif maksimal penginapan
             $unitAmount = $baseLodgingCap * 0.3;
-            $rateInfo = "Tidak Menginap (30% dari tarif penginapan): {$destinationCity->province->name} (Grade {$this->travel_grade_id})";
+            $rateInfo = "Tidak Menginap (30% dari tarif penginapan): {$destinationCity->name}, {$destinationCity->province->name} (Grade {$this->travel_grade_id})";
         } else {
             $unitAmount = $baseLodgingCap;
-            $rateInfo = $unitAmount ? "Penginapan: {$destinationCity->province->name} (Grade {$this->travel_grade_id})" : '';
+            $rateInfo = $unitAmount ? "Penginapan: {$destinationCity->name}, {$destinationCity->province->name} (Grade {$this->travel_grade_id})" : '';
         }
 
         // Update the lodging line with auto-filled data
@@ -1281,6 +1314,7 @@ class Create extends Component
                     'unit_amount' => $line['unit_amount'],
                     'no_lodging' => $line['no_lodging'] ?? false,
                     'reference_rate_snapshot' => $line['reference_rate_snapshot'] ?? null,
+                    'destination_city_id' => $line['destination_city_id'] ?? null,
                     'desc' => $line['desc'] ?? '',
                     'line_total' => (float)($line['qty'] ?? 0) * (float)($line['unit_amount'] ?? 0),
                 ]);

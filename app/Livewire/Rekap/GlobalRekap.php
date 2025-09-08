@@ -651,6 +651,7 @@ class GlobalRekap extends Component
                 'unit_amount' => $line->unit_amount,
                 'line_total' => $line->line_total,
                 'no_lodging' => $line->no_lodging,
+                'destination_city_id' => $line->destination_city_id,
             ];
 
             // Add reference rate for lodging lines (use snapshot if available, otherwise calculate)
