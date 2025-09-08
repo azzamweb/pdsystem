@@ -195,7 +195,66 @@ class ManageRolePermissions extends Component
                 $groups[$groupName][] = $permission;
             }
         }
-        return $groups;
+        
+        // Urutkan groups sesuai dengan struktur menu yang logis
+        $orderedGroups = [];
+        $groupOrder = [
+            // 1. Dokumen (Nota Dinas, SPT, SPPD, Kwitansi, Laporan Perjalanan, Dokumen Pendukung)
+            'nota-dinas',
+            'spt', 
+            'sppd',
+            'receipts',
+            'trip-reports',
+            'supporting-documents',
+            'documents',
+            
+            // 2. Master Data
+            'master-data',
+            'users',
+            
+            // 3. Referensi Lokasi & Rute
+            'locations',
+            'provinces',
+            'cities', 
+            'districts',
+            'org-places',
+            'transport-modes',
+            'travel-routes',
+            
+            // 4. Referensi Tarif
+            'reference-rates',
+            'perdiem-rates',
+            'lodging-caps',
+            'representation-rates',
+            'intra-province-transport-refs',
+            'intra-district-transport-refs',
+            'official-vehicle-transport-refs',
+            'at-cost-components',
+            'airfare-refs',
+            'district-perdiem-rates',
+            
+            // 5. Rekap
+            'rekap',
+            
+            // 6. Konfigurasi Sistem (Akses Menu dan Kontrol System)
+            'menu',
+            'system',
+        ];
+        
+        // Tambahkan groups yang ada dalam urutan yang ditentukan
+        foreach ($groupOrder as $groupName) {
+            if (isset($groups[$groupName])) {
+                $orderedGroups[$groupName] = $groups[$groupName];
+                unset($groups[$groupName]);
+            }
+        }
+        
+        // Tambahkan groups yang tidak ada dalam urutan (fallback)
+        foreach ($groups as $groupName => $permissions) {
+            $orderedGroups[$groupName] = $permissions;
+        }
+        
+        return $orderedGroups;
     }
 
     public function getPermissionDisplayName($permissionName)
@@ -277,6 +336,54 @@ class ManageRolePermissions extends Component
         ];
 
         return $displayNames[$permissionName] ?? ucfirst(str_replace(['-', '.'], [' ', ' - '], $permissionName));
+    }
+
+    public function getGroupDisplayName($groupName)
+    {
+        $groupDisplayNames = [
+            // 1. Dokumen
+            'nota-dinas' => '📄 Nota Dinas',
+            'spt' => '📋 Surat Perintah Tugas (SPT)',
+            'sppd' => '📑 Surat Perjalanan Perjalanan Dinas (SPPD)',
+            'receipts' => '🧾 Kwitansi',
+            'trip-reports' => '📊 Laporan Perjalanan Dinas',
+            'supporting-documents' => '📎 Dokumen Pendukung',
+            'documents' => '📁 Dokumen Umum',
+            
+            // 2. Master Data
+            'master-data' => '🗂️ Master Data',
+            'users' => '👥 Manajemen User',
+            
+            // 3. Referensi Lokasi & Rute
+            'locations' => '📍 Lokasi Umum',
+            'provinces' => '🏛️ Data Provinsi',
+            'cities' => '🏙️ Data Kota/Kabupaten',
+            'districts' => '🏘️ Data Kecamatan',
+            'org-places' => '🏢 Data Kedudukan',
+            'transport-modes' => '🚌 Data Moda Transportasi',
+            'travel-routes' => '🛣️ Data Rute Perjalanan',
+            
+            // 4. Referensi Tarif
+            'reference-rates' => '💰 Referensi Tarif Umum',
+            'perdiem-rates' => '💵 Data Tarif Uang Harian',
+            'lodging-caps' => '🏨 Data Batas Tarif Penginapan',
+            'representation-rates' => '🍽️ Data Tarif Representasi',
+            'intra-province-transport-refs' => '🚗 Data Referensi Transportasi Dalam Provinsi',
+            'intra-district-transport-refs' => '🚙 Data Referensi Transportasi Dalam Kecamatan',
+            'official-vehicle-transport-refs' => '🚐 Data Referensi Transportasi Kendaraan Dinas',
+            'at-cost-components' => '⚙️ Data Komponen At-Cost',
+            'airfare-refs' => '✈️ Data Referensi Tiket Pesawat',
+            'district-perdiem-rates' => '💸 Data Tarif Uang Harian Kecamatan',
+            
+            // 5. Rekap
+            'rekap' => '📈 Rekap & Laporan',
+            
+            // 6. Konfigurasi Sistem
+            'menu' => '🔧 Akses Menu',
+            'system' => '⚙️ Kontrol Sistem',
+        ];
+
+        return $groupDisplayNames[$groupName] ?? ucfirst(str_replace('-', ' ', $groupName));
     }
 
     public function render()

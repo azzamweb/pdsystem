@@ -79,7 +79,7 @@
                     <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                         <div class="flex items-center justify-between mb-4">
                             <h4 class="text-md font-medium text-gray-900 dark:text-white">
-                                {{ ucfirst(str_replace('-', ' ', $groupName)) }}
+                                {{ $this->getGroupDisplayName($groupName) }}
                             </h4>
                             <button type="button" 
                                     wire:click="toggleGroupPermissions('{{ $groupName }}')"
