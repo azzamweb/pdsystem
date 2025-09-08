@@ -136,6 +136,7 @@ class GlobalRekap extends Component
                 'spt.sppds.pptkUser',
                 'spt.sppds.transportModes',
                         'spt.sppds.receipts.payeeUser.rank',
+                        'spt.sppds.receipts.lines',
                 'spt.tripReport'
             ]);
 
@@ -251,6 +252,8 @@ class GlobalRekap extends Component
                             'participant_nip' => $receipt->payeeUser ? $receipt->payeeUser->nip : null,
                             'participant_rank' => $receipt->payeeUser && $receipt->payeeUser->rank ? 
                                 $receipt->payeeUser->rank->fullName() : null,
+                            // Receipt lines grouped by category
+                            'receipt_lines' => $this->groupReceiptLinesByCategory($receipt->lines),
                         ];
                         
                         // Only show document info on first row
@@ -299,6 +302,13 @@ class GlobalRekap extends Component
                         'participant_name' => null,
                         'participant_nip' => null,
                         'participant_rank' => null,
+                        'receipt_lines' => [
+                            'transport' => [],
+                            'lodging' => [],
+                            'perdiem' => [],
+                            'representation' => [],
+                            'other' => []
+                        ],
                     ]));
                 }
             }
@@ -544,6 +554,63 @@ class GlobalRekap extends Component
             $this->setPage($this->getPage() - 1);
             $this->loadRekapData();
         }
+    }
+
+    /**
+     * Group receipt lines by category for display
+     */
+    private function groupReceiptLinesByCategory($lines)
+    {
+        $grouped = [
+            'transport' => [],
+            'lodging' => [],
+            'perdiem' => [],
+            'representation' => [],
+            'other' => []
+        ];
+
+        foreach ($lines as $line) {
+            $category = $this->getReceiptLineCategory($line->component);
+            $grouped[$category][] = [
+                'component' => $line->component,
+                'desc' => $line->desc,
+                'qty' => $line->qty,
+                'unit_amount' => $line->unit_amount,
+                'line_total' => $line->line_total,
+                'no_lodging' => $line->no_lodging,
+            ];
+        }
+
+        return $grouped;
+    }
+
+    /**
+     * Get category for receipt line component
+     */
+    private function getReceiptLineCategory($component)
+    {
+        // Transport components
+        if (in_array($component, ['AIRFARE', 'INTRA_PROV', 'INTRA_DISTRICT', 'OFFICIAL_VEHICLE', 'TAXI', 'RORO', 'TOLL', 'PARKIR_INAP'])) {
+            return 'transport';
+        }
+        
+        // Lodging components
+        if (in_array($component, ['LODGING', 'HOTEL', 'PENGINAPAN', 'WISMA', 'ASRAMA'])) {
+            return 'lodging';
+        }
+        
+        // Perdiem
+        if ($component === 'PERDIEM') {
+            return 'perdiem';
+        }
+        
+        // Representation
+        if ($component === 'REPRESENTASI') {
+            return 'representation';
+        }
+        
+        // Other costs
+        return 'other';
     }
 
     public function render()
