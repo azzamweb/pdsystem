@@ -67,20 +67,28 @@
         <div class="bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700 rounded-lg overflow-hidden">
             <style>
                 .group-border-top {
-                    box-shadow: inset 0 4px 0 #3b82f6 !important;
+                    box-shadow: inset 0 4px 0 #000000 !important;
                 }
                 .group-border-bottom {
-                    box-shadow: inset 0 -4px 0 #3b82f6 !important;
+                    box-shadow: inset 0 -4px 0 #000000 !important;
                 }
                 .group-border-both {
-                    box-shadow: inset 0 4px 0 #3b82f6, inset 0 -4px 0 #3b82f6 !important;
+                    box-shadow: inset 0 4px 0 #000000, inset 0 -4px 0 #000000 !important;
+                }
+                /* Cell borders for all table cells */
+                .table-cell-border {
+                    border-width: 1px; border-color: rgba(181, 181, 181, 0.25); !important;
+                }
+                /* Override existing border-r classes */
+                .border-r {
+                    border-width: 1px; border-color: rgba(181, 181, 181, 0.25); !important;
                 }
             </style>
             <div class="overflow-auto max-h-[calc(100vh-200px)] min-h-[400px] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800" style="scrollbar-width: thin; scrollbar-color: #d1d5db #f3f4f6; overflow-x: auto; overflow-y: auto; position: relative;">
                  <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700" style="min-width: 2850px; table-layout: auto; border-collapse: separate; border-spacing: 0;">
                         <thead class="bg-gray-50 dark:bg-gray-800 sticky top-0 z-30" style="position: sticky; top: 0; z-index: 30; background-color: #f9fafb;">
                             <tr>
-                                 <th scope="col" class="px-2 py-1 text-center text-sm font-medium text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600 " style="width: 380px;" colspan="2">
+                                 <th scope="col" class="px-2 py-1 text-center text-sm font-medium text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600 table-cell-border " style="width: 380px;" colspan="2">
                                     <div class="flex items-center justify-center space-x-2">
                                         <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -88,7 +96,7 @@
                                         <span class="text-gray-900 dark:text-white">Nota Dinas</span>
                                     </div>
                                 </th>
-                                <th scope="col" class="px-2 py-1 text-center text-sm font-medium text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600 " style="width: 350px;" colspan="2">
+                                <th scope="col" class="px-2 py-1 text-center text-sm font-medium text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600 table-cell-border " style="width: 350px;" colspan="2">
                                     <div class="flex items-center justify-center space-x-2">
                                         <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
@@ -96,7 +104,7 @@
                                         <span class="text-gray-900 dark:text-white font-semibold">SPT</span>
                                     </div>
                                 </th>
-                                <th scope="col" class="px-2 py-1 text-center text-sm font-medium text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600 " style="width: 670px;" colspan="4">
+                                <th scope="col" class="px-2 py-1 text-center text-sm font-medium text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600 table-cell-border " style="width: 670px;" colspan="4">
                                     <div class="flex items-center justify-center space-x-2">
                                         <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
@@ -104,7 +112,7 @@
                                         <span class="text-gray-900 dark:text-white font-semibold">SPPD</span>
                                     </div>
                                 </th>
-                                <th scope="col" class="px-2 py-1 text-center text-sm font-medium text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600 " style="width: 150px;">
+                                <th scope="col" class="px-2 py-1 text-center text-sm font-medium text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600 table-cell-border " style="width: 150px;">
                                     <div class="flex items-center justify-center space-x-2">
                                         <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -112,7 +120,7 @@
                                         <span class="text-gray-900 dark:text-white font-semibold">Laporan</span>
                                     </div>
                                 </th>
-                                <th scope="col" class="px-2 py-1 text-center text-sm font-medium text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600 " style="width: 400px;" colspan="2">
+                                <th scope="col" class="px-2 py-1 text-center text-sm font-medium text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600 table-cell-border " style="width: 400px;" colspan="2">
                                     <div class="flex items-center justify-center space-x-2">
                                         <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
@@ -120,7 +128,7 @@
                                         <span class="text-gray-900 dark:text-white font-semibold">Kwitansi</span>
                                     </div>
                                 </th>
-                                <th scope="col" class="px-2 py-1 text-center text-sm font-medium text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600 " style="width: 300px;" colspan="3">
+                                <th scope="col" class="px-2 py-1 text-center text-sm font-medium text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600 table-cell-border " style="width: 300px;" colspan="3">
                                     <div class="flex items-center justify-center space-x-2">
                                         <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
@@ -128,7 +136,7 @@
                                         <span class="text-gray-900 dark:text-white font-semibold">Transportasi</span>
                                     </div>
                                 </th>
-                                <th scope="col" class="px-2 py-1 text-center text-sm font-medium text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600 " style="width: 300px;" colspan="3">
+                                <th scope="col" class="px-2 py-1 text-center text-sm font-medium text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600 table-cell-border " style="width: 300px;" colspan="3">
                                     <div class="flex items-center justify-center space-x-2">
                                         <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
@@ -136,7 +144,7 @@
                                         <span class="text-gray-900 dark:text-white font-semibold">Penginapan</span>
                                     </div>
                                 </th>
-                                <th scope="col" class="px-2 py-1 text-center text-sm font-medium text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600 " style="width: 225px;" colspan="3">
+                                <th scope="col" class="px-2 py-1 text-center text-sm font-medium text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600 table-cell-border " style="width: 225px;" colspan="3">
                                     <div class="flex items-center justify-center space-x-2">
                                         <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -144,7 +152,7 @@
                                         <span class="text-gray-900 dark:text-white font-semibold">Uang Harian</span>
                                     </div>
                                 </th>
-                                <th scope="col" class="px-2 py-1 text-center text-sm font-medium text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600 " style="width: 225px;" colspan="3">
+                                <th scope="col" class="px-2 py-1 text-center text-sm font-medium text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600 table-cell-border " style="width: 225px;" colspan="3">
                                     <div class="flex items-center justify-center space-x-2">
                                         <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
@@ -152,7 +160,7 @@
                                         <span class="text-gray-900 dark:text-white font-semibold">Representatif</span>
                                     </div>
                                 </th>
-                                <th scope="col" class="px-2 py-1 text-center text-sm font-medium text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600 " style="width: 300px;" colspan="3">
+                                <th scope="col" class="px-2 py-1 text-center text-sm font-medium text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600 table-cell-border " style="width: 300px;" colspan="3">
                                     <div class="flex items-center justify-center space-x-2">
                                         <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
@@ -160,7 +168,7 @@
                                         <span class="text-gray-900 dark:text-white font-semibold">Biaya Lainnya</span>
                                     </div>
                                 </th>
-                                <th scope="col" class="px-2 py-1 text-center text-sm font-medium text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600 " style="width: 150px;">
+                                <th scope="col" class="px-2 py-1 text-center text-sm font-medium text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600 table-cell-border " style="width: 150px;">
                                     <div class="flex items-center justify-center space-x-2">
                                         <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
@@ -179,42 +187,42 @@
                             </tr>
                             <tr class="bg-gray-100 dark:bg-gray-700 sticky top-[73px] z-30" style="position: sticky; top: 73px; z-index: 30; background-color: #f3f4f6;">
                                 <!-- Nota Dinas sub-columns -->
-                                <th scope="col" class="py-3 pl-4 pr-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 " style="width: 180px;">No. Nota Dinas</th>
-                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 " style="width: 200px;">Asal & Tujuan</th>
+                                <th scope="col" class="py-3 pl-4 pr-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 table-cell-border " style="width: 180px;">No. Nota Dinas</th>
+                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 table-cell-border " style="width: 200px;">Asal & Tujuan</th>
                                 <!-- SPT sub-columns -->
-                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 " style="width: 150px;">No. & Tanggal SPT</th>
-                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 " style="width: 200px;">Penandatangan SPT</th>
+                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 table-cell-border " style="width: 150px;">No. & Tanggal SPT</th>
+                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 table-cell-border " style="width: 200px;">Penandatangan SPT</th>
                                 <!-- SPPD sub-columns -->
-                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 " style="width: 150px;">No. & Tanggal SPPD</th>
-                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 " style="width: 200px;">Penandatangan SPPD</th>
-                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 " style="width: 120px;">Alat Angkutan</th>
-                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 " style="width: 200px;">Nama PPTK</th>
+                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 table-cell-border " style="width: 150px;">No. & Tanggal SPPD</th>
+                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 table-cell-border " style="width: 200px;">Penandatangan SPPD</th>
+                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 table-cell-border " style="width: 120px;">Alat Angkutan</th>
+                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 table-cell-border " style="width: 200px;">Nama PPTK</th>
                                 <!-- Laporan sub-column -->
-                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 " style="width: 150px;">No. & Tanggal Laporan</th>
+                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 table-cell-border " style="width: 150px;">No. & Tanggal Laporan</th>
                                 <!-- Kwitansi sub-columns -->
-                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 " style="width: 300px;">Nama Peserta</th>
-                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 " style="width: 100px;">No. & Tanggal Kwitansi</th>
+                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 table-cell-border " style="width: 300px;">Nama Peserta</th>
+                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 table-cell-border " style="width: 100px;">No. & Tanggal Kwitansi</th>
                                 <!-- Transportasi sub-columns -->
-                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 " style="width: 100px;">Uraian</th>
-                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 " style="width: 100px;">Nilai</th>
-                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 " style="width: 100px;">Deskripsi</th>
+                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 table-cell-border " style="width: 100px;">Uraian</th>
+                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 table-cell-border " style="width: 100px;">Nilai</th>
+                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 table-cell-border " style="width: 100px;">Deskripsi</th>
                                 <!-- Penginapan sub-columns -->
-                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 " style="width: 100px;">Uraian</th>
-                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 " style="width: 100px;">Nilai</th>
-                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 " style="width: 100px;">Deskripsi</th>
+                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 table-cell-border " style="width: 100px;">Uraian</th>
+                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 table-cell-border " style="width: 100px;">Nilai</th>
+                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 table-cell-border " style="width: 100px;">Deskripsi</th>
                                 <!-- Uang Harian sub-columns -->
-                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 " style="width: 75px;">Uraian</th>
-                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 " style="width: 75px;">Nilai</th>
-                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 " style="width: 75px;">Deskripsi</th>
+                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 table-cell-border " style="width: 75px;">Uraian</th>
+                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 table-cell-border " style="width: 75px;">Nilai</th>
+                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 table-cell-border " style="width: 75px;">Deskripsi</th>
                                 <!-- Representatif sub-columns -->
-                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 " style="width: 75px;">Uraian</th>
-                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 " style="width: 75px;">Nilai</th>
-                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 " style="width: 75px;">Deskripsi</th>
+                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 table-cell-border " style="width: 75px;">Uraian</th>
+                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 table-cell-border " style="width: 75px;">Nilai</th>
+                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 table-cell-border " style="width: 75px;">Deskripsi</th>
                                 <!-- Biaya Lainnya sub-columns -->
-                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 " style="width: 100px;">Uraian</th>
-                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 " style="width: 100px;">Nilai</th>
-                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 " style="width: 100px;">Deskripsi</th>
-                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 " style="width: 150px;">Total Kwitansi</th>
+                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 table-cell-border " style="width: 100px;">Uraian</th>
+                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 table-cell-border " style="width: 100px;">Nilai</th>
+                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 table-cell-border " style="width: 100px;">Deskripsi</th>
+                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 table-cell-border " style="width: 150px;">Total Kwitansi</th>
                                 <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300" style="width: 200px;">Dokumen Pendukung</th>
                             </tr>
                         </thead>
@@ -259,7 +267,7 @@
                                     </td>
                                     
                                     <!-- Asal & Tujuan -->
-                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 whitespace-nowrap @if($isNewGroup) group-border-top-all @endif @if($isLastInGroup) group-border-bottom-all @endif" style="width: 200px;">
+                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 table-cell-border whitespace-nowrap @if($isNewGroup) group-border-top-all @endif @if($isLastInGroup) group-border-bottom-all @endif" style="width: 200px;">
                                         @if($item['origin'])
                                             <div class="text-gray-900 dark:text-white">
                                                 <div class="font-medium">{{ $item['origin'] }}</div>
@@ -278,7 +286,7 @@
                                     
 
                                     <!-- No. & Tanggal SPT -->
-                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 whitespace-nowrap @if($isNewGroup) group-border-top-all @endif @if($isLastInGroup) group-border-bottom-all @endif" style="width: 150px;">
+                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 table-cell-border whitespace-nowrap @if($isNewGroup) group-border-top-all @endif @if($isLastInGroup) group-border-bottom-all @endif" style="width: 150px;">
                                         @if($item['spt_number'] && $item['spt_id'])
                                             <div class="font-medium text-gray-900 dark:text-white">
                                                 <a href="{{ route('spt.pdf', $item['spt_id']) }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-600">
@@ -294,7 +302,7 @@
                                     </td>
 
                                     <!-- Penandatangan SPT -->
-                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 whitespace-nowrap" style="width: 200px;">
+                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 table-cell-border whitespace-nowrap" style="width: 200px;">
                                         @if($item['spt_signer'])
                                             <div class="text-gray-900 dark:text-white">
                                                 {{ $item['spt_signer'] }}
@@ -305,7 +313,7 @@
                                     </td>
 
                                     <!-- No. & Tanggal SPPD -->
-                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 whitespace-nowrap" style="width: 150px;">
+                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 table-cell-border whitespace-nowrap" style="width: 150px;">
                                         @if($item['sppd_number'] && $item['sppd_id'])
                                             <div class="font-medium text-gray-900 dark:text-white">
                                                 <a href="{{ route('sppd.pdf', $item['sppd_id']) }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-600">
@@ -321,7 +329,7 @@
                                     </td>
 
                                     <!-- Penandatangan SPPD -->
-                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 whitespace-nowrap" style="width: 200px;">
+                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 table-cell-border whitespace-nowrap" style="width: 200px;">
                                         @if($item['sppd_signer'])
                                             <div class="text-gray-900 dark:text-white">
                                                 {{ $item['sppd_signer'] }}
@@ -332,7 +340,7 @@
                                     </td>
 
                                     <!-- Alat Angkutan -->
-                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 whitespace-nowrap" style="width: 120px;">
+                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 table-cell-border whitespace-nowrap" style="width: 120px;">
                                         @if($item['transport_mode'])
                                             <div class="text-gray-900 dark:text-white">
                                                 {{ $item['transport_mode'] }}
@@ -343,7 +351,7 @@
                                     </td>
 
                                     <!-- Nama PPTK -->
-                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 whitespace-nowrap" style="width: 200px;">
+                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 table-cell-border whitespace-nowrap" style="width: 200px;">
                                         @if($item['pptk_name'])
                                             <div class="text-gray-900 dark:text-white">
                                                 {{ $item['pptk_name'] }}
@@ -354,7 +362,7 @@
                                     </td>
 
                                     <!-- No. & Tanggal Laporan -->
-                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 whitespace-nowrap" style="width: 150px;">
+                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 table-cell-border whitespace-nowrap" style="width: 150px;">
                                         @if($item['trip_report_number'] && $item['trip_report_id'])
                                             <div class="font-medium text-gray-900 dark:text-white">
                                                 <a href="{{ route('trip-reports.pdf', $item['trip_report_id']) }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-600">
@@ -370,7 +378,7 @@
                                     </td>
 
                                     <!-- Nama Peserta -->
-                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 whitespace-nowrap" style="width: 300px;">
+                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 table-cell-border whitespace-nowrap" style="width: 300px;">
                                         @if($item['participant_name'])
                                             <div class="text-gray-900 dark:text-white">
                                                 <div class="font-medium">{{ $item['participant_name'] }}</div>
@@ -391,7 +399,7 @@
                                     </td>
 
                                     <!-- No. & Tanggal Kwitansi -->
-                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 whitespace-nowrap" style="width: 100px;">
+                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 table-cell-border whitespace-nowrap" style="width: 100px;">
                                         @if($item['receipt_number'] && $item['receipt_id'])
                                             <div class="font-medium text-gray-900 dark:text-white">
                                                 <a href="{{ route('receipts.pdf', $item['receipt_id']) }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-600">
@@ -407,7 +415,7 @@
                                     </td>
 
                                     <!-- Transportasi - Uraian -->
-                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 whitespace-nowrap" style="width: 100px;">
+                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 table-cell-border whitespace-nowrap" style="width: 100px;">
                                         @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'transport' && $item['receipt_line']['line'])
                                             {{-- Additional row for specific category --}}
                                             <div class="text-gray-700 dark:text-gray-300">
@@ -432,7 +440,7 @@
                                     </td>
 
                                     <!-- Transportasi - Nilai -->
-                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 text-right whitespace-nowrap" style="width: 100px;">
+                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 table-cell-border text-right whitespace-nowrap" style="width: 100px;">
                                         @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'transport' && $item['receipt_line']['line'])
                                             {{-- Additional row for specific category --}}
                                             <div class="font-semibold text-gray-900 dark:text-white">
@@ -453,7 +461,7 @@
                                     </td>
 
                                     <!-- Transportasi - Deskripsi -->
-                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600" style="width: 100px;">
+                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 table-cell-border" style="width: 100px;">
                                         @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'transport' && $item['receipt_line']['line'])
                                             {{-- Additional row for specific category --}}
                                             <div class="text-gray-600 dark:text-gray-400 text-xs">
@@ -474,7 +482,7 @@
                                     </td>
 
                                     <!-- Penginapan - Uraian -->
-                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 whitespace-nowrap" style="width: 100px;">
+                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 table-cell-border whitespace-nowrap" style="width: 100px;">
                                         @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'lodging' && $item['receipt_line']['line'])
                                             {{-- Additional row for specific category --}}
                                             <div class="text-gray-700 dark:text-gray-300">
@@ -507,7 +515,7 @@
                                     </td>
 
                                     <!-- Penginapan - Nilai -->
-                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 text-right whitespace-nowrap" style="width: 100px;">
+                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 table-cell-border text-right whitespace-nowrap" style="width: 100px;">
                                         @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'lodging' && $item['receipt_line']['line'])
                                             {{-- Additional row for specific category --}}
                                             <div class="font-semibold text-gray-900 dark:text-white">
@@ -528,7 +536,7 @@
                                     </td>
 
                                     <!-- Penginapan - Deskripsi -->
-                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600" style="width: 100px;">
+                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 table-cell-border" style="width: 100px;">
                                         @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'lodging' && $item['receipt_line']['line'])
                                             {{-- Additional row for specific category --}}
                                             <div class="text-gray-600 dark:text-gray-400 text-xs">
@@ -549,7 +557,7 @@
                                     </td>
 
                                     <!-- Uang Harian - Uraian -->
-                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 whitespace-nowrap" style="width: 75px;">
+                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 table-cell-border whitespace-nowrap" style="width: 75px;">
                                         @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'perdiem' && $item['receipt_line']['line'])
                                             {{-- Additional row for specific category --}}
                                             <div class="text-gray-700 dark:text-gray-300">
@@ -574,7 +582,7 @@
                                     </td>
 
                                     <!-- Uang Harian - Nilai -->
-                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 text-right whitespace-nowrap" style="width: 75px;">
+                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 table-cell-border text-right whitespace-nowrap" style="width: 75px;">
                                         @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'perdiem' && $item['receipt_line']['line'])
                                             {{-- Additional row for specific category --}}
                                             <div class="font-semibold text-gray-900 dark:text-white">
@@ -595,7 +603,7 @@
                                     </td>
 
                                     <!-- Uang Harian - Deskripsi -->
-                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600" style="width: 75px;">
+                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 table-cell-border" style="width: 75px;">
                                         @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'perdiem' && $item['receipt_line']['line'])
                                             {{-- Additional row for specific category --}}
                                             <div class="text-gray-600 dark:text-gray-400 text-xs">
@@ -616,7 +624,7 @@
                                     </td>
 
                                     <!-- Representatif - Uraian -->
-                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 whitespace-nowrap" style="width: 75px;">
+                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 table-cell-border whitespace-nowrap" style="width: 75px;">
                                         @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'representation' && $item['receipt_line']['line'])
                                             {{-- Additional row for specific category --}}
                                             <div class="text-gray-700 dark:text-gray-300">
@@ -641,7 +649,7 @@
                                     </td>
 
                                     <!-- Representatif - Nilai -->
-                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 text-right whitespace-nowrap" style="width: 75px;">
+                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 table-cell-border text-right whitespace-nowrap" style="width: 75px;">
                                         @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'representation' && $item['receipt_line']['line'])
                                             {{-- Additional row for specific category --}}
                                             <div class="font-semibold text-gray-900 dark:text-white">
@@ -662,7 +670,7 @@
                                     </td>
 
                                     <!-- Representatif - Deskripsi -->
-                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600" style="width: 75px;">
+                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 table-cell-border" style="width: 75px;">
                                         @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'representation' && $item['receipt_line']['line'])
                                             {{-- Additional row for specific category --}}
                                             <div class="text-gray-600 dark:text-gray-400 text-xs">
@@ -683,7 +691,7 @@
                                     </td>
 
                                     <!-- Biaya Lainnya - Uraian -->
-                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 whitespace-nowrap" style="width: 100px;">
+                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 table-cell-border whitespace-nowrap" style="width: 100px;">
                                         @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'other' && $item['receipt_line']['line'])
                                             {{-- Additional row for specific category --}}
                                             <div class="text-gray-700 dark:text-gray-300">
@@ -708,7 +716,7 @@
                                     </td>
 
                                     <!-- Biaya Lainnya - Nilai -->
-                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 text-right whitespace-nowrap" style="width: 100px;">
+                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 table-cell-border text-right whitespace-nowrap" style="width: 100px;">
                                         @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'other' && $item['receipt_line']['line'])
                                             {{-- Additional row for specific category --}}
                                             <div class="font-semibold text-gray-900 dark:text-white">
@@ -729,7 +737,7 @@
                                     </td>
 
                                     <!-- Biaya Lainnya - Deskripsi -->
-                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600" style="width: 100px;">
+                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 table-cell-border" style="width: 100px;">
                                         @if(isset($item['receipt_line']) && $item['receipt_line'] && $item['receipt_line']['category'] === 'other' && $item['receipt_line']['line'])
                                             {{-- Additional row for specific category --}}
                                             <div class="text-gray-600 dark:text-gray-400 text-xs">
@@ -750,7 +758,7 @@
                                     </td>
                                     
                                     <!-- Total Kwitansi -->
-                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 text-right whitespace-nowrap" style="width: 150px;">
+                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 table-cell-border text-right whitespace-nowrap" style="width: 150px;">
                                         @if($item['receipt_total'] !== null)
                                             <div class="font-semibold text-gray-900 dark:text-white">
                                                 Rp {{ number_format($item['receipt_total'], 0, ',', '.') }}
@@ -761,7 +769,7 @@
                                     </td>
                                     
                                     <!-- Dokumen Pendukung -->
-                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600" 
+                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 table-cell-border" 
                                         style="width: 200px;">
                                         @if(isset($item['supporting_documents']) && $item['supporting_documents'] && count($item['supporting_documents']) > 0)
                                             <div class="space-y-2">
