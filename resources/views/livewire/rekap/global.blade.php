@@ -209,8 +209,16 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-900">
-                            @forelse($rekapData as $item)
-                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200 ease-in-out">
+                            @forelse($rekapData as $index => $item)
+                                @php
+                                    $isNewGroup = $index === 0 || ($item['id'] && $rekapData[$index-1]['id'] !== $item['id']);
+                                    $isLastInGroup = $index === count($rekapData) - 1 || 
+                                        ($item['id'] && $rekapData[$index+1]['id'] !== $item['id'] && $rekapData[$index+1]['id'] !== null);
+                                @endphp
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200 ease-in-out"
+                                    @if($isNewGroup && $isLastInGroup) style="border-top: 4px solid #3b82f6; border-bottom: 4px solid #3b82f6;"
+                                    @elseif($isNewGroup) style="border-top: 4px solid #3b82f6;"
+                                    @elseif($isLastInGroup) style="border-bottom: 4px solid #3b82f6;" @endif>
                                     <!-- No. & Tanggal -->
                                     <td class="px-2 py-1 text-xs whitespace-nowrap border-r border-gray-200 dark:border-gray-600" style="width: 180px;">
                                         @if($item['id'])
