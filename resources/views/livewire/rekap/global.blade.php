@@ -65,6 +65,17 @@
 
         <!-- Modern Table Container -->
         <div class="bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700 rounded-lg overflow-hidden">
+            <style>
+                .group-border-top {
+                    box-shadow: inset 0 4px 0 #3b82f6 !important;
+                }
+                .group-border-bottom {
+                    box-shadow: inset 0 -4px 0 #3b82f6 !important;
+                }
+                .group-border-both {
+                    box-shadow: inset 0 4px 0 #3b82f6, inset 0 -4px 0 #3b82f6 !important;
+                }
+            </style>
             <div class="overflow-auto max-h-[calc(100vh-200px)] min-h-[400px] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800" style="scrollbar-width: thin; scrollbar-color: #d1d5db #f3f4f6; overflow-x: auto; overflow-y: auto; position: relative;">
                  <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700" style="min-width: 2850px; table-layout: auto; border-collapse: separate; border-spacing: 0;">
                         <thead class="bg-gray-50 dark:bg-gray-800 sticky top-0 z-30" style="position: sticky; top: 0; z-index: 30; background-color: #f9fafb;">
@@ -214,16 +225,20 @@
                             </tr>
                             @forelse($rekapData as $index => $item)
                                 @php
-                                    $isNewGroup = $index === 0 || ($item['id'] && $rekapData[$index-1]['id'] !== $item['id']);
+                                    // Determine if this is a new group (new nota dinas)
+                                    $isNewGroup = $index === 0 || 
+                                        ($item['id'] && isset($rekapData[$index-1]) && $rekapData[$index-1]['id'] !== $item['id']);
+                                    
+                                    // Determine if this is the last row in the group
                                     $isLastInGroup = $index === count($rekapData) - 1 || 
-                                        ($item['id'] && $rekapData[$index+1]['id'] !== $item['id'] && $rekapData[$index+1]['id'] !== null);
+                                        ($item['id'] && isset($rekapData[$index+1]) && 
+                                         $rekapData[$index+1]['id'] !== $item['id'] && 
+                                         $rekapData[$index+1]['id'] !== null);
                                 @endphp
-                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200 ease-in-out"
-                                    @if($isNewGroup && $isLastInGroup) style="border-top: 4px solid #3b82f6; border-bottom: 4px solid #3b82f6;"
-                                    @elseif($isNewGroup) style="border-top: 4px solid #3b82f6;"
-                                    @elseif($isLastInGroup) style="border-bottom: 4px solid #3b82f6;" @endif>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200 ease-in-out @if($isNewGroup && $isLastInGroup) group-border-both @elseif($isNewGroup) group-border-top @elseif($isLastInGroup) group-border-bottom @endif">
                                     <!-- No. & Tanggal -->
-                                    <td class="px-2 py-1 text-xs whitespace-nowrap border-r border-gray-200 dark:border-gray-600" style="width: 180px;">
+                                    <td class="px-2 py-1 text-xs whitespace-nowrap border-r border-gray-200 dark:border-gray-600" 
+                                        style="width: 180px;">
                                         @if($item['id'])
                                             <div class="font-medium text-gray-900 dark:text-white">
                                                 <a href="{{ route('nota-dinas.show', $item['id']) }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-600">
@@ -244,7 +259,7 @@
                                     </td>
                                     
                                     <!-- Asal & Tujuan -->
-                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 whitespace-nowrap" style="width: 200px;">
+                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 whitespace-nowrap @if($isNewGroup) group-border-top-all @endif @if($isLastInGroup) group-border-bottom-all @endif" style="width: 200px;">
                                         @if($item['origin'])
                                             <div class="text-gray-900 dark:text-white">
                                                 <div class="font-medium">{{ $item['origin'] }}</div>
@@ -263,7 +278,7 @@
                                     
 
                                     <!-- No. & Tanggal SPT -->
-                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 whitespace-nowrap" style="width: 150px;">
+                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 whitespace-nowrap @if($isNewGroup) group-border-top-all @endif @if($isLastInGroup) group-border-bottom-all @endif" style="width: 150px;">
                                         @if($item['spt_number'] && $item['spt_id'])
                                             <div class="font-medium text-gray-900 dark:text-white">
                                                 <a href="{{ route('spt.pdf', $item['spt_id']) }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-600">
@@ -746,7 +761,8 @@
                                     </td>
                                     
                                     <!-- Dokumen Pendukung -->
-                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600" style="width: 200px;">
+                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600" 
+                                        style="width: 200px;">
                                         @if(isset($item['supporting_documents']) && $item['supporting_documents'] && count($item['supporting_documents']) > 0)
                                             <div class="space-y-2">
                                                 @foreach($item['supporting_documents'] as $doc)
