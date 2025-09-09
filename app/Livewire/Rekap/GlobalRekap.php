@@ -245,20 +245,14 @@ class GlobalRekap extends Component
                     foreach ($sortedReceipts as $receipt) {
                         $groupedLines = $this->groupReceiptLinesByCategory($receipt->lines, $nd, $receipt->payeeUser->rank_id ?? null);
                         
-                        // Find categories with multiple items
+                        // Find categories with multiple items and determine max items per category
                         $categoriesWithMultipleItems = [];
-                        $additionalRows = [];
+                        $maxItemsInCategory = 1;
                         
                         foreach ($groupedLines as $category => $lines) {
                             if (count($lines) > 1) {
                                 $categoriesWithMultipleItems[$category] = $lines;
-                                // Store additional items (skip first one as it will be in main row)
-                                for ($i = 1; $i < count($lines); $i++) {
-                                    $additionalRows[] = [
-                                        'category' => $category,
-                                        'line' => $lines[$i]
-                                    ];
-                                }
+                                $maxItemsInCategory = max($maxItemsInCategory, count($lines));
                             }
                         }
                         
@@ -323,8 +317,19 @@ class GlobalRekap extends Component
                         
                         $rekapData->push($mainRowData);
                         
-                        // Create additional rows for categories with multiple items
-                        foreach ($additionalRows as $lineData) {
+                        // Create additional rows for items beyond the first in each category
+                        for ($itemIndex = 1; $itemIndex < $maxItemsInCategory; $itemIndex++) {
+                            $rowData = [];
+                            
+                            // For each category, get the item at this index (if it exists)
+                            foreach ($groupedLines as $category => $lines) {
+                                if (isset($lines[$itemIndex])) {
+                                    $rowData[$category] = [$lines[$itemIndex]];
+                                } else {
+                                    $rowData[$category] = [];
+                                }
+                            }
+                            
                             $additionalRowData = [
                                 // Receipt data (without participant and receipt info for additional rows)
                                 'receipt_id' => $receipt->id,
@@ -334,8 +339,8 @@ class GlobalRekap extends Component
                                 'participant_name' => null, // Don't show participant name on additional rows
                                 'participant_nip' => null, // Don't show participant NIP on additional rows
                                 'participant_rank' => null, // Don't show participant rank on additional rows
-                                // Single receipt line for this row
-                                'receipt_line' => $lineData,
+                                // Receipt lines for this row (all categories)
+                                'receipt_lines' => $rowData,
                             ];
                             
                             // For additional rows, only show receipt info
