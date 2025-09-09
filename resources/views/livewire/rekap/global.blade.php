@@ -66,10 +66,10 @@
         <!-- Modern Table Container -->
         <div class="bg-white dark:bg-gray-900 shadow-sm ring-1 ring-gray-200 dark:ring-gray-700 rounded-lg overflow-hidden">
             <div class="overflow-auto max-h-[calc(100vh-200px)] min-h-[400px] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800" style="scrollbar-width: thin; scrollbar-color: #d1d5db #f3f4f6; overflow-x: auto; overflow-y: auto; position: relative;">
-                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700" style="min-width: 2950px; table-layout: auto; border-collapse: separate; border-spacing: 0;">
+                 <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700" style="min-width: 2850px; table-layout: auto; border-collapse: separate; border-spacing: 0;">
                         <thead class="bg-gray-50 dark:bg-gray-800 sticky top-0 z-30" style="position: sticky; top: 0; z-index: 30; background-color: #f9fafb;">
                             <tr>
-                                <th scope="col" class="px-2 py-1 text-center text-sm font-medium text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600 " style="width: 480px;" colspan="3">
+                                 <th scope="col" class="px-2 py-1 text-center text-sm font-medium text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-600 " style="width: 380px;" colspan="2">
                                     <div class="flex items-center justify-center space-x-2">
                                         <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -170,7 +170,6 @@
                                 <!-- Nota Dinas sub-columns -->
                                 <th scope="col" class="py-3 pl-4 pr-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 " style="width: 180px;">No. Nota Dinas</th>
                                 <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 " style="width: 200px;">Asal & Tujuan</th>
-                                <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 " style="width: 100px;">Maksud</th>
                                 <!-- SPT sub-columns -->
                                 <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 " style="width: 150px;">No. & Tanggal SPT</th>
                                 <th scope="col" class="px-3 py-3 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-300 dark:border-gray-600 " style="width: 200px;">Penandatangan SPT</th>
@@ -211,7 +210,7 @@
                         <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-900">
                             <!-- Spacer row for sticky header -->
                             <tr style="height: 30px; background: transparent;">
-                                <td colspan="29" style="padding: 0; border: none; background: transparent;"></td>
+                                 <td colspan="28" style="padding: 0; border: none; background: transparent;"></td>
                             </tr>
                             @forelse($rekapData as $index => $item)
                                 @php
@@ -262,10 +261,6 @@
                                         @endif
                                     </td>
                                     
-                                    <!-- Maksud -->
-                                    <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400" style="width: 100px;">
-                                        {{ $item['maksud'] ?: '-' }}
-                                    </td>
 
                                     <!-- No. & Tanggal SPT -->
                                     <td class="px-2 py-1 text-xs border-r border-gray-200 dark:border-gray-600 whitespace-nowrap" style="width: 150px;">
@@ -784,7 +779,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="29" class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 text-center dark:text-white">
+                                     <td colspan="28" class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 text-center dark:text-white">
                                         @if($loading)
                                             <div class="flex items-center justify-center">
                                                 <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
