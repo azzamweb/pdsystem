@@ -449,6 +449,9 @@ class GlobalRekapDetailedExport implements FromArray, WithHeadings, WithStyles, 
                     ],
                 ]);
                 
+                // Apply thick borders for nota dinas groups
+                $this->applyGroupBorders($sheet, $lastColumn);
+                
                 // Auto-fit row heights
                 for ($row = 1; $row <= $lastRow; $row++) {
                     $sheet->getRowDimension($row)->setRowHeight(-1);
@@ -458,5 +461,78 @@ class GlobalRekapDetailedExport implements FromArray, WithHeadings, WithStyles, 
                 $sheet->freezePane('A2');
             },
         ];
+    }
+
+    private function applyGroupBorders($sheet, $lastColumn)
+    {
+        $currentNotaDinasId = null;
+        $groupStartRow = 2; // Start from row 2 (after header)
+        $row = 2;
+        
+        // Get all data rows to determine group boundaries
+        $data = $this->array();
+        
+        foreach ($data as $index => $rowData) {
+            // Extract nota dinas info from first column (No. Nota Dinas)
+            $notaDinasInfo = $rowData[0] ?? '';
+            
+            // If this row has nota dinas info, it's the start of a new group
+            if (!empty($notaDinasInfo) && $notaDinasInfo !== $currentNotaDinasId) {
+                // Apply thick border to previous group if exists
+                if ($currentNotaDinasId !== null) {
+                    $this->applyThickBorderToGroup($sheet, $groupStartRow, $row - 1, $lastColumn);
+                }
+                
+                // Start new group
+                $currentNotaDinasId = $notaDinasInfo;
+                $groupStartRow = $row;
+            }
+            
+            $row++;
+        }
+        
+        // Apply thick border to the last group
+        if ($currentNotaDinasId !== null) {
+            $this->applyThickBorderToGroup($sheet, $groupStartRow, $row - 1, $lastColumn);
+        }
+    }
+
+    private function applyThickBorderToGroup($sheet, $startRow, $endRow, $lastColumn)
+    {
+        // Apply thick top border to first row of group
+        $sheet->getStyle('A' . $startRow . ':' . $lastColumn . $startRow)->applyFromArray([
+            'borders' => [
+                'top' => [
+                    'borderStyle' => Border::BORDER_THICK,
+                    'color' => ['rgb' => '000000'],
+                ],
+            ],
+        ]);
+        
+        // Apply thick bottom border to last row of group
+        $sheet->getStyle('A' . $endRow . ':' . $lastColumn . $endRow)->applyFromArray([
+            'borders' => [
+                'bottom' => [
+                    'borderStyle' => Border::BORDER_THICK,
+                    'color' => ['rgb' => '000000'],
+                ],
+            ],
+        ]);
+        
+        // Apply thick left and right borders to all rows in group
+        for ($row = $startRow; $row <= $endRow; $row++) {
+            $sheet->getStyle('A' . $row . ':' . $lastColumn . $row)->applyFromArray([
+                'borders' => [
+                    'left' => [
+                        'borderStyle' => Border::BORDER_THICK,
+                        'color' => ['rgb' => '000000'],
+                    ],
+                    'right' => [
+                        'borderStyle' => Border::BORDER_THICK,
+                        'color' => ['rgb' => '000000'],
+                    ],
+                ],
+            ]);
+        }
     }
 }
