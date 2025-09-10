@@ -67,6 +67,33 @@
                             Pilih unit yang bertanggung jawab atas sub kegiatan ini
                         </p>
                     </div>
+
+                    <!-- PPTK (Pejabat Pelaksana Teknis Kegiatan) -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            PPTK (Pejabat Pelaksana Teknis Kegiatan)
+                        </label>
+                        <select 
+                            wire:model="pptk_user_id"
+                            class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        >
+                            <option value="">Pilih PPTK (Opsional)</option>
+                            @foreach($users as $user)
+                                <option value="{{ $user->id }}">
+                                    {{ $user->fullNameWithTitles() }}
+                                    @if($user->position)
+                                        - {{ $user->position->name }}
+                                    @endif
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('pptk_user_id') 
+                            <span class="text-red-500 text-sm">{{ $message }}</span> 
+                        @enderror
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                            Pilih pejabat yang bertanggung jawab sebagai PPTK untuk sub kegiatan ini (opsional)
+                        </p>
+                    </div>
                 </div>
 
                 <!-- Nama Sub Kegiatan -->

@@ -43,9 +43,6 @@ class Edit extends Component
     public $assignment_title = '';
     public $use_custom_assignment_title = false;
 
-    // PPTK (Pejabat Pelaksana Teknis Kegiatan)
-    #[Rule('nullable|exists:users,id')]
-    public $pptk_user_id = '';
 
     // Sub Kegiatan
     #[Rule('required|exists:sub_keg,id')]
@@ -82,8 +79,6 @@ class Edit extends Component
         $this->signed_by_user_id = $this->sppd->signed_by_user_id ?? '';
         $this->assignment_title = $this->sppd->assignment_title ?? '';
         
-        // Load PPTK
-        $this->pptk_user_id = $this->sppd->pptk_user_id ?? '';
         
         // Load Sub Kegiatan
         $this->sub_keg_id = $this->sppd->sub_keg_id ?? '';
@@ -140,7 +135,6 @@ class Edit extends Component
         try {
             // Simpan nilai awal sebelum update
             $originalSignedByUserId = $this->sppd->signed_by_user_id;
-            $originalPptkUserId = $this->sppd->pptk_user_id;
             
             // Atur assignment title berdasarkan mode
             $assignmentTitle = trim((string)$this->assignment_title);
@@ -152,7 +146,6 @@ class Edit extends Component
                 'sppd_date' => $this->sppd_date,
                 'funding_source' => $this->funding_source,
                 'signed_by_user_id' => $this->signed_by_user_id,
-                'pptk_user_id' => $this->pptk_user_id,
                 'sub_keg_id' => $this->sub_keg_id,
                 'assignment_title' => $assignmentTitle,
             ]);
@@ -166,11 +159,6 @@ class Edit extends Component
             // Update snapshot of signed_by_user data only if signatory changed
             if ($originalSignedByUserId != $this->signed_by_user_id || !$this->sppd->signed_by_user_name_snapshot) {
                 $this->sppd->createSignedByUserSnapshot();
-            }
-            
-            // Update snapshot of pptk_user data only if PPTK changed
-            if ($originalPptkUserId != $this->pptk_user_id || !$this->sppd->pptk_user_name_snapshot) {
-                $this->sppd->createPptkUserSnapshot();
             }
 
             session()->flash('message', 'SPPD berhasil diperbarui.');

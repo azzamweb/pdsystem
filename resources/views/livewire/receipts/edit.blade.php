@@ -137,21 +137,6 @@
                     <!-- Form Fields -->
                     <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700 p-6">
                         <div class="space-y-6">
-                            <!-- Kode Rekening Kegiatan -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Kode Rekening Kegiatan
-                                </label>
-                                <input 
-                                    type="text" 
-                                    wire:model="account_code" 
-                                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                    placeholder="Contoh: 2.2.1.01.01.0001"
-                                />
-                                @error('account_code') 
-                                    <span class="text-red-500 text-sm">{{ $message }}</span> 
-                                @enderror
-                            </div>
 
                             <!-- Peserta (Penerima Pembayaran) - Read Only -->
                             <div>

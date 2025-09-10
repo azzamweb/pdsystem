@@ -217,7 +217,7 @@
               <div>TAHUN ANGGARAN {{ $tahun }}</div>
               <div class="mt-4"></div>
               <div class="block-title">KODE REKENING</div>
-              <div>{{ $receipt->account_code ?: '-' }}</div>
+              <div>{{ $receipt->sppd->subKeg ? $receipt->sppd->subKeg->kode_subkeg : '-' }}</div>
               <div class="mt-4"></div>
             </div>
           </div>
@@ -472,9 +472,9 @@
         <div>Mengetahui</div>
         <div class="muted">Pejabat Pelaksana Teknis Kegiatan</div>
         <div class="sign-place"></div>
-        @php($pptk = $receipt->sppd->getPptkUserSnapshot())
-        <div class="name">{{ ($pptk['name'] ?? null) ?: ($receipt->sppd->pptkUser?->fullNameWithTitles() ?? '-') }}</div>
-        <div class="muted">NIP. {{ ($pptk['nip'] ?? null) ?: ($receipt->sppd->pptkUser?->nip ?? '-') }}</div>
+        @php($pptk = $receipt->sppd->getPptkSnapshotFromSubKegiatan())
+        <div class="name">{{ ($pptk['name'] ?? null) ?: '-' }}</div>
+        <div class="muted">NIP. {{ ($pptk['nip'] ?? null) ?: '-' }}</div>
       </td>
       
       <!-- Kolom 2: Dihitung Oleh -->
@@ -483,8 +483,8 @@
         <div>Dihitung Oleh :</div>
         <div class="muted">{{ $receipt->treasurer_title ?? 'Bendahara Pengeluaran Pembantu' }}</div>
         <div class="sign-place"></div>
-        <div class="name">{{ $receipt->getTreasurerUserSnapshot()['name'] ?? ($receipt->sppd->pptkUser?->fullNameWithTitles() ?? '-') }}</div>
-        <div class="muted">NIP. {{ $receipt->getTreasurerUserSnapshot()['nip'] ?? ($receipt->sppd->pptkUser?->nip ?? '-') }}</div>
+        <div class="name">{{ $receipt->getTreasurerUserSnapshot()['name'] ?? '-' }}</div>
+        <div class="muted">NIP. {{ $receipt->getTreasurerUserSnapshot()['nip'] ?? '-' }}</div>
       </td>
     </tr>
   </table>

@@ -65,6 +65,7 @@ class Index extends Component
     {
         $query = Receipt::with([
             'sppd.spt.notaDinas',
+            'sppd.subKeg',
             'payeeUser.position',
             'payeeUser.rank',
             'payeeUser.unit',
@@ -77,7 +78,10 @@ class Index extends Component
         if ($this->search) {
             $query->where(function ($q) {
                 $q->where('receipt_no', 'like', '%' . $this->search . '%')
-                  ->orWhere('account_code', 'like', '%' . $this->search . '%')
+                  ->orWhereHas('sppd.subKeg', function ($subKegQuery) {
+                      $subKegQuery->where('kode_subkeg', 'like', '%' . $this->search . '%')
+                                  ->orWhere('nama_subkeg', 'like', '%' . $this->search . '%');
+                  })
                   ->orWhereHas('payeeUser', function ($userQuery) {
                       $userQuery->where('name', 'like', '%' . $this->search . '%')
                                ->orWhere('nip', 'like', '%' . $this->search . '%');

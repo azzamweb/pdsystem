@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -150,5 +151,13 @@ class User extends Authenticatable
     public function travelGrade(): BelongsTo
     {
         return $this->belongsTo(TravelGrade::class);
+    }
+
+    /**
+     * Get the sub kegiatan records that this user manages as PPTK.
+     */
+    public function subKegiatan(): HasMany
+    {
+        return $this->hasMany(SubKeg::class, 'pptk_user_id');
     }
 }

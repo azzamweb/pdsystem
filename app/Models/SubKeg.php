@@ -15,11 +15,13 @@ class SubKeg extends Model
         'nama_subkeg',
         'pagu',
         'id_unit',
+        'pptk_user_id',
     ];
 
     protected $casts = [
         'id_unit' => 'integer',
         'pagu' => 'decimal:2',
+        'pptk_user_id' => 'integer',
     ];
 
     /**
@@ -28,6 +30,14 @@ class SubKeg extends Model
     public function unit(): BelongsTo
     {
         return $this->belongsTo(Unit::class, 'id_unit');
+    }
+
+    /**
+     * Get the PPTK user that manages this sub kegiatan.
+     */
+    public function pptkUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'pptk_user_id');
     }
 
     /**

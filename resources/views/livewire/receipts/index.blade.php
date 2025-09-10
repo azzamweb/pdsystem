@@ -155,7 +155,7 @@
                                                 {{ $receipt->receipt_no ?: 'Manual' }}
                                             </div>
                                             <div class="text-sm text-gray-500 dark:text-gray-400">
-                                                {{ $receipt->account_code ?: 'Kode rekening belum diisi' }}
+                                                {{ $receipt->sppd->subKeg ? $receipt->sppd->subKeg->kode_subkeg : 'Kode sub kegiatan belum diisi' }}
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">

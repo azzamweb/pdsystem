@@ -15,7 +15,7 @@ class Sppd extends Model
 
     protected $fillable = [
         'doc_no', 'number_is_manual', 'number_manual_reason', 'number_format_id', 'number_sequence_id',
-        'number_scope_unit_id', 'sppd_date', 'spt_id', 'signed_by_user_id', 'pptk_user_id', 'sub_keg_id', 'assignment_title',
+        'number_scope_unit_id', 'sppd_date', 'spt_id', 'signed_by_user_id', 'sub_keg_id', 'assignment_title',
         'funding_source',
         // Snapshot fields for signed_by_user
         'signed_by_user_name_snapshot', 'signed_by_user_gelar_depan_snapshot', 'signed_by_user_gelar_belakang_snapshot',
@@ -23,17 +23,10 @@ class Sppd extends Model
         'signed_by_user_position_id_snapshot', 'signed_by_user_position_name_snapshot', 'signed_by_user_position_desc_snapshot',
         'signed_by_user_rank_id_snapshot', 'signed_by_user_rank_name_snapshot', 'signed_by_user_rank_code_snapshot',
         'signed_by_user_position_echelon_id_snapshot',
-        // Snapshot fields for pptk_user
-        'pptk_user_name_snapshot', 'pptk_user_gelar_depan_snapshot', 'pptk_user_gelar_belakang_snapshot',
-        'pptk_user_nip_snapshot', 'pptk_user_unit_id_snapshot', 'pptk_user_unit_name_snapshot',
-        'pptk_user_position_id_snapshot', 'pptk_user_position_name_snapshot', 'pptk_user_position_desc_snapshot',
-        'pptk_user_rank_id_snapshot', 'pptk_user_rank_name_snapshot', 'pptk_user_rank_code_snapshot',
-        'pptk_user_position_echelon_id_snapshot',
     ];
 
     public function spt() { return $this->belongsTo(Spt::class); }
     public function signedByUser() { return $this->belongsTo(User::class, 'signed_by_user_id'); }
-    public function pptkUser() { return $this->belongsTo(User::class, 'pptk_user_id'); }
     public function subKeg() { return $this->belongsTo(SubKeg::class, 'sub_keg_id'); }
     // Accessor methods untuk origin place dan destination city
     public function getOriginPlaceAttribute()
@@ -195,55 +188,38 @@ class Sppd extends Model
     }
 
     /**
-     * Get snapshot data for pptk_user from SPPD snapshot
+     * Get PPTK from sub kegiatan
      */
-    public function getPptkUserSnapshot()
+    public function getPptkFromSubKegiatan()
     {
-        return [
-            'name' => $this->pptk_user_name_snapshot ?: $this->pptkUser?->name,
-            'gelar_depan' => $this->pptk_user_gelar_depan_snapshot ?: $this->pptkUser?->gelar_depan,
-            'gelar_belakang' => $this->pptk_user_gelar_belakang_snapshot ?: $this->pptkUser?->gelar_belakang,
-            'nip' => $this->pptk_user_nip_snapshot ?: $this->pptkUser?->nip,
-            'unit_id' => $this->pptk_user_unit_id_snapshot ?: $this->pptkUser?->unit_id,
-            'unit_name' => $this->pptk_user_unit_name_snapshot ?: $this->pptkUser?->unit?->name,
-            'position_id' => $this->pptk_user_position_id_snapshot ?: $this->pptkUser?->position_id,
-            'position_name' => $this->pptk_user_position_name_snapshot ?: $this->pptkUser?->position?->name,
-            'position_desc' => $this->pptk_user_position_desc_snapshot ?: $this->pptkUser?->position_desc,
-            'rank_id' => $this->pptk_user_rank_id_snapshot ?: $this->pptkUser?->rank_id,
-            'rank_name' => $this->pptk_user_rank_name_snapshot ?: $this->pptkUser?->rank?->name,
-            'rank_code' => $this->pptk_user_rank_code_snapshot ?: $this->pptkUser?->rank?->code,
-            'position_echelon_id' => $this->pptk_user_position_echelon_id_snapshot ?: $this->pptkUser?->position?->echelon_id,
-        ];
+        return $this->subKeg?->pptkUser;
     }
 
     /**
-     * Create snapshot of pptk_user data
+     * Get PPTK snapshot data from sub kegiatan
      */
-    public function createPptkUserSnapshot()
+    public function getPptkSnapshotFromSubKegiatan()
     {
-        if (!$this->pptk_user_id) {
-            return;
+        $pptkUser = $this->getPptkFromSubKegiatan();
+        if (!$pptkUser) {
+            return null;
         }
 
-        $user = User::with(['position', 'unit', 'rank'])->find($this->pptk_user_id);
-        if (!$user) {
-            return;
-        }
-
-        $this->update([
-            'pptk_user_name_snapshot' => $user->name,
-            'pptk_user_gelar_depan_snapshot' => $user->gelar_depan,
-            'pptk_user_gelar_belakang_snapshot' => $user->gelar_belakang,
-            'pptk_user_nip_snapshot' => $user->nip,
-            'pptk_user_unit_id_snapshot' => $user->unit_id,
-            'pptk_user_unit_name_snapshot' => $user->unit?->name,
-            'pptk_user_position_id_snapshot' => $user->position_id,
-            'pptk_user_position_name_snapshot' => $user->position?->name,
-            'pptk_user_position_desc_snapshot' => $user->position_desc,
-            'pptk_user_rank_id_snapshot' => $user->rank_id,
-            'pptk_user_rank_name_snapshot' => $user->rank?->name,
-            'pptk_user_rank_code_snapshot' => $user->rank?->code,
-            'pptk_user_position_echelon_id_snapshot' => $user->position?->echelon_id,
-        ]);
+        return [
+            'name' => $pptkUser->name,
+            'gelar_depan' => $pptkUser->gelar_depan,
+            'gelar_belakang' => $pptkUser->gelar_belakang,
+            'nip' => $pptkUser->nip,
+            'unit_id' => $pptkUser->unit_id,
+            'unit_name' => $pptkUser->unit?->name,
+            'position_id' => $pptkUser->position_id,
+            'position_name' => $pptkUser->position?->name,
+            'position_desc' => $pptkUser->position_desc,
+            'rank_id' => $pptkUser->rank_id,
+            'rank_name' => $pptkUser->rank?->name,
+            'rank_code' => $pptkUser->rank?->code,
+            'position_echelon_id' => $pptkUser->position?->echelon_id,
+        ];
     }
+
 }

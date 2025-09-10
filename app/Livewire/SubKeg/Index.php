@@ -40,7 +40,7 @@ class Index extends Component
 
     public function render()
     {
-        $query = SubKeg::with('unit');
+        $query = SubKeg::with(['unit', 'pptkUser']);
 
         if ($this->search) {
             $query->where(function ($q) {

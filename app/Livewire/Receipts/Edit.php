@@ -16,8 +16,6 @@ class Edit extends Component
     public $receipt_id = null;
     public $receipt = null;
 
-    #[Rule('nullable|string')]
-    public $account_code = '';
 
     #[Rule('required|exists:users,id')]
     public $treasurer_user_id = '';
@@ -87,7 +85,6 @@ class Edit extends Component
         $this->receipt = Receipt::with(['sppd.spt.notaDinas.participants.user', 'payeeUser', 'treasurerUser'])->findOrFail($this->receipt_id);
         
         // Prefill values
-        $this->account_code = $this->receipt->account_code;
         $this->treasurer_user_id = $this->receipt->treasurer_user_id;
         $this->treasurer_title = $this->receipt->treasurer_title;
         $this->receipt_date = $this->receipt->receipt_date ?: now()->format('Y-m-d');
@@ -1344,7 +1341,6 @@ class Edit extends Component
 
         // Update receipt
         $this->receipt->update([
-            'account_code' => $this->account_code,
             'travel_grade_id' => $this->travel_grade_id,
             'treasurer_user_id' => $this->treasurer_user_id,
             'treasurer_title' => $this->treasurer_title,

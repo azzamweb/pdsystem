@@ -15,7 +15,10 @@ class SppdController extends Controller
             'signedByUser.position',
             'signedByUser.unit',
             'signedByUser.rank',
-            'subKeg.unit'
+            'subKeg.unit',
+            'subKeg.pptkUser.position',
+            'subKeg.pptkUser.unit',
+            'subKeg.pptkUser.rank'
         ]);
         // Generate PDF
         $pdf = Pdf::loadView('sppd.pdf', [
@@ -44,7 +47,10 @@ class SppdController extends Controller
             'signedByUser.position',
             'signedByUser.unit',
             'signedByUser.rank',
-            'subKeg.unit'
+            'subKeg.unit',
+            'subKeg.pptkUser.position',
+            'subKeg.pptkUser.unit',
+            'subKeg.pptkUser.rank'
         ]);
         // Generate PDF
         $pdf = Pdf::loadView('sppd.pdf', [

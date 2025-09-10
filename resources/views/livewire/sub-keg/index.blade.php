@@ -74,6 +74,9 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             Unit
                         </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            PPTK
+                        </th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             Pagu Anggaran
                         </th>
@@ -99,6 +102,22 @@
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
                                     {{ $subKeg->unit->name }}
                                 </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                @if($subKeg->pptkUser)
+                                    <div class="text-sm font-medium text-gray-900 dark:text-white">
+                                        {{ $subKeg->pptkUser->fullNameWithTitles() }}
+                                    </div>
+                                    @if($subKeg->pptkUser->position)
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">
+                                            {{ $subKeg->pptkUser->position->name }}
+                                        </div>
+                                    @endif
+                                @else
+                                    <span class="text-sm text-gray-400 dark:text-gray-500 italic">
+                                        Belum ditentukan
+                                    </span>
+                                @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right">
                                 <div class="text-sm font-medium text-gray-900 dark:text-white">

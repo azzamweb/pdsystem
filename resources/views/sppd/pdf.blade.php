@@ -391,9 +391,9 @@
                             
                             <td colspan="3" style="font-size: 10pt;"><br>Pejabat Pelaksana Teknis Kegiatan<br><br>
                                 @php
-                                    $pptkSnapshot = $sppd->getPptkUserSnapshot();
+                                    $pptkSnapshot = $sppd->getPptkSnapshotFromSubKegiatan();
                                 @endphp
-                                @if($pptkSnapshot['name'])
+                                @if($pptkSnapshot && $pptkSnapshot['name'])
                                     {{ ($pptkSnapshot['gelar_depan'] ? $pptkSnapshot['gelar_depan'] . ' ' : '') . $pptkSnapshot['name'] . ($pptkSnapshot['gelar_belakang'] ? ', ' . $pptkSnapshot['gelar_belakang'] : '') }}
                                     @if($pptkSnapshot['rank_name'])
                                         <br>{{ $pptkSnapshot['rank_name'] }}

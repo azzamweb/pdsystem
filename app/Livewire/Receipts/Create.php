@@ -20,8 +20,6 @@ class Create extends Component
     public $sppd = null;
     public $spt = null;
 
-    #[Rule('nullable|string')]
-    public $account_code = '';
 
     #[Rule('required|exists:users,id')]
     public $payee_user_id = '';
@@ -262,7 +260,6 @@ class Create extends Component
         
         if ($existingReceipt) {
             // Auto-fill common fields that are usually the same for receipts in the same SPPD
-            $this->account_code = $existingReceipt->account_code ?? $this->account_code;
             $this->treasurer_user_id = $existingReceipt->treasurer_user_id ?? $this->treasurer_user_id;
             $this->treasurer_title = $existingReceipt->treasurer_title ?? $this->treasurer_title;
             $this->receipt_date = $existingReceipt->receipt_date ?? $this->receipt_date;
@@ -1124,7 +1121,6 @@ class Create extends Component
         if ($this->sppd) {
             $existingReceipt = Receipt::where('sppd_id', $this->sppd->id)->first();
             if ($existingReceipt) {
-                $this->account_code = $existingReceipt->account_code ?: $this->account_code;
                 $this->treasurer_user_id = $existingReceipt->treasurer_user_id ?: $this->treasurer_user_id;
                 $this->treasurer_title = $existingReceipt->treasurer_title ?: $this->treasurer_title;
                 $this->receipt_date = $existingReceipt->receipt_date ?: $this->receipt_date;
@@ -1414,7 +1410,6 @@ class Create extends Component
             'receipt_no' => $this->receipt_no ?: null,
             'receipt_date' => $this->receipt_date,
             'payee_user_id' => $selectedParticipant->user_id,
-            'account_code' => $this->account_code,
             'treasurer_user_id' => $this->treasurer_user_id,
             'treasurer_title' => $this->treasurer_title,
             'total_amount' => $this->totalAmount,
