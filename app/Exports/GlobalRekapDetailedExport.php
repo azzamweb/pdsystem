@@ -449,6 +449,9 @@ class GlobalRekapDetailedExport implements FromArray, WithHeadings, WithStyles, 
                     ],
                 ]);
                 
+                // Apply thick vertical borders for column groups
+                $this->applyColumnGroupBorders($sheet, $lastRow);
+                
                 // Apply thick borders for nota dinas groups
                 $this->applyGroupBorders($sheet, $lastColumn);
                 
@@ -461,6 +464,40 @@ class GlobalRekapDetailedExport implements FromArray, WithHeadings, WithStyles, 
                 $sheet->freezePane('A2');
             },
         ];
+    }
+
+    private function applyColumnGroupBorders($sheet, $lastRow)
+    {
+        // Define column group boundaries based on the table structure
+        // Column mapping: A=1, B=2, C=3, etc.
+        $columnGroups = [
+            'Nota Dinas' => ['A', 'B'],           // 2 columns
+            'SPT' => ['C', 'D'],                  // 2 columns  
+            'SPPD' => ['E', 'F', 'G', 'H'],       // 4 columns
+            'Laporan' => ['I'],                   // 1 column
+            'Kwitansi' => ['J', 'K'],             // 2 columns
+            'Transportasi' => ['L', 'M', 'N'],    // 3 columns
+            'Penginapan' => ['O', 'P', 'Q'],      // 3 columns
+            'Uang Harian' => ['R', 'S', 'T'],     // 3 columns
+            'Representatif' => ['U', 'V', 'W'],   // 3 columns
+            'Biaya Lainnya' => ['X', 'Y', 'Z'],   // 3 columns
+            'Total Kwitansi' => ['AA'],           // 1 column
+            'Dokumen Pendukung' => ['AB']         // 1 column
+        ];
+        
+        // Apply thick right border to the last column of each group
+        $thickBorderColumns = ['B', 'D', 'H', 'I', 'K', 'N', 'Q', 'T', 'W', 'Z', 'AA', 'AB'];
+        
+        foreach ($thickBorderColumns as $column) {
+            $sheet->getStyle($column . '1:' . $column . $lastRow)->applyFromArray([
+                'borders' => [
+                    'right' => [
+                        'borderStyle' => Border::BORDER_THICK,
+                        'color' => ['rgb' => '000000'],
+                    ],
+                ],
+            ]);
+        }
     }
 
     private function applyGroupBorders($sheet, $lastColumn)
