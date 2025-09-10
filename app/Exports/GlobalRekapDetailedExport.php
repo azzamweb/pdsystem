@@ -159,7 +159,7 @@ class GlobalRekapDetailedExport implements FromArray, WithHeadings, WithStyles, 
                 }
                 
                 $rows[] = array_merge($baseData, $lineData, [
-                    $item['receipt_total'] ? number_format($item['receipt_total'], 0, ',', '.') : '',
+                    $item['receipt_total'] ?? 0, // Keep as numeric for Excel operations
                     $supportingDocs
                 ]);
             }
@@ -183,7 +183,7 @@ class GlobalRekapDetailedExport implements FromArray, WithHeadings, WithStyles, 
                 $lineData = $this->getEmptyLineData();
                 
                 $rows[] = array_merge($baseData, $lineData, [
-                    $item['receipt_total'] ? number_format($item['receipt_total'], 0, ',', '.') : '',
+                    $item['receipt_total'] ?? 0, // Keep as numeric for Excel operations
                     $supportingDocs
                 ]);
             }
@@ -303,33 +303,33 @@ class GlobalRekapDetailedExport implements FromArray, WithHeadings, WithStyles, 
     private function setLineData($lineData, $category, $line)
     {
         $formattedLine = $this->formatReceiptLine($line);
-        $value = number_format($line['line_total'] ?? 0, 0, ',', '.');
+        $value = $line['line_total'] ?? 0; // Remove number_format to keep as numeric
         $desc = $line['desc'] ?? '';
 
         switch ($category) {
             case 'transport':
                 $lineData[0] = $formattedLine;  // Uraian
-                $lineData[1] = $value;          // Nilai
+                $lineData[1] = $value;          // Nilai (numeric)
                 $lineData[2] = $desc;           // Deskripsi
                 break;
             case 'lodging':
                 $lineData[3] = $formattedLine;  // Uraian
-                $lineData[4] = $value;          // Nilai
+                $lineData[4] = $value;          // Nilai (numeric)
                 $lineData[5] = $desc;           // Deskripsi
                 break;
             case 'perdiem':
                 $lineData[6] = $formattedLine;  // Uraian
-                $lineData[7] = $value;          // Nilai
+                $lineData[7] = $value;          // Nilai (numeric)
                 $lineData[8] = $desc;           // Deskripsi
                 break;
             case 'representation':
                 $lineData[9] = $formattedLine;  // Uraian
-                $lineData[10] = $value;         // Nilai
+                $lineData[10] = $value;         // Nilai (numeric)
                 $lineData[11] = $desc;          // Deskripsi
                 break;
             case 'other':
                 $lineData[12] = $formattedLine; // Uraian
-                $lineData[13] = $value;         // Nilai
+                $lineData[13] = $value;         // Nilai (numeric)
                 $lineData[14] = $desc;          // Deskripsi
                 break;
         }
