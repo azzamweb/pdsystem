@@ -10,7 +10,9 @@ use App\Models\Sppd;
 use App\Models\Receipt;
 use App\Models\TripReport;
 use App\Models\SupportingDocument;
+use App\Exports\GlobalRekapDetailedExport;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class GlobalRekap extends Component
 {
@@ -121,7 +123,7 @@ class GlobalRekap extends Component
         $this->loadRekapData();
     }
 
-    public function loadRekapData()
+    public function loadRekapData($exportAll = false)
     {
         $this->loading = true;
 
@@ -162,8 +164,12 @@ class GlobalRekap extends Component
                 $query->where('destination_city_id', $this->locationFilter);
             }
 
-            // Get paginated results
-            $notaDinas = $query->orderBy('nd_date', 'desc')->paginate($this->perPage);
+            // Get results (paginated or all for export)
+            if ($exportAll) {
+                $notaDinas = $query->orderBy('nd_date', 'desc')->get();
+            } else {
+                $notaDinas = $query->orderBy('nd_date', 'desc')->paginate($this->perPage);
+            }
 
             // Format data for display - with multiple receipts per SPPD
             $rekapData = collect();
@@ -399,7 +405,12 @@ class GlobalRekap extends Component
             
             $this->rekapData = $rekapData;
 
-            $this->totalRecords = $notaDinas->total();
+            // Handle totalRecords for both paginated and non-paginated results
+            if ($exportAll) {
+                $this->totalRecords = $notaDinas->count();
+            } else {
+                $this->totalRecords = $notaDinas->total();
+            }
 
         } catch (\Exception $e) {
             session()->flash('error', 'Error loading data: ' . $e->getMessage());
@@ -597,8 +608,17 @@ class GlobalRekap extends Component
 
     public function exportExcel()
     {
-        // TODO: Implement Excel export
-        session()->flash('info', 'Excel export functionality will be implemented soon');
+        try {
+            // Load all data without pagination for export
+            $this->loadRekapData(true); // Pass true to load all data
+            
+            $fileName = 'rekap-global-' . now()->format('Y-m-d-H-i-s') . '.xlsx';
+            
+            return Excel::download(new GlobalRekapDetailedExport($this->rekapData), $fileName);
+        } catch (\Exception $e) {
+            session()->flash('error', 'Gagal mengexport data ke Excel: ' . $e->getMessage());
+            return;
+        }
     }
 
     public function clearFilters()
