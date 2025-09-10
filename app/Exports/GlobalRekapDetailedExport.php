@@ -13,6 +13,7 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 class GlobalRekapDetailedExport implements FromArray, WithHeadings, WithStyles, WithColumnWidths, WithEvents
 {
@@ -28,14 +29,14 @@ class GlobalRekapDetailedExport implements FromArray, WithHeadings, WithStyles, 
         $rows = [];
         
         // Debug: Log the data structure
-        \Log::info('Export Data Structure:', ['count' => count($this->rekapData), 'sample' => $this->rekapData[0] ?? 'No data']);
+        Log::info('Export Data Structure:', ['count' => count($this->rekapData), 'sample' => $this->rekapData[0] ?? 'No data']);
         
         foreach ($this->rekapData as $item) {
             $processedRows = $this->processItem($item);
             $rows = array_merge($rows, $processedRows);
         }
         
-        \Log::info('Export Rows Generated:', ['total_rows' => count($rows)]);
+        Log::info('Export Rows Generated:', ['total_rows' => count($rows)]);
         
         return $rows;
     }
@@ -117,40 +118,50 @@ class GlobalRekapDetailedExport implements FromArray, WithHeadings, WithStyles, 
                 $supportingDocs
             ]);
         } else {
-            // Handle main receipt lines - create rows for each category
+            // Handle main receipt lines - create synchronized rows
             $categories = ['transport', 'lodging', 'perdiem', 'representation', 'other'];
             $hasData = false;
             
+            // Find the maximum number of items in any category
+            $maxItems = 0;
             foreach ($categories as $category) {
                 $lines = $item['receipt_lines'][$category] ?? [];
+                $maxItems = max($maxItems, count($lines));
+            }
+            
+            // Create rows synchronized by item index
+            for ($itemIndex = 0; $itemIndex < $maxItems; $itemIndex++) {
+                $hasData = true;
                 
-                foreach ($lines as $line) {
-                    $hasData = true;
-                    
-                    // Base data for main rows
-                    $baseData = [
-                        $this->formatNotaDinas($item),
-                        $this->formatOriginDestination($item),
-                        $this->formatSpt($item),
-                        $item['spt_signer'] ?? '',
-                        $this->formatSppd($item),
-                        $item['sppd_signer'] ?? '',
-                        $item['transport_mode'] ?? '',
-                        $item['pptk_name'] ?? '',
-                        $this->formatTripReport($item),
-                        $this->formatParticipant($item),
-                        $this->formatReceipt($item),
-                    ];
-                    
-                    // Add the specific line data based on category
-                    $lineData = $this->getEmptyLineData();
-                    $lineData = $this->setLineData($lineData, $category, $line);
-                    
-                    $rows[] = array_merge($baseData, $lineData, [
-                        $item['receipt_total'] ? number_format($item['receipt_total'], 0, ',', '.') : '',
-                        $supportingDocs
-                    ]);
+                // Base data for main rows
+                $baseData = [
+                    $this->formatNotaDinas($item),
+                    $this->formatOriginDestination($item),
+                    $this->formatSpt($item),
+                    $item['spt_signer'] ?? '',
+                    $this->formatSppd($item),
+                    $item['sppd_signer'] ?? '',
+                    $item['transport_mode'] ?? '',
+                    $item['pptk_name'] ?? '',
+                    $this->formatTripReport($item),
+                    $this->formatParticipant($item),
+                    $this->formatReceipt($item),
+                ];
+                
+                // Create line data with items at the same index from all categories
+                $lineData = $this->getEmptyLineData();
+                
+                foreach ($categories as $category) {
+                    $lines = $item['receipt_lines'][$category] ?? [];
+                    if (isset($lines[$itemIndex])) {
+                        $lineData = $this->setLineData($lineData, $category, $lines[$itemIndex]);
+                    }
                 }
+                
+                $rows[] = array_merge($baseData, $lineData, [
+                    $item['receipt_total'] ? number_format($item['receipt_total'], 0, ',', '.') : '',
+                    $supportingDocs
+                ]);
             }
             
             // If no receipt lines, add a row with empty receipt data
