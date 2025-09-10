@@ -452,6 +452,9 @@ class GlobalRekapDetailedExport implements FromArray, WithHeadings, WithStyles, 
                 // Apply thick vertical borders for column groups
                 $this->applyColumnGroupBorders($sheet, $lastRow);
                 
+                // Apply participant cell styling (bold font and background highlight)
+                $this->applyParticipantStyling($sheet, $lastRow);
+                
                 // Apply thick borders for nota dinas groups
                 $this->applyGroupBorders($sheet, $lastColumn);
                 
@@ -497,6 +500,46 @@ class GlobalRekapDetailedExport implements FromArray, WithHeadings, WithStyles, 
                     ],
                 ],
             ]);
+        }
+    }
+
+    private function applyParticipantStyling($sheet, $lastRow)
+    {
+        // Get all data rows to identify participant cells
+        $data = $this->array();
+        
+        foreach ($data as $index => $rowData) {
+            $row = $index + 2; // +2 because Excel starts from row 1 and we have header at row 1
+            
+            // Check if this row has participant data (column J - Nama Peserta)
+            // Based on the data structure: [0]NotaDinas, [1]Origin, [2]SPT, [3]SPTSigner, [4]SPPD, [5]SPPDSigner, [6]Transport, [7]PPTK, [8]TripReport, [9]Participant, [10]Receipt
+            $participantName = $rowData[9] ?? ''; // Column J (index 9) - Nama Peserta
+            
+            if (!empty($participantName)) {
+                // Apply styling to participant name cell (column J)
+                $sheet->getStyle('J' . $row)->applyFromArray([
+                    'font' => [
+                        'bold' => true,
+                        'size' => 11,
+                    ],
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'startColor' => [
+                            'rgb' => 'E3F2FD', // Light blue background
+                        ],
+                    ],
+                ]);
+                
+                // Also apply background to the receipt number cell (column K) for consistency
+                $sheet->getStyle('K' . $row)->applyFromArray([
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'startColor' => [
+                            'rgb' => 'E3F2FD', // Light blue background
+                        ],
+                    ],
+                ]);
+            }
         }
     }
 

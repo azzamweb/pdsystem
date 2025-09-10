@@ -375,28 +375,35 @@
               - 
               @switch($line->component)
                 @case('AIRFARE')
-                  Tiket Pesawat ({{ number_format($line->qty, 0, ',', '.') }} x {{ money_id($line->unit_amount) }}){{ $line->desc ? ' - ' . $line->desc : '' }}
+                  Tiket Pesawat ({{ number_format($line->qty, 0, ',', '.') }} x {{ money_id($line->unit_amount) }})
                   @break
                 @case('INTRA_PROV')
-                  Transport Dalam Provinsi ({{ number_format($line->qty, 0, ',', '.') }} x {{ money_id($line->unit_amount) }}){{ $line->desc ? ' - ' . $line->desc : '' }}
+                  Transport Dalam Provinsi ({{ number_format($line->qty, 0, ',', '.') }} x {{ money_id($line->unit_amount) }})
+                  {{-- {{ $line->desc ? ' - ' . $line->desc : '' }} --}}
                   @break
                 @case('INTRA_DISTRICT')
-                  Transport Dalam Kabupaten ({{ number_format($line->qty, 0, ',', '.') }} x {{ money_id($line->unit_amount) }}){{ $line->desc ? ' - ' . $line->desc : '' }}
+                  Transport Dalam Kabupaten ({{ number_format($line->qty, 0, ',', '.') }} x {{ money_id($line->unit_amount) }})
+                  {{-- {{ $line->desc ? ' - ' . $line->desc : '' }} --}}
                   @break
                 @case('OFFICIAL_VEHICLE')
-                  Kendaraan Dinas ({{ number_format($line->qty, 0, ',', '.') }} x {{ money_id($line->unit_amount) }}){{ $line->desc ? ' - ' . $line->desc : '' }}
+                  Kendaraan Dinas ({{ number_format($line->qty, 0, ',', '.') }} x {{ money_id($line->unit_amount) }})
+                  {{-- {{ $line->desc ? ' - ' . $line->desc : '' }} --}}
                   @break
                 @case('TAXI')
-                  Taxi ({{ number_format($line->qty, 0, ',', '.') }} x {{ money_id($line->unit_amount) }}){{ $line->desc ? ' - ' . $line->desc : '' }}
+                  Taxi ({{ number_format($line->qty, 0, ',', '.') }} x {{ money_id($line->unit_amount) }})
+                  {{-- {{ $line->desc ? ' - ' . $line->desc : '' }} --}}
                   @break
                 @case('RORO')
-                  Kapal RORO ({{ number_format($line->qty, 0, ',', '.') }} x {{ money_id($line->unit_amount) }}){{ $line->desc ? ' - ' . $line->desc : '' }}
+                  Kapal RORO ({{ number_format($line->qty, 0, ',', '.') }} x {{ money_id($line->unit_amount) }})
+                  {{-- {{ $line->desc ? ' - ' . $line->desc : '' }} --}}
                   @break
                 @case('TOLL')
-                  Tol ({{ number_format($line->qty, 0, ',', '.') }} x {{ money_id($line->unit_amount) }}){{ $line->desc ? ' - ' . $line->desc : '' }}
+                  Tol ({{ number_format($line->qty, 0, ',', '.') }} x {{ money_id($line->unit_amount) }})
+                  {{-- {{ $line->desc ? ' - ' . $line->desc : '' }} --}}
                   @break
                 @case('PARKIR_INAP')
-                  Parkir & Penginapan ({{ number_format($line->qty, 0, ',', '.') }} x {{ money_id($line->unit_amount) }}){{ $line->desc ? ' - ' . $line->desc : '' }}
+                  Parkir & Penginapan ({{ number_format($line->qty, 0, ',', '.') }} x {{ money_id($line->unit_amount) }})
+                  {{-- {{ $line->desc ? ' - ' . $line->desc : '' }} --}}
                   @break
                 @case('LODGING')
                   @php
@@ -415,7 +422,7 @@
                   @else
                     ({{ number_format($line->qty, 0, ',', '.') }} Malam x {{ money_id($line->unit_amount) }})
                   @endif
-                  {{ $line->desc ? ' - ' . $line->desc : '' }}
+                  {{-- {{ $line->desc ? ' - ' . $line->desc : '' }} --}}
                   @break
                 @case('PERDIEM')
                   ({{ number_format($line->qty, 0, ',', '.') }} hari x {{ money_id($line->unit_amount) }})
@@ -424,7 +431,8 @@
                   Biaya representatif ({{ number_format($line->qty, 0, ',', '.') }} x {{ money_id($line->unit_amount) }})
                   @break
                 @case('LAINNYA')
-                  {{ $line->remark ?: 'Biaya tambahan' }} ({{ number_format($line->qty, 0, ',', '.') }} x {{ money_id($line->unit_amount) }}){{ $line->desc ? ' - ' . $line->desc : '' }}
+                  {{ $line->remark ?: 'Biaya tambahan' }} ({{ number_format($line->qty, 0, ',', '.') }} x {{ money_id($line->unit_amount) }})
+                  {{-- {{ $line->desc ? ' - ' . $line->desc : '' }} --}}
                   @break
                 @default
                   {{ ucfirst(str_replace('_', ' ', $line->component)) }} ({{ number_format($line->qty, 0, ',', '.') }} x {{ money_id($line->unit_amount) }})
