@@ -303,7 +303,13 @@
             <tr>
                 <td class="number"></td>
                 <td class="label">b. Akun</td>
-                <td class="content"></td>
+                <td class="content">
+                    @if($sppd->subKeg)
+                        {{ $sppd->subKeg->kode_subkeg }} - {{ $sppd->subKeg->nama_subkeg }}
+                    @else
+                        -
+                    @endif
+                </td>
             </tr>
             <tr>
                 <td class="number">10.</td>

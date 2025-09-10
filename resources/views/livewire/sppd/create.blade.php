@@ -277,6 +277,26 @@
                 @endif
             </div>
 
+            <!-- Sub Kegiatan -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Sub Kegiatan <span class="text-red-500">*</span></label>
+                <select wire:model="sub_keg_id" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <option value="">Pilih Sub Kegiatan</option>
+                    @foreach($subKegiatan as $subKeg)
+                        <option value="{{ $subKeg->id }}">
+                            {{ $subKeg->kode_subkeg }} - {{ $subKeg->nama_subkeg }}
+                            @if($subKeg->unit)
+                                ({{ $subKeg->unit->name }})
+                            @endif
+                        </option>
+                    @endforeach
+                </select>
+                @error('sub_keg_id')<p class="text-sm text-red-600 mt-1">{{ $message }}</p>@enderror
+                @if(!$sub_keg_id)
+                    <p class="text-xs text-red-600 mt-1">Sub Kegiatan wajib dipilih.</p>
+                @endif
+            </div>
+
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Peserta yang Akan Dibuatkan SPPD

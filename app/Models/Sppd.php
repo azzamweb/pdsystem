@@ -15,7 +15,7 @@ class Sppd extends Model
 
     protected $fillable = [
         'doc_no', 'number_is_manual', 'number_manual_reason', 'number_format_id', 'number_sequence_id',
-        'number_scope_unit_id', 'sppd_date', 'spt_id', 'signed_by_user_id', 'pptk_user_id', 'assignment_title',
+        'number_scope_unit_id', 'sppd_date', 'spt_id', 'signed_by_user_id', 'pptk_user_id', 'sub_keg_id', 'assignment_title',
         'funding_source',
         // Snapshot fields for signed_by_user
         'signed_by_user_name_snapshot', 'signed_by_user_gelar_depan_snapshot', 'signed_by_user_gelar_belakang_snapshot',
@@ -34,6 +34,7 @@ class Sppd extends Model
     public function spt() { return $this->belongsTo(Spt::class); }
     public function signedByUser() { return $this->belongsTo(User::class, 'signed_by_user_id'); }
     public function pptkUser() { return $this->belongsTo(User::class, 'pptk_user_id'); }
+    public function subKeg() { return $this->belongsTo(SubKeg::class, 'sub_keg_id'); }
     // Accessor methods untuk origin place dan destination city
     public function getOriginPlaceAttribute()
     {

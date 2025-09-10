@@ -8,6 +8,7 @@ use App\Models\OrgPlace;
 use App\Models\City;
 use App\Models\TransportMode;
 use App\Models\Spt;
+use App\Models\SubKeg;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
@@ -46,6 +47,10 @@ class Edit extends Component
     #[Rule('nullable|exists:users,id')]
     public $pptk_user_id = '';
 
+    // Sub Kegiatan
+    #[Rule('required|exists:sub_keg,id')]
+    public $sub_keg_id = '';
+
     public function mount($sppd_id = null): void
     {
         $this->sppd_id = $sppd_id ?? request()->route('sppd');
@@ -79,6 +84,9 @@ class Edit extends Component
         
         // Load PPTK
         $this->pptk_user_id = $this->sppd->pptk_user_id ?? '';
+        
+        // Load Sub Kegiatan
+        $this->sub_keg_id = $this->sppd->sub_keg_id ?? '';
         
         // Set custom assignment title berdasarkan apakah assignment_title berbeda dari default
         $defaultTitle = $this->guessAssignmentTitle();
@@ -121,6 +129,7 @@ class Edit extends Component
             'transport_mode_ids.*' => 'exists:transport_modes,id',
             'signed_by_user_id' => 'required|exists:users,id',
             'assignment_title' => 'nullable|string',
+            'sub_keg_id' => 'required|exists:sub_keg,id',
         ]);
 
         if (!$this->sppd) {
@@ -144,6 +153,7 @@ class Edit extends Component
                 'funding_source' => $this->funding_source,
                 'signed_by_user_id' => $this->signed_by_user_id,
                 'pptk_user_id' => $this->pptk_user_id,
+                'sub_keg_id' => $this->sub_keg_id,
                 'assignment_title' => $assignmentTitle,
             ]);
 
@@ -182,6 +192,7 @@ class Edit extends Component
             'transportModes' => TransportMode::orderBy('name')->get(),
             'orgPlaces' => OrgPlace::orderBy('name')->get(),
             'cities' => City::orderBy('name')->get(),
+            'subKegiatan' => SubKeg::with('unit')->orderBy('kode_subkeg')->get(),
         ]);
     }
 }

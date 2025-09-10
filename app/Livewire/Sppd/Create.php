@@ -9,8 +9,10 @@ use App\Models\OrgPlace;
 use App\Models\City;
 use App\Models\TransportMode;
 use App\Models\DocNumberFormat;
+use App\Models\SubKeg;
 use App\Services\DocumentNumberService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Rule;
@@ -50,6 +52,10 @@ class Create extends Component
     // PPTK (Pejabat Pelaksana Teknis Kegiatan)
     #[Rule('required|exists:users,id')]
     public $pptk_user_id = '';
+
+    // Sub Kegiatan
+    #[Rule('required|exists:sub_keg,id')]
+    public $sub_keg_id = '';
 
     // Bantuan UI
     public $participants = [];
@@ -170,6 +176,7 @@ class Create extends Component
             'signed_by_user_id' => 'required|exists:users,id',
             'assignment_title' => 'nullable|string',
             'pptk_user_id' => 'required|exists:users,id',
+            'sub_keg_id' => 'required|exists:sub_keg,id',
         ]);
 
         if (!$this->spt) {
@@ -196,7 +203,7 @@ class Create extends Component
         try {
             $gen = DocumentNumberService::generate('SPPD', $unitScopeId, $this->sppd_date ?: now(), [
                 'spt_id' => $this->spt->id,
-            ], auth()->id());
+            ], Auth::id());
 
             // Atur assignment title berdasarkan mode
             $assignmentTitle = trim((string)$this->assignment_title);
@@ -215,6 +222,7 @@ class Create extends Component
                 'spt_id' => $this->spt->id,
                 'signed_by_user_id' => $this->signed_by_user_id,
                 'pptk_user_id' => $this->pptk_user_id,
+                'sub_keg_id' => $this->sub_keg_id,
                 'assignment_title' => $assignmentTitle,
                 'funding_source' => $this->funding_source,
             ]);
@@ -250,6 +258,7 @@ class Create extends Component
         return view('livewire.sppd.create', [
             'transportModes' => TransportMode::orderBy('name')->get(),
             'orgPlaces' => OrgPlace::orderBy('name')->get(),
+            'subKegiatan' => SubKeg::with('unit')->orderBy('kode_subkeg')->get(),
         ]);
     }
 }

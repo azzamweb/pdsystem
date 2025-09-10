@@ -14,7 +14,8 @@ class SppdController extends Controller
             'itineraries',
             'signedByUser.position',
             'signedByUser.unit',
-            'signedByUser.rank'
+            'signedByUser.rank',
+            'subKeg.unit'
         ]);
         // Generate PDF
         $pdf = Pdf::loadView('sppd.pdf', [
@@ -42,7 +43,8 @@ class SppdController extends Controller
             'itineraries',
             'signedByUser.position',
             'signedByUser.unit',
-            'signedByUser.rank'
+            'signedByUser.rank',
+            'subKeg.unit'
         ]);
         // Generate PDF
         $pdf = Pdf::loadView('sppd.pdf', [

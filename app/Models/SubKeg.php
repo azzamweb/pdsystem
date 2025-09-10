@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SubKeg extends Model
 {
@@ -27,6 +28,14 @@ class SubKeg extends Model
     public function unit(): BelongsTo
     {
         return $this->belongsTo(Unit::class, 'id_unit');
+    }
+
+    /**
+     * Get the SPPD records that belong to this sub kegiatan.
+     */
+    public function sppd(): HasMany
+    {
+        return $this->hasMany(Sppd::class, 'sub_keg_id');
     }
 
     /**
