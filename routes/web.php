@@ -154,6 +154,9 @@ Route::middleware(['auth', 'user.role'])->group(function () {
     Route::get('units/create', UnitCreate::class)->name('units.create');
     Route::get('units/{unit}/edit', UnitEdit::class)->name('units.edit');
 
+    // Sub Kegiatan CRUD
+    Route::resource('sub-keg', App\Http\Controllers\SubKegController::class);
+
     // Province CRUD
     Route::get('provinces', ProvinceIndex::class)->name('provinces.index');
     Route::get('provinces/create', ProvinceCreate::class)->name('provinces.create');

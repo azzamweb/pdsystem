@@ -39,6 +39,14 @@ class Unit extends Model
     }
 
     /**
+     * Relationship with sub kegiatan
+     */
+    public function subKegiatan(): HasMany
+    {
+        return $this->hasMany(SubKeg::class, 'id_unit');
+    }
+
+    /**
      * Get full name with code
      */
     public function fullName(): string
