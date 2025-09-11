@@ -42,10 +42,10 @@
         @endif
 
         <!-- Main Content Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
+        <div class="grid grid-cols-1 gap-6 mb-6 w-full">
             <!-- Nota Dinas List (Master) -->
-            <div class="lg:col-span-1">
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 ">
+            <div class="col-span-1 w-full">
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 w-full">
                     <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-blue-200 dark:bg-blue-800">
                         <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                             <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -62,8 +62,8 @@
 
             <!-- SPT Table (Child) - Only show if Nota Dinas is selected -->
             @if($selectedNotaDinasId)
-                <div class="lg:col-span-1">
-                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                <div class="col-span-1 w-full">
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 w-full">
                         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-purple-200 dark:bg-purple-800">
                             <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                                 <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -80,8 +80,8 @@
 
                 <!-- SPPD Table (Child) - Only show if SPT is selected -->
                 @if($selectedSptId)
-                    <div class="lg:col-span-1">
-                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div class="col-span-1 w-full">
+                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 w-full">
                             <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-green-200 dark:bg-green-800">
                                 <div class="flex justify-between items-center">
                                     <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
@@ -99,8 +99,8 @@
                     </div>
                 @else
                     <!-- Placeholder when no SPT selected -->
-                    <div class="lg:col-span-1">
-                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div class="col-span-1 w-full">
+                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 w-full">
                             <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                                     <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -121,8 +121,8 @@
 
                 <!-- Kwitansi Section - Only show if SPPD is selected -->
                 @if($selectedSppdId && $selectedSppd)
-                    <div class="lg:col-span-1">
-                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div class="col-span-1 w-full">
+                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 w-full">
                             <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-orange-200 dark:bg-orange-800">
                                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                                     <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -140,8 +140,8 @@
                                     
                                     @if($receipts->count() > 0)
                                         <!-- Kwitansi Table -->
-                                        <div class="overflow-x-auto">
-                                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                        <div class="overflow-x-auto w-full">
+                                            <table class="w-full min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                                                 <thead class="bg-gray-50 dark:bg-gray-800">
                                                     <tr>
                                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -490,8 +490,8 @@
                     </div>
                 @else
                     <!-- Placeholder when no SPPD selected for Kwitansi -->
-                    <div class="lg:col-span-1">
-                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div class="col-span-1 w-full">
+                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 w-full">
                             <div class="p-8 text-center text-gray-500 dark:text-gray-400">
                                 <svg class="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
@@ -504,7 +504,7 @@
 
                 <!-- Laporan Perjalanan Dinas Section - Only show if SPT is selected -->
                 @if($selectedSptId && $selectedSpt)
-                    <div class="lg:col-span-1">
+                    <div class="col-span-1 w-full">
                         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
                             <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-blue-200 dark:bg-blue-800">
                                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
@@ -584,7 +584,7 @@
                     </div>
                 @else
                     <!-- Placeholder when no SPT selected for Laporan -->
-                    <div class="lg:col-span-1">
+                    <div class="col-span-1 w-full">
                         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
                             <div class="p-8 text-center text-gray-500 dark:text-gray-400">
                                 <svg class="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -598,7 +598,7 @@
 
                 <!-- Dokumen Pendukung Section - Only show if Nota Dinas is selected -->
                 @if($selectedNotaDinasId && $selectedNotaDinas)
-                    <div class="lg:col-span-1">
+                    <div class="col-span-1 w-full">
                         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
                             <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-green-200 dark:bg-green-800">
                                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
@@ -680,7 +680,7 @@
                     </div>
                 @else
                     <!-- Placeholder when no Nota Dinas selected for Dokumen Pendukung -->
-                    <div class="lg:col-span-1">
+                    <div class="col-span-1 w-full">
                         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
                             <div class="p-8 text-center text-gray-500 dark:text-gray-400">
                                 <svg class="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
