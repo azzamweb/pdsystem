@@ -108,6 +108,7 @@
                         @endif
                         wire:click="selectNotaDinas({{ $notaDinas->id }})"
                         wire:loading.class="opacity-50 cursor-not-allowed"
+                        wire:loading.attr="disabled"
                     >
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
@@ -118,6 +119,10 @@
                                     <div class="text-xs text-gray-400 dark:text-gray-500">
                                         {{ \Carbon\Carbon::parse($notaDinas->nd_date)->format('d/m/Y') }}
                                     </div>
+                                </div>
+                                <!-- Loading indicator -->
+                                <div wire:loading wire:target="selectNotaDinas({{ $notaDinas->id }})" class="ml-2">
+                                    <div class="animate-spin rounded-full h-4 w-4 border-2 border-gray-200 border-t-blue-600"></div>
                                 </div>
                             </div>
                         </td>
