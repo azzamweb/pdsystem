@@ -73,7 +73,15 @@
                             </h2>
                         </div>
                         <div class="p-0">
-                            @livewire('documents.spt-table', ['notaDinasId' => $selectedNotaDinasId])
+                            <!-- Loading state for SPT -->
+                            <div wire:loading wire:target="selectedNotaDinasId" class="p-4">
+                                <x-skeleton-table :rows="2" :columns="4" />
+                            </div>
+                            
+                            <!-- SPT content -->
+                            <div wire:loading.remove wire:target="selectedNotaDinasId">
+                                @livewire('documents.spt-table', ['notaDinasId' => $selectedNotaDinasId])
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -93,7 +101,15 @@
                                 </div>
                             </div>
                             <div class="p-0">
-                                @livewire('documents.sppd-table', ['sptId' => $selectedSptId])
+                                <!-- Loading state for SPPD -->
+                                <div wire:loading wire:target="selectedSptId" class="p-4">
+                                    <x-skeleton-table :rows="2" :columns="4" />
+                                </div>
+                                
+                                <!-- SPPD content -->
+                                <div wire:loading.remove wire:target="selectedSptId">
+                                    @livewire('documents.sppd-table', ['sptId' => $selectedSptId])
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -139,8 +155,13 @@
                                     @endphp
                                     
                                     @if($receipts->count() > 0)
+                                        <!-- Loading state for Kwitansi -->
+                                        <div wire:loading wire:target="selectedSppdId" class="p-4">
+                                            <x-skeleton-table :rows="2" :columns="5" />
+                                        </div>
+                                        
                                         <!-- Kwitansi Table -->
-                                        <div class="overflow-x-auto w-full">
+                                        <div class="overflow-x-auto w-full" wire:loading.remove wire:target="selectedSppdId">
                                             <table class="w-full min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                                                 <thead class="bg-gray-50 dark:bg-gray-800">
                                                     <tr>

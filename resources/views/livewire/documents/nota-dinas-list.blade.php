@@ -102,11 +102,12 @@
                 @forelse($notaDinasList as $notaDinas)
                     <tr 
                         wire:key="nd-{{ $notaDinas->id }}"
-                        class="cursor-pointer transition-colors {{ $selectedNotaDinasId && $selectedNotaDinasId == $notaDinas->id ? 'bg-blue-200 dark:bg-blue-800' : ' dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800' }}"
+                        class="cursor-pointer transition-colors {{ $selectedNotaDinasId && $selectedNotaDinasId == $notaDinas->id ? 'bg-blue-200 dark:bg-blue-800' : 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800' }}"
                         @if($selectedNotaDinasId && $selectedNotaDinasId == $notaDinas->id)
                             style="background-color: #dbeafe !important;"
                         @endif
                         wire:click="selectNotaDinas({{ $notaDinas->id }})"
+                        wire:loading.class="opacity-50 cursor-not-allowed"
                     >
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
