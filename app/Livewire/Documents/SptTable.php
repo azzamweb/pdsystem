@@ -3,97 +3,96 @@
 namespace App\Livewire\Documents;
 
 use Livewire\Component;
-use Livewire\Attributes\On;
 use App\Models\Spt;
-use App\Models\NotaDinas;
+use Livewire\Attributes\Lazy;
 
+#[Lazy]
 class SptTable extends Component
 {
-    public $notaDinasId = null;
-    public $selectedSptId = null;
-    public $spts = [];
-    public $notaDinas = null;
+    public $notaDinasId;
 
-    protected $listeners = [];
+    public $selectedSptId;
 
     public function mount($notaDinasId = null)
     {
         $this->notaDinasId = $notaDinasId;
-        if ($notaDinasId) {
-            $this->loadSpts($notaDinasId);
-        }
-    }
-
-    #[On('loadSpts')]
-    public function handleLoadSpts($notaDinasId)
-    {
-        $this->loadSpts($notaDinasId);
-    }
-
-    public function loadSpts($notaDinasId)
-    {
-        // Always reset state
-        $this->notaDinasId = $notaDinasId;
-        $this->selectedSptId = null;
-        $this->spts = [];
-        $this->notaDinas = null;
-        
-        if ($notaDinasId) {
-            $this->notaDinas = NotaDinas::with(['spt.sppds', 'spt.signedByUser'])->find($notaDinasId);
-            if ($this->notaDinas && $this->notaDinas->spt) {
-                $this->spts = [$this->notaDinas->spt];
-                // Don't auto-select SPT
-            }
-        }
     }
 
     public function selectSpt($sptId)
     {
         $this->selectedSptId = $sptId;
-        $this->dispatch('sptSelected', $sptId);
+        $this->dispatch('spt-selected', sptId: $sptId);
     }
 
-    public function createSppd($sptId)
+    public function placeholder()
     {
-        $spt = Spt::find($sptId);
-        if ($spt) {
-            return redirect()->route('sppd.create', ['spt_id' => $sptId]);
-        }
-        
-        session()->flash('error', 'SPT tidak ditemukan');
-    }
-
-    public function createSpt($notaDinasId)
-    {
-        return redirect()->route('spt.create', ['nota_dinas_id' => $notaDinasId]);
-    }
-
-    public function confirmDelete($sptId)
-    {
-        $spt = Spt::find($sptId);
-        if ($spt) {
-            // Cek apakah SPT sudah memiliki SPPD
-            if ($spt->sppds && $spt->sppds->count() > 0) {
-                session()->flash('error', 'SPT tidak dapat dihapus karena sudah memiliki Surat Perintah Perjalanan Dinas (SPPD). Hapus SPPD terlebih dahulu.');
-                return;
-            }
-            
-            try {
-                $spt->delete();
-                session()->flash('message', 'SPT berhasil dihapus');
-                $this->dispatch('refreshAll');
-                // Reload SPTs after deletion
-                $this->loadSpts($this->notaDinasId);
-            } catch (\Exception $e) {
-                session()->flash('error', 'Gagal menghapus SPT. Pastikan tidak ada data terkait.');
-            }
-        } else {
-            session()->flash('error', 'SPT tidak ditemukan');
-        }
+        return <<<'HTML'
+        <div class="animate-pulse">
+            <div class="bg-gray-50 dark:bg-gray-800 px-6 py-3 border-b border-gray-200 dark:border-gray-700">
+                <div class="flex space-x-4">
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1"></div>
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1"></div>
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1"></div>
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1"></div>
+                </div>
+            </div>
+            <div class="divide-y divide-gray-200 dark:divide-gray-700">
+                <div class="px-6 py-4">
+                    <div class="flex space-x-4">
+                        <div class="flex-1">
+                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
+                            <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex space-x-2">
+                                <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                                <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="px-6 py-4">
+                    <div class="flex space-x-4">
+                        <div class="flex-1">
+                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
+                            <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex space-x-2">
+                                <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                                <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        HTML;
     }
 
     public function render()
     {
-        return view('livewire.documents.spt-table');
+        $spts = $this->notaDinasId 
+            ? Spt::where('nota_dinas_id', $this->notaDinasId)
+                ->with(['notaDinas.requestingUnit', 'signedByUser', 'sppds'])
+                ->orderBy('created_at', 'desc')
+                ->get()
+            : collect();
+
+        return view('livewire.documents.spt-table', [
+            'spts' => $spts
+        ]);
     }
 }

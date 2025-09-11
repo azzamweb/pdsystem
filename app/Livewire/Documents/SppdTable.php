@@ -3,117 +3,96 @@
 namespace App\Livewire\Documents;
 
 use Livewire\Component;
-use Livewire\Attributes\On;
 use App\Models\Sppd;
-use App\Models\Spt;
-use App\Models\NotaDinas;
+use Livewire\Attributes\Lazy;
 
-
+#[Lazy]
 class SppdTable extends Component
 {
-    public $sptId = null;
-    public $selectedSppdId = null;
-    public $sppds = [];
-    public $spt = null; // Store SPT data
+    public $sptId;
 
-    protected $listeners = [];
+    public $selectedSppdId;
 
     public function mount($sptId = null)
     {
         $this->sptId = $sptId;
-        if ($sptId) {
-            $this->loadSppds($sptId);
-        }
-    }
-
-    #[On('loadSppds')]
-    public function handleLoadSppds($sptId)
-    {
-        $this->loadSppds($sptId);
-    }
-
-    #[On('clearSppds')]
-    public function handleClearSppds()
-    {
-        $this->sptId = null;
-        $this->selectedSppdId = null;
-        $this->sppds = [];
-    }
-
-    public function loadSppds($sptId)
-    {
-        // Always reset state
-        $this->sptId = $sptId;
-        $this->selectedSppdId = null;
-        $this->sppds = [];
-        $this->spt = null;
-        
-        if ($sptId) {
-            $this->spt = Spt::with(['sppds.transportModes', 'sppds.receipts', 'sppds.itineraries', 'sppds.subKeg.pptkUser', 'tripReport', 'notaDinas.originPlace', 'notaDinas.destinationCity.province', 'notaDinas.participants.user'])->find($sptId);
-            if ($this->spt) {
-                $this->sppds = $this->spt->sppds->sortByDesc('created_at')->values();
-                // Don't auto-select SPPD
-            }
-        }
     }
 
     public function selectSppd($sppdId)
     {
         $this->selectedSppdId = $sppdId;
-        $this->dispatch('sppdSelected', $sppdId);
+        $this->dispatch('sppd-selected', sppdId: $sppdId);
     }
 
-
-
-    public function createSppd($sptId)
+    public function placeholder()
     {
-        return redirect()->route('sppd.create', ['spt_id' => $sptId]);
+        return <<<'HTML'
+        <div class="animate-pulse">
+            <div class="bg-gray-50 dark:bg-gray-800 px-6 py-3 border-b border-gray-200 dark:border-gray-700">
+                <div class="flex space-x-4">
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1"></div>
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1"></div>
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1"></div>
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1"></div>
+                </div>
+            </div>
+            <div class="divide-y divide-gray-200 dark:divide-gray-700">
+                <div class="px-6 py-4">
+                    <div class="flex space-x-4">
+                        <div class="flex-1">
+                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
+                            <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex space-x-2">
+                                <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                                <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="px-6 py-4">
+                    <div class="flex space-x-4">
+                        <div class="flex-1">
+                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
+                            <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex space-x-2">
+                                <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                                <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        HTML;
     }
-
-
-
-
-
-    public function confirmDelete($sppdId)
-    {
-        $sppd = Sppd::find($sppdId);
-        if ($sppd) {
-            // Cek apakah SPPD sudah memiliki data terkait (itinerary, kwitansi, dll)
-            if ($sppd->itineraries && $sppd->itineraries->count() > 0) {
-                session()->flash('error', 'SPPD tidak dapat dihapus karena masih memiliki data rute perjalanan. Hapus data rute perjalanan terlebih dahulu.');
-                return;
-            }
-            
-            // Cek apakah SPPD sudah memiliki kwitansi atau laporan
-            if ($sppd->receipts && $sppd->receipts->count() > 0) {
-                session()->flash('error', 'SPPD tidak dapat dihapus karena sudah memiliki data kwitansi. Hapus data kwitansi terlebih dahulu.');
-                return;
-            }
-            
-            // Cek apakah SPPD sudah memiliki laporan perjalanan dinas (melalui SPT)
-            if ($sppd->spt && $sppd->spt->tripReport) {
-                session()->flash('error', 'SPPD tidak dapat dihapus karena SPT sudah memiliki laporan perjalanan dinas. Hapus laporan terlebih dahulu.');
-                return;
-            }
-            
-            try {
-                $sppd->delete();
-                session()->flash('message', 'SPPD berhasil dihapus');
-                $this->dispatch('refreshAll');
-                // Reload SPPDs after deletion
-                $this->loadSppds($this->sptId);
-            } catch (\Exception $e) {
-                session()->flash('error', 'Gagal menghapus SPPD. Pastikan tidak ada data terkait.');
-            }
-        } else {
-            session()->flash('error', 'SPPD tidak ditemukan');
-        }
-    }
-
-
 
     public function render()
     {
-        return view('livewire.documents.sppd-table');
+        $sppds = $this->sptId 
+            ? Sppd::where('spt_id', $this->sptId)
+                ->with(['spt.notaDinas.participants', 'signedByUser', 'receipts'])
+                ->orderBy('created_at', 'desc')
+                ->get()
+            : collect();
+
+        return view('livewire.documents.sppd-table', [
+            'sppds' => $sppds
+        ]);
     }
 }

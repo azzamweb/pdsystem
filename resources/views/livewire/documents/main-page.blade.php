@@ -73,66 +73,17 @@
                             </h2>
                         </div>
                         <div class="p-0">
-                            <!-- Loading state for SPT -->
-                            <div wire:loading.delay wire:target="selectedNotaDinasId" class="p-0">
-                                <div class="animate-pulse">
-                                    <div class="bg-gray-50 dark:bg-gray-800 px-6 py-3 border-b border-gray-200 dark:border-gray-700">
-                                        <div class="flex space-x-4">
-                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1"></div>
-                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1"></div>
-                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1"></div>
-                                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1"></div>
-                                        </div>
-                                    </div>
-                                    <div class="divide-y divide-gray-200 dark:divide-gray-700">
-                                        <div class="px-6 py-4">
-                                            <div class="flex space-x-4">
-                                                <div class="flex-1">
-                                                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
-                                                    <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
-                                                </div>
-                                                <div class="flex-1">
-                                                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
-                                                </div>
-                                                <div class="flex-1">
-                                                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
-                                                </div>
-                                                <div class="flex-1">
-                                                    <div class="flex space-x-2">
-                                                        <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
-                                                        <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="px-6 py-4">
-                                            <div class="flex space-x-4">
-                                                <div class="flex-1">
-                                                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
-                                                    <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
-                                                </div>
-                                                <div class="flex-1">
-                                                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
-                                                </div>
-                                                <div class="flex-1">
-                                                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
-                                                </div>
-                                                <div class="flex-1">
-                                                    <div class="flex space-x-2">
-                                                        <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
-                                                        <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                            @if($selectedNotaDinasId)
+                                @livewire('documents.spt-table', ['notaDinasId' => $selectedNotaDinasId], key('spt-' . $selectedNotaDinasId))
+                            @else
+                                <div class="p-6 text-center text-gray-500 dark:text-gray-400">
+                                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">Pilih Nota Dinas</h3>
+                                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Klik pada Nota Dinas untuk melihat SPT terkait</p>
                                 </div>
-                            </div>
-                            
-                            <!-- SPT content -->
-                            <div wire:loading.remove wire:target="selectedNotaDinasId">
-                                @livewire('documents.spt-table', ['notaDinasId' => $selectedNotaDinasId])
-                            </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -152,66 +103,17 @@
                                 </div>
                             </div>
                             <div class="p-0">
-                                <!-- Loading state for SPPD -->
-                                <div wire:loading.delay wire:target="selectedSptId" class="p-0">
-                                    <div class="animate-pulse">
-                                        <div class="bg-gray-50 dark:bg-gray-800 px-6 py-3 border-b border-gray-200 dark:border-gray-700">
-                                            <div class="flex space-x-4">
-                                                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1"></div>
-                                                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1"></div>
-                                                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1"></div>
-                                                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1"></div>
-                                            </div>
-                                        </div>
-                                        <div class="divide-y divide-gray-200 dark:divide-gray-700">
-                                            <div class="px-6 py-4">
-                                                <div class="flex space-x-4">
-                                                    <div class="flex-1">
-                                                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
-                                                        <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
-                                                    </div>
-                                                    <div class="flex-1">
-                                                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
-                                                    </div>
-                                                    <div class="flex-1">
-                                                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
-                                                    </div>
-                                                    <div class="flex-1">
-                                                        <div class="flex space-x-2">
-                                                            <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
-                                                            <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="px-6 py-4">
-                                                <div class="flex space-x-4">
-                                                    <div class="flex-1">
-                                                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
-                                                        <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
-                                                    </div>
-                                                    <div class="flex-1">
-                                                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
-                                                    </div>
-                                                    <div class="flex-1">
-                                                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
-                                                    </div>
-                                                    <div class="flex-1">
-                                                        <div class="flex space-x-2">
-                                                            <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
-                                                            <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                @if($selectedSptId)
+                                    @livewire('documents.sppd-table', ['sptId' => $selectedSptId], key('sppd-' . $selectedSptId))
+                                @else
+                                    <div class="p-6 text-center text-gray-500 dark:text-gray-400">
+                                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                        </svg>
+                                        <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">Pilih SPT</h3>
+                                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Klik pada SPT untuk melihat SPPD terkait</p>
                                     </div>
-                                </div>
-                                
-                                <!-- SPPD content -->
-                                <div wire:loading.remove wire:target="selectedSptId">
-                                    @livewire('documents.sppd-table', ['sptId' => $selectedSptId])
-                                </div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -257,71 +159,8 @@
                                     @endphp
                                     
                                     @if($receipts->count() > 0)
-                                        <!-- Loading state for Kwitansi -->
-                                        <div wire:loading.delay wire:target="selectedSppdId" class="p-0">
-                                            <div class="animate-pulse">
-                                                <div class="bg-gray-50 dark:bg-gray-800 px-6 py-3 border-b border-gray-200 dark:border-gray-700">
-                                                    <div class="flex space-x-4">
-                                                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1"></div>
-                                                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1"></div>
-                                                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1"></div>
-                                                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1"></div>
-                                                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1"></div>
-                                                    </div>
-                                                </div>
-                                                <div class="divide-y divide-gray-200 dark:divide-gray-700">
-                                                    <div class="px-6 py-4">
-                                                        <div class="flex space-x-4">
-                                                            <div class="flex-1">
-                                                                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
-                                                                <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
-                                                            </div>
-                                                            <div class="flex-1">
-                                                                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
-                                                            </div>
-                                                            <div class="flex-1">
-                                                                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
-                                                            </div>
-                                                            <div class="flex-1">
-                                                                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
-                                                            </div>
-                                                            <div class="flex-1">
-                                                                <div class="flex space-x-2">
-                                                                    <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
-                                                                    <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="px-6 py-4">
-                                                        <div class="flex space-x-4">
-                                                            <div class="flex-1">
-                                                                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
-                                                                <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
-                                                            </div>
-                                                            <div class="flex-1">
-                                                                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
-                                                            </div>
-                                                            <div class="flex-1">
-                                                                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
-                                                            </div>
-                                                            <div class="flex-1">
-                                                                <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
-                                                            </div>
-                                                            <div class="flex-1">
-                                                                <div class="flex space-x-2">
-                                                                    <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
-                                                                    <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
                                         <!-- Kwitansi Table -->
-                                        <div class="overflow-x-auto w-full" wire:loading.remove wire:target="selectedSppdId">
+                                        <div class="overflow-x-auto w-full">
                                             <table class="w-full min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                                                 <thead class="bg-gray-50 dark:bg-gray-800">
                                                     <tr>

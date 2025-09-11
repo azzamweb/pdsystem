@@ -48,29 +48,27 @@ class MainPage extends Component
         $this->selectedNotaDinas = NotaDinas::with(['spt.sppds', 'spt.notaDinas.originPlace', 'spt.notaDinas.destinationCity'])->find($notaDinasId);
         
         // Dispatch specific events to child components
-        $this->dispatch('loadSpts', $notaDinasId);
-        $this->dispatch('clearSppds');
     }
 
-    #[On('sptSelected')]
+    #[On('spt-selected')]
     public function handleSptSelected($sptId)
     {
         $this->selectedSptId = $sptId;
         $this->selectedSppdId = null;
-        // Persist the selected SPT object for downstream actions (e.g., createLaporanPd)
-        $this->selectedSpt = Spt::with(['sppds', 'notaDinas.originPlace', 'notaDinas.destinationCity'])->find($sptId);
-
-        // Dispatch specific event to SppdTable
-        $this->dispatch('loadSppds', $sptId);
+        
+        // Load the actual SPT data
+        $this->selectedSpt = Spt::with(['sppds'])->find($sptId);
     }
 
-    #[On('sppdSelected')]
+    #[On('sppd-selected')]
     public function handleSppdSelected($sppdId)
     {
         $this->selectedSppdId = $sppdId;
+        
         // Load the actual SPPD data
-        $this->selectedSppd = Sppd::with(['spt.notaDinas.originPlace', 'spt.notaDinas.destinationCity'])->find($sppdId);
+        $this->selectedSppd = Sppd::with(['spt.notaDinas.participants', 'signedByUser', 'receipts'])->find($sppdId);
     }
+
 
     #[On('refreshAll')]
     public function refreshData()
