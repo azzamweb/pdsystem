@@ -142,14 +142,14 @@ class Create extends Component
     public function loadSppdData()
     {
         $this->sppd = Sppd::with([
-            'spt.notaDinas.participants.user',
+            'spt.notaDinas.participants.user.travelGrade',
             'spt.notaDinas.requestingUnit',
             'spt.notaDinas.fromUser.position',
             'spt.notaDinas.toUser.position',
             'spt.notaDinas.destinationCity.province',
             'spt.signedByUser.position',
             'signedByUser.position',
-            'pptkUser.position'
+            'subKeg.pptkUser.position'
         ])->findOrFail($this->sppd_id);
         
         // Set default receipt date
@@ -222,6 +222,7 @@ class Create extends Component
                 'user_rank_name_snapshot' => $participant->user_rank_name_snapshot,
                 'user_nip_snapshot' => $participant->user_nip_snapshot,
                 'user_travel_grade_id_snapshot' => $participant->user_travel_grade_id_snapshot,
+                'user_travel_grade_id_fallback' => $participant->user?->travel_grade_id, // Fallback ke user profile
             ];
         })->toArray();
 
@@ -230,8 +231,8 @@ class Create extends Component
             $firstParticipant = $this->availableParticipants[0];
             $this->payee_user_id = $firstParticipant['user_id'];
             
-            // ✅ PRIORITAS UTAMA: Set travel grade dari snapshot participant
-            $this->travel_grade_id = $firstParticipant['user_travel_grade_id_snapshot'] ?? '';
+            // ✅ PRIORITAS UTAMA: Set travel grade dari snapshot participant, fallback ke user profile
+            $this->travel_grade_id = $firstParticipant['user_travel_grade_id_snapshot'] ?? $firstParticipant['user_travel_grade_id_fallback'] ?? '';
             
             // Check travel grade warning
             $this->checkTravelGradeWarning($firstParticipant);
@@ -279,8 +280,8 @@ class Create extends Component
                 ->first();
             
             if ($selectedParticipant) {
-                // ✅ PRIORITAS UTAMA: Update travel grade dari snapshot participant
-                $this->travel_grade_id = $selectedParticipant['user_travel_grade_id_snapshot'] ?? '';
+                // ✅ PRIORITAS UTAMA: Update travel grade dari snapshot participant, fallback ke user profile
+                $this->travel_grade_id = $selectedParticipant['user_travel_grade_id_snapshot'] ?? $selectedParticipant['user_travel_grade_id_fallback'] ?? '';
                 
                 // Check travel grade warning
                 $this->checkTravelGradeWarning($selectedParticipant);
@@ -1164,7 +1165,7 @@ class Create extends Component
         $this->hasTravelGradeWarning = false;
         $this->travelGradeWarningMessage = '';
 
-        if (empty($participant['user_travel_grade_id_snapshot'])) {
+        if (empty($participant['user_travel_grade_id_snapshot']) && empty($participant['user_travel_grade_id_fallback'])) {
             $this->hasTravelGradeWarning = true;
             $this->travelGradeWarningMessage = 'Peserta belum memiliki tingkat perjalanan dinas. Silakan pilih tingkat perjalanan dinas yang sesuai.';
         }
@@ -1181,9 +1182,9 @@ class Create extends Component
                 ->where('user_id', $this->payee_user_id)
                 ->first();
             
-            if ($selectedParticipant && !empty($selectedParticipant['user_travel_grade_id_snapshot'])) {
-                // Pastikan travel grade mengikuti snapshot
-                $this->travel_grade_id = $selectedParticipant['user_travel_grade_id_snapshot'];
+            if ($selectedParticipant && (!empty($selectedParticipant['user_travel_grade_id_snapshot']) || !empty($selectedParticipant['user_travel_grade_id_fallback']))) {
+                // Pastikan travel grade mengikuti snapshot, fallback ke user profile
+                $this->travel_grade_id = $selectedParticipant['user_travel_grade_id_snapshot'] ?? $selectedParticipant['user_travel_grade_id_fallback'];
             }
         }
     }

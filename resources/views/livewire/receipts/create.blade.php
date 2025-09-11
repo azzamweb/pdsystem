@@ -249,10 +249,10 @@
                                         PPTK
                                     </label>
                                     <div class="text-sm text-gray-900 dark:text-white">
-                                        {{ $sppd->pptkUser->fullNameWithTitles() ?? '-' }}
+                                        {{ $sppd->subKeg?->pptkUser?->fullNameWithTitles() ?? '-' }}
                                     </div>
                                     <div class="text-xs text-gray-500 dark:text-gray-400">
-                                        {{ $sppd->pptkUser->position->name ?? '-' }}
+                                        {{ $sppd->subKeg?->pptkUser?->position?->name ?? '-' }}
                                     </div>
                                 </div>
                                

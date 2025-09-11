@@ -136,7 +136,7 @@ class GlobalRekap extends Component
                 'supportingDocuments',
                 'spt.signedByUser',
                 'spt.sppds.signedByUser',
-                'spt.sppds.pptkUser',
+                'spt.sppds.subKeg.pptkUser',
                 'spt.sppds.transportModes',
                 'spt.sppds.receipts.payeeUser.rank',
                 'spt.sppds.receipts.lines',
@@ -210,10 +210,10 @@ class GlobalRekap extends Component
                         ($sppd->signedByUser->gelar_belakang ? ', ' . $sppd->signedByUser->gelar_belakang : '') : null,
                     'transport_mode' => $sppd && $sppd->transportModes->count() > 0 ? 
                         $sppd->transportModes->pluck('name')->join(', ') : null,
-                    'pptk_name' => $sppd && $sppd->pptkUser ? 
-                        ($sppd->pptkUser->gelar_depan ? $sppd->pptkUser->gelar_depan . ' ' : '') .
-                        $sppd->pptkUser->name .
-                        ($sppd->pptkUser->gelar_belakang ? ', ' . $sppd->pptkUser->gelar_belakang : '') : null,
+                    'pptk_name' => $sppd && $sppd->subKeg && $sppd->subKeg->pptkUser ? 
+                        ($sppd->subKeg->pptkUser->gelar_depan ? $sppd->subKeg->pptkUser->gelar_depan . ' ' : '') .
+                        $sppd->subKeg->pptkUser->name .
+                        ($sppd->subKeg->pptkUser->gelar_belakang ? ', ' . $sppd->subKeg->pptkUser->gelar_belakang : '') : null,
                     // Trip Report data
                     'trip_report_id' => $nd->spt && $nd->spt->tripReport ? $nd->spt->tripReport->id : null,
                     'trip_report_number' => $nd->spt && $nd->spt->tripReport ? 
