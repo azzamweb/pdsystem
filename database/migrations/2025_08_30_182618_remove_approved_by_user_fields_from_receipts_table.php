@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -11,14 +12,28 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('receipts', function (Blueprint $table) {
-            // Check if column exists before dropping foreign key
-            if (Schema::hasColumn('receipts', 'approved_by_user_id')) {
-                // Drop foreign key constraint first if it exists
-                try {
-                    $table->dropForeign(['approved_by_user_id']);
-                } catch (\Exception $e) {
-                    // Foreign key might not exist, continue
+        // Check if column exists before attempting to modify table
+        if (Schema::hasColumn('receipts', 'approved_by_user_id')) {
+            // Get the actual foreign key name from database
+            $foreignKeys = DB::select("
+                SELECT CONSTRAINT_NAME 
+                FROM information_schema.KEY_COLUMN_USAGE 
+                WHERE TABLE_SCHEMA = DATABASE() 
+                AND TABLE_NAME = 'receipts' 
+                AND COLUMN_NAME = 'approved_by_user_id' 
+                AND REFERENCED_TABLE_NAME IS NOT NULL
+            ");
+            
+            Schema::table('receipts', function (Blueprint $table) use ($foreignKeys) {
+                // Drop foreign key constraint if it exists
+                if (!empty($foreignKeys)) {
+                    foreach ($foreignKeys as $fk) {
+                        try {
+                            $table->dropForeign($fk->CONSTRAINT_NAME);
+                        } catch (\Exception $e) {
+                            // Foreign key might not exist, continue
+                        }
+                    }
                 }
                 
                 // Remove approved_by_user_id and all its snapshot fields
@@ -37,13 +52,15 @@ return new class extends Migration
                     'approved_by_user_rank_name_snapshot',
                     'approved_by_user_rank_code_snapshot',
                 ]);
-            }
-            
-            // Make account_code nullable if column exists
-            if (Schema::hasColumn('receipts', 'account_code')) {
+            });
+        }
+        
+        // Make account_code nullable if column exists
+        if (Schema::hasColumn('receipts', 'account_code')) {
+            Schema::table('receipts', function (Blueprint $table) {
                 $table->string('account_code')->nullable()->change();
-            }
-        });
+            });
+        }
     }
 
     /**
