@@ -225,85 +225,40 @@
                                                                 </span>
                                                             </td>
                                                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                                <div class="relative" x-data="{ open: false }">
-                                                                    <!-- Dropdown trigger -->
-                                                                    <button 
-                                                                        @click="open = !open"
-                                                                        @click.away="open = false"
-                                                                        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 rounded"
-                                                                        title="Aksi"
-                                                                    >
-                                                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                                                            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
-                                                                        </svg>
-                                                                    </button>
+                                                                <flux:dropdown position="bottom" align="end">
+                                                                    <flux:button variant="ghost" size="sm" icon="ellipsis-vertical" />
+                                                                    <flux:menu>
+                                                                        <!-- Cetak -->
+                                                                        <flux:menu.item 
+                                                                            href="{{ route('receipts.pdf', $receipt) }}" 
+                                                                            target="_blank"
+                                                                            icon="printer"
+                                                                        >
+                                                                            Cetak
+                                                                        </flux:menu.item>
 
-                                                                    <!-- Dropdown menu -->
-                                                                    <div 
-                                                                        x-show="open"
-                                                                        x-transition:enter="transition ease-out duration-100"
-                                                                        x-transition:enter-start="transform opacity-0 scale-95"
-                                                                        x-transition:enter-end="transform opacity-100 scale-100"
-                                                                        x-transition:leave="transition ease-in duration-75"
-                                                                        x-transition:leave-start="transform opacity-100 scale-100"
-                                                                        x-transition:leave-end="transform opacity-0 scale-95"
-                                                                        class="fixed z-[99999] w-48 rounded-md bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
-                                                                        style="display: none;"
-                                                                        x-ref="dropdown"
-                                                                        x-init="$watch('open', value => {
-                                                                            if (value) {
-                                                                                setTimeout(() => {
-                                                                                    const button = $el.previousElementSibling;
-                                                                                    const buttonRect = button.getBoundingClientRect();
-                                                                                    
-                                                                                    // Position to the left and above the button with smaller gap
-                                                                                    const top = buttonRect.top - $el.offsetHeight - 4;
-                                                                                    const left = buttonRect.left - $el.offsetWidth - 4;
-                                                                                    
-                                                                                    $el.style.top = Math.max(4, top) + 'px';
-                                                                                    $el.style.left = Math.max(4, left) + 'px';
-                                                                                }, 10);
-                                                                            }
-                                                                        })"
-                                                                    >
-                                                                        <div class="py-1">
-                                                                            <!-- Cetak -->
-                                                                            <a 
-                                                                                href="{{ route('receipts.pdf', $receipt) }}" 
-                                                                                target="_blank"
-                                                                                class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                                                                            >
-                                                                                <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
-                                                                                </svg>
-                                                                                Cetak
-                                                                            </a>
+                                                                        <!-- Edit -->
+                                                                        <flux:menu.item 
+                                                                            href="{{ route('receipts.edit', $receipt) }}"
+                                                                            icon="pencil-square"
+                                                                        >
+                                                                            Edit
+                                                                        </flux:menu.item>
 
-                                                                            <!-- Edit -->
-                                                                            <a 
-                                                                                href="{{ route('receipts.edit', $receipt) }}"
-                                                                                class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                                                                            >
-                                                                                <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                                                                </svg>
-                                                                                Edit
-                                                                            </a>
+                                                                        <!-- Separator -->
+                                                                        <flux:menu.separator />
 
-                                                                            <!-- Delete -->
-                                                                            <button 
-                                                                                wire:click="deleteReceipt({{ $receipt->id }})"
-                                                                                wire:confirm="Apakah Anda yakin ingin menghapus kwitansi ini?"
-                                                                                class="flex w-full items-center px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
-                                                                            >
-                                                                                <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                                                                </svg>
-                                                                                Hapus
-                                                                            </button>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
+                                                                        <!-- Delete -->
+                                                                        <flux:menu.item 
+                                                                            wire:click="deleteReceipt({{ $receipt->id }})"
+                                                                            wire:confirm="Apakah Anda yakin ingin menghapus kwitansi ini?"
+                                                                            variant="danger"
+                                                                            icon="trash"
+                                                                        >
+                                                                            Hapus
+                                                                        </flux:menu.item>
+                                                                    </flux:menu>
+                                                                </flux:dropdown>
                                                             </td>
                                                         </tr>
                                                     @endforeach
@@ -558,29 +513,40 @@
                                                     <div class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">{!! Str::limit(formatActivitiesForPdf($tripReport->activities), 120, '...') !!}</div>
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                    <div class="relative" x-data="{ open: false }">
-                                                        <button @click="open = !open" @click.away="open = false" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 rounded" title="Aksi">
-                                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                                                <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
-                                                            </svg>
-                                                        </button>
-                                                        <div x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95" class="fixed z-[99999] w-48 rounded-md bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" style="display: none;" x-ref="dropdown" x-init="$watch('open', value => { if (value) { setTimeout(() => { const button = $el.previousElementSibling; const buttonRect = button.getBoundingClientRect(); const top = buttonRect.top - $el.offsetHeight - 4; const left = buttonRect.left - $el.offsetWidth - 4; $el.style.top = Math.max(4, top) + 'px'; $el.style.left = Math.max(4, left) + 'px'; }, 10); } })">
-                                                            <div class="py-1">
-                                                                <a href="{{ route('trip-reports.pdf', $tripReport) }}" target="_blank" class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                                                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                                                                    Cetak
-                                                                </a>
-                                                                <a href="{{ route('trip-reports.edit', $tripReport) }}" class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                                                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                                                    Edit
-                                                                </a>
-                                                                <button wire:click="deleteTripReport({{ $tripReport->id }})" wire:confirm="Apakah Anda yakin ingin menghapus laporan perjalanan dinas ini?" class="flex w-full items-center px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                                                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                                                    Hapus
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                                                    <flux:dropdown position="bottom" align="end">
+                                                        <flux:button variant="ghost" size="sm" icon="ellipsis-vertical" />
+                                                        <flux:menu>
+                                                            <!-- Cetak -->
+                                                            <flux:menu.item 
+                                                                href="{{ route('trip-reports.pdf', $tripReport) }}" 
+                                                                target="_blank"
+                                                                icon="printer"
+                                                            >
+                                                                Cetak
+                                                            </flux:menu.item>
+
+                                                            <!-- Edit -->
+                                                            <flux:menu.item 
+                                                                href="{{ route('trip-reports.edit', $tripReport) }}"
+                                                                icon="pencil-square"
+                                                            >
+                                                                Edit
+                                                            </flux:menu.item>
+
+                                                            <!-- Separator -->
+                                                            <flux:menu.separator />
+
+                                                            <!-- Delete -->
+                                                            <flux:menu.item 
+                                                                wire:click="deleteTripReport({{ $tripReport->id }})"
+                                                                wire:confirm="Apakah Anda yakin ingin menghapus laporan perjalanan dinas ini?"
+                                                                variant="danger"
+                                                                icon="trash"
+                                                            >
+                                                                Hapus
+                                                            </flux:menu.item>
+                                                        </flux:menu>
+                                                    </flux:dropdown>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -653,27 +619,40 @@
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{{ $doc->uploader?->fullNameWithTitles() ?? '-' }}</td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{{ $doc->created_at?->format('d/m/Y H:i') }}</td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                    <div class="relative" x-data="{ open: false }">
-                                                        <button @click="open = !open" @click.away="open = false" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 rounded" title="Aksi">
-                                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>
-                                                        </button>
-                                                        <div x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95" class="fixed z-[99999] w-48 rounded-md bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" style="display: none;" x-ref="dropdown" x-init="$watch('open', value => { if (value) { setTimeout(() => { const button = $el.previousElementSibling; const buttonRect = button.getBoundingClientRect(); const top = buttonRect.top - $el.offsetHeight - 4; const left = buttonRect.left - $el.offsetWidth - 4; $el.style.top = Math.max(4, top) + 'px'; $el.style.left = Math.max(4, left) + 'px'; }, 10); } })">
-                                                            <div class="py-1">
-                                                                <a href="{{ $doc->file_url }}" target="_blank" class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                                                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                                                                    Unduh
-                                                                </a>
-                                                                <a href="{{ route('supporting-documents.edit', ['notaDinas' => $selectedNotaDinasId, 'document' => $doc->id]) }}" class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                                                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                                                    Edit
-                                                                </a>
-                                                                <button wire:click="deleteSupportingDocument({{ $doc->id }})" wire:confirm="Apakah Anda yakin ingin menghapus dokumen '{{ $doc->title }}'?" class="flex w-full items-center px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                                                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                                                    Hapus
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                                                    <flux:dropdown position="bottom" align="end">
+                                                        <flux:button variant="ghost" size="sm" icon="ellipsis-vertical" />
+                                                        <flux:menu>
+                                                            <!-- Unduh -->
+                                                            <flux:menu.item 
+                                                                href="{{ $doc->file_url }}" 
+                                                                target="_blank"
+                                                                icon="arrow-down-tray"
+                                                            >
+                                                                Unduh
+                                                            </flux:menu.item>
+
+                                                            <!-- Edit -->
+                                                            <flux:menu.item 
+                                                                href="{{ route('supporting-documents.edit', ['notaDinas' => $selectedNotaDinasId, 'document' => $doc->id]) }}"
+                                                                icon="pencil-square"
+                                                            >
+                                                                Edit
+                                                            </flux:menu.item>
+
+                                                            <!-- Separator -->
+                                                            <flux:menu.separator />
+
+                                                            <!-- Delete -->
+                                                            <flux:menu.item 
+                                                                wire:click="deleteSupportingDocument({{ $doc->id }})"
+                                                                wire:confirm="Apakah Anda yakin ingin menghapus dokumen '{{ $doc->title }}'?"
+                                                                variant="danger"
+                                                                icon="trash"
+                                                            >
+                                                                Hapus
+                                                            </flux:menu.item>
+                                                        </flux:menu>
+                                                    </flux:dropdown>
                                                 </td>
                                             </tr>
                                             @endforeach

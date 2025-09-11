@@ -64,3 +64,6 @@ select:focus[data-flux-control] {
 /* \[:where(&)\]:size-4 {
     @apply size-4;
 } */
+
+/* Flux UI Dropdown positioning fixes for production consistency */
+/* These styles are now handled by Flux UI components */
