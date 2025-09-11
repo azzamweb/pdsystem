@@ -120,10 +120,6 @@
                                         {{ \Carbon\Carbon::parse($notaDinas->nd_date)->format('d/m/Y') }}
                                     </div>
                                 </div>
-                                <!-- Loading indicator -->
-                                <div wire:loading wire:target="selectNotaDinas({{ $notaDinas->id }})" class="ml-2">
-                                    <div class="animate-spin rounded-full h-4 w-4 border-2 border-gray-200 border-t-blue-600"></div>
-                                </div>
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">

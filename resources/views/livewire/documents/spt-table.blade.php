@@ -32,6 +32,7 @@
                                 @endif
                                 wire:click="selectSpt({{ $spt->id }})"
                                 wire:loading.class="opacity-50 cursor-not-allowed"
+                                wire:loading.attr="disabled"
                             >
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">

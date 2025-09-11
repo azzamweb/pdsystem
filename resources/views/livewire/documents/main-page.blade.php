@@ -74,7 +74,7 @@
                         </div>
                         <div class="p-0">
                             <!-- Loading state for SPT -->
-                            <div wire:loading.delay wire:target="selectedNotaDinasId" class="p-4">
+                            <div wire:loading.delay wire:target="selectedNotaDinasId" class="p-0">
                                 <div class="animate-pulse">
                                     <div class="bg-gray-50 dark:bg-gray-800 px-6 py-3 border-b border-gray-200 dark:border-gray-700">
                                         <div class="flex space-x-4">
@@ -153,7 +153,7 @@
                             </div>
                             <div class="p-0">
                                 <!-- Loading state for SPPD -->
-                                <div wire:loading.delay wire:target="selectedSptId" class="p-4">
+                                <div wire:loading.delay wire:target="selectedSptId" class="p-0">
                                     <div class="animate-pulse">
                                         <div class="bg-gray-50 dark:bg-gray-800 px-6 py-3 border-b border-gray-200 dark:border-gray-700">
                                             <div class="flex space-x-4">
@@ -258,7 +258,7 @@
                                     
                                     @if($receipts->count() > 0)
                                         <!-- Loading state for Kwitansi -->
-                                        <div wire:loading.delay wire:target="selectedSppdId" class="p-4">
+                                        <div wire:loading.delay wire:target="selectedSppdId" class="p-0">
                                             <div class="animate-pulse">
                                                 <div class="bg-gray-50 dark:bg-gray-800 px-6 py-3 border-b border-gray-200 dark:border-gray-700">
                                                     <div class="flex space-x-4">
