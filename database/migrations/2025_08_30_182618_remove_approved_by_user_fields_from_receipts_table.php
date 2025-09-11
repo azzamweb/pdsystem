@@ -12,28 +12,37 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('receipts', function (Blueprint $table) {
-            // Drop foreign key constraint first
-            $table->dropForeign(['approved_by_user_id']);
+            // Check if column exists before dropping foreign key
+            if (Schema::hasColumn('receipts', 'approved_by_user_id')) {
+                // Drop foreign key constraint first if it exists
+                try {
+                    $table->dropForeign(['approved_by_user_id']);
+                } catch (\Exception $e) {
+                    // Foreign key might not exist, continue
+                }
+                
+                // Remove approved_by_user_id and all its snapshot fields
+                $table->dropColumn([
+                    'approved_by_user_id',
+                    'approved_by_user_name_snapshot',
+                    'approved_by_user_gelar_depan_snapshot',
+                    'approved_by_user_gelar_belakang_snapshot',
+                    'approved_by_user_nip_snapshot',
+                    'approved_by_user_unit_id_snapshot',
+                    'approved_by_user_unit_name_snapshot',
+                    'approved_by_user_position_id_snapshot',
+                    'approved_by_user_position_name_snapshot',
+                    'approved_by_user_position_desc_snapshot',
+                    'approved_by_user_rank_id_snapshot',
+                    'approved_by_user_rank_name_snapshot',
+                    'approved_by_user_rank_code_snapshot',
+                ]);
+            }
             
-            // Remove approved_by_user_id and all its snapshot fields
-            $table->dropColumn([
-                'approved_by_user_id',
-                'approved_by_user_name_snapshot',
-                'approved_by_user_gelar_depan_snapshot',
-                'approved_by_user_gelar_belakang_snapshot',
-                'approved_by_user_nip_snapshot',
-                'approved_by_user_unit_id_snapshot',
-                'approved_by_user_unit_name_snapshot',
-                'approved_by_user_position_id_snapshot',
-                'approved_by_user_position_name_snapshot',
-                'approved_by_user_position_desc_snapshot',
-                'approved_by_user_rank_id_snapshot',
-                'approved_by_user_rank_name_snapshot',
-                'approved_by_user_rank_code_snapshot',
-            ]);
-            
-            // Make account_code nullable
-            $table->string('account_code')->nullable()->change();
+            // Make account_code nullable if column exists
+            if (Schema::hasColumn('receipts', 'account_code')) {
+                $table->string('account_code')->nullable()->change();
+            }
         });
     }
 

@@ -12,10 +12,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('sppd', function (Blueprint $table) {
-            // Drop foreign key constraint first
-            $table->dropForeign(['user_id']);
-            // Remove user_id field since 1 SPPD now represents all participants
-            $table->dropColumn('user_id');
+            // Check if foreign key exists before dropping
+            if (Schema::hasColumn('sppd', 'user_id')) {
+                // Drop foreign key constraint first if it exists
+                try {
+                    $table->dropForeign(['user_id']);
+                } catch (\Exception $e) {
+                    // Foreign key might not exist, continue
+                }
+                // Remove user_id field since 1 SPPD now represents all participants
+                $table->dropColumn('user_id');
+            }
         });
     }
 
