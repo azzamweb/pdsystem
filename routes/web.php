@@ -140,19 +140,28 @@ Route::middleware(['auth', 'user.role'])->group(function () {
                 Route::get('roles/{role}/permissions', \App\Livewire\Roles\ManageRolePermissions::class)->name('roles.permissions');
 
     // Rank CRUD
-    Route::get('ranks', RankIndex::class)->name('ranks.index');
-    Route::get('ranks/create', RankCreate::class)->name('ranks.create');
-    Route::get('ranks/{rank}/edit', RankEdit::class)->name('ranks.edit');
+    Route::get('ranks', [\App\Http\Controllers\RankController::class, 'index'])->name('ranks.index');
+    Route::get('ranks/create', [\App\Http\Controllers\RankController::class, 'create'])->name('ranks.create');
+    Route::post('ranks', [\App\Http\Controllers\RankController::class, 'store'])->name('ranks.store');
+    Route::get('ranks/{rank}/edit', [\App\Http\Controllers\RankController::class, 'edit'])->name('ranks.edit');
+    Route::put('ranks/{rank}', [\App\Http\Controllers\RankController::class, 'update'])->name('ranks.update');
+    Route::delete('ranks/{rank}', [\App\Http\Controllers\RankController::class, 'destroy'])->name('ranks.destroy');
 
     // Position CRUD
-    Route::get('positions', PositionIndex::class)->name('positions.index');
-    Route::get('positions/create', PositionCreate::class)->name('positions.create');
-    Route::get('positions/{position}/edit', PositionEdit::class)->name('positions.edit');
+    Route::get('positions', [\App\Http\Controllers\PositionController::class, 'index'])->name('positions.index');
+    Route::get('positions/create', [\App\Http\Controllers\PositionController::class, 'create'])->name('positions.create');
+    Route::post('positions', [\App\Http\Controllers\PositionController::class, 'store'])->name('positions.store');
+    Route::get('positions/{position}/edit', [\App\Http\Controllers\PositionController::class, 'edit'])->name('positions.edit');
+    Route::put('positions/{position}', [\App\Http\Controllers\PositionController::class, 'update'])->name('positions.update');
+    Route::delete('positions/{position}', [\App\Http\Controllers\PositionController::class, 'destroy'])->name('positions.destroy');
 
     // Unit CRUD
-    Route::get('units', UnitIndex::class)->name('units.index');
-    Route::get('units/create', UnitCreate::class)->name('units.create');
-    Route::get('units/{unit}/edit', UnitEdit::class)->name('units.edit');
+    Route::get('units', [\App\Http\Controllers\UnitController::class, 'index'])->name('units.index');
+    Route::get('units/create', [\App\Http\Controllers\UnitController::class, 'create'])->name('units.create');
+    Route::post('units', [\App\Http\Controllers\UnitController::class, 'store'])->name('units.store');
+    Route::get('units/{unit}/edit', [\App\Http\Controllers\UnitController::class, 'edit'])->name('units.edit');
+    Route::put('units/{unit}', [\App\Http\Controllers\UnitController::class, 'update'])->name('units.update');
+    Route::delete('units/{unit}', [\App\Http\Controllers\UnitController::class, 'destroy'])->name('units.destroy');
 
     // Sub Kegiatan CRUD
     Route::resource('sub-keg', App\Http\Controllers\SubKegController::class);
@@ -163,14 +172,21 @@ Route::middleware(['auth', 'user.role'])->group(function () {
     Route::get('provinces/{province}/edit', ProvinceEdit::class)->name('provinces.edit');
 
     // City CRUD
-    Route::get('cities', CityIndex::class)->name('cities.index');
-    Route::get('cities/create', CityCreate::class)->name('cities.create');
-    Route::get('cities/{city}/edit', CityEdit::class)->name('cities.edit');
+    Route::get('cities', [\App\Http\Controllers\CityController::class, 'index'])->name('cities.index');
+    Route::get('cities/create', [\App\Http\Controllers\CityController::class, 'create'])->name('cities.create');
+    Route::post('cities', [\App\Http\Controllers\CityController::class, 'store'])->name('cities.store');
+    Route::get('cities/{city}/edit', [\App\Http\Controllers\CityController::class, 'edit'])->name('cities.edit');
+    Route::put('cities/{city}', [\App\Http\Controllers\CityController::class, 'update'])->name('cities.update');
+    Route::delete('cities/{city}', [\App\Http\Controllers\CityController::class, 'destroy'])->name('cities.destroy');
 
     // District CRUD
-    Route::get('districts', DistrictIndex::class)->name('districts.index');
-    Route::get('districts/create', DistrictCreate::class)->name('districts.create');
-    Route::get('districts/{district}/edit', DistrictEdit::class)->name('districts.edit');
+    Route::get('districts', [\App\Http\Controllers\DistrictController::class, 'index'])->name('districts.index');
+    Route::get('districts/create', [\App\Http\Controllers\DistrictController::class, 'create'])->name('districts.create');
+    Route::post('districts', [\App\Http\Controllers\DistrictController::class, 'store'])->name('districts.store');
+    Route::get('districts/{district}/edit', [\App\Http\Controllers\DistrictController::class, 'edit'])->name('districts.edit');
+    Route::put('districts/{district}', [\App\Http\Controllers\DistrictController::class, 'update'])->name('districts.update');
+    Route::delete('districts/{district}', [\App\Http\Controllers\DistrictController::class, 'destroy'])->name('districts.destroy');
+    Route::get('districts/cities', [\App\Http\Controllers\DistrictController::class, 'getCities'])->name('districts.cities');
 
     // Org Place CRUD
     Route::get('org-places', OrgPlaceIndex::class)->name('org-places.index');
