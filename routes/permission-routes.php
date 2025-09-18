@@ -27,11 +27,13 @@ Route::middleware(['auth', 'permission:nota-dinas.view', 'unit.scope'])->group(f
 });
 
 Route::middleware(['auth', 'permission:nota-dinas.create'])->group(function () {
-    Route::get('nota-dinas/create', \App\Livewire\NotaDinas\Create::class)->name('nota-dinas.create');
+    Route::get('nota-dinas/create', [\App\Http\Controllers\NotaDinasController::class, 'create'])->name('nota-dinas.create');
+    Route::post('nota-dinas', [\App\Http\Controllers\NotaDinasController::class, 'store'])->name('nota-dinas.store');
 });
 
 Route::middleware(['auth', 'permission:nota-dinas.edit', 'unit.scope'])->group(function () {
-    Route::get('nota-dinas/{notaDinas}/edit', \App\Livewire\NotaDinas\Edit::class)->name('nota-dinas.edit');
+    Route::get('nota-dinas/{notaDinas}/edit', [\App\Http\Controllers\NotaDinasController::class, 'edit'])->name('nota-dinas.edit');
+    Route::put('nota-dinas/{notaDinas}', [\App\Http\Controllers\NotaDinasController::class, 'update'])->name('nota-dinas.update');
 });
 
 Route::middleware(['auth', 'permission:nota-dinas.view', 'unit.scope'])->group(function () {
