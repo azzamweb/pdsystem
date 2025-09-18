@@ -2,32 +2,29 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Models\User;
-use App\Models\Spt;
 use App\Models\Unit;
 use App\Models\Position;
 use App\Models\Rank;
+use App\Models\Spt;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
-use Barryvdh\DomPDF\Facade\Pdf;
-use App\Helpers\PermissionHelper;
 
 class RekapPegawaiController extends Controller
 {
-    public function generatePdf(Request $request)
+    /**
+     * Display the rekap pegawai page.
+     */
+    public function index(Request $request)
     {
-        // Check if user can view rekapitulasi
-        if (!PermissionHelper::canViewRekap()) {
-            abort(403, 'Anda tidak memiliki izin untuk melihat rekapitulasi.');
-        }
-
         // Get filter parameters
         $search = $request->get('search', '');
-        $unit_filter = $request->get('unit_filter', '');
-        $position_filter = $request->get('position_filter', '');
-        $rank_filter = $request->get('rank_filter', '');
-        $selected_month = $request->get('selected_month', Carbon::now()->format('m'));
-        $selected_year = $request->get('selected_year', Carbon::now()->format('Y'));
+        $unitFilter = $request->get('unit_filter', '');
+        $positionFilter = $request->get('position_filter', '');
+        $rankFilter = $request->get('rank_filter', '');
+        $selectedMonth = $request->get('selected_month', now()->format('m'));
+        $selectedYear = $request->get('selected_year', now()->format('Y'));
+        $perPage = $request->get('per_page', 10);
 
         // Build query
         $query = User::with([
@@ -36,14 +33,6 @@ class RekapPegawaiController extends Controller
             'rank',
             'travelGrade'
         ]);
-
-        // Apply unit scope filtering for bendahara pengeluaran pembantu and sekretariat
-        if (!PermissionHelper::canAccessAllData()) {
-            $userUnitId = PermissionHelper::getUserUnitId();
-            if ($userUnitId) {
-                $query->where('unit_id', $userUnitId);
-            }
-        }
 
         // Apply filters
         if ($search) {
@@ -56,16 +45,16 @@ class RekapPegawaiController extends Controller
             });
         }
 
-        if ($unit_filter) {
-            $query->where('unit_id', $unit_filter);
+        if ($unitFilter) {
+            $query->where('unit_id', $unitFilter);
         }
 
-        if ($position_filter) {
-            $query->where('position_id', $position_filter);
+        if ($positionFilter) {
+            $query->where('position_id', $positionFilter);
         }
 
-        if ($rank_filter) {
-            $query->where('rank_id', $rank_filter);
+        if ($rankFilter) {
+            $query->where('rank_id', $rankFilter);
         }
 
         // Sort by eselon, rank, and NIP
@@ -80,10 +69,10 @@ class RekapPegawaiController extends Controller
               ->orderBy('users.nip', 'ASC')
               ->select('users.*');
 
-        $pegawai = $query->get();
+        $pegawai = $query->paginate($perPage);
 
         // Get SPT data for the selected month
-        $startDate = Carbon::createFromDate($selected_year, $selected_month, 1)->startOfMonth();
+        $startDate = Carbon::createFromDate($selectedYear, $selectedMonth, 1)->startOfMonth();
         $endDate = $startDate->copy()->endOfMonth();
 
         $sptData = Spt::with(['notaDinas.participants.user', 'notaDinas.originPlace', 'notaDinas.destinationCity'])
@@ -112,11 +101,12 @@ class RekapPegawaiController extends Controller
                 // Include if any part of the trip is in the selected month
                 $tripStartMonth = $startDate->format('Y-m');
                 $tripEndMonth = $endDate->format('Y-m');
-                $selectedMonth = $selected_year . '-' . $selected_month;
+                $selectedMonthStr = $selectedYear . '-' . $selectedMonth;
                 
-                if ($tripStartMonth === $selectedMonth || $tripEndMonth === $selectedMonth || 
-                    ($startDate->lt(Carbon::createFromDate($selected_year, $selected_month, 1)) && 
-                     $endDate->gt(Carbon::createFromDate($selected_year, $selected_month, 1)->endOfMonth()))) {
+                if ($tripStartMonth === $selectedMonthStr || $tripEndMonth === $selectedMonthStr || 
+                    ($startDate->lt(Carbon::createFromDate($selectedYear, $selectedMonth, 1)) && 
+                     $endDate->gt(Carbon::createFromDate($selectedYear, $selectedMonth, 1)->endOfMonth()))) {
+                    
                     $scheduleData[$p->id][] = [
                         'spt' => $spt,
                         'start_date' => $startDate,
@@ -130,22 +120,39 @@ class RekapPegawaiController extends Controller
             }
         }
 
-        // Get days in selected month
-        $daysInMonth = Carbon::createFromDate($selected_year, $selected_month, 1)->daysInMonth;
-        $monthName = Carbon::createFromDate($selected_year, $selected_month, 1)->format('F Y');
+        // Get filter options
+        $units = Unit::orderBy('name')->get();
+        $positions = Position::orderBy('name')->get();
+        $ranks = Rank::orderBy('name')->get();
 
-        // Generate PDF
-        $pdf = PDF::loadView('rekap.pegawai.pdf', [
+        // Get days in selected month
+        $daysInMonth = Carbon::createFromDate($selectedYear, $selectedMonth, 1)->daysInMonth;
+        $monthName = Carbon::createFromDate($selectedYear, $selectedMonth, 1)->format('F Y');
+
+        return view('rekap.pegawai', [
             'pegawai' => $pegawai,
+            'units' => $units,
+            'positions' => $positions,
+            'ranks' => $ranks,
             'scheduleData' => $scheduleData,
             'daysInMonth' => $daysInMonth,
             'monthName' => $monthName,
-            'selectedMonth' => $selected_month,
-            'selectedYear' => $selected_year,
+            'selectedMonth' => $selectedMonth,
+            'selectedYear' => $selectedYear,
+            'search' => $search,
+            'unitFilter' => $unitFilter,
+            'positionFilter' => $positionFilter,
+            'rankFilter' => $rankFilter,
+            'perPage' => $perPage,
         ]);
+    }
 
-        $pdf->setPaper('A4', 'landscape');
-        
-        return $pdf->stream("rekap-pegawai-{$monthName}.pdf");
+    /**
+     * Generate PDF for rekap pegawai.
+     */
+    public function generatePdf(Request $request)
+    {
+        // TODO: Implement PDF generation
+        return redirect()->back()->with('info', 'PDF generation will be implemented soon');
     }
 }

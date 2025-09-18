@@ -55,9 +55,9 @@ use App\Livewire\LodgingCaps\Index as LodgingCapIndex;
 use App\Livewire\RepresentationRates\Create as RepresentationRateCreate;
 use App\Livewire\RepresentationRates\Edit as RepresentationRateEdit;
 use App\Livewire\RepresentationRates\Index as RepresentationRateIndex;
-use App\Livewire\ReferenceRates\Index as ReferenceRatesIndex;
-use App\Livewire\MasterData\Index as MasterDataIndex;
-use App\Livewire\LocationRoutes\Index as LocationRoutesIndex;
+use App\Http\Controllers\ReferenceRatesController;
+use App\Http\Controllers\MasterDataController;
+use App\Http\Controllers\LocationRoutesController;
 use App\Livewire\AirfareRefs\Create as AirfareRefCreate;
 use App\Livewire\AirfareRefs\Edit as AirfareRefEdit;
 use App\Livewire\AirfareRefs\Index as AirfareRefIndex;
@@ -98,8 +98,7 @@ use App\Http\Controllers\NotaDinasController;
 use App\Http\Controllers\SptController;
 use App\Http\Controllers\SppdController;
 use App\Livewire\Rekap\Pegawai as RekapPegawai;
-use App\Livewire\Rekap\GlobalRekap as RekapGlobal;
-use App\Http\Controllers\RekapPegawaiController;
+use App\Livewire\Rekap\GlobalRekap;
 
 
 Route::get('/', function () {
@@ -124,10 +123,10 @@ Route::middleware(['auth', 'user.role'])->group(function () {
     })->name('documents');
 
     // Master Data Index
-    Route::get('master-data', MasterDataIndex::class)->name('master-data.index');
+    Route::get('master-data', [\App\Http\Controllers\MasterDataController::class, 'index'])->name('master-data.index');
 
     // Location & Routes Index
-    Route::get('location-routes', LocationRoutesIndex::class)->name('location-routes.index');
+    Route::get('location-routes', [LocationRoutesController::class, 'index'])->name('location-routes.index');
 
     // User CRUD
     Route::get('users', UserIndex::class)->name('users.index');
@@ -221,7 +220,7 @@ Route::middleware(['auth', 'user.role'])->group(function () {
     Route::get('lodging-caps/{lodgingCap}/edit', LodgingCapEdit::class)->name('lodging-caps.edit');
 
     // Reference Rates Index
-    Route::get('reference-rates', ReferenceRatesIndex::class)->name('reference-rates.index');
+    Route::get('reference-rates', [ReferenceRatesController::class, 'index'])->name('reference-rates.index');
 
     // Airfare Reference CRUD
     Route::get('airfare-refs', AirfareRefIndex::class)->name('airfare-refs.index');
@@ -327,9 +326,9 @@ Route::get('trip-reports/{tripReport}/pdf', [App\Http\Controllers\TripReportCont
 Route::get('nota-dinas/{notaDinas}/pdf/download', [NotaDinasController::class, 'downloadPdf'])->name('nota-dinas.pdf-download');
 
     // Rekapitulasi Routes
-    Route::get('rekap/global', RekapGlobal::class)->name('rekap.global');
+    Route::get('rekap/global', GlobalRekap::class)->name('rekap.global');
     Route::get('rekap/pegawai', RekapPegawai::class)->name('rekap.pegawai');
-    Route::get('rekap/pegawai/pdf', [RekapPegawaiController::class, 'generatePdf'])->name('rekap.pegawai.pdf');
+    Route::get('rekap/pegawai/pdf', [\App\Http\Controllers\RekapPegawaiController::class, 'generatePdf'])->name('rekap.pegawai.pdf');
 
 Route::get('spt/{spt}/pdf', [SptController::class, 'generatePdf'])->name('spt.pdf');
 Route::get('spt/{spt}/pdf/download', [SptController::class, 'downloadPdf'])->name('spt.pdf-download');
