@@ -190,7 +190,7 @@ class NotaDinasList extends Component
             $query->where('status', $this->statusFilter);
         }
 
-        $notaDinasList = $query->paginate(10);
+        $notaDinasList = $query->paginate(5);
         $units = Unit::orderBy('name')->get();
 
         return view('livewire.documents.nota-dinas-list', [

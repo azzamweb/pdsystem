@@ -272,10 +272,68 @@
         </table>
     </div>
 
-    <!-- Pagination -->
-    @if($notaDinasList->hasPages())
-        <div class="mt-4">
-            {{ $notaDinasList->links() }}
+    <!-- Modern Pagination -->
+    <div class="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <!-- Pagination Info -->
+        <div class="text-sm text-gray-600 dark:text-gray-400">
+            <span class="font-medium text-gray-900 dark:text-white">{{ $notaDinasList->firstItem() ?? 0 }}-{{ $notaDinasList->lastItem() ?? 0 }}</span>
+            dari 
+            <span class="font-medium text-gray-900 dark:text-white">{{ $notaDinasList->total() }}</span>
+            Nota Dinas
         </div>
-    @endif
+        
+        <!-- Modern Pagination Navigation -->
+        @if($notaDinasList->hasPages())
+            <div class="flex items-center space-x-1 p-2">
+                <!-- Previous Button -->
+                @if($notaDinasList->onFirstPage())
+                    <span class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-l-md cursor-not-allowed">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                        Sebelumnya
+                    </span>
+                @else
+                    <button wire:click="previousPage" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-l-md hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors duration-200">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                        Sebelumnya
+                    </button>
+                @endif
+
+                <!-- Page Numbers -->
+                <div class="flex items-center space-x-1">
+                    @foreach($notaDinasList->getUrlRange(1, $notaDinasList->lastPage()) as $page => $url)
+                        @if($page == $notaDinasList->currentPage())
+                            <span class="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600 rounded-md">
+                                {{ $page }}
+                            </span>
+                        @else
+                            <button wire:click="gotoPage({{ $page }})" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors duration-200">
+                                {{ $page }}
+                            </button>
+                        @endif
+                    @endforeach
+                </div>
+
+                <!-- Next Button -->
+                @if($notaDinasList->hasMorePages())
+                    <button wire:click="nextPage" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-r-md hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors duration-200">
+                        Selanjutnya
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                @else
+                    <span class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-r-md cursor-not-allowed">
+                        Selanjutnya
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </span>
+                @endif
+            </div>
+        @endif
+    </div>
 </div>
