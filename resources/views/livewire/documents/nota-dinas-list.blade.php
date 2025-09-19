@@ -5,7 +5,7 @@
             <!-- Search -->
             <div class="flex-1 min-w-0">
                 <input 
-                    wire:model.debounce.400ms="search" 
+                    wire:model.live.debounce.400ms="search" 
                     type="text" 
                     placeholder="Cari berdasarkan nomor, unit, tujuan, atau nama peserta..." 
                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -15,7 +15,7 @@
             <!-- Date From -->
             <div class="w-40">
                 <input 
-                    wire:model="dateFrom" 
+                    wire:model.live="dateFrom" 
                     type="date" 
                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
@@ -24,7 +24,7 @@
             <!-- Date To -->
             <div class="w-40">
                 <input 
-                    wire:model="dateTo" 
+                    wire:model.live="dateTo" 
                     type="date" 
                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
@@ -33,7 +33,7 @@
             <!-- Unit Filter -->
             <div class="w-48">
                 <select 
-                    wire:model="unitFilter" 
+                    wire:model.live="unitFilter" 
                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                     <option value="">Semua Unit</option>
@@ -46,7 +46,7 @@
             <!-- Status Filter -->
             <div class="w-40">
                 <select 
-                    wire:model="statusFilter" 
+                    wire:model.live="statusFilter" 
                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                     <option value="">Semua Status</option>
@@ -66,6 +66,50 @@
             </div>
         </div>
     </div>
+
+    <!-- Active Filters Indicator -->
+    @if($search || $dateFrom || $dateTo || $unitFilter || $statusFilter)
+        <div class="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <svg class="w-4 h-4 text-blue-600 dark:text-blue-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"></path>
+                    </svg>
+                    <span class="text-sm font-medium text-blue-800 dark:text-blue-200">Filter Aktif:</span>
+                </div>
+                <button wire:click="resetFilters" class="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200">
+                    Reset Semua
+                </button>
+            </div>
+            <div class="mt-2 flex flex-wrap gap-2">
+                @if($search)
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200">
+                        Pencarian: "{{ $search }}"
+                    </span>
+                @endif
+                @if($dateFrom)
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200">
+                        Dari: {{ \Carbon\Carbon::parse($dateFrom)->format('d/m/Y') }}
+                    </span>
+                @endif
+                @if($dateTo)
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200">
+                        Sampai: {{ \Carbon\Carbon::parse($dateTo)->format('d/m/Y') }}
+                    </span>
+                @endif
+                @if($unitFilter)
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200">
+                        Unit: {{ $units->firstWhere('id', $unitFilter)?->name ?? 'Unknown' }}
+                    </span>
+                @endif
+                @if($statusFilter)
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200">
+                        Status: {{ $statusFilter }}
+                    </span>
+                @endif
+            </div>
+        </div>
+    @endif
 
     <!-- Nota Dinas Table -->
     <div class="overflow-x-auto w-full">
