@@ -398,9 +398,9 @@
                                 </h3>
                                 
                                 <!-- Komponen Biaya -->
-                                <div class="space-y-4">
+                                <div class="space-y-4 ">
                                     <!-- 1. Biaya Transportasi -->
-                                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                                    <div class="bg-red-100 dark:bg-gray-700 rounded-lg p-4 border border-gray-1000 dark:border-gray-600">
                                         <div class="flex items-center justify-between mb-3">
                                             <h4 class="font-medium text-gray-900 dark:text-white">1. Biaya Transportasi</h4>
                                             <button type="button" wire:click="addTransportLine" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium">
@@ -472,10 +472,10 @@
                                             <div class="space-y-3">
                                                 @foreach($transportLines as $index => $line)
                                                 <div class="bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 p-3">
-                                                    <div class="grid grid-cols-1 md:grid-cols-6 gap-3">
-                                                        <div>
+                                                    <div class="grid grid-cols-12 gap-3 items-end">
+                                                        <div class="col-span-2">
                                                             <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Jenis</label>
-                                                            <select wire:model.live="transportLines.{{ $index }}.component" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                                            <select wire:model.live="transportLines.{{ $index }}.component" class="w-full h-10 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                                                 <option value="">Pilih Jenis</option>
                                                                 <option value="AIRFARE">Tiket Pesawat</option>
                                                                 <option value="INTRA_PROV">Transport Dalam Provinsi</option>
@@ -500,15 +500,15 @@
                                                             </div>
                                                             @endif
                                                         </div>
-                                                        <div>
+                                                        <div class="col-span-3">
                                                             <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Keterangan Tambahan</label>
-                                                            <input type="text" wire:model="transportLines.{{ $index }}.desc" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Contoh: Garuda Indonesia">
+                                                            <input type="text" wire:model="transportLines.{{ $index }}.desc" class="w-full h-10 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Contoh: Garuda Indonesia">
                                                         </div>
-                                                        <div>
+                                                        <div class="col-span-1">
                                                             <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Jumlah</label>
-                                                            <input type="number" wire:model="transportLines.{{ $index }}.qty" min="0" step="0.5" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                                            <input type="number" wire:model="transportLines.{{ $index }}.qty" min="0" step="0.5" class="w-full h-10 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                                         </div>
-                                                        <div>
+                                                        <div class="col-span-2">
                                                             <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
                                                                 Harga Satuan
                                                                 @if($line['has_reference'])
@@ -521,7 +521,7 @@
                                                             <input type="number" 
                                                                 wire:model.live="transportLines.{{ $index }}.unit_amount" 
                                                                 min="0" 
-                                                                class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white {{ $line['has_reference'] ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-600' : ($line['is_overridden'] ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-600' : '') }}"
+                                                                class="w-full h-10 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white {{ $line['has_reference'] ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-600' : ($line['is_overridden'] ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-600' : '') }}"
                                                                 {{ $line['has_reference'] ? 'readonly' : '' }}
                                                                 placeholder="{{ $line['has_reference'] ? 'Otomatis terisi' : 'Masukkan harga satuan' }}">
                                                             
@@ -539,13 +539,13 @@
                                                             </div>
                                                             @endif
                                                         </div>
-                                                        <div>
+                                                        <div class="col-span-2">
                                                             <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Total</label>
-                                                            <div class="px-2 py-1 text-sm bg-gray-100 dark:bg-gray-600 rounded font-mono">
+                                                            <div class="h-10 px-2 py-1 text-sm bg-gray-100 dark:bg-gray-600 rounded font-mono flex items-center">
                                                                 Rp {{ number_format((float)($line['qty'] ?? 0) * (float)($line['unit_amount'] ?? 0), 0, ',', '.') }}
                                                             </div>
                                                         </div>
-                                                        <div class="flex items-end space-x-2">
+                                                        <div class="col-span-2 flex items-center space-x-2 h-10">
                                                             @if($line['has_reference'])
                                                                 <button type="button" 
                                                                     wire:click="overrideTransportRate({{ $index }})" 
@@ -569,7 +569,7 @@
                                     </div>
 
                                     <!-- 2. Biaya Penginapan -->
-                                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                                    <div class="bg-yellow-100 dark:bg-gray-700 rounded-lg p-4 border border-gray-1000 dark:border-gray-600">
                                         <div class="flex items-center justify-between mb-3">
                                             <h4 class="font-medium text-gray-900 dark:text-white">2. Biaya Penginapan</h4>
                                             <button type="button" wire:click="addLodgingLine" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium">
@@ -592,7 +592,7 @@
                                             <div class="space-y-3">
                                                 @foreach($lodgingLines as $index => $line)
                                                 <div class="bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 p-3">
-                                                    <div class="grid grid-cols-1 md:grid-cols-6 gap-3">
+                                                    <div class="grid grid-cols-12 gap-3 items-end">
                                                         <div>
                                                             <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Kota Tujuan</label>
                                                             <select wire:model.live="lodgingLines.{{ $index }}.destination_city_id" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
@@ -693,7 +693,7 @@
                                     </div>
 
                                     <!-- 3. Uang Harian (Perdiem) -->
-                                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                                    <div class="bg-green-200 dark:bg-gray-700 rounded-lg p-4 border border-gray-1000 dark:border-gray-600">
                                         <div class="flex items-center justify-between mb-3">
                                             <h4 class="font-medium text-gray-900 dark:text-white">3. Uang Harian (Perdiem)</h4>
                                             <button type="button" wire:click="addPerdiemLine" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium">
@@ -749,7 +749,7 @@
                                     </div>
 
                                     <!-- 4. Biaya Representatif -->
-                                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                                    <div class="bg-teal-200 dark:bg-gray-700 rounded-lg p-4 border border-gray-1000 dark:border-gray-600">
                                         <div class="flex items-center justify-between mb-3">
                                             <h4 class="font-medium text-gray-900 dark:text-white">4. Biaya Representatif</h4>
                                             <button type="button" wire:click="addRepresentationLine" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium">
@@ -804,7 +804,7 @@
                                     </div>
 
                                     <!-- 5. Biaya Lainnya -->
-                                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                                    <div class="bg-indigo-200 dark:bg-gray-700 rounded-lg p-4 border border-gray-1000 dark:border-gray-600">
                                         <div class="flex items-center justify-between mb-3">
                                             <h4 class="font-medium text-gray-900 dark:text-white">5. Biaya Lainnya</h4>
                                             <button type="button" wire:click="addOtherLine" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium">
@@ -816,7 +816,7 @@
                                             <div class="space-y-3">
                                                 @foreach($otherLines as $index => $line)
                                                 <div class="bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600 p-3">
-                                                    <div class="grid grid-cols-1 md:grid-cols-6 gap-3">
+                                                    <div class="grid grid-cols-12 gap-3 items-end">
                                                         <div>
                                                             <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Keterangan</label>
                                                             <input type="text" wire:model="otherLines.{{ $index }}.remark" class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Contoh: Rapid Test">
