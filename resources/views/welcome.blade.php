@@ -325,9 +325,9 @@
                             <a href="{{ url('/dashboard') }}" class="btn btn-primary">Buka Dashboard</a>
                         @else
                             <a href="{{ route('login') }}" class="btn btn-primary">Masuk ke Sistem</a>
-                            @if (Route::has('register'))
+                            {{-- @if (Route::has('register'))
                                 <a href="{{ route('register') }}" class="btn btn-secondary">Daftar Akun</a>
-                            @endif
+                            @endif --}}
                         @endauth
                     </div>
                 </div>
