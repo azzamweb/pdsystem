@@ -24,6 +24,11 @@ class SppdTable extends Component
         $this->dispatch('sppd-selected', sppdId: $sppdId);
     }
 
+    public function createSppd($sptId)
+    {
+        return $this->redirect(route('sppd.create', ['spt_id' => $sptId]));
+    }
+
     public function placeholder()
     {
         return <<<'HTML'

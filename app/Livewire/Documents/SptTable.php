@@ -25,6 +25,11 @@ class SptTable extends Component
         $this->dispatch('spt-selected', sptId: $sptId);
     }
 
+    public function createSpt($notaDinasId)
+    {
+        return $this->redirect(route('spt.create', ['nota_dinas_id' => $notaDinasId]));
+    }
+
     public function placeholder()
     {
         return <<<'HTML'

@@ -276,7 +276,7 @@
                                             <option value="">Pilih Peserta</option>
                                             @foreach($availableParticipants as $participant)
                                                 <option value="{{ $participant['user_id'] }}">
-                                                    {{ $participant['user_name_snapshot'] }} 
+                                                    {{ $participant['user_name_snapshot'] ?? 'N/A' }} 
                                                     ({{ $participant['user_position_name_snapshot'] ?? 'N/A' }} - {{ $participant['user_rank_name_snapshot'] ?? 'N/A' }})
                                                 </option>
                                             @endforeach

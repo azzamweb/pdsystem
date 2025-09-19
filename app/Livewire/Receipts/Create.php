@@ -217,10 +217,10 @@ class Create extends Component
         $this->availableParticipants = $filteredParticipants->map(function ($participant) {
             return [
                 'user_id' => $participant->user_id,
-                'user_name_snapshot' => $participant->user_name_snapshot,
-                'user_position_name_snapshot' => $participant->user_position_name_snapshot,
-                'user_rank_name_snapshot' => $participant->user_rank_name_snapshot,
-                'user_nip_snapshot' => $participant->user_nip_snapshot,
+                'user_name_snapshot' => $participant->user_name_snapshot ?? $participant->user?->name ?? 'N/A',
+                'user_position_name_snapshot' => $participant->user_position_name_snapshot ?? $participant->user?->position?->name ?? 'N/A',
+                'user_rank_name_snapshot' => $participant->user_rank_name_snapshot ?? $participant->user?->rank?->name ?? 'N/A',
+                'user_nip_snapshot' => $participant->user_nip_snapshot ?? $participant->user?->nip ?? 'N/A',
                 'user_travel_grade_id_snapshot' => $participant->user_travel_grade_id_snapshot,
                 'user_travel_grade_id_fallback' => $participant->user?->travel_grade_id, // Fallback ke user profile
             ];
