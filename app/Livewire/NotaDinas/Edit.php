@@ -46,6 +46,7 @@ class Edit extends Component
 
     // Participants
     public $participants = [];
+    public $selectedUser = '';
 
     // Additional Information
     public $lampiran_count = 1;
@@ -160,6 +161,31 @@ class Edit extends Component
 
     public function updatedParticipants()
     {
+        $this->checkParticipantOverlaps();
+    }
+
+    public function updatedSelectedUser()
+    {
+        if ($this->selectedUser && !in_array($this->selectedUser, $this->participants)) {
+            $this->participants[] = $this->selectedUser;
+            $this->selectedUser = '';
+            $this->checkParticipantOverlaps();
+        }
+    }
+
+    public function addParticipant($userId)
+    {
+        if (!in_array($userId, $this->participants)) {
+            $this->participants[] = $userId;
+            $this->checkParticipantOverlaps();
+        }
+    }
+
+    public function removeParticipant($participantId)
+    {
+        $this->participants = array_values(array_filter($this->participants, function($id) use ($participantId) {
+            return $id != $participantId;
+        }));
         $this->checkParticipantOverlaps();
     }
 

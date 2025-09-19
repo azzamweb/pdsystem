@@ -20,47 +20,6 @@
                     </div>
                 @endif
 
-                <!-- Overlap Warning -->
-                @if($showOverlapWarning && !empty($overlapDetails))
-                    <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-6">
-                        <h3 class="text-lg font-semibold text-yellow-800 dark:text-yellow-200 mb-3 flex items-center">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                            </svg>
-                            Peringatan Konflik Jadwal
-                        </h3>
-                        <div class="text-sm text-yellow-700 dark:text-yellow-300">
-                            <p class="mb-3">Beberapa peserta memiliki jadwal yang bentrok dengan perjalanan dinas ini:</p>
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full divide-y divide-yellow-200 dark:divide-yellow-700">
-                                    <thead>
-                                        <tr class="bg-yellow-100 dark:bg-yellow-800/50">
-                                            <th class="px-3 py-2 text-left font-medium text-yellow-800 dark:text-yellow-200">Peserta</th>
-                                            <th class="px-3 py-2 text-left font-medium text-yellow-800 dark:text-yellow-200">No. Dokumen</th>
-                                            <th class="px-3 py-2 text-left font-medium text-yellow-800 dark:text-yellow-200">Unit</th>
-                                            <th class="px-3 py-2 text-left font-medium text-yellow-800 dark:text-yellow-200">Hal</th>
-                                            <th class="px-3 py-2 text-left font-medium text-yellow-800 dark:text-yellow-200">Tanggal</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($overlapDetails as $overlap)
-                                            <tr class="border-b border-yellow-200 dark:border-yellow-700">
-                                                <td class="px-3 py-2 text-yellow-700 dark:text-yellow-300">{{ $overlap['user'] }}</td>
-                                                <td class="px-3 py-2 text-yellow-700 dark:text-yellow-300">{{ $overlap['doc_no'] }}</td>
-                                                <td class="px-3 py-2 text-yellow-700 dark:text-yellow-300">{{ $overlap['unit'] }}</td>
-                                                <td class="px-3 py-2 text-yellow-700 dark:text-yellow-300">{{ $overlap['hal'] }}</td>
-                                                <td class="px-3 py-2 text-yellow-700 dark:text-yellow-300">
-                                                    {{ \Carbon\Carbon::parse($overlap['start_date'])->format('d/m/Y') }} - 
-                                                    {{ \Carbon\Carbon::parse($overlap['end_date'])->format('d/m/Y') }}
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                @endif
 
                 <form wire:submit="update">
                     <!-- Basic Information -->
@@ -300,33 +259,103 @@
                     <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-6">
                         <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Peserta Perjalanan Dinas</h3>
                         
-                        <!-- Search Filter -->
+                        <!-- Add Participant -->
                         <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cari Pegawai</label>
-                            <input type="text" wire:model.debounce.300ms="search" placeholder="Ketik nama pegawai untuk mencari..." class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tambah Peserta</label>
+                            <flux:select wire:model.live="selectedUser" variant="listbox" searchable placeholder="Pilih pegawai untuk ditambahkan...">
+                                <flux:select.option value="">Pilih Pegawai</flux:select.option>
+                                @foreach($users as $user)
+                                    @if(!in_array($user->id, $participants ?? []))
+                                        <flux:select.option value="{{ $user->id }}">{{ $user->fullNameWithTitles() }} - {{ $user->position?->name ?? 'N/A' }}</flux:select.option>
+                                    @endif
+                                @endforeach
+                            </flux:select>
                         </div>
 
-                        <!-- Checkbox List -->
-                        <div class="border-2 border-gray-200 dark:border-gray-600 rounded-xl p-6 max-h-80 overflow-y-auto bg-gray-50 dark:bg-gray-700/50">
-                            <div class="space-y-3">
-                                @foreach($users as $user)
-                                    <div class="flex items-start">
-                                        <input type="checkbox" wire:model="participants" value="{{ $user->id }}" id="participant-{{ $user->id }}" class="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                                        <label for="participant-{{ $user->id }}" class="ml-3">
-                                            <div class="font-semibold text-gray-900 dark:text-white">{{ $user->fullNameWithTitles() }}</div>
-                                            <div class="text-sm text-gray-600 dark:text-gray-300">
-                                                {{ $user->position?->name ?? 'N/A' }} - {{ $user->unit?->name ?? 'N/A' }}
+                        <!-- Selected Participants -->
+                        @if(!empty($participants) && count($participants) > 0)
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Peserta Terpilih ({{ count($participants) }})</label>
+                                <div class="space-y-2">
+                                    @foreach($participants as $participantId)
+                                        @php
+                                            $user = collect($users)->firstWhere('id', $participantId);
+                                        @endphp
+                                        @if($user)
+                                            <div class="flex items-center justify-between bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                                                <div class="flex-1">
+                                                    <div class="font-semibold text-gray-900 dark:text-white">{{ $user->fullNameWithTitles() }}</div>
+                                                    <div class="text-sm text-gray-600 dark:text-gray-300">
+                                                        {{ $user->position?->name ?? 'N/A' }} - {{ $user->unit?->name ?? 'N/A' }}
+                                                    </div>
+                                                </div>
+                                                <button type="button" 
+                                                        wire:click="removeParticipant({{ $participantId }})"
+                                                        class="ml-3 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                    </svg>
+                                                </button>
                                             </div>
-                                        </label>
-                                    </div>
-                                @endforeach
+                                        @endif
+                                    @endforeach
+                                </div>
                             </div>
-                        </div>
+                        @else
+                            <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+                                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                                <p class="mt-2">Belum ada peserta yang dipilih</p>
+                            </div>
+                        @endif
                         
                         @error('participants') 
                             <span class="text-red-500 text-sm">{{ $message }}</span> 
                         @enderror
                     </div>
+
+                    <!-- Overlap Warning -->
+                    @if($showOverlapWarning && !empty($overlapDetails))
+                        <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-6">
+                            <h3 class="text-lg font-semibold text-yellow-800 dark:text-yellow-200 mb-3 flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                </svg>
+                                Peringatan Konflik Jadwal
+                            </h3>
+                            <div class="text-sm text-yellow-700 dark:text-yellow-300">
+                                <p class="mb-3">Beberapa peserta memiliki jadwal yang bentrok dengan perjalanan dinas ini:</p>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-yellow-200 dark:divide-yellow-700">
+                                        <thead>
+                                            <tr class="bg-yellow-100 dark:bg-yellow-800/50">
+                                                <th class="px-3 py-2 text-left font-medium text-yellow-800 dark:text-yellow-200">Peserta</th>
+                                                <th class="px-3 py-2 text-left font-medium text-yellow-800 dark:text-yellow-200">No. Dokumen</th>
+                                                <th class="px-3 py-2 text-left font-medium text-yellow-800 dark:text-yellow-200">Unit</th>
+                                                <th class="px-3 py-2 text-left font-medium text-yellow-800 dark:text-yellow-200">Hal</th>
+                                                <th class="px-3 py-2 text-left font-medium text-yellow-800 dark:text-yellow-200">Tanggal</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($overlapDetails as $overlap)
+                                                <tr class="border-b border-yellow-200 dark:border-yellow-700">
+                                                    <td class="px-3 py-2 text-yellow-700 dark:text-yellow-300">{{ $overlap['user'] }}</td>
+                                                    <td class="px-3 py-2 text-yellow-700 dark:text-yellow-300">{{ $overlap['doc_no'] }}</td>
+                                                    <td class="px-3 py-2 text-yellow-700 dark:text-yellow-300">{{ $overlap['unit'] }}</td>
+                                                    <td class="px-3 py-2 text-yellow-700 dark:text-yellow-300">{{ $overlap['hal'] }}</td>
+                                                    <td class="px-3 py-2 text-yellow-700 dark:text-yellow-300">
+                                                        {{ \Carbon\Carbon::parse($overlap['start_date'])->format('d/m/Y') }} - 
+                                                        {{ \Carbon\Carbon::parse($overlap['end_date'])->format('d/m/Y') }}
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
 
                     <!-- Additional Information -->
                     <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-6">
