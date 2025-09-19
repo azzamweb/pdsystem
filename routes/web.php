@@ -273,10 +273,8 @@ Route::middleware(['auth', 'user.role'])->group(function () {
     Route::get('document-numbers', DocumentNumberIndex::class)->name('document-numbers.index');
 
     // Nota Dinas CRUD
-    Route::get('nota-dinas/create', [NotaDinasController::class, 'create'])->name('nota-dinas.create');
-    Route::post('nota-dinas', [NotaDinasController::class, 'store'])->name('nota-dinas.store');
-    Route::get('nota-dinas/{notaDinas}/edit', [NotaDinasController::class, 'edit'])->name('nota-dinas.edit');
-    Route::put('nota-dinas/{notaDinas}', [NotaDinasController::class, 'update'])->name('nota-dinas.update');
+    Route::get('nota-dinas/create', \App\Livewire\NotaDinas\Create::class)->name('nota-dinas.create');
+    Route::get('nota-dinas/{notaDinas}/edit', \App\Livewire\NotaDinas\Edit::class)->name('nota-dinas.edit');
     Route::get('nota-dinas/{notaDinas}', function(\App\Models\NotaDinas $notaDinas) {
         return redirect()->route('nota-dinas.pdf', $notaDinas);
     })->name('nota-dinas.show');

@@ -4,6 +4,7 @@ namespace App\Livewire\Documents;
 
 use Livewire\Component;
 use App\Models\Spt;
+use App\Models\NotaDinas;
 use Livewire\Attributes\Lazy;
 
 #[Lazy]
@@ -91,8 +92,13 @@ class SptTable extends Component
                 ->get()
             : collect();
 
+        $notaDinas = $this->notaDinasId 
+            ? NotaDinas::find($this->notaDinasId)
+            : null;
+
         return view('livewire.documents.spt-table', [
-            'spts' => $spts
+            'spts' => $spts,
+            'notaDinas' => $notaDinas
         ]);
     }
 }
