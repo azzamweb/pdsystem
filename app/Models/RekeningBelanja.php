@@ -80,6 +80,31 @@ class RekeningBelanja extends Model
     }
 
     /**
+     * Get sisa anggaran (pagu - realisasi).
+     */
+    public function getSisaAnggaranAttribute(): float
+    {
+        $pagu = $this->pagu ?? 0;
+        return $pagu - $this->total_realisasi;
+    }
+
+    /**
+     * Get formatted sisa anggaran.
+     */
+    public function getFormattedSisaAnggaranAttribute(): string
+    {
+        $sisa = $this->sisa_anggaran;
+        
+        if ($sisa > 0) {
+            return 'Rp ' . number_format($sisa, 0, ',', '.');
+        } elseif ($sisa < 0) {
+            return '-Rp ' . number_format(abs($sisa), 0, ',', '.');
+        } else {
+            return 'Rp 0';
+        }
+    }
+
+    /**
      * Scope a query to only include active rekening belanja.
      */
     public function scopeActive($query)

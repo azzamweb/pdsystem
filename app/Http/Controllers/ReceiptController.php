@@ -50,7 +50,8 @@ class ReceiptController extends Controller
             'treasurerUser.unit',
             'treasurerUser.rank',
             'travelGrade',
-            'lines'
+            'lines',
+            'rekeningBelanja'
         ]);
         
         // Generate PDF
@@ -116,7 +117,8 @@ class ReceiptController extends Controller
             'treasurerUser.unit',
             'treasurerUser.rank',
             'travelGrade',
-            'lines'
+            'lines',
+            'rekeningBelanja'
         ]);
         
         // Generate PDF

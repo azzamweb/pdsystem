@@ -16,7 +16,7 @@
     .kwitansi-table td:first-child{text-align:center;width:35%}
     .kwitansi-table td:last-child{border-right:none;width:65%}
     .row{display:table;width:100%}
-    .col-label{font-weight:bold;font-size:10pt;width:8mm;display:table-cell}
+    .col-label{font-weight:bold;font-size:8pt;width:8mm;display:table-cell}
     .col-content{display:table-cell;padding-left:4px}
     .block{margin-bottom:12px;min-height:80px;display:flex;flex-direction:column;justify-content:space-between}
     .block:last-child{margin-bottom:0}
@@ -45,7 +45,7 @@
     .table th,.table td{border:1px solid #000;padding:4px;font-size:9pt;vertical-align:top}
     .table th{text-align:center;font-weight:bold}
     /* === TANDA TANGAN BAWAH === */
-    .signatures{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+    .signatures{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
     .sign-box{text-align:center}
     .sign-place{margin:8px 0 32px}
   </style>
@@ -217,7 +217,16 @@
               <div>TAHUN ANGGARAN {{ $tahun }}</div>
               <div class="mt-4"></div>
               <div class="block-title">KODE REKENING</div>
-              <div>{{ $receipt->sppd->subKeg ? $receipt->sppd->subKeg->kode_subkeg : '-' }}</div>
+              <div style="font-size: 12px;">
+                @if($receipt->sppd->subKeg)
+                  {{ $receipt->sppd->subKeg->kode_subkeg }}
+                @endif
+                @if($receipt->rekeningBelanja){{ $receipt->rekeningBelanja->kode_rekening }}
+                @endif
+                @if(!$receipt->sppd->subKeg && !$receipt->rekeningBelanja)
+                  -
+                @endif
+              </div>
               <div class="mt-4"></div>
             </div>
           </div>
@@ -326,7 +335,7 @@
   </table>
 
   <!-- === BAGIAN 2: PERHITUNGAN SPPD RAMPUNG (tabel terpisah) === -->
-  <div class="mt-8 text-center" style="font-weight:bold;">PERHITUNGAN SPPD RAMPUNG</div>
+  <div class="mt-6 text-center" style="font-weight:bold;">PERHITUNGAN SPPD RAMPUNG</div>
   <table class="table">
     <thead>
       <tr>

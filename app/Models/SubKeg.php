@@ -79,11 +79,63 @@ class SubKeg extends Model
     }
 
     /**
+     * Get formatted total pagu.
+     */
+    public function getFormattedTotalPaguAttribute(): string
+    {
+        return 'Rp ' . number_format($this->total_pagu, 0, ',', '.');
+    }
+
+    /**
      * Get the count of active rekening belanja.
      */
     public function getJumlahRekeningAttribute(): int
     {
         return $this->activeRekeningBelanja->count();
+    }
+
+    /**
+     * Get total realisasi from all active rekening belanja.
+     */
+    public function getTotalRealisasiAttribute(): float
+    {
+        return $this->activeRekeningBelanja->sum(function ($rekening) {
+            return $rekening->receipts->sum(function ($receipt) {
+                return $receipt->lines->sum('line_total');
+            });
+        });
+    }
+
+    /**
+     * Get sisa anggaran (total pagu - total realisasi).
+     */
+    public function getSisaAnggaranAttribute(): float
+    {
+        return $this->total_pagu - $this->total_realisasi;
+    }
+
+    /**
+     * Get formatted total realisasi.
+     */
+    public function getFormattedTotalRealisasiAttribute(): string
+    {
+        return 'Rp ' . number_format($this->total_realisasi, 0, ',', '.');
+    }
+
+    /**
+     * Get formatted sisa anggaran.
+     */
+    public function getFormattedSisaAnggaranAttribute(): string
+    {
+        $sisa = $this->sisa_anggaran;
+        
+        if ($sisa > 0) {
+            return 'Rp ' . number_format($sisa, 0, ',', '.');
+        } elseif ($sisa < 0) {
+            return '-Rp ' . number_format(abs($sisa), 0, ',', '.');
+        } else {
+            return 'Rp 0';
+        }
     }
 
 }

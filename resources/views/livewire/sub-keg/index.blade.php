@@ -93,6 +93,12 @@
                             Total Pagu
                         </th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            Total Realisasi
+                        </th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            Sisa Anggaran
+                        </th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             Aksi
                         </th>
                     </tr>
@@ -153,6 +159,29 @@
                                     Rp {{ number_format($subKeg->total_pagu, 0, ',', '.') }}
                                 </div>
                             </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right">
+                                <div class="text-sm font-medium text-gray-900 dark:text-white">
+                                    {{ $subKeg->formatted_total_realisasi }}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right">
+                                <div class="text-sm font-medium {{ $subKeg->sisa_anggaran > 0 ? 'text-green-600 dark:text-green-400' : ($subKeg->sisa_anggaran < 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white') }}">
+                                    {{ $subKeg->formatted_sisa_anggaran }}
+                                </div>
+                                @if($subKeg->sisa_anggaran < 0)
+                                    <div class="text-xs text-red-500 dark:text-red-400">
+                                        Over budget
+                                    </div>
+                                @elseif($subKeg->sisa_anggaran > 0)
+                                    <div class="text-xs text-green-500 dark:text-green-400">
+                                        Tersisa
+                                    </div>
+                                @else
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                                        Habis
+                                    </div>
+                                @endif
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex items-center justify-end space-x-2">
                                     <a href="{{ route('sub-keg.edit', $subKeg) }}"
@@ -187,7 +216,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                            <td colspan="9" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
                                 @if($search || $unitFilter)
                                     Tidak ada sub kegiatan yang ditemukan dengan filter yang dipilih
                                 @else

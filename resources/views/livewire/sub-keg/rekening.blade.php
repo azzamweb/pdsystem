@@ -86,6 +86,9 @@
                                     <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                         Realisasi
                                     </th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Sisa
+                                    </th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                         Keterangan
                                     </th>
@@ -122,6 +125,24 @@
                                             @if($rekening->total_realisasi > 0)
                                                 <div class="text-xs text-gray-500 dark:text-gray-400">
                                                     {{ $rekening->receipts->count() }} kwitansi
+                                                </div>
+                                            @endif
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right">
+                                            <div class="text-sm font-medium {{ $rekening->sisa_anggaran > 0 ? 'text-green-600 dark:text-green-400' : ($rekening->sisa_anggaran < 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white') }}">
+                                                {{ $rekening->formatted_sisa_anggaran }}
+                                            </div>
+                                            @if($rekening->sisa_anggaran < 0)
+                                                <div class="text-xs text-red-500 dark:text-red-400">
+                                                    Over budget
+                                                </div>
+                                            @elseif($rekening->sisa_anggaran > 0)
+                                                <div class="text-xs text-green-500 dark:text-green-400">
+                                                    Tersisa
+                                                </div>
+                                            @else
+                                                <div class="text-xs text-gray-500 dark:text-gray-400">
+                                                    Habis
                                                 </div>
                                             @endif
                                         </td>

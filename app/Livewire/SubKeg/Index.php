@@ -45,7 +45,7 @@ class Index extends Component
 
     public function render()
     {
-        $query = SubKeg::with(['unit', 'pptkUser', 'activeRekeningBelanja']);
+        $query = SubKeg::with(['unit', 'pptkUser', 'activeRekeningBelanja.receipts.lines']);
 
         if ($this->search) {
             $query->where(function ($q) {
@@ -73,7 +73,7 @@ class Index extends Component
 
     private function getTotalStatistics()
     {
-        $query = SubKeg::with(['activeRekeningBelanja']);
+        $query = SubKeg::with(['activeRekeningBelanja.receipts.lines']);
 
         if ($this->search) {
             $query->where(function ($q) {
