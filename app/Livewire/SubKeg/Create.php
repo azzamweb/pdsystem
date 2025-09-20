@@ -11,15 +11,13 @@ class Create extends Component
 {
     public $kode_subkeg = '';
     public $nama_subkeg = '';
-    public $pagu = '';
     public $id_unit = '';
     public $pptk_user_id = '';
 
     protected $rules = [
         'kode_subkeg' => 'required|string|max:255|unique:sub_keg,kode_subkeg',
         'nama_subkeg' => 'required|string|max:255',
-        'pagu' => 'nullable|numeric|min:0',
-        'id_unit' => 'required|exists:units,id',
+        'id_unit' => 'nullable|exists:units,id',
         'pptk_user_id' => 'nullable|exists:users,id',
     ];
 
@@ -27,10 +25,7 @@ class Create extends Component
         'kode_subkeg.required' => 'Kode Sub Kegiatan harus diisi.',
         'kode_subkeg.unique' => 'Kode Sub Kegiatan sudah digunakan.',
         'nama_subkeg.required' => 'Nama Sub Kegiatan harus diisi.',
-        'id_unit.required' => 'Unit harus dipilih.',
         'id_unit.exists' => 'Unit yang dipilih tidak valid.',
-        'pagu.numeric' => 'Pagu harus berupa angka.',
-        'pagu.min' => 'Pagu tidak boleh negatif.',
         'pptk_user_id.exists' => 'PPTK yang dipilih tidak valid.',
     ];
 
@@ -41,8 +36,7 @@ class Create extends Component
         $data = [
             'kode_subkeg' => $this->kode_subkeg,
             'nama_subkeg' => $this->nama_subkeg,
-            'pagu' => $this->pagu ?: null,
-            'id_unit' => $this->id_unit,
+            'id_unit' => $this->id_unit ?: null,
             'pptk_user_id' => $this->pptk_user_id ?: null,
         ];
 

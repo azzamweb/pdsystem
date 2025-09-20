@@ -10,7 +10,7 @@
             </a>
             <div>
                 <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Tambah Data Sub Kegiatan</h1>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Tambahkan data sub kegiatan dan pagu anggaran baru ke dalam sistem</p>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Tambahkan data sub kegiatan baru ke dalam sistem</p>
             </div>
         </div>
         <a href="{{ route('sub-keg.index') }}" 
@@ -49,7 +49,7 @@
                     <!-- Unit -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Unit *
+                            Unit
                         </label>
                         <select 
                             wire:model="id_unit"
@@ -64,7 +64,7 @@
                             <span class="text-red-500 text-sm">{{ $message }}</span> 
                         @enderror
                         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                            Pilih unit yang bertanggung jawab atas sub kegiatan ini
+                            Pilih unit yang bertanggung jawab atas sub kegiatan ini (opsional)
                         </p>
                     </div>
 
@@ -112,31 +112,6 @@
                     @enderror
                 </div>
 
-                <!-- Pagu Anggaran -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Pagu Anggaran
-                    </label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <span class="text-gray-500 dark:text-gray-400 text-sm">Rp</span>
-                        </div>
-                        <input 
-                            type="number" 
-                            wire:model="pagu" 
-                            placeholder="0"
-                            min="0"
-                            step="0.01"
-                            class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                        />
-                    </div>
-                    @error('pagu') 
-                        <span class="text-red-500 text-sm">{{ $message }}</span> 
-                    @enderror
-                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                        Masukkan pagu anggaran dalam Rupiah (opsional)
-                    </p>
-                </div>
 
                 <!-- Contoh Data -->
                 <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
@@ -150,14 +125,6 @@
                                 <li>• 5.02.03.2.01.0001 - Penatausahaan Pembiayaan Daerah</li>
                             </ul>
                         </div>
-                        <div>
-                            <strong class="text-blue-700 dark:text-blue-300">Pagu Anggaran:</strong>
-                            <ul class="text-blue-600 dark:text-blue-400 ml-4">
-                                <li>• Rp 464.124.308</li>
-                                <li>• Rp 10.894.910.615</li>
-                                <li>• Rp 703.674.000.000</li>
-                            </ul>
-                        </div>
                     </div>
                 </div>
 
@@ -167,7 +134,8 @@
                     <div class="text-sm text-gray-600 dark:text-gray-400 space-y-1">
                         <p><strong>Kode Sub Kegiatan:</strong> Mengikuti format standar APBD (X.XX.XX.X.XX.XXXX)</p>
                         <p><strong>Nama Sub Kegiatan:</strong> Deskripsi lengkap kegiatan yang akan dilaksanakan</p>
-                        <p><strong>Pagu Anggaran:</strong> Alokasi dana yang disediakan untuk sub kegiatan (dapat dikosongkan)</p>
+                        <p><strong>Unit:</strong> Unit yang bertanggung jawab atas sub kegiatan (opsional)</p>
+                        <p><strong>PPTK:</strong> Pejabat Pelaksana Teknis Kegiatan (opsional)</p>
                     </div>
                 </div>
 

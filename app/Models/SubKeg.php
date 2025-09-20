@@ -13,14 +13,12 @@ class SubKeg extends Model
     protected $fillable = [
         'kode_subkeg',
         'nama_subkeg',
-        'pagu',
         'id_unit',
         'pptk_user_id',
     ];
 
     protected $casts = [
         'id_unit' => 'integer',
-        'pagu' => 'decimal:2',
         'pptk_user_id' => 'integer',
     ];
 
@@ -56,15 +54,4 @@ class SubKeg extends Model
         return $this->kode_subkeg . ' - ' . $this->nama_subkeg;
     }
 
-    /**
-     * Get formatted pagu amount.
-     */
-    public function getFormattedPaguAttribute(): string
-    {
-        if ($this->pagu === null) {
-            return 'Belum ditentukan';
-        }
-        
-        return 'Rp ' . number_format($this->pagu, 0, ',', '.');
-    }
 }

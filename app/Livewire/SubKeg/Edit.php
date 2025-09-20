@@ -12,25 +12,20 @@ class Edit extends Component
     public SubKeg $subKeg;
     public $kode_subkeg = '';
     public $nama_subkeg = '';
-    public $pagu = '';
     public $id_unit = '';
     public $pptk_user_id = '';
 
     protected $rules = [
         'kode_subkeg' => 'required|string|max:255',
         'nama_subkeg' => 'required|string|max:255',
-        'pagu' => 'nullable|numeric|min:0',
-        'id_unit' => 'required|exists:units,id',
+        'id_unit' => 'nullable|exists:units,id',
         'pptk_user_id' => 'nullable|exists:users,id',
     ];
 
     protected $messages = [
         'kode_subkeg.required' => 'Kode Sub Kegiatan harus diisi.',
         'nama_subkeg.required' => 'Nama Sub Kegiatan harus diisi.',
-        'id_unit.required' => 'Unit harus dipilih.',
         'id_unit.exists' => 'Unit yang dipilih tidak valid.',
-        'pagu.numeric' => 'Pagu harus berupa angka.',
-        'pagu.min' => 'Pagu tidak boleh negatif.',
         'pptk_user_id.exists' => 'PPTK yang dipilih tidak valid.',
     ];
 
@@ -39,7 +34,6 @@ class Edit extends Component
         $this->subKeg = $subKeg;
         $this->kode_subkeg = $subKeg->kode_subkeg;
         $this->nama_subkeg = $subKeg->nama_subkeg;
-        $this->pagu = $subKeg->pagu;
         $this->id_unit = $subKeg->id_unit;
         $this->pptk_user_id = $subKeg->pptk_user_id;
     }
@@ -53,8 +47,7 @@ class Edit extends Component
         $data = [
             'kode_subkeg' => $this->kode_subkeg,
             'nama_subkeg' => $this->nama_subkeg,
-            'pagu' => $this->pagu ?: null,
-            'id_unit' => $this->id_unit,
+            'id_unit' => $this->id_unit ?: null,
             'pptk_user_id' => $this->pptk_user_id ?: null,
         ];
 
