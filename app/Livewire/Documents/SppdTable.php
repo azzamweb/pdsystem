@@ -29,6 +29,39 @@ class SppdTable extends Component
         return $this->redirect(route('sppd.create', ['spt_id' => $sptId]));
     }
 
+    public function confirmDelete($sppdId)
+    {
+        try {
+            $sppd = Sppd::with(['itineraries', 'receipts'])->findOrFail($sppdId);
+            
+            // Check if SPPD has related data
+            if ($sppd->itineraries && $sppd->itineraries->count() > 0) {
+                session()->flash('error', 'SPPD tidak dapat dihapus karena memiliki data rute perjalanan.');
+                return;
+            }
+            
+            if ($sppd->receipts && $sppd->receipts->count() > 0) {
+                session()->flash('error', 'SPPD tidak dapat dihapus karena memiliki data kwitansi.');
+                return;
+            }
+            
+            // Store current state before deletion
+            $sptId = $sppd->spt_id;
+            $notaDinasId = $sppd->spt->nota_dinas_id;
+            
+            // Delete the SPPD
+            $sppd->delete();
+            
+            session()->flash('message', 'SPPD berhasil dihapus.');
+            
+            // Dispatch event to refresh parent component
+            $this->dispatch('refreshAll');
+            
+        } catch (\Exception $e) {
+            session()->flash('error', 'Gagal menghapus SPPD: ' . $e->getMessage());
+        }
+    }
+
     public function placeholder()
     {
         return <<<'HTML'

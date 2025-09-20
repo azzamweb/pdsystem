@@ -162,6 +162,8 @@ Route::middleware(['auth', 'user.role'])->group(function () {
 
     // Sub Kegiatan CRUD
     Route::resource('sub-keg', App\Http\Controllers\SubKegController::class);
+    Route::get('sub-keg-import', App\Livewire\SubKeg\ImportExcel::class)->name('sub-keg.import');
+    Route::get('sub-keg/{id}/rekening', App\Livewire\SubKeg\Rekening::class)->name('sub-keg.rekening');
 
     // Province CRUD
     Route::get('provinces', ProvinceIndex::class)->name('provinces.index');

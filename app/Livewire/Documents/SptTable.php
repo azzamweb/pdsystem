@@ -30,6 +30,33 @@ class SptTable extends Component
         return $this->redirect(route('spt.create', ['nota_dinas_id' => $notaDinasId]));
     }
 
+    public function confirmDelete($sptId)
+    {
+        try {
+            $spt = Spt::with(['sppds'])->findOrFail($sptId);
+            
+            // Check if SPT has related SPPDs
+            if ($spt->sppds && $spt->sppds->count() > 0) {
+                session()->flash('error', 'SPT tidak dapat dihapus karena memiliki SPPD terkait.');
+                return;
+            }
+            
+            // Store current state before deletion
+            $notaDinasId = $spt->nota_dinas_id;
+            
+            // Delete the SPT
+            $spt->delete();
+            
+            session()->flash('message', 'SPT berhasil dihapus.');
+            
+            // Dispatch event to refresh parent component
+            $this->dispatch('refreshAll');
+            
+        } catch (\Exception $e) {
+            session()->flash('error', 'Gagal menghapus SPT: ' . $e->getMessage());
+        }
+    }
+
     public function placeholder()
     {
         return <<<'HTML'

@@ -10,7 +10,7 @@
             </a>
             <div>
                 <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Edit Data Sub Kegiatan</h1>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Edit data sub kegiatan dan pagu anggaran</p>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Edit data sub kegiatan dan rekening belanja</p>
             </div>
         </div>
         <a href="{{ route('sub-keg.index') }}" 
@@ -112,31 +112,6 @@
                     @enderror
                 </div>
 
-                <!-- Pagu Anggaran -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Pagu Anggaran
-                    </label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <span class="text-gray-500 dark:text-gray-400 text-sm">Rp</span>
-                        </div>
-                        <input 
-                            type="number" 
-                            wire:model="pagu" 
-                            placeholder="0"
-                            min="0"
-                            step="0.01"
-                            class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-                        />
-                    </div>
-                    @error('pagu') 
-                        <span class="text-red-500 text-sm">{{ $message }}</span> 
-                    @enderror
-                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                        Masukkan pagu anggaran dalam Rupiah (opsional)
-                    </p>
-                </div>
 
                 <!-- Action Buttons -->
                 <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-gray-700">

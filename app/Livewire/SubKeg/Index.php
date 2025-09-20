@@ -38,9 +38,14 @@ class Index extends Component
         session()->flash('success', 'Sub Kegiatan berhasil dihapus.');
     }
 
+    public function viewRekening($id)
+    {
+        return redirect()->route('sub-keg.rekening', $id);
+    }
+
     public function render()
     {
-        $query = SubKeg::with(['unit', 'pptkUser']);
+        $query = SubKeg::with(['unit', 'pptkUser', 'activeRekeningBelanja']);
 
         if ($this->search) {
             $query->where(function ($q) {
@@ -56,9 +61,37 @@ class Index extends Component
         $subKegiatan = $query->orderBy('kode_subkeg')->paginate($this->perPage);
         $units = Unit::orderBy('name')->get();
 
+        // Calculate total statistics for all sub kegiatan (not just current page)
+        $totalStats = $this->getTotalStatistics();
+
         return view('livewire.sub-keg.index', [
             'subKegiatan' => $subKegiatan,
             'units' => $units,
+            'totalStats' => $totalStats,
         ]);
+    }
+
+    private function getTotalStatistics()
+    {
+        $query = SubKeg::with(['activeRekeningBelanja']);
+
+        if ($this->search) {
+            $query->where(function ($q) {
+                $q->where('kode_subkeg', 'like', '%' . $this->search . '%')
+                  ->orWhere('nama_subkeg', 'like', '%' . $this->search . '%');
+            });
+        }
+
+        if ($this->unitFilter) {
+            $query->where('id_unit', $this->unitFilter);
+        }
+
+        $allSubKegiatan = $query->get();
+
+        return [
+            'total_sub_kegiatan' => $allSubKegiatan->count(),
+            'total_rekening' => $allSubKegiatan->sum('jumlah_rekening'),
+            'total_pagu' => $allSubKegiatan->sum('total_pagu'),
+        ];
     }
 }

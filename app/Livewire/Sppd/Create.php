@@ -250,7 +250,7 @@ class Create extends Component
         return view('livewire.sppd.create', [
             'transportModes' => TransportMode::orderBy('name')->get(),
             'orgPlaces' => OrgPlace::orderBy('name')->get(),
-            'subKegiatan' => SubKeg::with('unit')->orderBy('kode_subkeg')->get(),
+            'subKegiatan' => SubKeg::with(['unit', 'activeRekeningBelanja'])->orderBy('kode_subkeg')->get(),
         ]);
     }
 }

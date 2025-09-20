@@ -13,7 +13,7 @@ class Receipt extends Model
     protected $fillable = [
         'doc_no', 'number_is_manual', 'number_manual_reason', 'number_format_id', 'number_sequence_id',
         'number_scope_unit_id', 'sppd_id', 'travel_grade_id', 'receipt_no', 'receipt_date', 'payee_user_id',
-        'account_code', 'treasurer_user_id', 'treasurer_user_name_snapshot',
+        'rekening_belanja_id', 'account_code', 'treasurer_user_id', 'treasurer_user_name_snapshot',
         'treasurer_user_gelar_depan_snapshot', 'treasurer_user_gelar_belakang_snapshot', 'treasurer_user_nip_snapshot',
         'treasurer_user_unit_id_snapshot', 'treasurer_user_unit_name_snapshot', 'treasurer_user_position_id_snapshot',
         'treasurer_user_position_name_snapshot', 'treasurer_user_position_desc_snapshot', 'treasurer_user_rank_id_snapshot',
@@ -25,6 +25,7 @@ class Receipt extends Model
     public function travelGrade() { return $this->belongsTo(TravelGrade::class, 'travel_grade_id'); }
     public function payeeUser() { return $this->belongsTo(User::class, 'payee_user_id'); }
     public function treasurerUser() { return $this->belongsTo(User::class, 'treasurer_user_id'); }
+    public function rekeningBelanja() { return $this->belongsTo(RekeningBelanja::class, 'rekening_belanja_id'); }
     public function lines() { return $this->hasMany(ReceiptLine::class); }
 
     /**

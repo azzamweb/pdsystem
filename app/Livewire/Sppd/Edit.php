@@ -180,7 +180,7 @@ class Edit extends Component
             'transportModes' => TransportMode::orderBy('name')->get(),
             'orgPlaces' => OrgPlace::orderBy('name')->get(),
             'cities' => City::orderBy('name')->get(),
-            'subKegiatan' => SubKeg::with('unit')->orderBy('kode_subkeg')->get(),
+            'subKegiatan' => SubKeg::with(['unit', 'activeRekeningBelanja'])->orderBy('kode_subkeg')->get(),
         ]);
     }
 }

@@ -47,11 +47,43 @@ class SubKeg extends Model
     }
 
     /**
+     * Get the rekening belanja records that belong to this sub kegiatan.
+     */
+    public function rekeningBelanja(): HasMany
+    {
+        return $this->hasMany(RekeningBelanja::class, 'sub_keg_id');
+    }
+
+    /**
+     * Get the active rekening belanja records that belong to this sub kegiatan.
+     */
+    public function activeRekeningBelanja(): HasMany
+    {
+        return $this->hasMany(RekeningBelanja::class, 'sub_keg_id')->where('is_active', true);
+    }
+
+    /**
      * Get the display name for the sub kegiatan.
      */
     public function getDisplayNameAttribute(): string
     {
         return $this->kode_subkeg . ' - ' . $this->nama_subkeg;
+    }
+
+    /**
+     * Get the total pagu from active rekening belanja.
+     */
+    public function getTotalPaguAttribute(): float
+    {
+        return $this->activeRekeningBelanja->sum('pagu');
+    }
+
+    /**
+     * Get the count of active rekening belanja.
+     */
+    public function getJumlahRekeningAttribute(): int
+    {
+        return $this->activeRekeningBelanja->count();
     }
 
 }

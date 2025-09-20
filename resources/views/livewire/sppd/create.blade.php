@@ -212,21 +212,26 @@
 
             <!-- Sub Kegiatan -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Sub Kegiatan <span class="text-red-500">*</span></label>
-                <select wire:model="sub_keg_id" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                    <option value="">Pilih Sub Kegiatan</option>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Sub Kegiatan <span class="text-red-500">*</span>
+                </label>
+                <flux:select wire:model="sub_keg_id" variant="listbox" searchable placeholder="Pilih Sub Kegiatan...">
+                    <flux:select.option value="">Pilih Sub Kegiatan</flux:select.option>
                     @foreach($subKegiatan as $subKeg)
-                        <option value="{{ $subKeg->id }}">
+                        <flux:select.option value="{{ $subKeg->id }}">
                             {{ $subKeg->kode_subkeg }} - {{ $subKeg->nama_subkeg }}
                             @if($subKeg->unit)
                                 ({{ $subKeg->unit->name }})
                             @endif
-                        </option>
+                            - Pagu: Rp {{ number_format($subKeg->total_pagu, 0, ',', '.') }}
+                        </flux:select.option>
                     @endforeach
-                </select>
-                @error('sub_keg_id')<p class="text-sm text-red-600 mt-1">{{ $message }}</p>@enderror
+                </flux:select>
+                @error('sub_keg_id') 
+                    <span class="text-red-500 text-sm">{{ $message }}</span> 
+                @enderror
                 @if(!$sub_keg_id)
-                    <p class="text-xs text-red-600 mt-1">Sub Kegiatan wajib dipilih.</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Sub Kegiatan wajib dipilih untuk menentukan alokasi anggaran.</p>
                 @endif
             </div>
 

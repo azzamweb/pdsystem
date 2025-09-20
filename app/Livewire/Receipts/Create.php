@@ -24,6 +24,9 @@ class Create extends Component
     #[Rule('required|exists:users,id')]
     public $payee_user_id = '';
 
+    #[Rule('required|exists:rekening_belanja,id')]
+    public $rekening_belanja_id = '';
+
     #[Rule('required|exists:users,id')]
     public $treasurer_user_id = '';
 
@@ -45,6 +48,9 @@ class Create extends Component
     
     // Available SPPDs for selection
     public $availableSppds = [];
+    
+    // Available rekening belanja for selection
+    public $availableRekeningBelanja;
 
     // Perhitungan biaya properties
     public $perdiemLines = [];
@@ -84,6 +90,9 @@ class Create extends Component
     {
         $this->sppd_id = $sppd_id ?? request()->query('sppd_id');
         $this->spt_id = request()->query('spt_id');
+        
+        // Initialize collections
+        $this->availableRekeningBelanja = collect();
         
         // If we have spt_id but no sppd_id, load available SPPDs
         if ($this->spt_id && !$this->sppd_id) {
@@ -149,7 +158,8 @@ class Create extends Component
             'spt.notaDinas.destinationCity.province',
             'spt.signedByUser.position',
             'signedByUser.position',
-            'subKeg.pptkUser.position'
+            'subKeg.pptkUser.position',
+            'subKeg.activeRekeningBelanja'
         ])->findOrFail($this->sppd_id);
         
         // Set default receipt date
@@ -157,6 +167,9 @@ class Create extends Component
         
         // Load available participants (those who don't have receipts yet)
         $this->loadAvailableParticipants();
+        
+        // Load rekening belanja based on sub kegiatan
+        $this->loadRekeningBelanja();
         
         // Check if there are available participants for this SPPD
         if (empty($this->availableParticipants)) {
@@ -239,6 +252,16 @@ class Create extends Component
         }
     }
 
+    public function loadRekeningBelanja()
+    {
+        if ($this->sppd && $this->sppd->sub_keg_id && $this->sppd->subKeg) {
+            // Use the already loaded relationship
+            $this->availableRekeningBelanja = $this->sppd->subKeg->activeRekeningBelanja;
+        } else {
+            $this->availableRekeningBelanja = collect();
+        }
+    }
+
     public function loadUsers()
     {
         // Treasurer users are now loaded directly in the view using searchableSelect
@@ -264,6 +287,7 @@ class Create extends Component
             $this->treasurer_user_id = $existingReceipt->treasurer_user_id ?? $this->treasurer_user_id;
             $this->treasurer_title = $existingReceipt->treasurer_title ?? $this->treasurer_title;
             $this->receipt_date = $existingReceipt->receipt_date ?? $this->receipt_date;
+            $this->rekening_belanja_id = $existingReceipt->rekening_belanja_id ?? $this->rekening_belanja_id;
             
             // ❌ JANGAN override travel_grade_id dari existing receipt
             // Travel grade harus selalu mengikuti snapshot participant
@@ -1411,6 +1435,7 @@ class Create extends Component
             'receipt_no' => $this->receipt_no ?: null,
             'receipt_date' => $this->receipt_date,
             'payee_user_id' => $selectedParticipant->user_id,
+            'rekening_belanja_id' => $this->rekening_belanja_id,
             'treasurer_user_id' => $this->treasurer_user_id,
             'treasurer_title' => $this->treasurer_title,
             'total_amount' => $this->totalAmount,
