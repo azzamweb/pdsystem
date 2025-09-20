@@ -314,6 +314,50 @@
                                 @enderror
                             </div>
 
+                            <!-- Rekening Belanja -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    Rekening Belanja <span class="text-red-500">*</span>
+                                </label>
+                                
+                                @if(count($availableRekeningBelanja) > 0)
+                                    <flux:select wire:model="rekening_belanja_id" variant="listbox" searchable placeholder="Pilih Rekening Belanja...">
+                                        <flux:select.option value="">Pilih Rekening Belanja</flux:select.option>
+                                        @foreach($availableRekeningBelanja as $rekening)
+                                            <flux:select.option value="{{ $rekening->id }}">
+                                                {{ $rekening->kode_rekening }} - {{ $rekening->nama_rekening }}
+                                                @if($rekening->pagu > 0)
+                                                    (Pagu: Rp {{ number_format($rekening->pagu, 0, ',', '.') }})
+                                                @endif
+                                                @if($rekening->total_realisasi > 0)
+                                                    | Realisasi: Rp {{ number_format($rekening->total_realisasi, 0, ',', '.') }}
+                                                @endif
+                                                @if($rekening->sisa_anggaran != 0)
+                                                    | Sisa: {{ $rekening->sisa_anggaran > 0 ? 'Rp ' . number_format($rekening->sisa_anggaran, 0, ',', '.') : '-Rp ' . number_format(abs($rekening->sisa_anggaran), 0, ',', '.') }}
+                                                @endif
+                                            </flux:select.option>
+                                        @endforeach
+                                    </flux:select>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                        Rekening belanja berdasarkan sub kegiatan dari SPPD terkait.
+                                    </div>
+                                @else
+                                    <div class="px-3 py-2 border border-gray-300 rounded-md bg-yellow-100 dark:bg-yellow-900/20 border-yellow-300 dark:border-yellow-700 text-yellow-800 dark:text-yellow-200">
+                                        @if($receipt->sppd && !$receipt->sppd->sub_keg_id)
+                                            <strong>Perhatian:</strong> SPPD ini belum memiliki sub kegiatan yang dipilih. Silakan edit SPPD terlebih dahulu untuk memilih sub kegiatan.
+                                        @elseif($receipt->sppd && $receipt->sppd->subKeg && $receipt->sppd->subKeg->activeRekeningBelanja->count() == 0)
+                                            <strong>Perhatian:</strong> Sub kegiatan "{{ $receipt->sppd->subKeg->nama_subkeg }}" belum memiliki rekening belanja yang aktif. Silakan tambahkan rekening belanja untuk sub kegiatan ini.
+                                        @else
+                                            Tidak ada rekening belanja yang tersedia untuk sub kegiatan ini.
+                                        @endif
+                                    </div>
+                                @endif
+                                
+                                @error('rekening_belanja_id') 
+                                    <span class="text-red-500 text-sm">{{ $message }}</span> 
+                                @enderror
+                            </div>
+
                             <!-- Reference Rates & Perhitungan Biaya (hanya tampil jika travel grade sudah dipilih) -->
                             @if($travel_grade_id)
                             <div class="border-t border-gray-200 dark:border-gray-600 pt-6">

@@ -20,6 +20,9 @@ class Edit extends Component
     #[Rule('required|exists:users,id')]
     public $treasurer_user_id = '';
 
+    #[Rule('required|exists:rekening_belanja,id')]
+    public $rekening_belanja_id = '';
+
     #[Rule('required|in:Bendahara Pengeluaran,Bendahara Pengeluaran Pembantu')]
     public $treasurer_title = '';
 
@@ -34,6 +37,9 @@ class Edit extends Component
     // Available users for selection
     public $approvalUsers = [];
     public $treasurerUsers = [];
+    
+    // Available rekening belanja for selection
+    public $availableRekeningBelanja;
 
     // Perhitungan biaya properties
     public $perdiemLines = [];
@@ -82,7 +88,7 @@ class Edit extends Component
             return;
         }
 
-        $this->receipt = Receipt::with(['sppd.spt.notaDinas.participants.user', 'payeeUser', 'treasurerUser'])->findOrFail($this->receipt_id);
+        $this->receipt = Receipt::with(['sppd.spt.notaDinas.participants.user', 'payeeUser', 'treasurerUser', 'sppd.subKeg.activeRekeningBelanja.receipts.lines'])->findOrFail($this->receipt_id);
         
         // Prefill values
         $this->treasurer_user_id = $this->receipt->treasurer_user_id;
@@ -90,11 +96,15 @@ class Edit extends Component
         $this->receipt_date = $this->receipt->receipt_date ?: now()->format('Y-m-d');
         $this->receipt_no = $this->receipt->receipt_no;
         $this->travel_grade_id = $this->receipt->travel_grade_id;
+        $this->rekening_belanja_id = $this->receipt->rekening_belanja_id;
         
         // Load users for treasurer (bendahara) - semua user untuk searchable select
         $this->treasurerUsers = User::with(['position', 'unit'])
             ->orderBy('name')
             ->get();
+
+        // Load available rekening belanja
+        $this->loadRekeningBelanja();
 
         // Load existing receipt lines
         $this->loadReceiptLines();
@@ -117,6 +127,16 @@ class Edit extends Component
             ->orderBy('province_id')
             ->orderBy('name')
             ->get();
+    }
+
+    public function loadRekeningBelanja()
+    {
+        if ($this->receipt && $this->receipt->sppd && $this->receipt->sppd->sub_keg_id && $this->receipt->sppd->subKeg) {
+            // Use the already loaded relationship
+            $this->availableRekeningBelanja = $this->receipt->sppd->subKeg->activeRekeningBelanja;
+        } else {
+            $this->availableRekeningBelanja = collect();
+        }
     }
 
     private function loadReceiptLines()
@@ -1347,6 +1367,7 @@ class Edit extends Component
             'receipt_date' => $this->receipt_date,
             'receipt_no' => $this->receipt_no ?: null,
             'total_amount' => $this->totalAmount,
+            'rekening_belanja_id' => $this->rekening_belanja_id,
         ]);
 
         // Refresh the receipt model to get updated data

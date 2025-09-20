@@ -310,6 +310,12 @@
                                                     @if($rekening->pagu > 0)
                                                         (Pagu: Rp {{ number_format($rekening->pagu, 0, ',', '.') }})
                                                     @endif
+                                                    @if($rekening->total_realisasi > 0)
+                                                        | Realisasi: Rp {{ number_format($rekening->total_realisasi, 0, ',', '.') }}
+                                                    @endif
+                                                    @if($rekening->sisa_anggaran != 0)
+                                                        | Sisa: {{ $rekening->sisa_anggaran > 0 ? 'Rp ' . number_format($rekening->sisa_anggaran, 0, ',', '.') : '-Rp ' . number_format(abs($rekening->sisa_anggaran), 0, ',', '.') }}
+                                                    @endif
                                                 </flux:select.option>
                                             @endforeach
                                         </flux:select>

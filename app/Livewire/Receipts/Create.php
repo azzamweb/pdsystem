@@ -159,7 +159,7 @@ class Create extends Component
             'spt.signedByUser.position',
             'signedByUser.position',
             'subKeg.pptkUser.position',
-            'subKeg.activeRekeningBelanja'
+            'subKeg.activeRekeningBelanja.receipts.lines'
         ])->findOrFail($this->sppd_id);
         
         // Set default receipt date
