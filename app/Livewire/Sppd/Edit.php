@@ -9,6 +9,7 @@ use App\Models\City;
 use App\Models\TransportMode;
 use App\Models\Spt;
 use App\Models\SubKeg;
+use App\Helpers\PermissionHelper;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
@@ -176,11 +177,22 @@ class Edit extends Component
 
     public function render()
     {
+        // Get sub kegiatan with filtering based on user role
+        $subKegiatanQuery = SubKeg::with(['unit', 'activeRekeningBelanja'])->orderBy('kode_subkeg');
+        
+        // Apply unit scope filtering for bendahara pengeluaran pembantu
+        if (!PermissionHelper::canAccessAllData()) {
+            $userUnitId = PermissionHelper::getUserUnitId();
+            if ($userUnitId) {
+                $subKegiatanQuery->where('id_unit', $userUnitId);
+            }
+        }
+        
         return view('livewire.sppd.edit', [
             'transportModes' => TransportMode::orderBy('name')->get(),
             'orgPlaces' => OrgPlace::orderBy('name')->get(),
             'cities' => City::orderBy('name')->get(),
-            'subKegiatan' => SubKeg::with(['unit', 'activeRekeningBelanja'])->orderBy('kode_subkeg')->get(),
+            'subKegiatan' => $subKegiatanQuery->get(),
         ]);
     }
 }

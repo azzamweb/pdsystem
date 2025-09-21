@@ -11,6 +11,7 @@ use App\Models\TransportMode;
 use App\Models\DocNumberFormat;
 use App\Models\SubKeg;
 use App\Services\DocumentNumberService;
+use App\Helpers\PermissionHelper;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -247,10 +248,21 @@ class Create extends Component
 
     public function render()
     {
+        // Get sub kegiatan with filtering based on user role
+        $subKegiatanQuery = SubKeg::with(['unit', 'activeRekeningBelanja'])->orderBy('kode_subkeg');
+        
+        // Apply unit scope filtering for bendahara pengeluaran pembantu
+        if (!PermissionHelper::canAccessAllData()) {
+            $userUnitId = PermissionHelper::getUserUnitId();
+            if ($userUnitId) {
+                $subKegiatanQuery->where('id_unit', $userUnitId);
+            }
+        }
+        
         return view('livewire.sppd.create', [
             'transportModes' => TransportMode::orderBy('name')->get(),
             'orgPlaces' => OrgPlace::orderBy('name')->get(),
-            'subKegiatan' => SubKeg::with(['unit', 'activeRekeningBelanja'])->orderBy('kode_subkeg')->get(),
+            'subKegiatan' => $subKegiatanQuery->get(),
         ]);
     }
 }
