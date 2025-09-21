@@ -6,22 +6,24 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            font-size: 10px;
+            font-size: 9px;
             margin: 0;
-            padding: 10px;
+            padding: 15px;
+            background-color: white;
         }
         
         .header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             border-bottom: 2px solid #000;
-            padding-bottom: 10px;
+            padding-bottom: 15px;
         }
         
         .header h1 {
             margin: 0;
             font-size: 16px;
             font-weight: bold;
+            text-transform: uppercase;
         }
         
         .header p {
@@ -29,90 +31,70 @@
             font-size: 12px;
         }
         
+        .table-container {
+            width: 100%;
+        }
+        
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
-            table-layout: fixed !important;
+            margin-top: 15px;
+            table-layout: fixed;
+            font-size: 8px;
         }
         
+        /* Lebar kolom */
+        table th:nth-child(1), table td:nth-child(1) { width: 4%; }
+        table th:nth-child(2), table td:nth-child(2) { width: 20%; }
+        table th:nth-child(3), table td:nth-child(3) { width: 20%; }
+        table th:nth-child(n+4), table td:nth-child(n+4) { width: 3%; }
+        
         th, td {
-            border: 1px solid #000;
-            padding: 1px 2px;
+            border: 1px solid #000000;
+            padding: 3px 4px;
             text-align: center;
             vertical-align: middle;
-            font-size: 7px;
-            overflow: hidden;
-            word-wrap: break-word;
+            font-size: 8px;
+            line-height: 1.3;
         }
         
         th {
-            background-color: #f0f0f0;
-            font-weight: bold;
-            font-size: 8px;
-        }
-        
-        .name-cell {
-            text-align: left;
-            width: 280px;
-            max-width: 280px;
-        }
-        
-        .position-unit-cell {
-            text-align: left;
-            width: 120px;
-            max-width: 120px;
-            font-size: 8px;
-            line-height: 1.3;
-        }
-        
-        .date-cell {
-            width: 15px;
-            min-width: 15px;
-            max-width: 15px;
-        }
-        
-        .weekend {
-            background-color: #ffcccc !important;
-        }
-        
-        .assignment {
-            background-color: #cce5ff !important;
-        }
-        
-        .name-info {
-            margin: 0;
-            padding: 0;
-        }
-        
-        .name-info .full-name {
+            background-color: #f9fafb;
             font-weight: bold;
             font-size: 9px;
-            margin: 0;
-            line-height: 1.3;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
-        .name-info .nip {
-            font-size: 8px;
-            margin: 2px 0;
-            line-height: 1.2;
+        /* Warna background */
+        .assignment-bg { background-color: #dbeafe !important; } /* biru */
+        .weekend-bg { background-color: #fecaca !important; } /* merah */
+        
+        /* Indicator "D" */
+        .assignment-indicator {
+            font-weight: bold;
+            font-size: 10px;
+            color: #1d4ed8;
+            margin: 0 auto;
+            display: block;
         }
         
+        /* Teks nama & info */
+        .name-info { line-height: 1.4; }
+        .name-info .full-name { font-weight: bold; font-size: 9px; }
+        .name-info .nip,
         .name-info .rank {
             font-size: 8px;
-            margin: 2px 0;
-            line-height: 1.2;
+            margin: 1px 0;
+            line-height: 1.3;
+            color: #444;
         }
         
-        .footer {
-            margin-top: 20px;
-            text-align: center;
-            font-size: 10px;
-        }
-        
+        /* Legend */
         .legend {
-            margin-top: 15px;
-            font-size: 9px;
+            margin-top: 20px;
+            font-size: 10px;
+            text-align: left;
         }
         
         .legend-item {
@@ -122,10 +104,19 @@
         
         .legend-color {
             display: inline-block;
-            width: 15px;
-            height: 15px;
-            margin-right: 5px;
+            width: 14px;
+            height: 14px;
+            margin-right: 6px;
             border: 1px solid #000;
+            vertical-align: middle;
+        }
+        
+        /* Footer */
+        .footer {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 10px;
+            color: #6b7280;
         }
     </style>
 </head>
@@ -136,75 +127,77 @@
         <p>Dicetak pada: {{ \Carbon\Carbon::now()->format('d/m/Y H:i:s') }}</p>
     </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th style="width: 20px !important;">No</th>
-                <th style="width: 250px !important; min-width: 250px !important; text-align: left;">Nama Lengkap, NIP, Pangkat</th>
-                <th style="width: 100px !important; min-width: 100px !important; text-align: left;">Jabatan & Unit</th>
-                @for($day = 1; $day <= $daysInMonth; $day++)
-                    <th style="width: 12px !important; min-width: 12px !important; max-width: 12px !important; font-size: 6px !important;">{{ $day }}</th>
-                @endfor
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($pegawai as $index => $p)
+    <div class="table-container">
+        <table>
+            <thead>
                 <tr>
-                    <td style="width: 20px !important;">{{ $index + 1 }}</td>
-                    <td style="width: 250px !important; min-width: 250px !important; text-align: left; padding: 3px;">
-                        <div class="name-info">
-                            <div class="full-name">{{ $p->fullNameWithTitles() }}</div>
-                            <div class="nip">NIP: {{ $p->nip ?? '-' }}</div>
-                            <div class="rank">{{ $p->rank->name ?? '-' }}</div>
-                        </div>
-                    </td>
-                    <td style="width: 100px !important; min-width: 100px !important; text-align: left; padding: 3px;">
-                        <div style="font-weight: bold; margin-bottom: 3px; font-size: 8px;">{{ $p->position->name ?? '-' }}</div>
-                        <div style="font-size: 7px; color: #666; line-height: 1.2;">{{ $p->unit->name ?? '-' }}</div>
-                    </td>
-                    
+                    <th>NO</th>
+                    <th style="text-align: left;">NAMA LENGKAP, NIP, PANGKAT</th>
+                    <th style="text-align: left;">JABATAN / UNIT</th>
                     @for($day = 1; $day <= $daysInMonth; $day++)
-                        @php
-                            $currentDate = \Carbon\Carbon::createFromDate($selectedYear, $selectedMonth, $day)->startOfDay();
-                            $hasAssignment = false;
-                            $isWeekend = $currentDate->isWeekend();
-                            
-                            if (isset($scheduleData[$p->id])) {
-                                foreach ($scheduleData[$p->id] as $assignment) {
-                                    if ($currentDate->gte($assignment['start_date']) && $currentDate->lte($assignment['end_date'])) {
-                                        $hasAssignment = true;
-                                        break;
-                                    }
-                                }
-                            }
-                            
-                            $cellClass = '';
-                            if ($hasAssignment) {
-                                $cellClass = 'assignment';
-                            } elseif ($isWeekend) {
-                                $cellClass = 'weekend';
-                            }
-                        @endphp
-                        
-                        <td style="width: 15px !important; min-width: 15px !important; max-width: 15px !important; {{ $cellClass }}">
-                            @if($hasAssignment)
-                                ●
-                            @endif
-                        </td>
+                        <th>{{ $day }}</th>
                     @endfor
                 </tr>
-            @endforeach
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach($pegawai as $index => $p)
+                    <tr>
+                        <td>{{ $index + 1 }}</td>
+                        <td style="text-align: left;">
+                            <div class="name-info">
+                                <div class="full-name">{{ $p->fullNameWithTitles() }}</div>
+                                <div class="nip">NIP: {{ $p->nip ?? '-' }}</div>
+                                <div class="rank">{{ $p->rank->name ?? '-' }}</div>
+                            </div>
+                        </td>
+                        <td style="text-align: left;">
+                            <div style="line-height: 1.3;">
+                                <div style="font-weight: bold; margin-bottom: 2px;">{{ $p->position->name ?? '-' }}</div>
+                                <div style="font-size: 7px; color: #666;">{{ $p->unit->name ?? '-' }}</div>
+                            </div>
+                        </td>
+                        
+                        @for($day = 1; $day <= $daysInMonth; $day++)
+                            @php
+                                $currentDate = \Carbon\Carbon::createFromDate($selectedYear, $selectedMonth, $day)->startOfDay();
+                                $hasAssignment = false;
+                                $isWeekend = $currentDate->isWeekend();
+
+                                if (isset($scheduleData[$p->id])) {
+                                    foreach ($scheduleData[$p->id] as $assignment) {
+                                        if ($currentDate->gte($assignment['start_date']) && $currentDate->lte($assignment['end_date'])) {
+                                            $hasAssignment = true;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                $cellClass = '';
+                                if ($hasAssignment) {
+                                    $cellClass = 'assignment-bg';
+                                } elseif ($isWeekend) {
+                                    $cellClass = 'weekend-bg';
+                                }
+                            @endphp
+                            
+                            <td class="{{ $cellClass }}">
+                                @if($hasAssignment)
+                                    <div class="assignment-indicator">D</div>
+                                @endif
+                            </td>
+                        @endfor
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
 
     <div class="legend">
         <div class="legend-item">
-            <span class="legend-color" style="background-color: #cce5ff;"></span>
-            <span>Perjalanan Dinas</span>
+            <span class="legend-color assignment-bg"></span> Perjalanan Dinas
         </div>
         <div class="legend-item">
-            <span class="legend-color" style="background-color: #ffcccc;"></span>
-            <span>Hari Libur (Sabtu/Minggu)</span>
+            <span class="legend-color weekend-bg"></span> Hari Libur (Sabtu/Minggu)
         </div>
     </div>
 

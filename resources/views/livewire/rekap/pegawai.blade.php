@@ -110,10 +110,10 @@
                     <table class="min-w-full border-collapse border-2 border-black">
                         <thead class="bg-gray-50 dark:bg-gray-700">
                             <tr>
-                                <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider sticky left-0 bg-gray-50 dark:bg-gray-700 z-10 border-2 border-black">No</th>
-                                <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider sticky left-16 bg-gray-50 dark:bg-gray-700 z-10 w-80 border-2 border-black">Nama Lengkap, NIP, Pangkat</th>
-                                <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider sticky left-80 bg-gray-50 dark:bg-gray-700 z-10 border-2 border-black">Jabatan</th>
-                                <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider sticky left-48 bg-gray-50 dark:bg-gray-700 z-10 border-2 border-black">Unit</th>
+                                <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider bg-gray-50 dark:bg-gray-700 border-2 border-black">No</th>
+                                <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider bg-gray-50 dark:bg-gray-700 w-80 border-2 border-black">Nama Lengkap, NIP, Pangkat</th>
+                                <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider bg-gray-50 dark:bg-gray-700 border-2 border-black">Jabatan</th>
+                                <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider bg-gray-50 dark:bg-gray-700 border-2 border-black">Unit</th>
                                 
                                 <!-- Date columns -->
                                 @for($day = 1; $day <= $daysInMonth; $day++)
@@ -126,10 +126,10 @@
                         <tbody class="bg-white dark:bg-gray-800">
                             @forelse($pegawai as $index => $p)
                                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
-                                    <td class="px-2 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 sticky left-0 bg-white dark:bg-gray-800 z-10 border-2 border-black">
+                                    <td class="px-2 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 border-2 border-black">
                                         {{ $pegawai->firstItem() + $index }}
                                     </td>
-                                    <td class="px-2 py-2 text-sm text-gray-900 dark:text-gray-100 sticky left-16 bg-white dark:bg-gray-800 z-10 w-80 border-2 border-black">
+                                    <td class="px-2 py-2 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 w-80 border-2 border-black">
                                         <div class="whitespace-nowrap">
                                             <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
                                                 {{ $p->fullNameWithTitles() }}
@@ -142,10 +142,10 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="px-2 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 sticky left-80 bg-white dark:bg-gray-800 z-10 border-2 border-black">
+                                    <td class="px-2 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 border-2 border-black">
                                         {{ $p->position->name ?? '-' }}
                                     </td>
-                                    <td class="px-2 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 sticky left-48 bg-white dark:bg-gray-800 z-10 border-2 border-black">
+                                    <td class="px-2 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 border-2 border-black">
                                         {{ $p->unit->name ?? '-' }}
                                     </td>
                                     

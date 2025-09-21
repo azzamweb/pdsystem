@@ -74,31 +74,31 @@ class Pegawai extends Component
         if (!\App\Helpers\PermissionHelper::canAccessAllData()) {
             $userUnitId = \App\Helpers\PermissionHelper::getUserUnitId();
             if ($userUnitId) {
-                $query->where('unit_id', $userUnitId);
+                $query->where('users.unit_id', $userUnitId);
             }
         }
 
         // Apply filters
         if ($this->search) {
             $query->where(function($q) {
-                $q->where('name', 'like', '%' . $this->search . '%')
-                  ->orWhere('nip', 'like', '%' . $this->search . '%')
-                  ->orWhere('email', 'like', '%' . $this->search . '%')
-                  ->orWhere('gelar_depan', 'like', '%' . $this->search . '%')
-                  ->orWhere('gelar_belakang', 'like', '%' . $this->search . '%');
+                $q->where('users.name', 'like', '%' . $this->search . '%')
+                  ->orWhere('users.nip', 'like', '%' . $this->search . '%')
+                  ->orWhere('users.email', 'like', '%' . $this->search . '%')
+                  ->orWhere('users.gelar_depan', 'like', '%' . $this->search . '%')
+                  ->orWhere('users.gelar_belakang', 'like', '%' . $this->search . '%');
             });
         }
 
         if ($this->unit_filter) {
-            $query->where('unit_id', $this->unit_filter);
+            $query->where('users.unit_id', $this->unit_filter);
         }
 
         if ($this->position_filter) {
-            $query->where('position_id', $this->position_filter);
+            $query->where('users.position_id', $this->position_filter);
         }
 
         if ($this->rank_filter) {
-            $query->where('rank_id', $this->rank_filter);
+            $query->where('users.rank_id', $this->rank_filter);
         }
 
         // Sort by eselon, rank, and NIP
