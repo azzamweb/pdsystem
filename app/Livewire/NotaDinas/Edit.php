@@ -8,7 +8,9 @@ use App\Models\Unit;
 use App\Models\City;
 use App\Models\OrgPlace;
 use App\Services\DocumentNumberService;
+use App\Helpers\PermissionHelper;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\Attributes\Layout;
@@ -66,6 +68,9 @@ class Edit extends Component
 
     // Search
     public $search = '';
+    
+    // UI State
+    public $isRequestingUnitDisabled = false;
 
     protected $rules = [
         'requesting_unit_id' => 'required|exists:units,id',
@@ -123,7 +128,20 @@ class Edit extends Component
 
     public function loadData()
     {
-        $this->units = Unit::orderBy('name')->get();
+        // Load units - restricted for bendahara pengeluaran pembantu
+        if (!PermissionHelper::canAccessAllData()) {
+            $userUnitId = PermissionHelper::getUserUnitId();
+            if ($userUnitId) {
+                $this->units = Unit::where('id', $userUnitId)->get();
+                $this->isRequestingUnitDisabled = true;
+            } else {
+                $this->units = collect();
+            }
+        } else {
+            $this->units = Unit::orderBy('name')->get();
+            $this->isRequestingUnitDisabled = false;
+        }
+        
         $this->users = User::with(['position', 'unit'])->orderBy('name')->get();
         $this->cities = City::orderBy('name')->get();
         $this->orgPlaces = OrgPlace::orderBy('name')->get();
@@ -262,7 +280,7 @@ class Edit extends Component
             // Generate document number if not manual
             $docNumber = $this->doc_no;
             if (!$this->number_is_manual) {
-                $numberResult = DocumentNumberService::generate('ND', $this->requesting_unit_id, $this->nd_date, [], auth()->id());
+                $numberResult = DocumentNumberService::generate('ND', $this->requesting_unit_id, $this->nd_date, [], Auth::id());
                 $docNumber = $numberResult['number'];
             }
 
@@ -288,7 +306,7 @@ class Edit extends Component
                 'status' => $this->status,
                 'tembusan' => $this->tembusan,
                 'notes' => $this->notes,
-                'updated_by' => auth()->id(),
+                'updated_by' => Auth::id(),
             ]);
 
             // Update participants

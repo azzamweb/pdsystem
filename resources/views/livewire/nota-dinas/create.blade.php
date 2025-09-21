@@ -31,12 +31,21 @@
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                     Unit Pemohon <span class="text-red-500">*</span>
                                 </label>
-                                <flux:select wire:model="requesting_unit_id" variant="listbox" searchable placeholder="Pilih Unit...">
-                                    <flux:select.option value="">Pilih Unit</flux:select.option>
-                                    @foreach($units as $unit)
-                                        <flux:select.option value="{{ $unit->id }}">{{ $unit->name }}</flux:select.option>
-                                    @endforeach
-                                </flux:select>
+                                @if($isRequestingUnitDisabled)
+                                    <div class="block w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 dark:bg-gray-600 text-gray-500 dark:text-gray-400">
+                                        {{ $units->first()->name ?? 'Unit tidak tersedia' }}
+                                    </div>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                        Unit Pemohon otomatis sesuai dengan unit Anda
+                                    </p>
+                                @else
+                                    <flux:select wire:model="requesting_unit_id" variant="listbox" searchable placeholder="Pilih Unit...">
+                                        <flux:select.option value="">Pilih Unit</flux:select.option>
+                                        @foreach($units as $unit)
+                                            <flux:select.option value="{{ $unit->id }}">{{ $unit->name }}</flux:select.option>
+                                        @endforeach
+                                    </flux:select>
+                                @endif
                                 @error('requesting_unit_id') 
                                     <span class="text-red-500 text-sm">{{ $message }}</span> 
                                 @enderror
