@@ -128,6 +128,11 @@ class RolePermissionSeeder extends Seeder
         // 3. Bendahara Pengeluaran - mengelola semua dokumen tanpa scope bidang, dapat mengakses semua fitur rekapitulasi
         $bendaharaPengeluaran = Role::create(['name' => 'bendahara-pengeluaran']);
         $bendaharaPengeluaran->givePermissionTo([
+            // Menu Access
+            'menu.dashboard',
+            'menu.documents',
+            'menu.rekap',
+            // Documents
             'documents.view',
             'documents.create',
             'documents.edit',
@@ -158,6 +163,7 @@ class RolePermissionSeeder extends Seeder
             'trip-reports.edit',
             'trip-reports.delete',
             'trip-reports.approve',
+            // Rekap
             'rekap.view',
             'rekap.export',
         ]);
@@ -165,6 +171,11 @@ class RolePermissionSeeder extends Seeder
         // 4. Bendahara Pengeluaran Pembantu - mengelola semua dokumen dengan scope bidang, dapat mengakses fitur rekapitulasi sesuai bidang
         $bendaharaPengeluaranPembantu = Role::create(['name' => 'bendahara-pengeluaran-pembantu']);
         $bendaharaPengeluaranPembantu->givePermissionTo([
+            // Menu Access
+            'menu.dashboard',
+            'menu.documents',
+            'menu.rekap',
+            // Documents
             'documents.view',
             'documents.create',
             'documents.edit',
@@ -189,6 +200,7 @@ class RolePermissionSeeder extends Seeder
             'trip-reports.create',
             'trip-reports.edit',
             'trip-reports.delete',
+            // Rekap
             'rekap.view',
             'rekap.export',
         ]);
@@ -196,6 +208,10 @@ class RolePermissionSeeder extends Seeder
         // 5. Sekretariat - hanya dapat mengakses semua fitur rekapitulasi
         $sekretariat = Role::create(['name' => 'sekretariat']);
         $sekretariat->givePermissionTo([
+            // Menu Access
+            'menu.dashboard',
+            'menu.rekap',
+            // Rekap
             'rekap.view',
             'rekap.export',
         ]);

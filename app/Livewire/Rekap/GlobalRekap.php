@@ -143,12 +143,42 @@ class GlobalRekap extends Component
                 'spt.tripReport'
             ]);
 
+            // Apply unit scope filtering for bendahara pengeluaran pembantu
+            if (!\App\Helpers\PermissionHelper::canAccessAllData()) {
+                $userUnitId = \App\Helpers\PermissionHelper::getUserUnitId();
+                if ($userUnitId) {
+                    $query->where('requesting_unit_id', $userUnitId);
+                }
+            }
+
             // Apply basic filters
             if ($this->search) {
-                $query->where(function($q) {
-                    $q->where('doc_no', 'like', '%' . $this->search . '%')
-                      ->orWhere('hal', 'like', '%' . $this->search . '%')
-                      ->orWhere('maksud', 'like', '%' . $this->search . '%');
+                $searchTerm = '%' . strtolower($this->search) . '%';
+                $query->where(function($q) use ($searchTerm) {
+                    $q->whereRaw('LOWER(doc_no) LIKE ?', [$searchTerm])
+                      ->orWhereRaw('LOWER(hal) LIKE ?', [$searchTerm])
+                      ->orWhereRaw('LOWER(maksud) LIKE ?', [$searchTerm])
+                      ->orWhereRaw('LOWER(dasar) LIKE ?', [$searchTerm])
+                      ->orWhereRaw('LOWER(tembusan) LIKE ?', [$searchTerm])
+                      ->orWhereRaw('LOWER(notes) LIKE ?', [$searchTerm])
+                      ->orWhereHas('requestingUnit', function($unitQuery) use ($searchTerm) {
+                          $unitQuery->whereRaw('LOWER(name) LIKE ?', [$searchTerm]);
+                      })
+                      ->orWhereHas('destinationCity', function($cityQuery) use ($searchTerm) {
+                          $cityQuery->whereRaw('LOWER(name) LIKE ?', [$searchTerm]);
+                      })
+                      ->orWhereHas('participants.user', function($userQuery) use ($searchTerm) {
+                          $userQuery->whereRaw('LOWER(name) LIKE ?', [$searchTerm])
+                                   ->orWhereRaw('LOWER(nip) LIKE ?', [$searchTerm]);
+                      })
+                      ->orWhereHas('toUser', function($userQuery) use ($searchTerm) {
+                          $userQuery->whereRaw('LOWER(name) LIKE ?', [$searchTerm])
+                                   ->orWhereRaw('LOWER(nip) LIKE ?', [$searchTerm]);
+                      })
+                      ->orWhereHas('fromUser', function($userQuery) use ($searchTerm) {
+                          $userQuery->whereRaw('LOWER(name) LIKE ?', [$searchTerm])
+                                   ->orWhereRaw('LOWER(nip) LIKE ?', [$searchTerm]);
+                      });
                 });
             }
 

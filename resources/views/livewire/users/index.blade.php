@@ -47,7 +47,7 @@
             <input 
                 type="text"
                 wire:model.live.debounce.300ms="search"
-                placeholder="Cari pegawai (nama, email, NIP, NIK)..."
+                placeholder="Cari pegawai (nama, NIP, NIK, unit, jabatan, pangkat, email, telepon, status)..."
                 class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             />
         </div>

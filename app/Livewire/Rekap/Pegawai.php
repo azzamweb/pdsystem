@@ -70,6 +70,14 @@ class Pegawai extends Component
             'travelGrade'
         ]);
 
+        // Apply unit scope filtering for bendahara pengeluaran pembantu
+        if (!\App\Helpers\PermissionHelper::canAccessAllData()) {
+            $userUnitId = \App\Helpers\PermissionHelper::getUserUnitId();
+            if ($userUnitId) {
+                $query->where('unit_id', $userUnitId);
+            }
+        }
+
         // Apply filters
         if ($this->search) {
             $query->where(function($q) {

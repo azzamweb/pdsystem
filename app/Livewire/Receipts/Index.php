@@ -74,6 +74,16 @@ class Index extends Component
             'travelGrade'
         ]);
 
+        // Apply unit scope filtering for bendahara pengeluaran pembantu
+        if (!\App\Helpers\PermissionHelper::canAccessAllData()) {
+            $userUnitId = \App\Helpers\PermissionHelper::getUserUnitId();
+            if ($userUnitId) {
+                $query->whereHas('sppd.spt.notaDinas', function($q) use ($userUnitId) {
+                    $q->where('requesting_unit_id', $userUnitId);
+                });
+            }
+        }
+
         // Apply search filter
         if ($this->search) {
             $query->where(function ($q) {

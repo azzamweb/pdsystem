@@ -42,10 +42,49 @@ class Index extends Component
         $users = User::with(['unit', 'position.echelon', 'rank', 'travelGrade'])
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
-                    $q->where('name', 'like', '%' . $this->search . '%')
-                      ->orWhere('email', 'like', '%' . $this->search . '%')
-                      ->orWhere('nip', 'like', '%' . $this->search . '%')
-                      ->orWhere('nik', 'like', '%' . $this->search . '%');
+                    // Search in basic user fields
+                    $q->where('users.name', 'like', '%' . $this->search . '%')
+                      ->orWhere('users.email', 'like', '%' . $this->search . '%')
+                      ->orWhere('users.nip', 'like', '%' . $this->search . '%')
+                      ->orWhere('users.nik', 'like', '%' . $this->search . '%')
+                      ->orWhere('users.gelar_depan', 'like', '%' . $this->search . '%')
+                      ->orWhere('users.gelar_belakang', 'like', '%' . $this->search . '%')
+                      ->orWhere('users.position_desc', 'like', '%' . $this->search . '%')
+                      ->orWhere('users.phone', 'like', '%' . $this->search . '%')
+                      ->orWhere('users.whatsapp', 'like', '%' . $this->search . '%')
+                      // Search in unit relationship
+                      ->orWhereHas('unit', function ($unitQuery) {
+                          $unitQuery->where('name', 'like', '%' . $this->search . '%')
+                                   ->orWhere('code', 'like', '%' . $this->search . '%');
+                      })
+                      // Search in position relationship
+                      ->orWhereHas('position', function ($positionQuery) {
+                          $positionQuery->where('name', 'like', '%' . $this->search . '%')
+                                       ->orWhere('type', 'like', '%' . $this->search . '%')
+                                       // Search in echelon through position
+                                       ->orWhereHas('echelon', function ($echelonQuery) {
+                                           $echelonQuery->where('name', 'like', '%' . $this->search . '%')
+                                                       ->orWhere('code', 'like', '%' . $this->search . '%');
+                                       });
+                      })
+                      // Search in rank relationship
+                      ->orWhereHas('rank', function ($rankQuery) {
+                          $rankQuery->where('name', 'like', '%' . $this->search . '%')
+                                   ->orWhere('code', 'like', '%' . $this->search . '%');
+                      })
+                      // Search in travel grade relationship
+                      ->orWhereHas('travelGrade', function ($travelGradeQuery) {
+                          $travelGradeQuery->where('name', 'like', '%' . $this->search . '%');
+                      })
+                      // Search by status
+                      ->orWhere(function ($statusQuery) {
+                          if (stripos($this->search, 'staff') !== false || stripos($this->search, 'pegawai') !== false) {
+                              $statusQuery->where('users.is_non_staff', false);
+                          }
+                          if (stripos($this->search, 'non-staff') !== false || stripos($this->search, 'non staff') !== false) {
+                              $statusQuery->orWhere('users.is_non_staff', true);
+                          }
+                      });
                 });
             })
             ->leftJoin('positions', 'users.position_id', '=', 'positions.id')

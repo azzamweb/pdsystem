@@ -141,6 +141,14 @@ class NotaDinasList extends Component
         }])
             ->orderBy('created_at', 'desc');
 
+        // Apply unit scope filtering for bendahara pengeluaran pembantu
+        if (!\App\Helpers\PermissionHelper::canAccessAllData()) {
+            $userUnitId = \App\Helpers\PermissionHelper::getUserUnitId();
+            if ($userUnitId) {
+                $query->where('requesting_unit_id', $userUnitId);
+            }
+        }
+
         // Search
         if ($this->search) {
             $searchTerm = '%' . strtolower($this->search) . '%';
