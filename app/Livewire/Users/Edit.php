@@ -76,6 +76,14 @@ class Edit extends Component
             abort(403, 'Anda tidak memiliki izin untuk mengedit user.');
         }
         
+        // Check if bendahara pengeluaran pembantu can edit this user
+        if (!PermissionHelper::canAccessAllData()) {
+            $userUnitId = PermissionHelper::getUserUnitId();
+            if ($userUnitId && $user->unit_id != $userUnitId) {
+                abort(403, 'Anda hanya dapat mengedit pegawai dalam unit yang sama.');
+            }
+        }
+        
         $this->user = $user;
         $this->name = $user->name;
         $this->email = $user->email;
@@ -144,6 +152,15 @@ class Edit extends Component
     {
         $validated = $this->validate();
         
+        // Additional validation for bendahara pengeluaran pembantu
+        if (!PermissionHelper::canAccessAllData()) {
+            $userUnitId = PermissionHelper::getUserUnitId();
+            if ($userUnitId && $validated['unit_id'] != $userUnitId) {
+                session()->flash('error', 'Anda hanya dapat mengedit pegawai dalam unit yang sama.');
+                return;
+            }
+        }
+        
         // Convert empty strings to null for foreign key fields and date fields
         $nullableFields = ['unit_id', 'position_id', 'rank_id', 'travel_grade_id', 'birth_date'];
         foreach ($nullableFields as $key) {
@@ -166,7 +183,16 @@ class Edit extends Component
 
     public function render()
     {
-        $units = Unit::orderBy('name')->get();
+        // Filter units based on user role
+        $unitsQuery = Unit::orderBy('name');
+        if (!PermissionHelper::canAccessAllData()) {
+            $userUnitId = PermissionHelper::getUserUnitId();
+            if ($userUnitId) {
+                $unitsQuery->where('id', $userUnitId);
+            }
+        }
+        $units = $unitsQuery->get();
+        
         $positions = Position::with('echelon')
             ->leftJoin('echelons', 'positions.echelon_id', '=', 'echelons.id')
             ->orderByRaw('CASE WHEN echelons.code IS NULL THEN 2 ELSE 0 END') // Non eselon positions last

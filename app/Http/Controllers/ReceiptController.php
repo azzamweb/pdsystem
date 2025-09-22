@@ -19,14 +19,8 @@ class ReceiptController extends Controller
         // Check unit scope for bendahara pengeluaran pembantu
         if (!PermissionHelper::canAccessAllData()) {
             $userUnitId = PermissionHelper::getUserUnitId();
-            if ($userUnitId) {
-                $hasAccess = $receipt->sppd->spt->notaDinas->participants()
-                    ->where('unit_id', $userUnitId)
-                    ->exists();
-                
-                if (!$hasAccess) {
-                    abort(403, 'Anda hanya dapat melihat kwitansi dari bidang Anda.');
-                }
+            if ($userUnitId && $receipt->sppd->spt->notaDinas->requesting_unit_id != $userUnitId) {
+                abort(403, 'Anda hanya dapat melihat kwitansi dari bidang Anda.');
             }
         }
 
@@ -86,14 +80,8 @@ class ReceiptController extends Controller
         // Check unit scope for bendahara pengeluaran pembantu
         if (!PermissionHelper::canAccessAllData()) {
             $userUnitId = PermissionHelper::getUserUnitId();
-            if ($userUnitId) {
-                $hasAccess = $receipt->sppd->spt->notaDinas->participants()
-                    ->where('unit_id', $userUnitId)
-                    ->exists();
-                
-                if (!$hasAccess) {
-                    abort(403, 'Anda hanya dapat melihat kwitansi dari bidang Anda.');
-                }
+            if ($userUnitId && $receipt->sppd->spt->notaDinas->requesting_unit_id != $userUnitId) {
+                abort(403, 'Anda hanya dapat melihat kwitansi dari bidang Anda.');
             }
         }
 

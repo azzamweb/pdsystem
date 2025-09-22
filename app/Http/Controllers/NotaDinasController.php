@@ -19,14 +19,8 @@ class NotaDinasController extends Controller
         // Check unit scope for bendahara pengeluaran pembantu
         if (!PermissionHelper::canAccessAllData()) {
             $userUnitId = PermissionHelper::getUserUnitId();
-            if ($userUnitId) {
-                $hasAccess = $notaDinas->participants()
-                    ->where('unit_id', $userUnitId)
-                    ->exists();
-                
-                if (!$hasAccess) {
-                    abort(403, 'Anda hanya dapat melihat nota dinas dari bidang Anda.');
-                }
+            if ($userUnitId && $notaDinas->requesting_unit_id != $userUnitId) {
+                abort(403, 'Anda hanya dapat melihat nota dinas dari bidang Anda.');
             }
         }
 
@@ -65,14 +59,8 @@ class NotaDinasController extends Controller
         // Check unit scope for bendahara pengeluaran pembantu
         if (!PermissionHelper::canAccessAllData()) {
             $userUnitId = PermissionHelper::getUserUnitId();
-            if ($userUnitId) {
-                $hasAccess = $notaDinas->participants()
-                    ->where('unit_id', $userUnitId)
-                    ->exists();
-                
-                if (!$hasAccess) {
-                    abort(403, 'Anda hanya dapat melihat nota dinas dari bidang Anda.');
-                }
+            if ($userUnitId && $notaDinas->requesting_unit_id != $userUnitId) {
+                abort(403, 'Anda hanya dapat melihat nota dinas dari bidang Anda.');
             }
         }
 

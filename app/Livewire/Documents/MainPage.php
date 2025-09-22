@@ -133,8 +133,18 @@ class MainPage extends Component
                 $this->refreshData();
             }
         } else {
-            // Initialize with latest Nota Dinas if available
-            $latestNd = NotaDinas::with(['spt.sppds'])->latest('created_at')->first();
+            // Initialize with latest Nota Dinas if available (with unit scope filtering)
+            $query = NotaDinas::with(['spt.sppds'])->latest('created_at');
+            
+            // Apply unit scope filtering for bendahara pengeluaran pembantu
+            if (!PermissionHelper::canAccessAllData()) {
+                $userUnitId = PermissionHelper::getUserUnitId();
+                if ($userUnitId) {
+                    $query->where('requesting_unit_id', $userUnitId);
+                }
+            }
+            
+            $latestNd = $query->first();
             if ($latestNd) {
                 $this->selectedNotaDinasId = $latestNd->id;
                 $this->selectedNotaDinas = $latestNd;

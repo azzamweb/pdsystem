@@ -25,9 +25,7 @@ class ExamplePermissionController extends Controller
         if (!PermissionHelper::canAccessAllData()) {
             $userUnitId = PermissionHelper::getUserUnitId();
             if ($userUnitId) {
-                $query->whereHas('participants', function ($q) use ($userUnitId) {
-                    $q->where('unit_id', $userUnitId);
-                });
+                $query->where('requesting_unit_id', $userUnitId);
             }
         }
 
@@ -70,14 +68,8 @@ class ExamplePermissionController extends Controller
         // Check unit scope for bendahara pengeluaran pembantu
         if (!PermissionHelper::canAccessAllData()) {
             $userUnitId = PermissionHelper::getUserUnitId();
-            if ($userUnitId) {
-                $hasAccess = $notaDinas->participants()
-                    ->where('unit_id', $userUnitId)
-                    ->exists();
-                
-                if (!$hasAccess) {
-                    abort(403, 'Anda hanya dapat mengedit nota dinas dari bidang Anda.');
-                }
+            if ($userUnitId && $notaDinas->requesting_unit_id != $userUnitId) {
+                abort(403, 'Anda hanya dapat mengedit nota dinas dari bidang Anda.');
             }
         }
 
@@ -94,14 +86,8 @@ class ExamplePermissionController extends Controller
         // Check unit scope for bendahara pengeluaran pembantu
         if (!PermissionHelper::canAccessAllData()) {
             $userUnitId = PermissionHelper::getUserUnitId();
-            if ($userUnitId) {
-                $hasAccess = $notaDinas->participants()
-                    ->where('unit_id', $userUnitId)
-                    ->exists();
-                
-                if (!$hasAccess) {
-                    abort(403, 'Anda hanya dapat mengedit nota dinas dari bidang Anda.');
-                }
+            if ($userUnitId && $notaDinas->requesting_unit_id != $userUnitId) {
+                abort(403, 'Anda hanya dapat mengedit nota dinas dari bidang Anda.');
             }
         }
 
@@ -124,7 +110,7 @@ class ExamplePermissionController extends Controller
             $userUnitId = PermissionHelper::getUserUnitId();
             if ($userUnitId) {
                 $hasAccess = $notaDinas->participants()
-                    ->where('unit_id', $userUnitId)
+                    ->where('user_unit_id_snapshot', $userUnitId)
                     ->exists();
                 
                 if (!$hasAccess) {
@@ -155,8 +141,8 @@ class ExamplePermissionController extends Controller
         if (!PermissionHelper::canAccessAllData()) {
             $userUnitId = PermissionHelper::getUserUnitId();
             if ($userUnitId) {
-                $query->whereHas('sppd.spt.notaDinas.participants', function ($q) use ($userUnitId) {
-                    $q->where('unit_id', $userUnitId);
+                $query->whereHas('sppd.spt.notaDinas', function ($q) use ($userUnitId) {
+                    $q->where('requesting_unit_id', $userUnitId);
                 });
             }
         }

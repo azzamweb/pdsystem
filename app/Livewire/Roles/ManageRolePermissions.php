@@ -140,7 +140,10 @@ class ManageRolePermissions extends Component
             ],
             'bendahara-pengeluaran' => [
                 // Menu Access
-                'menu.dashboard', 'menu.documents', 'menu.rekap',
+                'menu.dashboard', 'menu.documents', 'menu.master-data', 'menu.rekap',
+                // Master Data
+                'master-data.view', 'master-data.create', 'master-data.edit',
+                'users.view', 'users.create', 'users.edit',
                 // Documents
                 'documents.view', 'documents.create', 'documents.edit', 'documents.delete', 'documents.approve',
                 'nota-dinas.view', 'nota-dinas.create', 'nota-dinas.edit', 'nota-dinas.delete', 'nota-dinas.approve',
@@ -153,7 +156,10 @@ class ManageRolePermissions extends Component
             ],
             'bendahara-pengeluaran-pembantu' => [
                 // Menu Access
-                'menu.dashboard', 'menu.documents', 'menu.rekap',
+                'menu.dashboard', 'menu.documents', 'menu.master-data', 'menu.rekap',
+                // Master Data
+                'master-data.view', 'master-data.create', 'master-data.edit',
+                'users.view', 'users.create', 'users.edit',
                 // Documents
                 'documents.view', 'documents.create', 'documents.edit', 'documents.delete', 'documents.approve',
                 'nota-dinas.view', 'nota-dinas.create', 'nota-dinas.edit', 'nota-dinas.delete', 'nota-dinas.approve',

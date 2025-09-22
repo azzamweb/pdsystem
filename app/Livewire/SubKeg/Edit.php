@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\SubKeg;
 use App\Models\Unit;
 use App\Models\User;
+use App\Helpers\PermissionHelper;
 
 class Edit extends Component
 {
@@ -31,6 +32,14 @@ class Edit extends Component
 
     public function mount(SubKeg $subKeg)
     {
+        // Check if bendahara pengeluaran pembantu can edit this sub kegiatan
+        if (!PermissionHelper::canAccessAllData()) {
+            $userUnitId = PermissionHelper::getUserUnitId();
+            if ($userUnitId && $subKeg->id_unit != $userUnitId) {
+                abort(403, 'Anda hanya dapat mengedit sub kegiatan dalam unit yang sama.');
+            }
+        }
+        
         $this->subKeg = $subKeg;
         $this->kode_subkeg = $subKeg->kode_subkeg;
         $this->nama_subkeg = $subKeg->nama_subkeg;
@@ -43,6 +52,15 @@ class Edit extends Component
         $this->rules['kode_subkeg'] = 'required|string|max:255|unique:sub_keg,kode_subkeg,' . $this->subKeg->id;
         
         $this->validate();
+        
+        // Additional validation for bendahara pengeluaran pembantu
+        if (!PermissionHelper::canAccessAllData()) {
+            $userUnitId = PermissionHelper::getUserUnitId();
+            if ($userUnitId && $this->id_unit != $userUnitId) {
+                session()->flash('error', 'Anda hanya dapat mengedit sub kegiatan dalam unit yang sama.');
+                return;
+            }
+        }
 
         $data = [
             'kode_subkeg' => $this->kode_subkeg,
@@ -60,8 +78,25 @@ class Edit extends Component
 
     public function render()
     {
-        $units = Unit::orderBy('name')->get();
-        $users = User::orderBy('name')->get();
+        // Filter units based on user role
+        $unitsQuery = Unit::orderBy('name');
+        if (!PermissionHelper::canAccessAllData()) {
+            $userUnitId = PermissionHelper::getUserUnitId();
+            if ($userUnitId) {
+                $unitsQuery->where('id', $userUnitId);
+            }
+        }
+        $units = $unitsQuery->get();
+        
+        // Filter users based on user role
+        $usersQuery = User::orderBy('name');
+        if (!PermissionHelper::canAccessAllData()) {
+            $userUnitId = PermissionHelper::getUserUnitId();
+            if ($userUnitId) {
+                $usersQuery->where('unit_id', $userUnitId);
+            }
+        }
+        $users = $usersQuery->get();
         
         return view('livewire.sub-keg.edit', [
             'units' => $units,

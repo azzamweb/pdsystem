@@ -18,6 +18,26 @@ class RolePermissionSeeder extends Seeder
 
         // Create permissions
         $permissions = [
+            // Menu Access Permissions
+            'menu.dashboard',
+            'menu.documents',
+            'menu.master-data',
+            'menu.location-routes',
+            'menu.reference-rates',
+            'menu.rekap',
+            'menu.configuration',
+            'menu.organization',
+            'menu.ranks',
+            'menu.doc-number-formats',
+            'menu.number-sequences',
+            'menu.document-numbers',
+            'menu.provinces',
+            'menu.cities',
+            'menu.districts',
+            'menu.org-places',
+            'menu.transport-modes',
+            'menu.travel-routes',
+            
             // Master Data Management
             'master-data.view',
             'master-data.create',
@@ -93,17 +113,17 @@ class RolePermissionSeeder extends Seeder
         ];
 
         foreach ($permissions as $permission) {
-            Permission::create(['name' => $permission]);
+            Permission::firstOrCreate(['name' => $permission]);
         }
 
         // Create roles and assign permissions
         
         // 1. Super Admin - dapat mengakses semua fitur dan data
-        $superAdmin = Role::create(['name' => 'super-admin']);
+        $superAdmin = Role::firstOrCreate(['name' => 'super-admin']);
         $superAdmin->givePermissionTo(Permission::all());
 
         // 2. Admin - mengelola master data, hak akses user (kecuali superadmin), referensi lokasi dan rute, referensi tarif
-        $admin = Role::create(['name' => 'admin']);
+        $admin = Role::firstOrCreate(['name' => 'admin']);
         $admin->givePermissionTo([
             'master-data.view',
             'master-data.create',
@@ -125,13 +145,21 @@ class RolePermissionSeeder extends Seeder
             'rekap.export',
         ]);
 
-        // 3. Bendahara Pengeluaran - mengelola semua dokumen tanpa scope bidang, dapat mengakses semua fitur rekapitulasi
-        $bendaharaPengeluaran = Role::create(['name' => 'bendahara-pengeluaran']);
-        $bendaharaPengeluaran->givePermissionTo([
+        // 3. Bendahara Pengeluaran - mengelola semua dokumen tanpa scope bidang, dapat mengakses semua fitur rekapitulasi dan master data
+        $bendaharaPengeluaran = Role::firstOrCreate(['name' => 'bendahara-pengeluaran']);
+        $bendaharaPengeluaran->syncPermissions([
             // Menu Access
             'menu.dashboard',
             'menu.documents',
+            'menu.master-data',
             'menu.rekap',
+            // Master Data
+            'master-data.view',
+            'master-data.create',
+            'master-data.edit',
+            'users.view',
+            'users.create',
+            'users.edit',
             // Documents
             'documents.view',
             'documents.create',
@@ -168,13 +196,21 @@ class RolePermissionSeeder extends Seeder
             'rekap.export',
         ]);
 
-        // 4. Bendahara Pengeluaran Pembantu - mengelola semua dokumen dengan scope bidang, dapat mengakses fitur rekapitulasi sesuai bidang
-        $bendaharaPengeluaranPembantu = Role::create(['name' => 'bendahara-pengeluaran-pembantu']);
-        $bendaharaPengeluaranPembantu->givePermissionTo([
+        // 4. Bendahara Pengeluaran Pembantu - mengelola semua dokumen dengan scope bidang, dapat mengakses fitur rekapitulasi sesuai bidang dan master data
+        $bendaharaPengeluaranPembantu = Role::firstOrCreate(['name' => 'bendahara-pengeluaran-pembantu']);
+        $bendaharaPengeluaranPembantu->syncPermissions([
             // Menu Access
             'menu.dashboard',
             'menu.documents',
+            'menu.master-data',
             'menu.rekap',
+            // Master Data
+            'master-data.view',
+            'master-data.create',
+            'master-data.edit',
+            'users.view',
+            'users.create',
+            'users.edit',
             // Documents
             'documents.view',
             'documents.create',
@@ -205,12 +241,22 @@ class RolePermissionSeeder extends Seeder
             'rekap.export',
         ]);
 
-        // 5. Sekretariat - hanya dapat mengakses semua fitur rekapitulasi
-        $sekretariat = Role::create(['name' => 'sekretariat']);
-        $sekretariat->givePermissionTo([
+        // 5. Sekretariat - dapat mengakses semua master data tanpa unit scope
+        $sekretariat = Role::firstOrCreate(['name' => 'sekretariat']);
+        $sekretariat->syncPermissions([
             // Menu Access
             'menu.dashboard',
+            'menu.master-data',
             'menu.rekap',
+            // Master Data - Full Access (no unit scope)
+            'master-data.view',
+            'master-data.create',
+            'master-data.edit',
+            'master-data.delete',
+            'users.view',
+            'users.create',
+            'users.edit',
+            'users.delete',
             // Rekap
             'rekap.view',
             'rekap.export',

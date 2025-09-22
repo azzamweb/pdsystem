@@ -12,6 +12,7 @@
                 <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
                         <!-- Data Pegawai -->
+                        @if(\App\Helpers\PermissionHelper::can('users.view'))
                         <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                             <div class="flex items-center">
                                 <div class="flex-shrink-0">
@@ -33,8 +34,10 @@
                                 </div>
                             </div>
                         </div>
+                        @endif
 
-                        <!-- Data Unit -->
+                        <!-- Data Unit - Only for Admin and Super Admin -->
+                        @if(\App\Helpers\PermissionHelper::can('master-data.view') && !auth()->user()->hasRole(['bendahara-pengeluaran', 'bendahara-pengeluaran-pembantu']))
                         <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                             <div class="flex items-center">
                                 <div class="flex-shrink-0">
@@ -56,8 +59,10 @@
                                 </div>
                             </div>
                         </div>
+                        @endif
 
                         <!-- Data Sub Kegiatan -->
+                        @if(\App\Helpers\PermissionHelper::can('master-data.view'))
                         <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                             <div class="flex items-center">
                                 <div class="flex-shrink-0">
@@ -79,8 +84,10 @@
                                 </div>
                             </div>
                         </div>
+                        @endif
 
-                        <!-- Data Jabatan -->
+                        <!-- Data Jabatan - Only for Admin and Super Admin -->
+                        @if(\App\Helpers\PermissionHelper::can('master-data.view') && !auth()->user()->hasRole(['bendahara-pengeluaran', 'bendahara-pengeluaran-pembantu']))
                         <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                             <div class="flex items-center">
                                 <div class="flex-shrink-0">
@@ -102,8 +109,9 @@
                                 </div>
                             </div>
                         </div>
+                        @endif
 
-                        <!-- Manajemen Role -->
+                        <!-- Manajemen Role - Only for Super Admin -->
                         @if(\App\Helpers\PermissionHelper::canManagePermissions())
                         <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                             <div class="flex items-center">

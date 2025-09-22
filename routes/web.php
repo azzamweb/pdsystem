@@ -316,25 +316,17 @@ Route::get('trip-reports/{tripReport}/pdf', [App\Http\Controllers\TripReportCont
     // Supporting Documents
     Route::get('nota-dinas/{notaDinas}/documents', SupportingDocumentUpload::class)->name('supporting-documents.upload');
     Route::get('nota-dinas/{notaDinas}/documents/{document}/edit', \App\Livewire\SupportingDocuments\Edit::class)->name('supporting-documents.edit');
-    // Redirect show SPPD langsung ke PDF
-    Route::get('sppd/{sppd}', function(\App\Models\Sppd $sppd) {
-        return redirect()->route('sppd.pdf', $sppd);
-    })->name('sppd.show');
+    // SPPD show route is now handled in permission-routes.php with proper unit scope middleware
     
-    // Nota Dinas PDF
-    Route::get('nota-dinas/{notaDinas}/pdf', [NotaDinasController::class, 'generatePdf'])->name('nota-dinas.pdf');
-Route::get('nota-dinas/{notaDinas}/pdf/download', [NotaDinasController::class, 'downloadPdf'])->name('nota-dinas.pdf-download');
+    // Nota Dinas PDF routes are now handled in permission-routes.php with proper unit scope middleware
 
     // Rekapitulasi Routes
     Route::get('rekap/global', GlobalRekap::class)->name('rekap.global');
     Route::get('rekap/pegawai', RekapPegawai::class)->name('rekap.pegawai');
     Route::get('rekap/pegawai/pdf', [\App\Http\Controllers\RekapPegawaiController::class, 'generatePdf'])->name('rekap.pegawai.pdf');
 
-Route::get('spt/{spt}/pdf', [SptController::class, 'generatePdf'])->name('spt.pdf');
-Route::get('spt/{spt}/pdf/download', [SptController::class, 'downloadPdf'])->name('spt.pdf-download');
-
-Route::get('sppd/{sppd}/pdf', [SppdController::class, 'generatePdf'])->name('sppd.pdf');
-Route::get('sppd/{sppd}/pdf/download', [SppdController::class, 'downloadPdf'])->name('sppd.pdf-download');
+// SPT and SPPD PDF routes are now handled in permission-routes.php with proper unit scope middleware
 });
 
+require __DIR__.'/permission-routes.php';
 require __DIR__.'/auth.php';

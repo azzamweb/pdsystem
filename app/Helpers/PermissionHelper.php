@@ -71,7 +71,7 @@ class PermissionHelper
      */
     public static function canAccessAllData(): bool
     {
-        return self::hasAnyRole(['super-admin', 'admin', 'bendahara-pengeluaran']);
+        return self::hasAnyRole(['super-admin', 'admin', 'bendahara-pengeluaran', 'sekretariat']);
     }
 
     /**

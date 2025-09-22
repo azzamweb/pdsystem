@@ -1,0 +1,523 @@
+# Update Akses Master Data untuk Role Bendahara
+
+## Overview
+
+Dokumen ini menjelaskan perubahan yang telah dibuat untuk memberikan akses ke Master data (Data Pegawai dan Data Sub Kegiatan) kepada user dengan role **Bendahara Pengeluaran** dan **Bendahara Pengeluaran Pembantu**.
+
+## Perubahan yang Dilakukan
+
+### 1. **Update RolePermissionSeeder**
+
+File: `database/seeders/RolePermissionSeeder.php`
+
+#### **Bendahara Pengeluaran**
+Ditambahkan permissions:
+- `menu.master-data` - Akses menu Master Data
+- `master-data.view` - Melihat master data
+- `master-data.create` - Membuat master data
+- `master-data.edit` - Mengedit master data
+- `master-data.delete` - Menghapus master data
+- `users.view` - Melihat data pegawai
+- `users.create` - Membuat data pegawai
+- `users.edit` - Mengedit data pegawai
+- `users.delete` - Menghapus data pegawai
+
+#### **Bendahara Pengeluaran Pembantu**
+Ditambahkan permissions yang sama dengan Bendahara Pengeluaran:
+- `menu.master-data` - Akses menu Master Data
+- `master-data.view` - Melihat master data
+- `master-data.create` - Membuat master data
+- `master-data.edit` - Mengedit master data
+- `master-data.delete` - Menghapus master data
+- `users.view` - Melihat data pegawai
+- `users.create` - Membuat data pegawai
+- `users.edit` - Mengedit data pegawai
+- `users.delete` - Menghapus data pegawai
+
+### 2. **Update ManageRolePermissions Component**
+
+File: `app/Livewire/Roles/ManageRolePermissions.php`
+
+Diperbarui default permissions untuk kedua role tersebut agar konsisten dengan seeder.
+
+## Akses yang Diberikan
+
+### **Menu Master Data**
+User dengan role bendahara sekarang dapat:
+- ✅ Mengakses menu "Master Data" di sidebar
+- ✅ Melihat halaman Data Pegawai
+- ✅ Melihat halaman Data Sub Kegiatan
+
+### **Data Pegawai**
+User dengan role bendahara sekarang dapat:
+- ✅ Melihat daftar pegawai
+- ✅ Menambah pegawai baru
+- ✅ Mengedit data pegawai
+- ✅ Menghapus data pegawai
+
+### **Data Sub Kegiatan**
+User dengan role bendahara sekarang dapat:
+- ✅ Melihat daftar sub kegiatan
+- ✅ Menambah sub kegiatan baru
+- ✅ Mengedit data sub kegiatan
+- ✅ Menghapus data sub kegiatan
+
+## Implementasi Unit Scope Filtering
+
+Untuk **Bendahara Pengeluaran Pembantu**, akses ke data tetap dibatasi berdasarkan unit scope:
+- Data Pegawai: Hanya dapat melihat/mengelola pegawai dalam unit yang sama
+- Data Sub Kegiatan: Hanya dapat melihat/mengelola sub kegiatan dalam unit yang sama
+
+Untuk **Bendahara Pengeluaran**, akses tidak dibatasi (dapat mengakses semua data).
+
+## Masalah yang Ditemukan dan Diperbaiki
+
+### **Root Cause: Menu Permissions Tidak Ada**
+Masalah utama adalah permission `menu.master-data` dan permission menu lainnya tidak ada dalam daftar permissions yang dibuat di `RolePermissionSeeder.php`. Hal ini menyebabkan:
+
+1. Permission `menu.master-data` tidak terbuat di database
+2. Role bendahara tidak bisa mendapatkan permission tersebut
+3. Menu Master Data tidak muncul di sidebar
+
+### **Solusi yang Diterapkan**
+
+1. **Menambahkan Menu Permissions ke Seeder**
+   - Ditambahkan semua menu permissions ke daftar permissions di `RolePermissionSeeder.php`
+   - Menggunakan `firstOrCreate` untuk menghindari error jika permission sudah ada
+
+2. **Update Role Creation**
+   - Mengubah `Role::create` menjadi `Role::firstOrCreate` untuk menghindari error jika role sudah ada
+
+## Cara Menerapkan Perubahan
+
+### 1. **Reset dan Re-seed Permissions**
+```bash
+php artisan db:seed --class=RolePermissionSeeder
+```
+
+### 2. **Clear Permission Cache**
+```bash
+php artisan permission:cache-reset
+```
+
+### 3. **Verifikasi Akses**
+- Login dengan user yang memiliki role bendahara
+- Pastikan menu "Master Data" muncul di sidebar
+- Test akses ke halaman Data Pegawai dan Data Sub Kegiatan
+
+## Konsistensi dengan Sistem
+
+Perubahan ini konsisten dengan:
+- Sistem permission yang sudah ada
+- Unit scope filtering untuk bendahara pengeluaran pembantu
+- Role hierarchy yang sudah ditetapkan
+
+## Catatan Penting
+
+1. **Bendahara Pengeluaran**: Memiliki akses penuh ke semua master data tanpa batasan unit
+2. **Bendahara Pengeluaran Pembantu**: Memiliki akses terbatas berdasarkan unit_id user
+3. **Admin dan Super Admin**: Tetap memiliki akses penuh seperti sebelumnya
+4. **Sekretariat**: Tidak mendapat akses tambahan (tetap hanya rekap)
+
+## Update Terbaru: Pembatasan Menu Master Data
+
+### **Perubahan pada Halaman Master Data**
+
+File: `resources/views/master-data/index.blade.php`
+
+#### **Menu yang Tampil untuk Bendahara:**
+- ✅ **Data Pegawai** - Tampil untuk semua user dengan permission `users.view`
+- ✅ **Data Sub Kegiatan** - Tampil untuk semua user dengan permission `master-data.view`
+
+#### **Menu yang TIDAK Tampil untuk Bendahara:**
+- ❌ **Data Unit** - Hanya tampil untuk Admin dan Super Admin
+- ❌ **Data Jabatan** - Hanya tampil untuk Admin dan Super Admin  
+- ❌ **Manajemen Role** - Hanya tampil untuk Super Admin
+
+#### **Logic Permission yang Diterapkan:**
+
+```php
+// Data Pegawai - Tampil jika memiliki permission users.view
+@if(\App\Helpers\PermissionHelper::can('users.view'))
+
+// Data Unit - Tampil jika memiliki master-data.view DAN bukan bendahara
+@if(\App\Helpers\PermissionHelper::can('master-data.view') && !auth()->user()->hasRole(['bendahara-pengeluaran', 'bendahara-pengeluaran-pembantu']))
+
+// Data Sub Kegiatan - Tampil jika memiliki permission master-data.view
+@if(\App\Helpers\PermissionHelper::can('master-data.view'))
+
+// Data Jabatan - Tampil jika memiliki master-data.view DAN bukan bendahara
+@if(\App\Helpers\PermissionHelper::can('master-data.view') && !auth()->user()->hasRole(['bendahara-pengeluaran', 'bendahara-pengeluaran-pembantu']))
+
+// Manajemen Role - Tampil jika dapat mengelola permissions (Super Admin)
+@if(\App\Helpers\PermissionHelper::canManagePermissions())
+```
+
+### **Hasil Akhir:**
+
+**Untuk User dengan Role Bendahara Pengeluaran dan Bendahara Pengeluaran Pembantu:**
+- Hanya melihat 2 menu: **Data Pegawai** dan **Data Sub Kegiatan**
+- Tidak dapat melihat menu Data Unit, Data Jabatan, dan Manajemen Role
+
+**Untuk User dengan Role Admin dan Super Admin:**
+- Melihat semua menu sesuai dengan permissions mereka
+- Admin: Data Pegawai, Data Unit, Data Sub Kegiatan, Data Jabatan
+- Super Admin: Semua menu termasuk Manajemen Role
+
+## Update Terbaru: Unit Scope Filtering untuk Bendahara Pengeluaran Pembantu
+
+### **Pembatasan Akses Berdasarkan Unit ID**
+
+File yang dimodifikasi:
+- `app/Livewire/Users/Create.php`
+- `app/Livewire/Users/Edit.php`
+- `app/Livewire/SubKeg/Create.php`
+- `app/Livewire/SubKeg/Edit.php`
+
+#### **Data Pegawai (/users)**
+
+**Create User:**
+- ✅ Bendahara Pengeluaran Pembantu hanya dapat menambah pegawai dengan unit_id yang sama
+- ✅ Unit dropdown hanya menampilkan unit yang sama dengan unit_id user
+- ✅ Validation mencegah penambahan pegawai dengan unit_id berbeda
+
+**Edit User:**
+- ✅ Bendahara Pengeluaran Pembantu hanya dapat mengedit pegawai dalam unit yang sama
+- ✅ Access control mencegah akses ke halaman edit pegawai dari unit lain
+- ✅ Unit dropdown hanya menampilkan unit yang sama dengan unit_id user
+- ✅ Validation mencegah perubahan unit_id ke unit yang berbeda
+
+#### **Data Sub Kegiatan (/sub-keg)**
+
+**Create Sub Kegiatan:**
+- ✅ Bendahara Pengeluaran Pembantu hanya dapat menambah sub kegiatan dengan unit_id yang sama
+- ✅ Unit dropdown hanya menampilkan unit yang sama dengan unit_id user
+- ✅ PPTK dropdown hanya menampilkan user dari unit yang sama
+- ✅ Validation mencegah penambahan sub kegiatan dengan unit_id berbeda
+
+**Edit Sub Kegiatan:**
+- ✅ Bendahara Pengeluaran Pembantu hanya dapat mengedit sub kegiatan dalam unit yang sama
+- ✅ Access control mencegah akses ke halaman edit sub kegiatan dari unit lain
+- ✅ Unit dropdown hanya menampilkan unit yang sama dengan unit_id user
+- ✅ PPTK dropdown hanya menampilkan user dari unit yang sama
+- ✅ Validation mencegah perubahan unit_id ke unit yang berbeda
+
+#### **Logic Permission yang Diterapkan:**
+
+```php
+// Check if user can access all data (Admin, Super Admin, Bendahara Pengeluaran)
+if (!PermissionHelper::canAccessAllData()) {
+    $userUnitId = PermissionHelper::getUserUnitId();
+    
+    // Filter units to only show user's unit
+    if ($userUnitId) {
+        $unitsQuery->where('id', $userUnitId);
+    }
+    
+    // Filter users to only show users from same unit
+    if ($userUnitId) {
+        $usersQuery->where('unit_id', $userUnitId);
+    }
+    
+    // Validation to prevent cross-unit operations
+    if ($userUnitId && $targetUnitId != $userUnitId) {
+        session()->flash('error', 'Anda hanya dapat mengelola data dalam unit yang sama.');
+        return;
+    }
+}
+```
+
+### **Hasil Akhir:**
+
+**Untuk User dengan Role Bendahara Pengeluaran Pembantu:**
+- ✅ Hanya dapat menambah/mengedit pegawai dalam unit yang sama
+- ✅ Hanya dapat menambah/mengedit sub kegiatan dalam unit yang sama
+- ✅ Dropdown unit hanya menampilkan unit mereka sendiri
+- ✅ Dropdown PPTK hanya menampilkan pegawai dari unit mereka sendiri
+- ❌ Tidak dapat mengakses data dari unit lain
+
+**Untuk User dengan Role Bendahara Pengeluaran:**
+- ✅ Dapat mengelola semua data tanpa batasan unit
+- ✅ Melihat semua unit dan pegawai dalam dropdown
+
+**Untuk User dengan Role Admin dan Super Admin:**
+- ✅ Dapat mengelola semua data tanpa batasan unit
+- ✅ Melihat semua unit dan pegawai dalam dropdown
+
+## Update Terbaru: Pembatasan Akses Delete untuk Role Bendahara
+
+### **Penghapusan Permission Delete**
+
+File yang dimodifikasi:
+- `database/seeders/RolePermissionSeeder.php`
+- `app/Livewire/Roles/ManageRolePermissions.php`
+
+#### **Permissions yang Dihapus untuk Role Bendahara:**
+
+**Bendahara Pengeluaran:**
+- ❌ `master-data.delete` - Tidak dapat menghapus master data
+- ❌ `users.delete` - Tidak dapat menghapus data pegawai
+
+**Bendahara Pengeluaran Pembantu:**
+- ❌ `master-data.delete` - Tidak dapat menghapus master data
+- ❌ `users.delete` - Tidak dapat menghapus data pegawai
+
+#### **Permissions yang Tetap Ada untuk Role Bendahara:**
+
+**Bendahara Pengeluaran:**
+- ✅ `master-data.view` - Dapat melihat master data
+- ✅ `master-data.create` - Dapat membuat master data
+- ✅ `master-data.edit` - Dapat mengedit master data
+- ✅ `users.view` - Dapat melihat data pegawai
+- ✅ `users.create` - Dapat membuat data pegawai
+- ✅ `users.edit` - Dapat mengedit data pegawai
+
+**Bendahara Pengeluaran Pembantu:**
+- ✅ `master-data.view` - Dapat melihat master data
+- ✅ `master-data.create` - Dapat membuat master data
+- ✅ `master-data.edit` - Dapat mengedit master data
+- ✅ `users.view` - Dapat melihat data pegawai
+- ✅ `users.create` - Dapat membuat data pegawai
+- ✅ `users.edit` - Dapat mengedit data pegawai
+
+### **Hasil Akhir:**
+
+**Untuk User dengan Role Bendahara Pengeluaran dan Bendahara Pengeluaran Pembantu:**
+- ✅ Dapat melihat, membuat, dan mengedit data pegawai dan sub kegiatan
+- ❌ **TIDAK dapat menghapus data pegawai dan sub kegiatan**
+- ✅ Tetap dapat menghapus dokumen (nota dinas, SPT, SPPD, receipts, trip reports)
+
+**Untuk User dengan Role Admin dan Super Admin:**
+- ✅ Dapat melakukan semua operasi CRUD termasuk delete
+- ✅ Tidak terpengaruh oleh pembatasan ini
+
+### **Perbaikan Tambahan:**
+
+**File yang dimodifikasi untuk memastikan keamanan:**
+- `resources/views/livewire/sub-keg/index.blade.php` - Menambahkan permission check untuk tombol delete
+- `app/Livewire/SubKeg/Index.php` - Menambahkan permission check di method delete()
+
+**Perubahan pada Sub Kegiatan:**
+- Tombol delete sekarang menggunakan `@if(\App\Helpers\PermissionHelper::can('master-data.delete'))`
+- Method `delete()` di Livewire component sekarang memeriksa permission sebelum menghapus
+- Jika user tidak memiliki permission, akan menampilkan pesan error: "Anda tidak memiliki izin untuk menghapus sub kegiatan."
+
+**Verifikasi Keamanan:**
+- ✅ User 57 (Bendahara Pengeluaran Pembantu) tidak dapat menghapus users
+- ✅ User 57 (Bendahara Pengeluaran Pembantu) tidak dapat menghapus master-data
+- ✅ Tombol delete tidak muncul di UI untuk role bendahara
+- ✅ Method delete() di Livewire components memiliki permission checks
+
+## Perbaikan Unit Scope Logic untuk Dokumen
+
+### **Masalah yang Ditemukan:**
+
+Error SQL: `Column not found: 1054 Unknown column 'unit_id' in 'where clause'`
+
+**Root Cause:**
+- Kode menggunakan `unit_id` pada tabel `nota_dinas_participants` 
+- Kolom yang benar adalah `user_unit_id_snapshot`
+- Logika unit scope salah: menggunakan unit_id peserta instead of requesting_unit_id
+
+### **Perbaikan yang Dilakukan:**
+
+**File yang dimodifikasi:**
+- `app/Http/Controllers/NotaDinasController.php`
+- `app/Http/Controllers/ExamplePermissionController.php`
+- `app/Http/Controllers/ReceiptController.php`
+
+**Perubahan Logika:**
+
+**Sebelum (SALAH):**
+```php
+// Menggunakan unit_id peserta
+$hasAccess = $notaDinas->participants()
+    ->where('user_unit_id_snapshot', $userUnitId)
+    ->exists();
+
+// Atau untuk kwitansi
+$hasAccess = $receipt->sppd->spt->notaDinas->participants()
+    ->where('unit_id', $userUnitId)
+    ->exists();
+```
+
+**Sesudah (BENAR):**
+```php
+// Menggunakan requesting_unit_id (Unit Pemohon)
+if ($userUnitId && $notaDinas->requesting_unit_id != $userUnitId) {
+    abort(403, 'Anda hanya dapat melihat nota dinas dari bidang Anda.');
+}
+
+// Atau untuk kwitansi
+if ($userUnitId && $receipt->sppd->spt->notaDinas->requesting_unit_id != $userUnitId) {
+    abort(403, 'Anda hanya dapat melihat kwitansi dari bidang Anda.');
+}
+```
+
+### **Penjelasan Logika yang Benar:**
+
+**Untuk Hak Akses Dokumen:**
+- ✅ **Unit Scope hanya berlaku pada `requesting_unit_id` (Unit Pemohon)**
+- ❌ **TIDAK berlaku pada `unit_id` peserta**
+- ✅ Bendahara Pengeluaran Pembantu hanya dapat mengakses dokumen yang dibuat oleh unit mereka
+- ✅ Peserta dari unit lain tetap bisa ikut dalam dokumen yang dibuat unit lain
+
+**Contoh:**
+- Nota Dinas dibuat oleh Unit A (requesting_unit_id = 1)
+- Peserta: User dari Unit A, Unit B, Unit C
+- Bendahara Pengeluaran Pembantu dari Unit A: ✅ BISA akses
+- Bendahara Pengeluaran Pembantu dari Unit B: ❌ TIDAK bisa akses
+- Bendahara Pengeluaran Pembantu dari Unit C: ❌ TIDAK bisa akses
+
+**Sama berlaku untuk Kwitansi:**
+- Kwitansi dibuat untuk SPPD yang berasal dari Nota Dinas Unit A
+- Bendahara Pengeluaran Pembantu dari Unit A: ✅ BISA akses kwitansi
+- Bendahara Pengeluaran Pembantu dari Unit B: ❌ TIDAK bisa akses kwitansi
+
+### **Hasil Testing:**
+
+**Nota Dinas ID 17:**
+- Requesting Unit ID: 3
+- User Unit ID 1: ❌ NO ACCESS
+- User Unit ID 2: ❌ NO ACCESS  
+- User Unit ID 3: ✅ HAS ACCESS
+- User Unit ID 4: ❌ NO ACCESS
+- User Unit ID 5: ❌ NO ACCESS
+
+**Kwitansi (Receipt ID 40, Nota Dinas ID 6):**
+- Requesting Unit ID: 3
+- User Unit ID 1: ❌ NO ACCESS
+- User Unit ID 2: ❌ NO ACCESS  
+- User Unit ID 3: ✅ HAS ACCESS
+- User Unit ID 4: ❌ NO ACCESS
+- User Unit ID 5: ❌ NO ACCESS
+
+## Bug Fix: Documents Page Unit Scope
+
+### **Masalah yang Ditemukan:**
+
+User dengan role `bendahara-pengeluaran-pembantu` (User ID 57, Unit ID 4 - Aset) masih bisa melihat SPT ID 12 yang berasal dari Nota Dinas Unit 6 (Sekretariat) di halaman `/documents`, meskipun list Nota Dinas sudah kosong.
+
+### **Root Cause:**
+
+1. **MainPage.php**: Query untuk mendapatkan Nota Dinas terbaru tidak menggunakan unit scope filtering
+2. **Route Duplikasi**: Ada route di `web.php` yang tidak menggunakan middleware `unit.scope`, sedangkan route yang sama di `permission-routes.php` sudah menggunakan middleware yang benar
+
+### **Perbaikan yang Dilakukan:**
+
+#### **1. MainPage.php**
+- **Sebelum**: `NotaDinas::with(['spt.sppds'])->latest('created_at')->first()`
+- **Sesudah**: Menambahkan unit scope filtering sebelum mengambil Nota Dinas terbaru
+
+#### **2. Routes Cleanup**
+- **Menghapus route duplikat** dari `web.php` yang tidak menggunakan middleware `unit.scope`
+- **Menambahkan include** `permission-routes.php` di `web.php`
+- **Route yang dihapus**:
+  - `spt/{spt}/pdf`
+  - `spt/{spt}/pdf/download`
+  - `sppd/{sppd}/pdf`
+  - `sppd/{sppd}/pdf/download`
+  - `nota-dinas/{notaDinas}/pdf`
+  - `nota-dinas/{notaDinas}/pdf/download`
+  - `sppd/{sppd}` (show route)
+
+### **Hasil Testing:**
+
+**User ID 57 (Unit 4 - Aset):**
+- ✅ List Nota Dinas: KOSONG (tidak ada nota dinas untuk unit 4)
+- ✅ SPT ID 12: TIDAK BISA diakses (berasal dari unit 6)
+- ✅ Middleware `CheckUnitScope`: Bekerja dengan benar
+- ✅ Route Protection: Semua route dokumen sudah menggunakan middleware yang benar
+
+**Route Middleware Verification:**
+```
+GET|HEAD spt/{spt}/pdf
+⇂ web
+⇂ Illuminate\Auth\Middleware\Authenticate
+⇂ App\Http\Middleware\CheckPermission:spt.view
+⇂ App\Http\Middleware\CheckUnitScope
+```
+
+## Role Sekretariat Master Data Access
+
+### **Konfigurasi Role Sekretariat:**
+
+Role Sekretariat dapat mengakses semua master data tanpa batasan unit scope:
+
+#### **Permissions yang Diberikan:**
+- `menu.dashboard` - Akses ke dashboard
+- `menu.master-data` - Akses ke menu master data
+- `menu.rekap` - Akses ke menu rekapitulasi
+- `master-data.view` - Melihat master data
+- `master-data.create` - Membuat master data
+- `master-data.edit` - Mengedit master data
+- `master-data.delete` - Menghapus master data
+- `users.view` - Melihat data pegawai
+- `users.create` - Membuat data pegawai
+- `users.edit` - Mengedit data pegawai
+- `users.delete` - Menghapus data pegawai
+- `rekap.view` - Melihat rekapitulasi
+- `rekap.export` - Export rekapitulasi
+
+#### **Master Data yang Dapat Diakses:**
+- ✅ **Data Pegawai** - Full access tanpa unit scope
+- ✅ **Data Unit** - Full access tanpa unit scope
+- ✅ **Data Sub Kegiatan** - Full access tanpa unit scope
+- ✅ **Data Jabatan** - Full access tanpa unit scope
+- ❌ **Manajemen Role** - Tidak dapat diakses (hanya super-admin)
+
+#### **Unit Scope:**
+- ✅ **Tidak ada batasan unit scope** - Dapat mengakses data dari semua unit
+- ✅ **canAccessAllData()** - Mengembalikan `true`
+- ✅ **getUserUnitId()** - Mengembalikan `null` (tidak ada filtering)
+
+### **File yang Dimodifikasi:**
+
+1. `database/seeders/RolePermissionSeeder.php` - Update permissions untuk role Sekretariat
+2. `app/Helpers/PermissionHelper.php` - Tambahkan 'sekretariat' ke `canAccessAllData()`
+
+### **Hasil Testing:**
+
+**User dengan Role Sekretariat:**
+- ✅ **Data Pegawai**: VISIBLE dan dapat diakses
+- ✅ **Data Unit**: VISIBLE dan dapat diakses
+- ✅ **Data Sub Kegiatan**: VISIBLE dan dapat diakses
+- ✅ **Data Jabatan**: VISIBLE dan dapat diakses
+- ❌ **Manajemen Role**: HIDDEN (sesuai design)
+- ✅ **Unit Scope**: Tidak ada batasan, dapat akses semua unit
+- ✅ **Permissions**: Semua permissions master data tersedia
+
+**PermissionHelper Tests:**
+```
+canAccessAllData(): YES
+can(users.view): YES
+can(master-data.view): YES
+can(master-data.create): YES
+can(master-data.edit): YES
+can(master-data.delete): YES
+can(users.create): YES
+can(users.edit): YES
+can(users.delete): YES
+getUserUnitId(): NULL (no filtering)
+```
+
+## Testing
+
+Setelah menerapkan perubahan, pastikan untuk test:
+- [ ] Menu Master Data muncul untuk user bendahara
+- [ ] User bendahara hanya melihat Data Pegawai dan Data Sub Kegiatan
+- [ ] User bendahara TIDAK melihat Data Unit, Data Jabatan, dan Manajemen Role
+- [ ] User dapat mengakses halaman Data Pegawai
+- [ ] User dapat mengakses halaman Data Sub Kegiatan
+- [ ] **Unit scope filtering bekerja untuk bendahara pengeluaran pembantu**
+- [ ] **Bendahara pengeluaran pembantu hanya dapat menambah pegawai dalam unit yang sama**
+- [ ] **Bendahara pengeluaran pembantu hanya dapat mengedit pegawai dalam unit yang sama**
+- [ ] **Bendahara pengeluaran pembantu hanya dapat menambah sub kegiatan dalam unit yang sama**
+- [ ] **Bendahara pengeluaran pembantu hanya dapat mengedit sub kegiatan dalam unit yang sama**
+- [ ] **Dropdown unit hanya menampilkan unit yang sama untuk bendahara pengeluaran pembantu**
+- [ ] **Dropdown PPTK hanya menampilkan pegawai dari unit yang sama untuk bendahara pengeluaran pembantu**
+- [ ] **Bendahara TIDAK dapat menghapus data pegawai dan sub kegiatan**
+- [ ] **Tombol delete tidak muncul untuk bendahara di halaman users dan sub-keg**
+- [ ] **Method delete() di Livewire components memblokir akses untuk bendahara**
+- [ ] **Permission checks berfungsi dengan benar di database**
+- [ ] Role lain (Admin, Super Admin, Bendahara Pengeluaran) tetap melihat semua data sesuai permissions

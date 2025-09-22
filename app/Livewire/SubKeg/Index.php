@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\SubKeg;
 use App\Models\Unit;
+use App\Helpers\PermissionHelper;
 
 class Index extends Component
 {
@@ -32,6 +33,12 @@ class Index extends Component
 
     public function delete($id)
     {
+        // Check if user has permission to delete master data
+        if (!PermissionHelper::can('master-data.delete')) {
+            session()->flash('error', 'Anda tidak memiliki izin untuk menghapus sub kegiatan.');
+            return;
+        }
+        
         $subKeg = SubKeg::findOrFail($id);
         $subKeg->delete();
         

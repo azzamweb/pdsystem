@@ -73,6 +73,14 @@ class Create extends Component
         if (!PermissionHelper::can('users.create')) {
             abort(403, 'Anda tidak memiliki izin untuk membuat user.');
         }
+        
+        // Set default unit_id for bendahara pengeluaran pembantu
+        if (!PermissionHelper::canAccessAllData()) {
+            $userUnitId = PermissionHelper::getUserUnitId();
+            if ($userUnitId) {
+                $this->unit_id = $userUnitId;
+            }
+        }
     }
 
 
@@ -110,6 +118,16 @@ class Create extends Component
     public function save()
     {
         $validated = $this->validate();
+        
+        // Additional validation for bendahara pengeluaran pembantu
+        if (!PermissionHelper::canAccessAllData()) {
+            $userUnitId = PermissionHelper::getUserUnitId();
+            if ($userUnitId && $validated['unit_id'] != $userUnitId) {
+                session()->flash('error', 'Anda hanya dapat menambah pegawai dalam unit yang sama.');
+                return;
+            }
+        }
+        
         $validated['password'] = bcrypt('password123'); // Default password
         
         // Convert empty strings to null for foreign key fields and date fields
@@ -134,7 +152,16 @@ class Create extends Component
 
     public function render()
     {
-        $units = Unit::orderBy('name')->get();
+        // Filter units based on user role
+        $unitsQuery = Unit::orderBy('name');
+        if (!PermissionHelper::canAccessAllData()) {
+            $userUnitId = PermissionHelper::getUserUnitId();
+            if ($userUnitId) {
+                $unitsQuery->where('id', $userUnitId);
+            }
+        }
+        $units = $unitsQuery->get();
+        
         $positions = Position::with('echelon')
             ->leftJoin('echelons', 'positions.echelon_id', '=', 'echelons.id')
             ->orderByRaw('CASE WHEN echelons.code IS NULL THEN 2 ELSE 0 END') // Non eselon positions last
