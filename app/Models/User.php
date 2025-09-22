@@ -160,4 +160,174 @@ class User extends Authenticatable
     {
         return $this->hasMany(SubKeg::class, 'pptk_user_id');
     }
+
+    /**
+     * Get nota dinas where this user is the "to" user
+     */
+    public function notaDinasTo(): HasMany
+    {
+        return $this->hasMany(NotaDinas::class, 'to_user_id');
+    }
+
+    /**
+     * Get nota dinas where this user is the "from" user
+     */
+    public function notaDinasFrom(): HasMany
+    {
+        return $this->hasMany(NotaDinas::class, 'from_user_id');
+    }
+
+    /**
+     * Get nota dinas where this user is the creator
+     */
+    public function notaDinasCreated(): HasMany
+    {
+        return $this->hasMany(NotaDinas::class, 'created_by');
+    }
+
+    /**
+     * Get nota dinas where this user is the approver
+     */
+    public function notaDinasApproved(): HasMany
+    {
+        return $this->hasMany(NotaDinas::class, 'approved_by');
+    }
+
+    /**
+     * Get nota dinas participants where this user is a participant
+     */
+    public function notaDinasParticipants(): HasMany
+    {
+        return $this->hasMany(NotaDinasParticipant::class, 'user_id');
+    }
+
+    /**
+     * Check if user is used in any nota dinas documents
+     */
+    public function isUsedInNotaDinas(): bool
+    {
+        return $this->notaDinasTo()->exists() ||
+               $this->notaDinasFrom()->exists() ||
+               $this->notaDinasCreated()->exists() ||
+               $this->notaDinasApproved()->exists() ||
+               $this->notaDinasParticipants()->exists();
+    }
+
+    /**
+     * Check if user is used in any sub kegiatan as PPTK
+     */
+    public function isUsedInSubKegiatan(): bool
+    {
+        return $this->subKegiatan()->exists();
+    }
+
+    /**
+     * Check if user is used in any documents (nota dinas or sub kegiatan)
+     */
+    public function isUsedInDocuments(): bool
+    {
+        return $this->isUsedInNotaDinas() || $this->isUsedInSubKegiatan();
+    }
+
+    /**
+     * Get all nota dinas documents where this user is involved
+     */
+    public function getAllNotaDinasInvolvement(): array
+    {
+        $involvements = [];
+
+        // Check as "to" user
+        $toNotaDinas = $this->notaDinasTo()->get();
+        if ($toNotaDinas->count() > 0) {
+            $involvements[] = [
+                'type' => 'Kepada',
+                'count' => $toNotaDinas->count(),
+                'documents' => $toNotaDinas->pluck('doc_no')->toArray()
+            ];
+        }
+
+        // Check as "from" user
+        $fromNotaDinas = $this->notaDinasFrom()->get();
+        if ($fromNotaDinas->count() > 0) {
+            $involvements[] = [
+                'type' => 'Dari',
+                'count' => $fromNotaDinas->count(),
+                'documents' => $fromNotaDinas->pluck('doc_no')->toArray()
+            ];
+        }
+
+        // Check as creator
+        $createdNotaDinas = $this->notaDinasCreated()->get();
+        if ($createdNotaDinas->count() > 0) {
+            $involvements[] = [
+                'type' => 'Pembuat',
+                'count' => $createdNotaDinas->count(),
+                'documents' => $createdNotaDinas->pluck('doc_no')->toArray()
+            ];
+        }
+
+        // Check as approver
+        $approvedNotaDinas = $this->notaDinasApproved()->get();
+        if ($approvedNotaDinas->count() > 0) {
+            $involvements[] = [
+                'type' => 'Penyetuju',
+                'count' => $approvedNotaDinas->count(),
+                'documents' => $approvedNotaDinas->pluck('doc_no')->toArray()
+            ];
+        }
+
+        // Check as participant
+        $participantNotaDinas = $this->notaDinasParticipants()->with('notaDinas')->get();
+        if ($participantNotaDinas->count() > 0) {
+            $involvements[] = [
+                'type' => 'Peserta',
+                'count' => $participantNotaDinas->count(),
+                'documents' => $participantNotaDinas->pluck('notaDinas.doc_no')->toArray()
+            ];
+        }
+
+        return $involvements;
+    }
+
+    /**
+     * Get all sub kegiatan documents where this user is involved as PPTK
+     */
+    public function getAllSubKegiatanInvolvement(): array
+    {
+        $involvements = [];
+
+        // Check as PPTK
+        $subKegiatan = $this->subKegiatan()->get();
+        if ($subKegiatan->count() > 0) {
+            $involvements[] = [
+                'type' => 'PPTK',
+                'count' => $subKegiatan->count(),
+                'documents' => $subKegiatan->pluck('display_name')->toArray()
+            ];
+        }
+
+        return $involvements;
+    }
+
+    /**
+     * Get all document involvements (nota dinas and sub kegiatan)
+     */
+    public function getAllDocumentInvolvements(): array
+    {
+        $involvements = [];
+
+        // Get nota dinas involvements
+        $notaDinasInvolvements = $this->getAllNotaDinasInvolvement();
+        if (!empty($notaDinasInvolvements)) {
+            $involvements['nota_dinas'] = $notaDinasInvolvements;
+        }
+
+        // Get sub kegiatan involvements
+        $subKegiatanInvolvements = $this->getAllSubKegiatanInvolvement();
+        if (!empty($subKegiatanInvolvements)) {
+            $involvements['sub_kegiatan'] = $subKegiatanInvolvements;
+        }
+
+        return $involvements;
+    }
 }

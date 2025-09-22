@@ -29,6 +29,32 @@ class Index extends Component
             return;
         }
         
+        // Check if user is used in any documents (nota dinas or sub kegiatan)
+        if ($user->isUsedInDocuments()) {
+            $allInvolvements = $user->getAllDocumentInvolvements();
+            $involvementTexts = [];
+            
+            // Process nota dinas involvements
+            if (isset($allInvolvements['nota_dinas'])) {
+                $notaDinasText = collect($allInvolvements['nota_dinas'])->map(function ($involvement) {
+                    return $involvement['type'] . ' (' . $involvement['count'] . ' dokumen)';
+                })->join(', ');
+                $involvementTexts[] = 'dokumen nota dinas sebagai: ' . $notaDinasText;
+            }
+            
+            // Process sub kegiatan involvements
+            if (isset($allInvolvements['sub_kegiatan'])) {
+                $subKegiatanText = collect($allInvolvements['sub_kegiatan'])->map(function ($involvement) {
+                    return $involvement['type'] . ' (' . $involvement['count'] . ' sub kegiatan)';
+                })->join(', ');
+                $involvementTexts[] = 'sub kegiatan sebagai: ' . $subKegiatanText;
+            }
+            
+            $fullInvolvementText = implode(' dan ', $involvementTexts);
+            session()->flash('error', 'Data pegawai tidak dapat dihapus karena masih digunakan dalam ' . $fullInvolvementText . '.');
+            return;
+        }
+        
         try {
             $user->delete();
             session()->flash('message', 'Data pegawai berhasil dihapus.');

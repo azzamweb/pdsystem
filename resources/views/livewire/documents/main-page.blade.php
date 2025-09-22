@@ -197,15 +197,45 @@
                                                             </td>
                                                             <td class="px-6 py-4 whitespace-nowrap">
                                                                 <div class="text-sm font-medium text-gray-900 dark:text-white">
-                                                                    {{ $receipt->payeeUser->fullNameWithTitles() ?? 'N/A' }}
+                                                                    @php
+                                                                        $payeeSnapshot = $receipt->getPayeeUserSnapshot();
+                                                                        $payeeName = $payeeSnapshot['name'] ?? 'N/A';
+                                                                        $payeeGelarDepan = $payeeSnapshot['gelar_depan'] ?? '';
+                                                                        $payeeGelarBelakang = $payeeSnapshot['gelar_belakang'] ?? '';
+                                                                        
+                                                                        $fullName = '';
+                                                                        if ($payeeGelarDepan) {
+                                                                            $fullName .= $payeeGelarDepan . ' ';
+                                                                        }
+                                                                        $fullName .= $payeeName;
+                                                                        if ($payeeGelarBelakang) {
+                                                                            $fullName .= ', ' . $payeeGelarBelakang;
+                                                                        }
+                                                                    @endphp
+                                                                    {{ $fullName }}
                                                                 </div>
                                                                 <div class="text-sm text-gray-500 dark:text-gray-400">
-                                                                    {{ $receipt->payeeUser->nip ?? 'N/A' }}
+                                                                    {{ $payeeSnapshot['nip'] ?? 'N/A' }}
                                                                 </div>
                                                             </td>
                                                             <td class="px-6 py-4 whitespace-nowrap">
                                                                 <div class="text-sm font-medium text-gray-900 dark:text-white">
-                                                                    {{ $receipt->treasurerUser->fullNameWithTitles() ?? 'N/A' }}
+                                                                    @php
+                                                                        $treasurerSnapshot = $receipt->getTreasurerUserSnapshot();
+                                                                        $treasurerName = $treasurerSnapshot['name'] ?? 'N/A';
+                                                                        $treasurerGelarDepan = $treasurerSnapshot['gelar_depan'] ?? '';
+                                                                        $treasurerGelarBelakang = $treasurerSnapshot['gelar_belakang'] ?? '';
+                                                                        
+                                                                        $fullName = '';
+                                                                        if ($treasurerGelarDepan) {
+                                                                            $fullName .= $treasurerGelarDepan . ' ';
+                                                                        }
+                                                                        $fullName .= $treasurerName;
+                                                                        if ($treasurerGelarBelakang) {
+                                                                            $fullName .= ', ' . $treasurerGelarBelakang;
+                                                                        }
+                                                                    @endphp
+                                                                    {{ $fullName }}
                                                                 </div>
                                                                 <div class="text-sm text-gray-500 dark:text-gray-400">
                                                                     {{ $receipt->treasurer_title ?? 'N/A' }}
@@ -312,7 +342,7 @@
                                                 <div class="space-y-1">
                                                     @foreach($availableParticipants->take(3) as $participant)
                                                         <div class="text-xs text-gray-600 dark:text-gray-400">
-                                                            • {{ $participant->user->fullNameWithTitles() }} ({{ $participant->user->position?->name ?? 'N/A' }})
+                                                            • {{ $participant->user?->fullNameWithTitles() ?? 'N/A' }} ({{ $participant->user?->position?->name ?? 'N/A' }})
                                                         </div>
                                                     @endforeach
                                                     @if($availableParticipants->count() > 3)
@@ -423,7 +453,7 @@
                                                     <div class="space-y-1">
                                                         @foreach($availableParticipants->take(3) as $participant)
                                                             <div class="text-xs text-gray-600 dark:text-gray-400">
-                                                                • {{ $participant->user->fullNameWithTitles() }} ({{ $participant->user->position?->name ?? 'N/A' }})
+                                                                • {{ $participant->user?->fullNameWithTitles() ?? 'N/A' }} ({{ $participant->user?->position?->name ?? 'N/A' }})
                                                             </div>
                                                         @endforeach
                                                         @if($availableParticipants->count() > 3)
