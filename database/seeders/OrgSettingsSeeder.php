@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class OrgSettingsSeeder extends Seeder
 {
@@ -13,33 +12,32 @@ class OrgSettingsSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('org_settings')->updateOrInsert(
-            ['singleton' => true],
-            [
+        // Check if org_settings already has data
+        $existingCount = DB::table('org_settings')->count();
+        
+        if ($existingCount === 0) {
+            DB::table('org_settings')->insert([
                 'name' => 'Badan Pengelola Keuangan dan Aset Daerah',
                 'short_name' => 'BPKAD',
-                'address' => 'Jl. Contoh No. 1, Bengkalis',
+                'address' => 'Jl. Raya Bengkalis',
                 'city' => 'Bengkalis',
                 'province' => 'Riau',
                 'phone' => '0766-123456',
-                'email' => 'bpkad@example.go.id',
-                'website' => 'https://bpkad.example.go.id',
-                'head_user_id' => null, // nanti di-set setelah ada user kepala
-                'head_title' => 'Kepala Badan',
-                'signature_path' => null,
-                'stamp_path' => null,
-                'settings' => json_encode([
-                    'ym_separator' => '/',
-                    'qr_footer_text' => 'Verifikasi keaslian dokumen via QR.',
-                    'letterhead' => [
-                        'show_left_logo' => true,
-                        'show_right_logo' => false,
-                    ],
-                ]),
+                'email' => 'info@bpkad.bengkalis.go.id',
+                'website' => 'https://bpkad.bengkalis.go.id',
+                'head_title' => 'Kepala Badan Pengelola Keuangan dan Aset Daerah',
+                'ym_separator' => '/',
+                'qr_footer_text' => 'BPKAD Kabupaten Bengkalis',
+                'show_left_logo' => true,
+                'show_right_logo' => false,
                 'singleton' => true,
                 'created_at' => now(),
-                'updated_at' => now(),
-            ]
-        );
+                'updated_at' => now()
+            ]);
+            
+            $this->command->info('Organization settings created successfully!');
+        } else {
+            $this->command->info('Organization settings already exists, skipping...');
+        }
     }
 }
