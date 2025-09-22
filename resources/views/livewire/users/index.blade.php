@@ -222,6 +222,7 @@
                                                     <button 
                                                         wire:click="delete({{ $user->id }})"
                                                         wire:confirm="Apakah Anda yakin ingin menghapus data pegawai ini?"
+                                                        @click="open = false"
                                                         class="flex items-center w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
                                                     >
                                                         <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">

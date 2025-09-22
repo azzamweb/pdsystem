@@ -29,7 +29,7 @@ class Index extends Component
             return;
         }
         
-        // Check if user is used in any documents (nota dinas or sub kegiatan)
+        // Check if user is used in any active documents (only non-deleted documents)
         if ($user->isUsedInDocuments()) {
             $allInvolvements = $user->getAllDocumentInvolvements();
             $involvementTexts = [];
@@ -61,6 +61,22 @@ class Index extends Component
             $fullInvolvementText = implode(' dan ', $involvementTexts);
             session()->flash('error', 'Data pegawai tidak dapat dihapus karena masih digunakan dalam ' . $fullInvolvementText . '.');
             return;
+        }
+        
+        // Check for foreign key constraint violation and clean up soft deleted references
+        if ($user->willCauseForeignKeyViolation()) {
+            // Try to clean up soft deleted references
+            $cleanedCount = $user->cleanupSoftDeletedReferences();
+            
+            if ($cleanedCount > 0) {
+                session()->flash('message', "Berhasil membersihkan {$cleanedCount} referensi dari dokumen yang sudah dihapus. Mencoba menghapus user...");
+            }
+            
+            // Check again after cleanup
+            if ($user->willCauseForeignKeyViolation()) {
+                session()->flash('error', 'Data pegawai tidak dapat dihapus karena masih memiliki referensi dalam dokumen aktif. Silakan hapus atau edit dokumen yang masih menggunakan user ini terlebih dahulu.');
+                return;
+            }
         }
         
         try {

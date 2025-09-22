@@ -17,6 +17,7 @@ Fitur ini mencegah penghapusan user yang masih digunakan dalam dokumen nota dina
 ### **Kwitansi sebagai:**
 - **Bendahara Pengeluaran** (treasurer_user_id dengan treasurer_title = 'Bendahara Pengeluaran') - Hanya dokumen yang belum dihapus
 - **Bendahara Pengeluaran Pembantu** (treasurer_user_id dengan treasurer_title = 'Bendahara Pengeluaran Pembantu') - Hanya dokumen yang belum dihapus
+- **Penerima Pembayaran** (payee_user_id) - Hanya dokumen yang belum dihapus
 
 ## Implementasi
 
@@ -64,6 +65,12 @@ public function receiptsAsTreasurer(): HasMany
 {
     return $this->hasMany(Receipt::class, 'treasurer_user_id')->whereNull('deleted_at');
 }
+
+// Relasi ke receipts sebagai penerima pembayaran (hanya yang belum dihapus)
+public function receiptsAsPayee(): HasMany
+{
+    return $this->hasMany(Receipt::class, 'payee_user_id')->whereNull('deleted_at');
+}
 ```
 
 #### **Method untuk Mengecek Penggunaan:**
@@ -90,10 +97,16 @@ public function isUsedAsTreasurer(): bool
     return $this->receiptsAsTreasurer()->exists();
 }
 
+// Cek apakah user digunakan sebagai penerima pembayaran pada kwitansi
+public function isUsedAsPayee(): bool
+{
+    return $this->receiptsAsPayee()->exists();
+}
+
 // Cek apakah user digunakan dalam dokumen apapun (hanya dokumen yang belum dihapus)
 public function isUsedInDocuments(): bool
 {
-    return $this->isUsedInNotaDinas() || $this->isUsedInSubKegiatan() || $this->isUsedAsTreasurer();
+    return $this->isUsedInNotaDinas() || $this->isUsedInSubKegiatan() || $this->isUsedAsTreasurer() || $this->isUsedAsPayee();
 }
 
 // Dapatkan detail penggunaan user dalam nota dinas
@@ -139,6 +152,24 @@ public function getAllTreasurerInvolvement(): array
             'type' => 'Bendahara Pengeluaran Pembantu',
             'count' => $bendaharaPembantuReceipts->count(),
             'documents' => $bendaharaPembantuReceipts->pluck('receipt_no')->toArray()
+        ];
+    }
+    
+    return $involvements;
+}
+
+// Dapatkan detail penggunaan user sebagai penerima pembayaran pada kwitansi
+public function getAllPayeeInvolvement(): array
+{
+    $involvements = [];
+    
+    // Check as Payee
+    $payeeReceipts = $this->receiptsAsPayee()->get();
+    if ($payeeReceipts->count() > 0) {
+        $involvements[] = [
+            'type' => 'Penerima Pembayaran',
+            'count' => $payeeReceipts->count(),
+            'documents' => $payeeReceipts->pluck('receipt_no')->toArray()
         ];
     }
     
@@ -345,7 +376,9 @@ $involvements = $user->getAllSubKegiatanInvolvement();
 
 "Data pegawai tidak dapat dihapus karena masih digunakan dalam kwitansi sebagai: Bendahara Pengeluaran (2 kwitansi)."
 
-"Data pegawai tidak dapat dihapus karena masih digunakan dalam dokumen nota dinas sebagai: Kepada (1 dokumen), sub kegiatan sebagai: PPTK (2 sub kegiatan), dan kwitansi sebagai: Bendahara Pengeluaran Pembantu (1 kwitansi)."
+"Data pegawai tidak dapat dihapus karena masih digunakan dalam kwitansi sebagai: Penerima Pembayaran (3 kwitansi)."
+
+"Data pegawai tidak dapat dihapus karena masih digunakan dalam dokumen nota dinas sebagai: Kepada (1 dokumen), sub kegiatan sebagai: PPTK (2 sub kegiatan), dan kwitansi sebagai: Bendahara Pengeluaran Pembantu (1 kwitansi), Penerima Pembayaran (2 kwitansi)."
 ```
 
 ### **Tooltip pada UI:**
