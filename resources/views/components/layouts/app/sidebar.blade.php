@@ -1,38 +1,10 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         @include('partials.head')
     </head>
     <body class="min-h-screen bg-white dark:bg-zinc-800">
-        <flux:sidebar sticky collapsible class="border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900" data-sidebar x-data="{ sidebarOpen: false }" x-init="
-            // Auto hide sidebar on mobile when clicking outside
-            $nextTick(() => {
-                try {
-                    document.addEventListener('click', (e) => {
-                        if (window.innerWidth < 1024) { // lg breakpoint
-                            const sidebar = document.querySelector('[data-sidebar]');
-                            const toggle = document.querySelector('[data-sidebar-toggle]');
-                            if (sidebar && !sidebar.contains(e.target) && !toggle?.contains(e.target)) {
-                                sidebarOpen = false;
-                            }
-                        }
-                    });
-                    
-                    // Auto hide sidebar on navigation
-                    document.addEventListener('livewire:navigated', () => {
-                        try {
-                            if (window.innerWidth < 1024) {
-                                sidebarOpen = false;
-                            }
-                        } catch (error) {
-                            console.warn('Livewire navigation handler failed:', error);
-                        }
-                    });
-                } catch (error) {
-                    console.warn('Sidebar auto-hide initialization failed:', error);
-                }
-            });
-        ">
+        <flux:sidebar sticky collapsible class="bg-zinc-50 dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-700">
             <flux:sidebar.toggle class="lg:hidden" icon="x-mark" data-sidebar-toggle />
 
             <a href="{{ route('dashboard') }}" class="me-5 flex items-center space-x-2 rtl:space-x-reverse" wire:navigate>

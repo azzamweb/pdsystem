@@ -56,3 +56,32 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+// Disable dark mode globally
+document.addEventListener('DOMContentLoaded', function() {
+    // Remove dark class from html element
+    document.documentElement.classList.remove('dark');
+    
+    // Prevent dark mode from being applied
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                if (document.documentElement.classList.contains('dark')) {
+                    document.documentElement.classList.remove('dark');
+                }
+            }
+        });
+    });
+    
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class']
+    });
+    
+    // Override Flux UI appearance if it exists
+    if (window.Alpine && window.Alpine.store) {
+        Alpine.store('flux', {
+            appearance: 'light'
+        });
+    }
+});

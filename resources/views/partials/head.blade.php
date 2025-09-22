@@ -12,7 +12,7 @@
 
 @vite(['resources/css/app.css', 'resources/js/app.js'])
 @livewireStyles
-@fluxAppearance
+{{-- @fluxAppearance --}}
 
 <!-- Fix for CSS preload warnings -->
 @if(config('app.env') === 'production')
