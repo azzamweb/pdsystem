@@ -13,6 +13,12 @@
 @vite(['resources/css/app.css', 'resources/js/app.js'])
 @livewireStyles
 @fluxAppearance
+
+<!-- Fix for CSS preload warnings -->
+@if(config('app.env') === 'production')
+    <link rel="preload" href="{{ Vite::asset('resources/css/app.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ Vite::asset('resources/css/app.css') }}"></noscript>
+@endif
 <style>
     [x-cloak] { display: none !important; }
 </style>
