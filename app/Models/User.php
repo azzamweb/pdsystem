@@ -162,51 +162,54 @@ class User extends Authenticatable
     }
 
     /**
-     * Get nota dinas where this user is the "to" user
+     * Get nota dinas where this user is the "to" user (only non-deleted)
      */
     public function notaDinasTo(): HasMany
     {
-        return $this->hasMany(NotaDinas::class, 'to_user_id');
+        return $this->hasMany(NotaDinas::class, 'to_user_id')->whereNull('deleted_at');
     }
 
     /**
-     * Get nota dinas where this user is the "from" user
+     * Get nota dinas where this user is the "from" user (only non-deleted)
      */
     public function notaDinasFrom(): HasMany
     {
-        return $this->hasMany(NotaDinas::class, 'from_user_id');
+        return $this->hasMany(NotaDinas::class, 'from_user_id')->whereNull('deleted_at');
     }
 
     /**
-     * Get nota dinas where this user is the creator
+     * Get nota dinas where this user is the creator (only non-deleted)
      */
     public function notaDinasCreated(): HasMany
     {
-        return $this->hasMany(NotaDinas::class, 'created_by');
+        return $this->hasMany(NotaDinas::class, 'created_by')->whereNull('deleted_at');
     }
 
     /**
-     * Get nota dinas where this user is the approver
+     * Get nota dinas where this user is the approver (only non-deleted)
      */
     public function notaDinasApproved(): HasMany
     {
-        return $this->hasMany(NotaDinas::class, 'approved_by');
+        return $this->hasMany(NotaDinas::class, 'approved_by')->whereNull('deleted_at');
     }
 
     /**
-     * Get nota dinas participants where this user is a participant
+     * Get nota dinas participants where this user is a participant (only from non-deleted nota dinas)
      */
     public function notaDinasParticipants(): HasMany
     {
-        return $this->hasMany(NotaDinasParticipant::class, 'user_id');
+        return $this->hasMany(NotaDinasParticipant::class, 'user_id')
+            ->whereHas('notaDinas', function($query) {
+                $query->whereNull('deleted_at');
+            });
     }
 
     /**
-     * Get receipts where this user is the treasurer (bendahara)
+     * Get receipts where this user is the treasurer (bendahara) (only non-deleted)
      */
     public function receiptsAsTreasurer(): HasMany
     {
-        return $this->hasMany(Receipt::class, 'treasurer_user_id');
+        return $this->hasMany(Receipt::class, 'treasurer_user_id')->whereNull('deleted_at');
     }
 
     /**

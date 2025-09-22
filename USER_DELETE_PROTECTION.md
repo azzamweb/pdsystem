@@ -2,21 +2,21 @@
 
 ## Overview
 
-Fitur ini mencegah penghapusan user yang masih digunakan dalam dokumen nota dinas dan sub kegiatan. Sistem akan mengecek apakah user terlibat dalam:
+Fitur ini mencegah penghapusan user yang masih digunakan dalam dokumen nota dinas dan sub kegiatan. Sistem akan mengecek apakah user terlibat dalam dokumen yang **belum dihapus** (soft delete). Sistem akan mengecek apakah user terlibat dalam:
 
 ### **Dokumen Nota Dinas sebagai:**
-- **Kepada** (to_user_id)
-- **Dari** (from_user_id) 
-- **Pembuat** (created_by)
-- **Penyetuju** (approved_by)
-- **Peserta** (nota_dinas_participants)
+- **Kepada** (to_user_id) - Hanya dokumen yang belum dihapus
+- **Dari** (from_user_id) - Hanya dokumen yang belum dihapus
+- **Pembuat** (created_by) - Hanya dokumen yang belum dihapus
+- **Penyetuju** (approved_by) - Hanya dokumen yang belum dihapus
+- **Peserta** (nota_dinas_participants) - Hanya dari dokumen yang belum dihapus
 
 ### **Sub Kegiatan sebagai:**
-- **PPTK** (pptk_user_id)
+- **PPTK** (pptk_user_id) - Semua dokumen (SubKeg tidak menggunakan soft delete)
 
 ### **Kwitansi sebagai:**
-- **Bendahara Pengeluaran** (treasurer_user_id dengan treasurer_title = 'Bendahara Pengeluaran')
-- **Bendahara Pengeluaran Pembantu** (treasurer_user_id dengan treasurer_title = 'Bendahara Pengeluaran Pembantu')
+- **Bendahara Pengeluaran** (treasurer_user_id dengan treasurer_title = 'Bendahara Pengeluaran') - Hanya dokumen yang belum dihapus
+- **Bendahara Pengeluaran Pembantu** (treasurer_user_id dengan treasurer_title = 'Bendahara Pengeluaran Pembantu') - Hanya dokumen yang belum dihapus
 
 ## Implementasi
 
@@ -26,40 +26,43 @@ Fitur ini mencegah penghapusan user yang masih digunakan dalam dokumen nota dina
 
 #### **Relasi yang Ditambahkan:**
 ```php
-// Relasi ke nota dinas sebagai "to" user
+// Relasi ke nota dinas sebagai "to" user (hanya yang belum dihapus)
 public function notaDinasTo(): HasMany
 {
-    return $this->hasMany(NotaDinas::class, 'to_user_id');
+    return $this->hasMany(NotaDinas::class, 'to_user_id')->whereNull('deleted_at');
 }
 
-// Relasi ke nota dinas sebagai "from" user
+// Relasi ke nota dinas sebagai "from" user (hanya yang belum dihapus)
 public function notaDinasFrom(): HasMany
 {
-    return $this->hasMany(NotaDinas::class, 'from_user_id');
+    return $this->hasMany(NotaDinas::class, 'from_user_id')->whereNull('deleted_at');
 }
 
-// Relasi ke nota dinas sebagai creator
+// Relasi ke nota dinas sebagai creator (hanya yang belum dihapus)
 public function notaDinasCreated(): HasMany
 {
-    return $this->hasMany(NotaDinas::class, 'created_by');
+    return $this->hasMany(NotaDinas::class, 'created_by')->whereNull('deleted_at');
 }
 
-// Relasi ke nota dinas sebagai approver
+// Relasi ke nota dinas sebagai approver (hanya yang belum dihapus)
 public function notaDinasApproved(): HasMany
 {
-    return $this->hasMany(NotaDinas::class, 'approved_by');
+    return $this->hasMany(NotaDinas::class, 'approved_by')->whereNull('deleted_at');
 }
 
-// Relasi ke nota dinas participants
+// Relasi ke nota dinas participants (hanya dari dokumen yang belum dihapus)
 public function notaDinasParticipants(): HasMany
 {
-    return $this->hasMany(NotaDinasParticipant::class, 'user_id');
+    return $this->hasMany(NotaDinasParticipant::class, 'user_id')
+        ->whereHas('notaDinas', function($query) {
+            $query->whereNull('deleted_at');
+        });
 }
 
-// Relasi ke receipts sebagai bendahara
+// Relasi ke receipts sebagai bendahara (hanya yang belum dihapus)
 public function receiptsAsTreasurer(): HasMany
 {
-    return $this->hasMany(Receipt::class, 'treasurer_user_id');
+    return $this->hasMany(Receipt::class, 'treasurer_user_id')->whereNull('deleted_at');
 }
 ```
 
@@ -87,7 +90,7 @@ public function isUsedAsTreasurer(): bool
     return $this->receiptsAsTreasurer()->exists();
 }
 
-// Cek apakah user digunakan dalam dokumen apapun
+// Cek apakah user digunakan dalam dokumen apapun (hanya dokumen yang belum dihapus)
 public function isUsedInDocuments(): bool
 {
     return $this->isUsedInNotaDinas() || $this->isUsedInSubKegiatan() || $this->isUsedAsTreasurer();
@@ -142,7 +145,7 @@ public function getAllTreasurerInvolvement(): array
     return $involvements;
 }
 
-// Dapatkan semua detail penggunaan user
+// Dapatkan semua detail penggunaan user (hanya dokumen yang belum dihapus)
 public function getAllDocumentInvolvements(): array
 {
     $involvements = [];
@@ -397,4 +400,4 @@ $involvements = $user->getAllSubKegiatanInvolvement();
 ✅ **Sub Kegiatan Protection** - Validasi untuk sub kegiatan berhasil ditambahkan  
 ✅ **Treasurer Protection** - Validasi untuk bendahara pada kwitansi berhasil ditambahkan  
 
-Fitur ini memastikan bahwa user yang masih digunakan dalam dokumen nota dinas, sub kegiatan, atau kwitansi tidak dapat dihapus, menjaga integritas data dan mencegah masalah referential integrity.
+Fitur ini memastikan bahwa user yang masih digunakan dalam dokumen nota dinas, sub kegiatan, atau kwitansi **yang belum dihapus** tidak dapat dihapus, menjaga integritas data dan mencegah masalah referential integrity. User bisa dihapus setelah dokumen terkait dihapus (soft delete).
