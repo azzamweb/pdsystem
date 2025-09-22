@@ -57,13 +57,13 @@
                 <flux:sidebar.item icon="shield-check" :href="route('ranks.index')" :current="request()->routeIs('ranks.*')" wire:navigate tooltip="{{ __('Data Pangkat') }}">{{ __('Data Pangkat') }}</flux:sidebar.item>
                 @endif
                 @if(\App\Helpers\PermissionHelper::can('menu.doc-number-formats'))
-                <flux:sidebar.item icon="hashtag" :href="route('doc-number-formats.index')" :current="request()->routeIs('doc-number-formats.*')" wire:navigate tooltip="{{ __('Format Penomoran Dokumen') }}">{{ __('Format Penomoran Dokumen') }}</flux:sidebar.item>
+                <flux:sidebar.item icon="hashtag" :href="route('doc-number-formats.index')" :current="request()->routeIs('doc-number-formats.*')" wire:navigate tooltip="{{ __('Format Penomoran') }}">{{ __('Format Penomoran') }}</flux:sidebar.item>
                 @endif
                 @if(\App\Helpers\PermissionHelper::can('menu.number-sequences'))
                 <flux:sidebar.item icon="hashtag" :href="route('number-sequences.index')" :current="request()->routeIs('number-sequences.*')" wire:navigate tooltip="{{ __('Number Sequence') }}">{{ __('Number Sequence') }}</flux:sidebar.item>
                 @endif
                 @if(\App\Helpers\PermissionHelper::can('menu.document-numbers'))
-                <flux:sidebar.item icon="document-text" :href="route('document-numbers.index')" :current="request()->routeIs('document-numbers.*')" wire:navigate tooltip="{{ __('Riwayat Nomor Dokumen') }}">{{ __('Riwayat Nomor Dokumen') }}</flux:sidebar.item>
+                <flux:sidebar.item icon="document-text" :href="route('document-numbers.index')" :current="request()->routeIs('document-numbers.*')" wire:navigate tooltip="{{ __('Riwayat Nomor') }}">{{ __('Riwayat Nomor') }}</flux:sidebar.item>
                 @endif
             </flux:sidebar.group>
             @endif
