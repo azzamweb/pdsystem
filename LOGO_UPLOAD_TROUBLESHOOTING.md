@@ -205,16 +205,49 @@ Berdasarkan hasil diagnosa yang sudah berjalan:
 
 ### Langkah Selanjutnya
 
-1. **Test upload logo di aplikasi:**
+1. **Perbaiki masalah permissions dan cache:**
+   ```bash
+   # Fix permissions
+   bash fix_permissions.sh
+   
+   # Fix cache table issue
+   php fix_cache_table.php
+   
+   # Fix production issues
+   php fix_production_issues.php
+   ```
+
+2. **Test upload logo di aplikasi:**
    - Akses `/settings/organization`
    - Upload logo baru
    - Periksa apakah logo ditampilkan di sidebar dan welcome page
 
-2. **Jika masih ada masalah, jalankan:**
+3. **Jika masih ada masalah, jalankan:**
    ```bash
    php fix_production_config.php
    php test_logo_upload.php
    ```
+
+### Masalah yang Ditemukan dan Solusinya
+
+#### 1. Permission Denied untuk Log File
+**Error:** `Permission denied` untuk `/var/www/pdsystem.trust-idn.id/pdsystem/storage/logs/laravel.log`
+
+**Solusi:**
+```bash
+# Fix log file permissions
+chmod 644 storage/logs/laravel.log
+chmod 755 storage/logs/
+```
+
+#### 2. Cache Table Tidak Ada
+**Error:** `no such table: cache` di SQLite database
+
+**Solusi:**
+```bash
+# Fix cache table
+php fix_cache_table.php
+```
 
 ### File yang Terlibat
 
