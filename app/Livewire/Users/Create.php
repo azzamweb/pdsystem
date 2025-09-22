@@ -171,8 +171,8 @@ class Create extends Component
             ->get();
         $ranks = Rank::orderBy('code', 'desc')->get(); // Pangkat tertinggi (IV/e) first
         $travelGrades = TravelGrade::orderBy('name')->get();
-        $availableRoles = Role::orderBy('name')->get();
-        $canManageRoles = PermissionHelper::canManagePermissions();
+        $availableRoles = Role::where('name', '!=', 'super-admin')->orderBy('name')->get();
+        $canManageRoles = PermissionHelper::canManageUserRoles();
 
         return view('livewire.users.create', compact('units', 'positions', 'ranks', 'travelGrades', 'availableRoles', 'canManageRoles'));
     }

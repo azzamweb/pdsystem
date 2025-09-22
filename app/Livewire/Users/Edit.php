@@ -111,8 +111,8 @@ class Edit extends Component
         // Set travel grade
         $this->travel_grade_id = $user->travel_grade_id;
         
-        // Set roles (only if user can manage permissions)
-        if (PermissionHelper::canManagePermissions()) {
+        // Set roles (if user can manage user roles)
+        if (PermissionHelper::canManageUserRoles()) {
             $this->roles = $user->roles->pluck('name')->toArray();
         }
     }
@@ -171,8 +171,8 @@ class Edit extends Component
         
         $this->user->update($validated);
         
-        // Update roles (only if user can manage permissions)
-        if (PermissionHelper::canManagePermissions()) {
+        // Update roles (only if user can manage user roles)
+        if (PermissionHelper::canManageUserRoles()) {
             $this->user->syncRoles($validated['roles'] ?? []);
         }
         
@@ -202,8 +202,8 @@ class Edit extends Component
             ->get();
         $ranks = Rank::orderBy('code', 'desc')->get(); // Pangkat tertinggi (IV/e) first
         $travelGrades = TravelGrade::orderBy('name')->get();
-        $availableRoles = Role::orderBy('name')->get();
-        $canManageRoles = PermissionHelper::canManagePermissions();
+        $availableRoles = Role::where('name', '!=', 'super-admin')->orderBy('name')->get();
+        $canManageRoles = PermissionHelper::canManageUserRoles();
 
         return view('livewire.users.edit', compact('units', 'positions', 'ranks', 'travelGrades', 'availableRoles', 'canManageRoles'));
     }

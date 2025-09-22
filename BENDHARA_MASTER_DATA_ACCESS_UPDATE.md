@@ -501,6 +501,125 @@ can(users.delete): YES
 getUserUnitId(): NULL (no filtering)
 ```
 
+## Role Admin User Management
+
+### **Konfigurasi Role Admin:**
+
+Role Admin dapat mengelola semua user dengan kemampuan penuh untuk menambah, edit, menghapus, dan mengubah role user (kecuali super-admin):
+
+#### **Permissions yang Sudah Dimiliki:**
+- `users.view` - Melihat data pegawai
+- `users.create` - Membuat data pegawai
+- `users.edit` - Mengedit data pegawai
+- `users.delete` - Menghapus data pegawai
+- `master-data.view` - Melihat master data
+- `master-data.create` - Membuat master data
+- `master-data.edit` - Mengedit master data
+- `master-data.delete` - Menghapus master data
+- Dan permissions lainnya untuk master data
+
+#### **Fitur User Management yang Dapat Diakses:**
+- ✅ **Menambah User** - Full access tanpa unit scope
+- ✅ **Mengedit User** - Full access tanpa unit scope
+- ✅ **Menghapus User** - Full access tanpa unit scope
+- ✅ **Mengubah Role User** - Dapat mengubah role (kecuali super-admin)
+- ✅ **Unit Scope** - Tidak ada batasan unit scope
+
+#### **Role yang Dapat Ditetapkan Admin:**
+- ✅ **admin** - Role Admin
+- ✅ **bendahara-pengeluaran** - Bendahara Pengeluaran
+- ✅ **bendahara-pengeluaran-pembantu** - Bendahara Pengeluaran Pembantu
+- ✅ **sekretariat** - Sekretariat
+- ❌ **super-admin** - Tidak dapat ditetapkan (hanya super-admin yang bisa)
+
+### **File yang Dimodifikasi:**
+
+1. **`app/Helpers/PermissionHelper.php`** ✅
+   - Menambahkan method `canManageUserRoles()` untuk Admin dan Super-Admin
+   - Method `canManagePermissions()` tetap hanya untuk Super-Admin
+
+2. **`app/Livewire/Users/Edit.php`** ✅
+   - Update untuk menggunakan `canManageUserRoles()` instead of `canManagePermissions()`
+   - Filter available roles untuk mengecualikan super-admin
+
+3. **`app/Livewire/Users/Create.php`** ✅
+   - Update untuk menggunakan `canManageUserRoles()` instead of `canManagePermissions()`
+   - Filter available roles untuk mengecualikan super-admin
+
+4. **`app/Livewire/Users/ManageRoles.php`** ✅ (Baru)
+   - Komponen baru untuk mengelola role user
+   - Hanya menampilkan role yang tersedia (kecuali super-admin)
+   - Menggunakan `canManageUserRoles()` untuk akses control
+
+5. **`resources/views/livewire/users/manage-roles.blade.php`** ✅ (Baru)
+   - View untuk komponen ManageRoles
+   - Interface yang user-friendly untuk mengelola role
+
+6. **`resources/views/livewire/users/index.blade.php`** ✅
+   - Menambahkan tombol "Kelola Role" untuk Admin
+   - Menggunakan `canManageUserRoles()` untuk visibility
+
+7. **`routes/web.php`** ✅
+   - Menambahkan route `users/{user}/roles` untuk ManageRoles
+
+### **Hasil Testing:**
+
+**User dengan Role Admin:**
+- ✅ **User Management**: Full access (view, create, edit, delete)
+- ✅ **Role Management**: Dapat mengubah role user (kecuali super-admin)
+- ✅ **Unit Scope**: Tidak ada batasan unit scope
+- ✅ **Available Roles**: admin, bendahara-pengeluaran, bendahara-pengeluaran-pembantu, sekretariat
+- ❌ **Super-Admin Role**: Tidak dapat ditetapkan (sesuai design)
+
+**PermissionHelper Tests:**
+```
+can(users.view): YES
+can(users.create): YES
+can(users.edit): YES
+can(users.delete): YES
+canManageUserRoles(): YES
+canManagePermissions(): NO (hanya super-admin)
+canAccessAllData(): YES
+getUserUnitId(): NULL (no filtering)
+```
+
+**UI Features:**
+- ✅ **Tombol "Kelola Role"** - Tampil untuk Admin di halaman users index
+- ✅ **Form Role Selection** - Tersedia di halaman edit/create user
+- ✅ **ManageRoles Component** - Dapat diakses via `/users/{user}/roles`
+- ✅ **Role Filtering** - Super-admin tidak muncul dalam pilihan role
+- ✅ **Role Display in Edit Form** - Role yang sudah dimiliki user ditampilkan dengan benar
+
+### **Perbaikan Bug Role Display:**
+
+**Masalah:** Pada form edit user, field role tidak menampilkan role yang sudah dimiliki oleh user terkait.
+
+**Penyebab:** Di method `mount()` pada `app/Livewire/Users/Edit.php`, inisialisasi property `roles` hanya dilakukan untuk super-admin (`canManagePermissions()`), bukan untuk Admin (`canManageUserRoles()`).
+
+**Solusi:** Mengubah kondisi dari `canManagePermissions()` menjadi `canManageUserRoles()` agar Admin juga bisa melihat dan mengelola role user.
+
+**File yang Diperbaiki:**
+- **`app/Livewire/Users/Edit.php`** ✅
+  - Mengubah kondisi inisialisasi `roles` dari `canManagePermissions()` ke `canManageUserRoles()`
+  - Sekarang Admin dapat melihat role yang sudah dimiliki user saat membuka form edit
+
+**Hasil Testing:**
+```
+Testing Role Display in Edit User Form:
+Admin User: H. AREADY
+Target User: Ahmad Rizki (ID: 30)
+Target User Current Roles: bendahara-pengeluaran
+
+Can Admin manage this user's roles?
+canManageUserRoles(): YES
+
+Simulating mount method logic:
+Roles that should be displayed: bendahara-pengeluaran
+Roles array: ["bendahara-pengeluaran"]
+```
+
+**Status:** ✅ **Bug Fixed** - Role yang sudah dimiliki user sekarang ditampilkan dengan benar di form edit untuk Admin.
+
 ## Testing
 
 Setelah menerapkan perubahan, pastikan untuk test:

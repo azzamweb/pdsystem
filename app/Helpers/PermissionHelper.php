@@ -180,6 +180,14 @@ class PermissionHelper
     }
 
     /**
+     * Check if user can manage user roles (admin and super-admin)
+     */
+    public static function canManageUserRoles(): bool
+    {
+        return self::hasAnyRole(['admin', 'super-admin']);
+    }
+
+    /**
      * Check if user can manage master data
      */
     public static function canManageMasterData(): bool

@@ -131,6 +131,7 @@ Route::middleware(['auth', 'user.role'])->group(function () {
     Route::get('users/create', UserCreate::class)->name('users.create');
     Route::get('users/{user}/edit', UserEdit::class)->name('users.edit');
                 Route::get('users/{user}/permissions', \App\Livewire\Users\ManagePermissions::class)->name('users.permissions');
+                Route::get('users/{user}/roles', \App\Livewire\Users\ManageRoles::class)->name('users.roles');
                 
                 // Role Management Routes
                 Route::get('roles', \App\Livewire\Roles\Index::class)->name('roles.index');
