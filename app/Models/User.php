@@ -202,6 +202,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get receipts where this user is the treasurer (bendahara)
+     */
+    public function receiptsAsTreasurer(): HasMany
+    {
+        return $this->hasMany(Receipt::class, 'treasurer_user_id');
+    }
+
+    /**
      * Check if user is used in any nota dinas documents
      */
     public function isUsedInNotaDinas(): bool
@@ -222,11 +230,19 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if user is used in any documents (nota dinas or sub kegiatan)
+     * Check if user is used as treasurer (bendahara) in any receipts
+     */
+    public function isUsedAsTreasurer(): bool
+    {
+        return $this->receiptsAsTreasurer()->exists();
+    }
+
+    /**
+     * Check if user is used in any documents (nota dinas, sub kegiatan, or receipts)
      */
     public function isUsedInDocuments(): bool
     {
-        return $this->isUsedInNotaDinas() || $this->isUsedInSubKegiatan();
+        return $this->isUsedInNotaDinas() || $this->isUsedInSubKegiatan() || $this->isUsedAsTreasurer();
     }
 
     /**
@@ -310,7 +326,37 @@ class User extends Authenticatable
     }
 
     /**
-     * Get all document involvements (nota dinas and sub kegiatan)
+     * Get all receipts where this user is involved as treasurer (bendahara)
+     */
+    public function getAllTreasurerInvolvement(): array
+    {
+        $involvements = [];
+
+        // Check as Bendahara Pengeluaran
+        $bendaharaReceipts = $this->receiptsAsTreasurer()->where('treasurer_title', 'Bendahara Pengeluaran')->get();
+        if ($bendaharaReceipts->count() > 0) {
+            $involvements[] = [
+                'type' => 'Bendahara Pengeluaran',
+                'count' => $bendaharaReceipts->count(),
+                'documents' => $bendaharaReceipts->pluck('receipt_no')->toArray()
+            ];
+        }
+
+        // Check as Bendahara Pengeluaran Pembantu
+        $bendaharaPembantuReceipts = $this->receiptsAsTreasurer()->where('treasurer_title', 'Bendahara Pengeluaran Pembantu')->get();
+        if ($bendaharaPembantuReceipts->count() > 0) {
+            $involvements[] = [
+                'type' => 'Bendahara Pengeluaran Pembantu',
+                'count' => $bendaharaPembantuReceipts->count(),
+                'documents' => $bendaharaPembantuReceipts->pluck('receipt_no')->toArray()
+            ];
+        }
+
+        return $involvements;
+    }
+
+    /**
+     * Get all document involvements (nota dinas, sub kegiatan, and receipts)
      */
     public function getAllDocumentInvolvements(): array
     {
@@ -326,6 +372,12 @@ class User extends Authenticatable
         $subKegiatanInvolvements = $this->getAllSubKegiatanInvolvement();
         if (!empty($subKegiatanInvolvements)) {
             $involvements['sub_kegiatan'] = $subKegiatanInvolvements;
+        }
+
+        // Get treasurer involvements
+        $treasurerInvolvements = $this->getAllTreasurerInvolvement();
+        if (!empty($treasurerInvolvements)) {
+            $involvements['receipts'] = $treasurerInvolvements;
         }
 
         return $involvements;

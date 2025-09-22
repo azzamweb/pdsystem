@@ -50,6 +50,14 @@ class Index extends Component
                 $involvementTexts[] = 'sub kegiatan sebagai: ' . $subKegiatanText;
             }
             
+            // Process receipts involvements
+            if (isset($allInvolvements['receipts'])) {
+                $receiptsText = collect($allInvolvements['receipts'])->map(function ($involvement) {
+                    return $involvement['type'] . ' (' . $involvement['count'] . ' kwitansi)';
+                })->join(', ');
+                $involvementTexts[] = 'kwitansi sebagai: ' . $receiptsText;
+            }
+            
             $fullInvolvementText = implode(' dan ', $involvementTexts);
             session()->flash('error', 'Data pegawai tidak dapat dihapus karena masih digunakan dalam ' . $fullInvolvementText . '.');
             return;
@@ -65,7 +73,7 @@ class Index extends Component
 
     public function render()
     {
-        $users = User::with(['unit', 'position.echelon', 'rank', 'travelGrade'])
+        $users = User::with(['unit', 'position.echelon', 'rank', 'travelGrade', 'roles'])
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     // Search in basic user fields

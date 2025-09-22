@@ -14,6 +14,10 @@ Fitur ini mencegah penghapusan user yang masih digunakan dalam dokumen nota dina
 ### **Sub Kegiatan sebagai:**
 - **PPTK** (pptk_user_id)
 
+### **Kwitansi sebagai:**
+- **Bendahara Pengeluaran** (treasurer_user_id dengan treasurer_title = 'Bendahara Pengeluaran')
+- **Bendahara Pengeluaran Pembantu** (treasurer_user_id dengan treasurer_title = 'Bendahara Pengeluaran Pembantu')
+
 ## Implementasi
 
 ### 1. Model User - Relasi dan Method
@@ -51,6 +55,12 @@ public function notaDinasParticipants(): HasMany
 {
     return $this->hasMany(NotaDinasParticipant::class, 'user_id');
 }
+
+// Relasi ke receipts sebagai bendahara
+public function receiptsAsTreasurer(): HasMany
+{
+    return $this->hasMany(Receipt::class, 'treasurer_user_id');
+}
 ```
 
 #### **Method untuk Mengecek Penggunaan:**
@@ -71,10 +81,16 @@ public function isUsedInSubKegiatan(): bool
     return $this->subKegiatan()->exists();
 }
 
+// Cek apakah user digunakan sebagai bendahara pada kwitansi
+public function isUsedAsTreasurer(): bool
+{
+    return $this->receiptsAsTreasurer()->exists();
+}
+
 // Cek apakah user digunakan dalam dokumen apapun
 public function isUsedInDocuments(): bool
 {
-    return $this->isUsedInNotaDinas() || $this->isUsedInSubKegiatan();
+    return $this->isUsedInNotaDinas() || $this->isUsedInSubKegiatan() || $this->isUsedAsTreasurer();
 }
 
 // Dapatkan detail penggunaan user dalam nota dinas
@@ -92,6 +108,34 @@ public function getAllSubKegiatanInvolvement(): array
             'type' => 'PPTK',
             'count' => $subKegiatan->count(),
             'documents' => $subKegiatan->pluck('display_name')->toArray()
+        ];
+    }
+    
+    return $involvements;
+}
+
+// Dapatkan detail penggunaan user sebagai bendahara pada kwitansi
+public function getAllTreasurerInvolvement(): array
+{
+    $involvements = [];
+    
+    // Check as Bendahara Pengeluaran
+    $bendaharaReceipts = $this->receiptsAsTreasurer()->where('treasurer_title', 'Bendahara Pengeluaran')->get();
+    if ($bendaharaReceipts->count() > 0) {
+        $involvements[] = [
+            'type' => 'Bendahara Pengeluaran',
+            'count' => $bendaharaReceipts->count(),
+            'documents' => $bendaharaReceipts->pluck('receipt_no')->toArray()
+        ];
+    }
+    
+    // Check as Bendahara Pengeluaran Pembantu
+    $bendaharaPembantuReceipts = $this->receiptsAsTreasurer()->where('treasurer_title', 'Bendahara Pengeluaran Pembantu')->get();
+    if ($bendaharaPembantuReceipts->count() > 0) {
+        $involvements[] = [
+            'type' => 'Bendahara Pengeluaran Pembantu',
+            'count' => $bendaharaPembantuReceipts->count(),
+            'documents' => $bendaharaPembantuReceipts->pluck('receipt_no')->toArray()
         ];
     }
     
@@ -146,17 +190,25 @@ public function delete(User $user)
             $involvementTexts[] = 'dokumen nota dinas sebagai: ' . $notaDinasText;
         }
         
-        // Process sub kegiatan involvements
-        if (isset($allInvolvements['sub_kegiatan'])) {
-            $subKegiatanText = collect($allInvolvements['sub_kegiatan'])->map(function ($involvement) {
-                return $involvement['type'] . ' (' . $involvement['count'] . ' sub kegiatan)';
-            })->join(', ');
-            $involvementTexts[] = 'sub kegiatan sebagai: ' . $subKegiatanText;
-        }
-        
-        $fullInvolvementText = implode(' dan ', $involvementTexts);
-        session()->flash('error', 'Data pegawai tidak dapat dihapus karena masih digunakan dalam ' . $fullInvolvementText . '.');
-        return;
+            // Process sub kegiatan involvements
+            if (isset($allInvolvements['sub_kegiatan'])) {
+                $subKegiatanText = collect($allInvolvements['sub_kegiatan'])->map(function ($involvement) {
+                    return $involvement['type'] . ' (' . $involvement['count'] . ' sub kegiatan)';
+                })->join(', ');
+                $involvementTexts[] = 'sub kegiatan sebagai: ' . $subKegiatanText;
+            }
+            
+            // Process receipts involvements
+            if (isset($allInvolvements['receipts'])) {
+                $receiptsText = collect($allInvolvements['receipts'])->map(function ($involvement) {
+                    return $involvement['type'] . ' (' . $involvement['count'] . ' kwitansi)';
+                })->join(', ');
+                $involvementTexts[] = 'kwitansi sebagai: ' . $receiptsText;
+            }
+            
+            $fullInvolvementText = implode(' dan ', $involvementTexts);
+            session()->flash('error', 'Data pegawai tidak dapat dihapus karena masih digunakan dalam ' . $fullInvolvementText . '.');
+            return;
     }
     
     try {
@@ -288,12 +340,14 @@ $involvements = $user->getAllSubKegiatanInvolvement();
 
 "Data pegawai tidak dapat dihapus karena masih digunakan dalam sub kegiatan sebagai: PPTK (3 sub kegiatan)."
 
-"Data pegawai tidak dapat dihapus karena masih digunakan dalam dokumen nota dinas sebagai: Kepada (1 dokumen) dan sub kegiatan sebagai: PPTK (2 sub kegiatan)."
+"Data pegawai tidak dapat dihapus karena masih digunakan dalam kwitansi sebagai: Bendahara Pengeluaran (2 kwitansi)."
+
+"Data pegawai tidak dapat dihapus karena masih digunakan dalam dokumen nota dinas sebagai: Kepada (1 dokumen), sub kegiatan sebagai: PPTK (2 sub kegiatan), dan kwitansi sebagai: Bendahara Pengeluaran Pembantu (1 kwitansi)."
 ```
 
 ### **Tooltip pada UI:**
 ```
-"Tidak dapat dihapus karena masih digunakan dalam dokumen nota dinas atau sub kegiatan"
+"Tidak dapat dihapus karena masih digunakan dalam dokumen nota dinas, sub kegiatan, atau kwitansi"
 ```
 
 ## Database Impact
@@ -334,12 +388,13 @@ $involvements = $user->getAllSubKegiatanInvolvement();
 
 ## Status
 
-✅ **Model Relasi** - Relasi user ke nota dinas dan sub kegiatan berhasil ditambahkan  
+✅ **Model Relasi** - Relasi user ke nota dinas, sub kegiatan, dan kwitansi berhasil ditambahkan  
 ✅ **Validasi Delete** - Method delete berhasil dimodifikasi dengan validasi komprehensif  
 ✅ **UI Indicators** - Visual feedback berhasil ditambahkan  
 ✅ **Error Messages** - Pesan error yang informatif dan detail  
 ✅ **Permission Integration** - Terintegrasi dengan sistem permission  
 ✅ **Testing** - Test case dan validasi berhasil  
 ✅ **Sub Kegiatan Protection** - Validasi untuk sub kegiatan berhasil ditambahkan  
+✅ **Treasurer Protection** - Validasi untuk bendahara pada kwitansi berhasil ditambahkan  
 
-Fitur ini memastikan bahwa user yang masih digunakan dalam dokumen nota dinas atau sub kegiatan tidak dapat dihapus, menjaga integritas data dan mencegah masalah referential integrity.
+Fitur ini memastikan bahwa user yang masih digunakan dalam dokumen nota dinas, sub kegiatan, atau kwitansi tidak dapat dihapus, menjaga integritas data dan mencegah masalah referential integrity.
