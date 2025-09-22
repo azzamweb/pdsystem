@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\Spt;
 use App\Models\NotaDinas;
 use Livewire\Attributes\Lazy;
+use Livewire\Attributes\On;
 
 #[Lazy]
 class SptTable extends Component
@@ -28,6 +29,12 @@ class SptTable extends Component
     public function createSpt($notaDinasId)
     {
         return $this->redirect(route('spt.create', ['nota_dinas_id' => $notaDinasId]));
+    }
+
+    #[On('refreshAll')]
+    public function refreshData()
+    {
+        // This will trigger a re-render of the component
     }
 
     public function confirmDelete($sptId)

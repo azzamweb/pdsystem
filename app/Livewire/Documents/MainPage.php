@@ -238,6 +238,9 @@ class MainPage extends Component
             // Refresh the data to update the UI
             $this->refreshData();
             
+            // Dispatch event to refresh all child components
+            $this->dispatch('refreshAll');
+            
             // Maintain the current state after deletion
             $this->selectedNotaDinasId = $notaDinasId;
             $this->selectedSptId = $sptId;
@@ -266,6 +269,9 @@ class MainPage extends Component
             // Refresh the data to update the UI
             $this->refreshData();
             
+            // Dispatch event to refresh all child components
+            $this->dispatch('refreshAll');
+            
         } catch (\Exception $e) {
             session()->flash('error', 'Gagal menghapus dokumen pendukung: ' . $e->getMessage());
         }
@@ -291,6 +297,9 @@ class MainPage extends Component
             
             // Refresh the data to update the UI
             $this->refreshData();
+            
+            // Dispatch event to refresh all child components
+            $this->dispatch('refreshAll');
             
             // Maintain the current state after deletion
             $this->selectedNotaDinasId = $notaDinasId;

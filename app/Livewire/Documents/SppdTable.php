@@ -5,6 +5,7 @@ namespace App\Livewire\Documents;
 use Livewire\Component;
 use App\Models\Sppd;
 use Livewire\Attributes\Lazy;
+use Livewire\Attributes\On;
 
 #[Lazy]
 class SppdTable extends Component
@@ -27,6 +28,12 @@ class SppdTable extends Component
     public function createSppd($sptId)
     {
         return $this->redirect(route('sppd.create', ['spt_id' => $sptId]));
+    }
+
+    #[On('refreshAll')]
+    public function refreshData()
+    {
+        // This will trigger a re-render of the component
     }
 
     public function confirmDelete($sppdId)

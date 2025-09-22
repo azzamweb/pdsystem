@@ -35,7 +35,8 @@ class NotaDinasList extends Component
     ];
 
     protected $listeners = [
-        'refreshList' => '$refresh'
+        'refreshList' => '$refresh',
+        'refreshAll' => '$refresh'
     ];
 
     public function updatedSearch()
