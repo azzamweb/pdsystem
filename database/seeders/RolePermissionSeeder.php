@@ -122,25 +122,48 @@ class RolePermissionSeeder extends Seeder
         $superAdmin = Role::firstOrCreate(['name' => 'super-admin']);
         $superAdmin->givePermissionTo(Permission::all());
 
-        // 2. Admin - mengelola master data, hak akses user (kecuali superadmin), referensi lokasi dan rute, referensi tarif
+        // 2. Admin - mengelola master data, hak akses user (kecuali superadmin), referensi lokasi dan rute, referensi tarif, dan menu konfigurasi
         $admin = Role::firstOrCreate(['name' => 'admin']);
-        $admin->givePermissionTo([
+        $admin->syncPermissions([
+            // Menu Access
+            'menu.dashboard',
+            'menu.master-data',
+            'menu.location-routes',
+            'menu.reference-rates',
+            'menu.rekap',
+            'menu.configuration',
+            'menu.organization',
+            'menu.ranks',
+            'menu.doc-number-formats',
+            'menu.number-sequences',
+            'menu.document-numbers',
+            'menu.provinces',
+            'menu.cities',
+            'menu.districts',
+            'menu.org-places',
+            'menu.transport-modes',
+            'menu.travel-routes',
+            // Master Data
             'master-data.view',
             'master-data.create',
             'master-data.edit',
             'master-data.delete',
+            // User Management
             'users.view',
             'users.create',
             'users.edit',
             'users.delete',
+            // Reference Rates
             'reference-rates.view',
             'reference-rates.create',
             'reference-rates.edit',
             'reference-rates.delete',
+            // Location & Routes
             'locations.view',
             'locations.create',
             'locations.edit',
             'locations.delete',
+            // Rekapitulasi
             'rekap.view',
             'rekap.export',
         ]);
