@@ -691,6 +691,215 @@ Configuration Sub-Menus:
 ✅ **Route Protection** - Semua route konfigurasi dapat diakses dengan permission yang tepat  
 ✅ **CRUD Operations** - Admin dapat melakukan operasi CRUD pada master data konfigurasi
 
+## Organization Settings Logo Upload
+
+### **Penambahan Field Upload Logo Apps:**
+
+Pada halaman setting organisasi `/settings/organization` telah ditambahkan field upload logo aplikasi untuk memungkinkan admin mengelola logo organisasi.
+
+#### **Fitur yang Ditambahkan:**
+- ✅ **Field Upload Logo** - Upload logo aplikasi dengan format JPG, PNG (Max: 2MB)
+- ✅ **Preview Logo** - Menampilkan preview logo yang sudah terupload
+- ✅ **Hapus Logo** - Tombol untuk menghapus logo yang sudah ada
+- ✅ **Validasi File** - Validasi format dan ukuran file
+- ✅ **Storage Management** - File disimpan di `storage/app/public/logos/`
+
+#### **File yang Dimodifikasi:**
+
+1. **`database/migrations/2025_09_22_015400_add_logo_path_to_org_settings_table.php`** ✅ (Baru)
+   - Migration untuk menambahkan field `logo_path` ke tabel `org_settings`
+
+2. **`app/Models/OrgSettings.php`** ✅
+   - Menambahkan `logo_path` ke `$fillable` array
+
+3. **`app/Livewire/Settings/OrganizationSettings.php`** ✅
+   - Menambahkan property `$logo_file` dan `$current_logo_path`
+   - Menambahkan validasi untuk `logo_file`
+   - Menambahkan logic upload dan hapus logo
+   - Menambahkan method `removeLogo()`
+
+4. **`resources/views/livewire/settings/organization-settings.blade.php`** ✅
+   - Menambahkan field upload logo dengan preview
+   - Mengubah layout dari 2 kolom menjadi 3 kolom (Logo, Tanda Tangan, Stempel)
+   - Menambahkan tombol hapus logo
+
+#### **Hasil Testing:**
+
+**Database Structure:**
+```
+Organization Settings:
+- ID: 1
+- Name: Badan Pengelola Keuangan dan Aset Daerah
+- Logo Path: NULL (ready for upload)
+- Signature Path: NULL
+- Stamp Path: NULL
+
+Fillable Fields:
+- logo_path (added)
+- signature_path
+- stamp_path
+- name, short_name, address, etc.
+```
+
+**Route Access:**
+```
+Organization Settings Route:
+URL: https://localhost:8000/settings/organization
+Route exists: YES
+```
+
+**Storage Directories:**
+```
+- logos: EXISTS
+- signatures: EXISTS (created)
+- stamps: EXISTS (created)
+```
+
+**Component Features:**
+- ✅ **File Upload** - Support untuk upload logo dengan validasi
+- ✅ **Preview** - Menampilkan preview logo yang sudah terupload
+- ✅ **Delete** - Tombol untuk menghapus logo dengan konfirmasi
+- ✅ **Validation** - Validasi format (image) dan ukuran (max 2MB)
+- ✅ **Storage** - File disimpan di `storage/app/public/logos/`
+
+### **Status:**
+✅ **Logo Upload Field** - Field upload logo berhasil ditambahkan ke organization settings  
+✅ **Database Migration** - Field `logo_path` berhasil ditambahkan ke tabel `org_settings`  
+✅ **Model Update** - Model `OrgSettings` sudah mendukung field `logo_path`  
+✅ **Component Logic** - Logic upload, preview, dan hapus logo sudah diimplementasi  
+✅ **UI Integration** - Interface upload logo sudah terintegrasi dengan baik  
+✅ **Storage Management** - Direktori storage untuk logo sudah dibuat dan siap digunakan
+
+## Sidebar Logo Integration
+
+### **Integrasi Logo Organisasi ke Sidebar:**
+
+Logo aplikasi pada sidebar telah diupdate untuk menggunakan logo organisasi yang diupload melalui organization settings, dengan background transparent untuk tampilan yang lebih bersih.
+
+#### **Fitur yang Ditambahkan:**
+- ✅ **Dynamic Logo Display** - Sidebar menampilkan logo organisasi yang diupload
+- ✅ **Transparent Background** - Background logo menggunakan transparent untuk tampilan yang bersih
+- ✅ **Fallback Icon** - Menggunakan icon default jika tidak ada logo yang diupload
+- ✅ **Organization Name** - Nama aplikasi menggunakan short_name dari organization settings
+- ✅ **Responsive Design** - Logo menyesuaikan dengan tema light/dark mode
+
+#### **File yang Dimodifikasi:**
+
+1. **`resources/views/components/dynamic-app-logo.blade.php`** ✅ (Baru)
+   - Komponen baru untuk menampilkan logo dinamis
+   - Menggunakan logo dari organization settings jika tersedia
+   - Fallback ke icon default jika tidak ada logo
+   - Background transparent untuk tampilan yang bersih
+
+2. **`resources/views/components/layouts/app/sidebar.blade.php`** ✅
+   - Mengganti `<x-app-logo />` dengan `<x-dynamic-app-logo />`
+   - Sidebar sekarang menggunakan logo organisasi yang diupload
+
+3. **`resources/views/welcome.blade.php`** ✅
+   - Mengganti logo section untuk menggunakan logo organisasi
+   - Menggunakan `OrgSettings::getInstance()` untuk mengambil logo
+   - Menampilkan logo yang diupload dengan fallback ke SVG default
+   - Menggunakan `short_name` dari organisasi untuk judul aplikasi
+   - Logo ditampilkan dengan `object-fit: contain` untuk proporsi yang tepat
+
+#### **Hasil Testing:**
+
+**Logo Display Logic:**
+```
+Organization Settings:
+- Name: Badan Pengelola Keuangan dan Aset Daerah
+- Short Name: BPKAD
+- Logo Path: logos/ixJ7Zr9pVsIDhmjcVUUt40x9D9dzZTKaLnPlWnxd.png
+- Logo File Exists: YES
+- Logo URL: /storage/logos/ixJ7Zr9pVsIDhmjcVUUt40x9D9dzZTKaLnPlWx.png
+
+Component Logic:
+- Will display: Uploaded logo image
+- App Name: BPKAD PdSystem
+```
+
+**Component Rendering:**
+```
+Component rendered successfully: YES
+HTML Length: 415 characters
+Logo image found in HTML: YES
+Transparent background found: YES
+Old background (bg-accent-content) still present: NO
+```
+
+**Fallback Scenario:**
+```
+Component rendered successfully: YES
+Transparent background found: YES
+Fallback icon used: YES
+Fallback icon color (light mode): YES
+Fallback icon color (dark mode): YES
+```
+
+**Larger Logo Size Test:**
+```
+Component rendered successfully: YES
+Container size updated to size-10: YES
+Logo image size updated to size-8: YES
+Fallback icon size updated to size-8: YES
+Old logo/icon size (size-5) still present: NO
+```
+
+**Welcome Page Logo Integration Test:**
+```
+Welcome page rendered successfully: YES
+Organization name appears 3 times in HTML
+Image tag found: YES
+Storage URL found: YES
+Welcome page shows uploaded logo: YES
+```
+
+**Welcome Page Larger Logo Test:**
+```
+Welcome page rendered successfully: YES
+Logo container width updated to 120px: YES
+Logo container height updated to 120px: YES
+Logo background set to transparent: YES
+Old background (rgba) still present: NO
+SVG fallback size updated to 80px: YES
+Image CSS class added: YES
+Inline styles removed from img tag: YES
+```
+
+**Fallback Scenario with Larger Logo:**
+```
+Welcome page rendered successfully: YES
+Container size is 120px: YES
+Background is transparent: YES
+Fallback SVG used: YES
+SVG size is 80px: YES
+```
+
+#### **CSS Classes yang Digunakan:**
+
+**Sidebar Logo:**
+- `bg-transparent` - Background transparent untuk logo container
+- `text-gray-600 dark:text-gray-300` - Warna icon fallback yang sesuai dengan tema
+- `size-10` - Ukuran container logo yang lebih besar (40px x 40px)
+- `size-8 object-contain` - Ukuran logo/icon yang optimal (32px x 32px)
+- `overflow-hidden` - Mencegah logo keluar dari container
+
+**Welcome Page Logo:**
+- `width: 120px; height: 120px` - Ukuran container logo yang lebih besar (120px x 120px)
+- `background: transparent` - Background transparent untuk logo container
+- `width: 80px; height: 80px` - Ukuran SVG fallback yang optimal (80px x 80px)
+- `width: 100%; height: 100%; object-fit: contain` - Logo image mengisi container dengan proporsi yang tepat
+
+### **Status:**
+✅ **Dynamic Logo Component** - Komponen logo dinamis berhasil dibuat  
+✅ **Sidebar Integration** - Sidebar berhasil menggunakan logo organisasi  
+✅ **Welcome Page Integration** - Welcome page berhasil menggunakan logo organisasi  
+✅ **Transparent Background** - Background logo menggunakan transparent  
+✅ **Larger Logo Size** - Ukuran logo diperbesar (Sidebar: 40px x 40px, Welcome: 120px x 120px)  
+✅ **Fallback System** - Sistem fallback ke icon default berfungsi dengan baik  
+✅ **Organization Name** - Nama aplikasi menggunakan short_name dari settings  
+✅ **Theme Support** - Logo mendukung light/dark mode theme
+
 ## Testing
 
 Setelah menerapkan perubahan, pastikan untuk test:

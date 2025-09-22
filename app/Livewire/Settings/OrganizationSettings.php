@@ -32,8 +32,10 @@ class OrganizationSettings extends Component
     // Files
     public $signature_file = null;
     public $stamp_file = null;
+    public $logo_file = null;
     public $current_signature_path = '';
     public $current_stamp_path = '';
+    public $current_logo_path = '';
 
     // Settings
     public $ym_separator = '/';
@@ -68,6 +70,7 @@ class OrganizationSettings extends Component
         // Current file paths
         $this->current_signature_path = $this->orgSettings->signature_path;
         $this->current_stamp_path = $this->orgSettings->stamp_path;
+        $this->current_logo_path = $this->orgSettings->logo_path;
 
         // Settings
         $this->ym_separator = $this->orgSettings->getSetting('ym_separator', '/');
@@ -91,6 +94,7 @@ class OrganizationSettings extends Component
             'head_title' => 'required|string|max:100',
             'signature_file' => 'nullable|image|max:2048', // 2MB max
             'stamp_file' => 'nullable|image|max:2048', // 2MB max
+            'logo_file' => 'nullable|image|max:2048', // 2MB max
             'ym_separator' => 'required|string|max:5',
             'qr_footer_text' => 'nullable|string|max:255',
             'show_left_logo' => 'boolean',
@@ -124,6 +128,16 @@ class OrganizationSettings extends Component
                 $validated['stamp_path'] = $this->current_stamp_path;
             }
 
+            if ($this->logo_file) {
+                // Delete old file if exists
+                if ($this->current_logo_path && \Storage::disk('public')->exists($this->current_logo_path)) {
+                    \Storage::disk('public')->delete($this->current_logo_path);
+                }
+                $validated['logo_path'] = $this->logo_file->store('logos', 'public');
+            } else {
+                $validated['logo_path'] = $this->current_logo_path;
+            }
+
             // Convert empty string to null for head_user_id
             if (isset($validated['head_user_id']) && $validated['head_user_id'] === '') {
                 $validated['head_user_id'] = null;
@@ -143,17 +157,19 @@ class OrganizationSettings extends Component
             $validated['singleton'] = true;
 
             // Remove file inputs from validated data
-            unset($validated['signature_file'], $validated['stamp_file'], $validated['show_left_logo'], $validated['show_right_logo']);
+            unset($validated['signature_file'], $validated['stamp_file'], $validated['logo_file'], $validated['show_left_logo'], $validated['show_right_logo']);
 
             $this->orgSettings->update($validated);
 
             // Update current paths
             $this->current_signature_path = $validated['signature_path'];
             $this->current_stamp_path = $validated['stamp_path'];
+            $this->current_logo_path = $validated['logo_path'];
 
             // Reset file inputs
             $this->signature_file = null;
             $this->stamp_file = null;
+            $this->logo_file = null;
 
             session()->flash('message', 'Konfigurasi organisasi berhasil disimpan.');
 
@@ -184,6 +200,18 @@ class OrganizationSettings extends Component
         $this->current_stamp_path = null;
         
         session()->flash('message', 'Stempel berhasil dihapus.');
+    }
+
+    public function removeLogo()
+    {
+        if ($this->current_logo_path && \Storage::disk('public')->exists($this->current_logo_path)) {
+            \Storage::disk('public')->delete($this->current_logo_path);
+        }
+        
+        $this->orgSettings->update(['logo_path' => null]);
+        $this->current_logo_path = null;
+        
+        session()->flash('message', 'Logo berhasil dihapus.');
     }
 
     public function render()

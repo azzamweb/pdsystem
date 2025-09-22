@@ -20,6 +20,7 @@ class OrgSettings extends Model
         'head_title',
         'signature_path',
         'stamp_path',
+        'logo_path',
         'settings',
         'singleton',
     ];

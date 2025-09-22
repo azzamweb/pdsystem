@@ -85,9 +85,9 @@
             }
 
             .app-logo {
-                width: 80px;
-                height: 80px;
-                background: rgba(255, 255, 255, 0.2);
+                width: 120px;
+                height: 120px;
+                background: transparent;
                 border-radius: 20px;
                 display: flex;
                 align-items: center;
@@ -98,8 +98,14 @@
             }
 
             .app-logo svg {
-                width: 40px;
-                height: 40px;
+                width: 80px;
+                height: 80px;
+            }
+
+            .app-logo img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
             }
 
             .app-title {
@@ -303,7 +309,10 @@
         <div class="container">
             <div class="card">
                 <div class="content">
-                    <h1 class="app-title">PdSystem</h1>
+                    @php
+                        $orgSettings = \App\Models\OrgSettings::getInstance();
+                    @endphp
+                    <h1 class="app-title">{{ $orgSettings->short_name ?: 'PdSystem' }}</h1>
                     <p class="app-subtitle">Sistem Manajemen Perjalanan Dinas yang Terintegrasi</p>
                     
                     <p style="margin-bottom: 2rem; color: #666; line-height: 1.6;">
@@ -334,11 +343,19 @@
 
                 <div class="logo-section">
                     <div class="app-logo">
-                        <svg viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                        </svg>
+                        @php
+                            $orgSettings = \App\Models\OrgSettings::getInstance();
+                            $logoPath = $orgSettings->logo_path;
+                        @endphp
+                        @if($logoPath && \Storage::disk('public')->exists($logoPath))
+                            <img src="{{ \Storage::url($logoPath) }}" alt="Logo" />
+                        @else
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                            </svg>
+                        @endif
                     </div>
-                    <h2 class="app-title">PdSystem</h2>
+                    <h2 class="app-title">{{ $orgSettings->short_name ?: 'PdSystem' }}</h2>
                     <p class="app-subtitle">Sistem Perjalanan Dinas</p>
                     
                     <div class="stats">
