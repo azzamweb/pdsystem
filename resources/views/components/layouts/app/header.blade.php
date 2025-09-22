@@ -34,7 +34,7 @@
                 </flux:tooltip>
                 <flux:tooltip :content="__('Documentation')" position="bottom">
                     <flux:navbar.item
-                        class="h-10 max-lg:hidden [&>div>svg]:size-5"
+                        class="h-10 max-lg:hidden [&>div>svg]:size-5 hover:bg-white"
                         icon="book-open-text"
                         href="https://laravel.com/docs/starter-kits#livewire"
                         target="_blank"

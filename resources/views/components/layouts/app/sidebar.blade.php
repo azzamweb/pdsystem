@@ -4,75 +4,75 @@
         @include('partials.head')
     </head>
     <body class="min-h-screen bg-white dark:bg-zinc-800">
-        <flux:sidebar sticky collapsible class="bg-zinc-50 dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-700">
+        <flux:sidebar sticky collapsible="true" class="bg-zinc-50 dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-700">
             <flux:sidebar.toggle class="lg:hidden" icon="x-mark" data-sidebar-toggle />
 
-            <a href="{{ route('dashboard') }}" class="me-5 flex items-center space-x-2 rtl:space-x-reverse" wire:navigate>
-                <x-dynamic-app-logo />
-            </a>
+            <div class="flex items-center justify-between me-5">
+                <a href="{{ route('dashboard') }}" class="flex items-center space-x-2 rtl:space-x-reverse" wire:navigate>
+                    <x-dynamic-app-logo />
+                    {{-- <span class="font-semibold text-lg">PdSystem</span> --}}
+                </a>
+                <flux:sidebar.collapse class="hidden lg:block bg-white hover:bg-white " />
+            </div>
 
            
 
-            <flux:navlist variant="outline">
+            <flux:sidebar.nav>
                 @if(\App\Helpers\PermissionHelper::can('menu.dashboard'))
-                <flux:navlist.group :heading="__('Platform')" class="grid">
-                    <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate @click="if (window.innerWidth < 1024) sidebarOpen = false">{{ __('Dashboard') }}</flux:navlist.item>
-                </flux:navlist.group>
+                <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate tooltip="{{ __('Dashboard') }}">{{ __('Dashboard') }}</flux:sidebar.item>
                 @endif
 
                 @if(\App\Helpers\PermissionHelper::can('menu.documents'))
-                <flux:navlist.group :heading="__('Dokumen')" class="grid">
-                    <flux:navlist.item icon="document-text" :href="route('documents')" :current="request()->routeIs('documents')" wire:navigate @click="if (window.innerWidth < 1024) sidebarOpen = false">{{ __('Dokumen') }}</flux:navlist.item>
-                </flux:navlist.group>
+                <flux:sidebar.item icon="document-text" :href="route('documents')" :current="request()->routeIs('documents')" wire:navigate tooltip="{{ __('Dokumen') }}">{{ __('Dokumen') }}</flux:sidebar.item>
                 @endif
 
                 @if(\App\Helpers\PermissionHelper::can('menu.master-data'))
-                <flux:navlist.item icon="users" :href="route('master-data.index')" :current="request()->routeIs('master-data.*')" wire:navigate @click="if (window.innerWidth < 1024) sidebarOpen = false">{{ __('Master Data') }}</flux:navlist.item>
+                <flux:sidebar.item icon="users" :href="route('master-data.index')" :current="request()->routeIs('master-data.*')" wire:navigate tooltip="{{ __('Master Data') }}">{{ __('Master Data') }}</flux:sidebar.item>
                 @endif
 
                 @if(\App\Helpers\PermissionHelper::can('menu.location-routes'))
-                <flux:navlist.item icon="map" :href="route('location-routes.index')" :current="request()->routeIs('location-routes.*')" wire:navigate @click="if (window.innerWidth < 1024) sidebarOpen = false">{{ __('Ref Lokasi & Rute') }}</flux:navlist.item>
+                <flux:sidebar.item icon="map" :href="route('location-routes.index')" :current="request()->routeIs('location-routes.*')" wire:navigate tooltip="{{ __('Ref Lokasi & Rute') }}">{{ __('Ref Lokasi & Rute') }}</flux:sidebar.item>
                 @endif
 
                 @if(\App\Helpers\PermissionHelper::can('menu.reference-rates'))
-                <flux:navlist.item icon="calculator" :href="route('reference-rates.index')" :current="request()->routeIs('reference-rates.*')" wire:navigate @click="if (window.innerWidth < 1024) sidebarOpen = false">{{ __('Referensi Tarif') }}</flux:navlist.item>
+                <flux:sidebar.item icon="calculator" :href="route('reference-rates.index')" :current="request()->routeIs('reference-rates.*')" wire:navigate tooltip="{{ __('Referensi Tarif') }}">{{ __('Referensi Tarif') }}</flux:sidebar.item>
                 @endif
-            </flux:navlist>
+            </flux:sidebar.nav>
 
             @if(\App\Helpers\PermissionHelper::can('menu.rekap'))
-            <flux:navlist variant="outline">
-                <flux:navlist.group :heading="__('Rekapitulasi')" class="grid">
-                    <flux:navlist.item icon="chart-bar" :href="route('rekap.global')" :current="request()->routeIs('rekap.global')" wire:navigate @click="if (window.innerWidth < 1024) sidebarOpen = false">{{ __('Rekap Global') }}</flux:navlist.item>
-                    <flux:navlist.item icon="users" :href="route('rekap.pegawai')" :current="request()->routeIs('rekap.pegawai')" wire:navigate @click="if (window.innerWidth < 1024) sidebarOpen = false">{{ __('Rekap Pegawai') }}</flux:navlist.item>
-                </flux:navlist.group>
-            </flux:navlist>
+            <flux:sidebar.group expandable heading="{{ __('Rekapitulasi') }}" icon="chart-bar">
+                <flux:sidebar.item icon="chart-bar" :href="route('rekap.global')" :current="request()->routeIs('rekap.global')" wire:navigate tooltip="{{ __('Rekap Global') }}">{{ __('Rekap Global') }}</flux:sidebar.item>
+                <flux:sidebar.item icon="users" :href="route('rekap.pegawai')" :current="request()->routeIs('rekap.pegawai')" wire:navigate tooltip="{{ __('Rekap Pegawai') }}">{{ __('Rekap Pegawai') }}</flux:sidebar.item>
+            </flux:sidebar.group>
             @endif
 
-            <flux:spacer />
+            {{-- <flux:spacer /> --}}
 
             @if(\App\Helpers\PermissionHelper::can('menu.configuration'))
-            <flux:navlist variant="outline">
-                <flux:navlist.group :heading="__('Configuration')" class="grid">
-                    @if(\App\Helpers\PermissionHelper::can('menu.organization'))
-                    <flux:navlist.item :href="route('organization.show')" icon="building-office-2" wire:navigate @click="if (window.innerWidth < 1024) sidebarOpen = false">{{ __('Organisasi') }}</flux:navlist.item>
-                    @endif
-                    @if(\App\Helpers\PermissionHelper::can('menu.ranks'))
-                    <flux:navlist.item icon="shield-check" :href="route('ranks.index')" :current="request()->routeIs('ranks.*')" wire:navigate @click="if (window.innerWidth < 1024) sidebarOpen = false">{{ __('Data Pangkat') }}</flux:navlist.item>
-                    @endif
-                    @if(\App\Helpers\PermissionHelper::can('menu.doc-number-formats'))
-                    <flux:navlist.item icon="hashtag" :href="route('doc-number-formats.index')" :current="request()->routeIs('doc-number-formats.*')" wire:navigate @click="if (window.innerWidth < 1024) sidebarOpen = false">{{ __('Format Penomoran Dokumen') }}</flux:navlist.item>
-                    @endif
-                    @if(\App\Helpers\PermissionHelper::can('menu.number-sequences'))
-                    <flux:navlist.item icon="hashtag" :href="route('number-sequences.index')" :current="request()->routeIs('number-sequences.*')" wire:navigate @click="if (window.innerWidth < 1024) sidebarOpen = false">{{ __('Number Sequence') }}</flux:navlist.item>
-                    @endif
-                    @if(\App\Helpers\PermissionHelper::can('menu.document-numbers'))
-                    <flux:navlist.item icon="document-text" :href="route('document-numbers.index')" :current="request()->routeIs('document-numbers.*')" wire:navigate @click="if (window.innerWidth < 1024) sidebarOpen = false">{{ __('Riwayat Nomor Dokumen') }}</flux:navlist.item>
-                    @endif
-                </flux:navlist.group>
-            </flux:navlist>
+            <flux:sidebar.group expandable heading="{{ __('Configuration') }}" icon="cog-6-tooth">
+                @if(\App\Helpers\PermissionHelper::can('menu.organization'))
+                <flux:sidebar.item :href="route('organization.show')" icon="building-office-2" wire:navigate tooltip="{{ __('Organisasi') }}">{{ __('Organisasi') }}</flux:sidebar.item>
+                @endif
+                @if(\App\Helpers\PermissionHelper::can('menu.ranks'))
+                <flux:sidebar.item icon="shield-check" :href="route('ranks.index')" :current="request()->routeIs('ranks.*')" wire:navigate tooltip="{{ __('Data Pangkat') }}">{{ __('Data Pangkat') }}</flux:sidebar.item>
+                @endif
+                @if(\App\Helpers\PermissionHelper::can('menu.doc-number-formats'))
+                <flux:sidebar.item icon="hashtag" :href="route('doc-number-formats.index')" :current="request()->routeIs('doc-number-formats.*')" wire:navigate tooltip="{{ __('Format Penomoran Dokumen') }}">{{ __('Format Penomoran Dokumen') }}</flux:sidebar.item>
+                @endif
+                @if(\App\Helpers\PermissionHelper::can('menu.number-sequences'))
+                <flux:sidebar.item icon="hashtag" :href="route('number-sequences.index')" :current="request()->routeIs('number-sequences.*')" wire:navigate tooltip="{{ __('Number Sequence') }}">{{ __('Number Sequence') }}</flux:sidebar.item>
+                @endif
+                @if(\App\Helpers\PermissionHelper::can('menu.document-numbers'))
+                <flux:sidebar.item icon="document-text" :href="route('document-numbers.index')" :current="request()->routeIs('document-numbers.*')" wire:navigate tooltip="{{ __('Riwayat Nomor Dokumen') }}">{{ __('Riwayat Nomor Dokumen') }}</flux:sidebar.item>
+                @endif
+            </flux:sidebar.group>
             @endif
 
-            
+            <flux:sidebar.spacer />
+
+            {{-- <flux:sidebar.nav>
+                <flux:sidebar.item icon="cog-6-tooth" :href="route('profile.show')" wire:navigate tooltip="{{ __('Settings') }}">{{ __('Settings') }}</flux:sidebar.item>
+            </flux:sidebar.nav> --}}
 
             <!-- Desktop User Menu -->
             <flux:dropdown class="hidden lg:block" position="bottom" align="start">
