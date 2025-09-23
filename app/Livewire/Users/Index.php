@@ -149,7 +149,7 @@ class Index extends Component
             // 1. Sort by eselon (lower number = higher eselon)
             ->orderByRaw('CASE WHEN echelons.id IS NULL THEN 999999 ELSE echelons.id END ASC')
             // 2. Sort by rank (higher number = higher rank)
-            ->orderByRaw('CASE WHEN ranks.id IS NULL THEN 0 ELSE ranks.id END DESC')
+            ->orderByRaw('CASE WHEN ranks.id IS NULL THEN 0 ELSE ranks.id END ASC')
             // 3. Sort by NIP (alphabetical)
             ->orderBy('users.nip', 'ASC')
             ->select('users.*')
