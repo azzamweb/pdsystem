@@ -28,6 +28,12 @@ class Index extends Component
             session()->flash('error', 'Anda tidak memiliki izin untuk menghapus user.');
             return;
         }
+
+        // Check if user is superadmin and current user is not superadmin
+        if ($user->isSuperAdmin() && !\Illuminate\Support\Facades\Auth::user()->isSuperAdmin()) {
+            session()->flash('error', 'User dengan role superadmin hanya dapat dihapus oleh superadmin lainnya.');
+            return;
+        }
         
         // Check if user is used in any active documents (only non-deleted documents)
         if ($user->isUsedInDocuments()) {

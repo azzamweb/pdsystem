@@ -75,6 +75,11 @@ class Edit extends Component
         if (!PermissionHelper::can('users.edit')) {
             abort(403, 'Anda tidak memiliki izin untuk mengedit user.');
         }
+
+        // Check if user is superadmin and current user is not superadmin
+        if ($user->isSuperAdmin() && !\Illuminate\Support\Facades\Auth::user()->isSuperAdmin()) {
+            abort(403, 'User dengan role superadmin hanya dapat diubah oleh superadmin lainnya.');
+        }
         
         // Check if bendahara pengeluaran pembantu can edit this user
         if (!PermissionHelper::canAccessAllData()) {
@@ -151,6 +156,12 @@ class Edit extends Component
     public function update()
     {
         $validated = $this->validate();
+
+        // Check if user is superadmin and current user is not superadmin
+        if ($this->user->isSuperAdmin() && !\Illuminate\Support\Facades\Auth::user()->isSuperAdmin()) {
+            session()->flash('error', 'User dengan role superadmin hanya dapat diubah oleh superadmin lainnya.');
+            return;
+        }
         
         // Additional validation for bendahara pengeluaran pembantu
         if (!PermissionHelper::canAccessAllData()) {

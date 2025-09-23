@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
@@ -303,7 +304,7 @@ class User extends Authenticatable
     public function willCauseForeignKeyViolation(): bool
     {
         // Check for hard references in receipts table
-        $receiptsCount = \DB::table('receipts')
+        $receiptsCount = DB::table('receipts')
             ->where('payee_user_id', $this->id)
             ->orWhere('treasurer_user_id', $this->id)
             ->count();
@@ -320,14 +321,14 @@ class User extends Authenticatable
         $cleanedCount = 0;
         
         // Hard delete soft deleted receipts where user is payee (payee_user_id cannot be null)
-        $payeeReceipts = \DB::table('receipts')
+        $payeeReceipts = DB::table('receipts')
             ->where('payee_user_id', $this->id)
             ->whereNotNull('deleted_at')
             ->delete();
         $cleanedCount += $payeeReceipts;
         
         // Clean up soft deleted receipts where user is treasurer (treasurer_user_id can be null)
-        $treasurerReceipts = \DB::table('receipts')
+        $treasurerReceipts = DB::table('receipts')
             ->where('treasurer_user_id', $this->id)
             ->whereNotNull('deleted_at')
             ->update(['treasurer_user_id' => null]);
@@ -582,5 +583,28 @@ class User extends Authenticatable
         }
 
         return $involvements;
+    }
+
+    /**
+     * Check if user is superadmin
+     */
+    public function isSuperAdmin(): bool
+    {
+        return $this->hasRole('super-admin');
+    }
+
+    /**
+     * Check if user can be modified by current user
+     * Superadmin can only be modified by other superadmins
+     */
+    public function canBeModifiedBy(User $currentUser): bool
+    {
+        // If this user is superadmin, only other superadmins can modify
+        if ($this->isSuperAdmin()) {
+            return $currentUser->isSuperAdmin();
+        }
+        
+        // Non-superadmin users can be modified by admin or superadmin
+        return $currentUser->hasAnyRole(['admin', 'super-admin']);
     }
 }

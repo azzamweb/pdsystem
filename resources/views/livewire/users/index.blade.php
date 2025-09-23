@@ -157,16 +157,24 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <div class="relative" x-data="{ open: false }">
-                                    <button 
-                                        @click="open = !open"
-                                        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 rounded"
-                                        title="Aksi"
-                                    >
-                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
+                                @if($user->isSuperAdmin() && !\Illuminate\Support\Facades\Auth::user()->isSuperAdmin())
+                                    <span class="text-gray-400 text-sm" title="User superadmin hanya dapat diubah oleh superadmin lainnya">
+                                        <svg class="w-5 h-5 inline-block mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
                                         </svg>
-                                    </button>
+                                        Terkunci
+                                    </span>
+                                @else
+                                    <div class="relative" x-data="{ open: false }">
+                                        <button 
+                                            @click="open = !open"
+                                            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 rounded"
+                                            title="Aksi"
+                                        >
+                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
+                                            </svg>
+                                        </button>
                                     
                                     <div 
                                         x-show="open" 
@@ -235,6 +243,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                @endif
                             </td>
                         </tr>
                     @empty
