@@ -52,13 +52,13 @@ class Dashboard extends Component
 
         // Apply unit scope filtering if user can't access all data
         if (!$canAccessAllData && $userUnitId) {
-            $baseQuery->where('unit_id', $userUnitId);
+            $baseQuery->where('requesting_unit_id', $userUnitId);
             $userQuery->where('unit_id', $userUnitId);
             $sptQuery->whereHas('notaDinas', function($q) use ($userUnitId) {
-                $q->where('unit_id', $userUnitId);
+                $q->where('requesting_unit_id', $userUnitId);
             });
             $sppdQuery->whereHas('spt.notaDinas', function($q) use ($userUnitId) {
-                $q->where('unit_id', $userUnitId);
+                $q->where('requesting_unit_id', $userUnitId);
             });
         }
 
@@ -91,12 +91,12 @@ class Dashboard extends Component
 
         // Apply unit scope filtering if user can't access all data
         if (!$canAccessAllData && $userUnitId) {
-            $baseQuery->where('unit_id', $userUnitId);
+            $baseQuery->where('requesting_unit_id', $userUnitId);
             $sptQuery->whereHas('notaDinas', function($q) use ($userUnitId) {
-                $q->where('unit_id', $userUnitId);
+                $q->where('requesting_unit_id', $userUnitId);
             });
             $sppdQuery->whereHas('spt.notaDinas', function($q) use ($userUnitId) {
-                $q->where('unit_id', $userUnitId);
+                $q->where('requesting_unit_id', $userUnitId);
             });
         }
 
@@ -119,7 +119,7 @@ class Dashboard extends Component
             ->where('created_at', '<', now()->subDays(7)); // Overdue if pending for more than 7 days
 
         if (!$canAccessAllData && $userUnitId) {
-            $query->where('unit_id', $userUnitId);
+            $query->where('requesting_unit_id', $userUnitId);
         }
 
         return $query->count();
@@ -135,7 +135,7 @@ class Dashboard extends Component
             ->limit(5);
 
         if (!$canAccessAllData && $userUnitId) {
-            $notaDinasQuery->where('unit_id', $userUnitId);
+            $notaDinasQuery->where('requesting_unit_id', $userUnitId);
         }
 
         $recentNotaDinas = $notaDinasQuery->get();
@@ -158,7 +158,7 @@ class Dashboard extends Component
 
         if (!$canAccessAllData && $userUnitId) {
             $sptQuery->whereHas('notaDinas', function($q) use ($userUnitId) {
-                $q->where('unit_id', $userUnitId);
+                $q->where('requesting_unit_id', $userUnitId);
             });
         }
 
@@ -182,7 +182,7 @@ class Dashboard extends Component
 
         if (!$canAccessAllData && $userUnitId) {
             $sppdQuery->whereHas('spt.notaDinas', function($q) use ($userUnitId) {
-                $q->where('unit_id', $userUnitId);
+                $q->where('requesting_unit_id', $userUnitId);
             });
         }
 
