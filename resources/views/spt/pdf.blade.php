@@ -215,12 +215,18 @@
                             $signedByUserSnapshot = $spt->getSignedByUserSnapshot();
                             $positionName = $signedByUserSnapshot['position_name'] ?? $spt->signedByUser?->position?->name ?? '-';
                             $unitName = $signedByUserSnapshot['unit_name'] ?? $spt->signedByUser?->unit?->name ?? '';
+                        $positionDesc = $signedByUserSnapshot['position_desc'] ?? $spt->signedByUser?->position_desc ?? '';
                         @endphp
-                        @if($unitName)
+                        @if($positionDesc)
+                            <!-- Jika ada position_desc, tampilkan position_desc -> unit_name -> organisation name -->
+                            <div style="word-wrap: break-word; white-space: normal;">{{ $positionDesc }}
+                          
+                            <div>{{ \DB::table('org_settings')->value('name') }}</div>
+                        @elseif($unitName)
                             <!-- Jika ada unit name, tampilkan dalam baris terpisah -->
                             <div style="word-wrap: break-word; white-space: normal;">{{ $positionName }} {{ $unitName }}</div>
                            
-                            <div>{{ \DB::table('org_settings')->value('name') }}</div>
+                            {{-- <div>{{ \DB::table('org_settings')->value('name') }}</div> --}}
                         @else
                             <!-- Jika tidak ada unit name, position langsung disambung dengan organisasi -->
                             <div style="word-wrap: break-word; white-space: normal;">{{ $positionName }} {{ \DB::table('org_settings')->value('name') }}</div>

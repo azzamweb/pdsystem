@@ -335,14 +335,23 @@
                     <div style="word-wrap: break-word; white-space: normal;">{!! nl2br(e($sppd->assignment_title)) !!}</div>
                 @else
                     <!-- Auto assignment title (dari jabatan penandatangan) -->
-                    @if($signatorySnapshot['unit_name'])
+                    @php
+                        $positionName = $signatorySnapshot['position_name'] ?? '-';
+                        $unitName = $signatorySnapshot['unit_name'] ?? '';
+                        $positionDesc = $signatorySnapshot['position_desc'] ?? '';
+                    @endphp
+                    @if($positionDesc)
+                        <!-- Jika ada position_desc, tampilkan position_desc -> unit_name -> organisation name -->
+                        <div style="word-wrap: break-word; white-space: normal;">{{ $positionDesc }}</div>
+                        <div>{{ \DB::table('org_settings')->value('name') }}</div>
+                    @elseif($unitName)
                         <!-- Jika ada unit name, tampilkan dalam baris terpisah -->
-                        <div style="word-wrap: break-word; white-space: normal;">{{ $signatorySnapshot['position_name'] ?? '-' }} {{ $signatorySnapshot['unit_name'] }}</div>
-                        <div>{{ \DB::table('org_settings')->value('name') }} <br>Kabupaten Bengkalis</div>
+                        <div style="word-wrap: break-word; white-space: normal;">{{ $positionName }} {{ $unitName }}</div>
                     @else
                         <!-- Jika tidak ada unit name, position langsung disambung dengan organisasi -->
-                        <div style="word-wrap: break-word; white-space: normal;">{{ $signatorySnapshot['position_name'] ?? '-' }} {{ \DB::table('org_settings')->value('name') }} <br>Kabupaten Bengkalis</div>
+                        <div style="word-wrap: break-word; white-space: normal;">{{ $positionName }} {{ \DB::table('org_settings')->value('name') }}</div>
                     @endif
+                    <div>Kabupaten Bengkalis</div>
                     <div></div>
                 @endif
                 
@@ -637,21 +646,31 @@
                             <div style="word-wrap: break-word; white-space: normal;">{!! nl2br(e($sppd->assignment_title)) !!}</div>
                         @else
                             <!-- Auto assignment title (dari jabatan penandatangan) -->
-                            @if($signatorySnapshot['unit_name'])
+                            @php
+                                $positionName = $signatorySnapshot['position_name'] ?? '-';
+                                $unitName = $signatorySnapshot['unit_name'] ?? '';
+                                $positionDesc = $signatorySnapshot['position_desc'] ?? '';
+                            @endphp
+                            @if($positionDesc)
+                                <!-- Jika ada position_desc, tampilkan position_desc -> unit_name -> organisation name -->
+                                <div style="word-wrap: break-word; white-space: normal;">{{ $positionDesc }}</div>
+                                <div>{{ \DB::table('org_settings')->value('name') }}</div>
+                            @elseif($unitName)
                                 <!-- Jika ada unit name, tampilkan dalam baris terpisah -->
-                                <div style="word-wrap: break-word; white-space: normal;">{{ $signatorySnapshot['position_name'] ?? '-' }} {{ $signatorySnapshot['unit_name'] }}</div>
-                                <div>{{ \DB::table('org_settings')->value('name') }} Kabupaten Bengkalis</div>
+                                <div style="word-wrap: break-word; white-space: normal;">{{ $positionName }} {{ $unitName }}</div>
                             @else
                                 <!-- Jika tidak ada unit name, position langsung disambung dengan organisasi -->
-                                <div style="word-wrap: break-word; white-space: normal;">{{ $signatorySnapshot['position_name'] ?? '-' }} {{ \DB::table('org_settings')->value('name') }} Kabupaten Bengkalis</div>
+                                <div style="word-wrap: break-word; white-space: normal;">{{ $positionName }} {{ \DB::table('org_settings')->value('name') }}</div>
                             @endif
-                            @php
-                                // Cek apakah penandatangan adalah pimpinan organisasi
-                                $orgHeadUserId = \DB::table('org_settings')->value('head_user_id');
-                                $isOrgHead = $sppd->signed_by_user_id == $orgHeadUserId;
-                            @endphp
-                            <div>{{ $isOrgHead ? 'Selaku Pengguna Anggaran' : 'Selaku Kuasa Pengguna Anggaran' }}</div>
+                            <div>Kabupaten Bengkalis</div>
                         @endif
+                        
+                        @php
+                            // Cek apakah penandatangan adalah pimpinan organisasi
+                            $orgHeadUserId = \DB::table('org_settings')->value('head_user_id');
+                            $isOrgHead = $sppd->signed_by_user_id == $orgHeadUserId;
+                        @endphp
+                        <div>{{ $isOrgHead ? 'Selaku Pengguna Anggaran' : 'Selaku Kuasa Pengguna Anggaran' }}</div>
                         <br><br><br><br>
                         <div class="name">{{ $signatorySnapshot['gelar_depan'] ?? '' }} {{ $signatorySnapshot['name'] ?? '-' }} {{ $signatorySnapshot['gelar_belakang'] ?? '' }}</div>
                         <div class="rank">{{ $signatorySnapshot['rank_name'] ?? '-' }} ({{ $signatorySnapshot['rank_code'] ?? '-' }})</div>
@@ -677,21 +696,32 @@
                                     <div style="word-wrap: break-word; white-space: normal;">{!! nl2br(e($sppd->assignment_title)) !!}</div>
                                 @else
                                     <!-- Auto assignment title (dari jabatan penandatangan) -->
-                                    @if($signatorySnapshot['unit_name'])
+                                    @php
+                                        $positionName = $signatorySnapshot['position_name'] ?? '-';
+                                        $unitName = $signatorySnapshot['unit_name'] ?? '';
+                                        $positionDesc = $signatorySnapshot['position_desc'] ?? '';
+                                    @endphp
+                                    @if($positionDesc)
+                                        <!-- Jika ada position_desc, tampilkan position_desc -> unit_name -> organisation name -->
+                                        <div style="word-wrap: break-word; white-space: normal;">{{ $positionDesc }}</div>
+                                        <div>{{ \DB::table('org_settings')->value('name') }}</div>
+                                    @elseif($unitName)
                                         <!-- Jika ada unit name, tampilkan dalam baris terpisah -->
-                                        <div style="word-wrap: break-word; white-space: normal;">{{ $signatorySnapshot['position_name'] ?? '-' }} {{ $signatorySnapshot['unit_name'] }}</div>
-                                        <div>{{ \DB::table('org_settings')->value('name') }} Kabupaten Bengkalis</div>
+                                        <div style="word-wrap: break-word; white-space: normal;">{{ $positionName }} {{ $unitName }}</div>
                                     @else
                                         <!-- Jika tidak ada unit name, position langsung disambung dengan organisasi -->
-                                        <div style="word-wrap: break-word; white-space: normal;">{{ $signatorySnapshot['position_name'] ?? '-' }} {{ \DB::table('org_settings')->value('name') }} Kabupaten Bengkalis</div>
+                                        <div style="word-wrap: break-word; white-space: normal;">{{ $positionName }} {{ \DB::table('org_settings')->value('name') }}</div>
                                     @endif
-                                    @php
-                                        // Cek apakah penandatangan adalah pimpinan organisasi
-                                        $orgHeadUserId = \DB::table('org_settings')->value('head_user_id');
-                                        $isOrgHead = $sppd->signed_by_user_id == $orgHeadUserId;
-                                    @endphp
-                                    <div>{{ $isOrgHead ? 'Selaku Pengguna Anggaran' : 'Selaku Kuasa Pengguna Anggaran' }}</div>
+                                    <div>Kabupaten Bengkalis</div>
+                                    <div></div>
                                 @endif
+                                
+                                @php
+                                    // Cek apakah penandatangan adalah pimpinan organisasi
+                                    $orgHeadUserId = \DB::table('org_settings')->value('head_user_id');
+                                    $isOrgHead = $sppd->signed_by_user_id == $orgHeadUserId;
+                                @endphp
+                                <div>{{ $isOrgHead ? 'Selaku Pengguna Anggaran' : 'Selaku Kuasa Pengguna Anggaran' }}</div>
                                 <br><br><br><br>
                                 <div class="name">{{ $signatorySnapshot['gelar_depan'] ?? '' }} {{ $signatorySnapshot['name'] ?? '-' }} {{ $signatorySnapshot['gelar_belakang'] ?? '' }}</div>
                                 <div class="rank">{{ $signatorySnapshot['rank_name'] ?? '-' }} ({{ $signatorySnapshot['rank_code'] ?? '-' }})</div>

@@ -240,7 +240,12 @@
             <div class="col-label">B.</div>
             <div class="col-content">
               <div class="block-title">SETUJU DIBAYAR</div>
-              <div class="muted">KUASA PENGGUNA ANGGARAN</div>
+              @php
+                // Cek apakah penandatangan adalah pimpinan organisasi
+                $orgHeadUserId = \DB::table('org_settings')->value('head_user_id');
+                $isOrgHead = $receipt->sppd->signed_by_user_id == $orgHeadUserId;
+              @endphp
+              <div class="muted">{{ $isOrgHead ? 'PENGGUNA ANGGARAN' : 'KUASA PENGGUNA ANGGARAN' }}</div>
              
               <div class="mt-6"></div>
               <div class="mt-6"></div>

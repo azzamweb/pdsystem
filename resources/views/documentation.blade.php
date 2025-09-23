@@ -19,6 +19,20 @@
                                 🚀 Update Terbaru
                             </h2>
                             <div class="space-y-4">
+
+                                <div class="bg-white p-4 rounded-lg shadow-sm">
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-2">
+                                        ✅ Perbaikan Nama unit dan Jabatan pada penanda tangan dokumen SPT, SPPD dan Kwitansi
+                                    </h3>
+                                    <p class="text-gray-700 mb-3">
+                                        Implementasi logika jika penanda tangan adalah kepala organisasi atau bukan
+                                    </p>
+                                    <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
+                                        <li>Tampilan kuitansi, SPPD, dan SPT PDF Blade yang diperbarui untuk menangani dan menampilkan informasi penandatangan dengan lebih baik. Kini mendukung tampilan deskripsi posisi, nama unit, dan nama organisasi dengan lebih fleksibel, dan menyesuaikan label pengguna anggaran berdasarkan apakah yang menandatangani adalah pimpinan organisasi.</li>
+                                        
+                                    </ul>
+                                </div>
+
                                 <div class="bg-white p-4 rounded-lg shadow-sm">
                                     <h3 class="text-lg font-semibold text-gray-900 mb-2">
                                         ✅ Collapsible Sidebar dengan Flux UI
