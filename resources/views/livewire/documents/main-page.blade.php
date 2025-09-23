@@ -21,7 +21,7 @@
                     >
                         Buat Nota Dinas
                     </flux:button>
-                    @endif
+                        @endif
                 </div>
             </div>
         </div>
