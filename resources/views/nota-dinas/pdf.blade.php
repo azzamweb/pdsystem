@@ -240,7 +240,7 @@
                         @endphp
                         @if($positionDesc)
                             <!-- Jika ada position_desc, tampilkan position_desc -> unit_name -> organisation name -->
-                            <div style="word-wrap: break-word; white-space: normal; max-width: 100%;">{{ $positionDesc }}  {{ \DB::table('org_settings')->value('name') }}</div>
+                            <div style="word-wrap: break-word; white-space: normal; max-width: 100%;">{{ $positionDesc }}@if(strlen($positionDesc) > 12)<br>@endif {{ \DB::table('org_settings')->value('name') }}</div>
                         @elseif($unitName)
                             <!-- Jika ada unit name, tampilkan dalam baris terpisah -->
                             <div style="word-wrap: break-word; white-space: normal; max-width: 100%;">{{ $positionName }} {{ $unitName }}</div>
