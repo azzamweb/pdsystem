@@ -34,7 +34,7 @@ class RekapPegawaiController extends Controller
             'position.echelon',
             'rank',
             'travelGrade'
-        ]);
+        ])->where('is_non_staff', false); // Exclude non-staff users
 
         // Apply filters
         if ($search) {
@@ -182,7 +182,7 @@ class RekapPegawaiController extends Controller
             'position.echelon',
             'rank',
             'travelGrade'
-        ]);
+        ])->where('is_non_staff', false); // Exclude non-staff users
 
         // Apply unit scope filtering for bendahara pengeluaran pembantu
         if (!PermissionHelper::canAccessAllData()) {

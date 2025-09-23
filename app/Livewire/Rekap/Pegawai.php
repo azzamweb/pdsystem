@@ -68,7 +68,7 @@ class Pegawai extends Component
             'position.echelon',
             'rank',
             'travelGrade'
-        ]);
+        ])->where('users.is_non_staff', false); // Exclude non-staff users
 
         // Apply unit scope filtering for bendahara pengeluaran pembantu
         if (!\App\Helpers\PermissionHelper::canAccessAllData()) {
