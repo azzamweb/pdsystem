@@ -144,3 +144,5 @@ select:focus[data-flux-control] {
     z-index: 1000;
     margin-left: 3px;
 }
+
+/* Flux UI Sidebar - Let Flux UI handle mobile behavior */
