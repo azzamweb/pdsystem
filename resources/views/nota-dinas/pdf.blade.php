@@ -221,14 +221,39 @@
             
             <!-- Tanda Tangan -->
             <div class="signature">
-                <div class="block">
-                    <div>{{ $notaDinas->custom_signer_title ?: ($notaDinas->from_user_position_name_snapshot ?: $notaDinas->fromUser?->position?->name ?? '-') . ' ' . ($notaDinas->from_user_unit_name_snapshot ?: $notaDinas->fromUser?->unit?->name ?? '-') }}</div>
-                    <div>{{ \DB::table('org_settings')->value('name') }}</div>
-                    <div>Kabupaten Bengkalis</div>
+                <div class="block" style="max-width: 250px; word-wrap: break-word; overflow-wrap: break-word;">
+                    @php
+                        // Deteksi apakah custom_signer_title adalah custom atau auto
+                        $defaultTitle = $notaDinas->from_user_position_desc_snapshot ?: ($notaDinas->from_user_position_name_snapshot ?: $notaDinas->fromUser?->position?->name ?? '');
+                        $isCustomAssignment = !empty(trim($notaDinas->custom_signer_title)) && trim($notaDinas->custom_signer_title) !== trim($defaultTitle);
+                    @endphp
+                    
+                    @if($isCustomAssignment)
+                        <!-- Custom assignment title -->
+                        <div style="word-wrap: break-word; white-space: normal; max-width: 100%;">{!! nl2br(e($notaDinas->custom_signer_title)) !!}</div>
+                    @else
+                        <!-- Auto assignment title (dari snapshot Nota Dinas) -->
+                        @php
+                            $positionName = $notaDinas->from_user_position_name_snapshot ?: $notaDinas->fromUser?->position?->name ?? '-';
+                            $unitName = $notaDinas->from_user_unit_name_snapshot ?: $notaDinas->fromUser?->unit?->name ?? '';
+                            $positionDesc = $notaDinas->from_user_position_desc_snapshot ?: $notaDinas->fromUser?->position_desc ?? '';
+                        @endphp
+                        @if($positionDesc)
+                            <!-- Jika ada position_desc, tampilkan position_desc -> unit_name -> organisation name -->
+                            <div style="word-wrap: break-word; white-space: normal; max-width: 100%;">{{ $positionDesc }}  {{ \DB::table('org_settings')->value('name') }}</div>
+                        @elseif($unitName)
+                            <!-- Jika ada unit name, tampilkan dalam baris terpisah -->
+                            <div style="word-wrap: break-word; white-space: normal; max-width: 100%;">{{ $positionName }} {{ $unitName }}</div>
+                        @else
+                            <!-- Jika tidak ada unit name, position langsung disambung dengan organisasi -->
+                            <div style="word-wrap: break-word; white-space: normal; max-width: 100%;">{{ $positionName }} {{ \DB::table('org_settings')->value('name') }}</div>
+                        @endif
+                        <div style="max-width: 100%;">Kabupaten Bengkalis</div>             
+                    @endif
                     <br><br><br><br><br>
-                    <div class="name">{{ $notaDinas->from_user_gelar_depan_snapshot ?: $notaDinas->fromUser?->gelar_depan ?? '' }} {{ $notaDinas->from_user_name_snapshot ?: $notaDinas->fromUser?->name ?? '-' }} {{ $notaDinas->from_user_gelar_belakang_snapshot ?: $notaDinas->fromUser?->gelar_belakang ?? '-' }}</div>
-                    <div class="rank">{{ $notaDinas->from_user_rank_name_snapshot ?: $notaDinas->fromUser?->rank?->name ?? '-' }} ({{ $notaDinas->from_user_rank_code_snapshot ?: $notaDinas->fromUser?->rank?->code ?? '-' }})</div>
-                    <div class="nip">NIP. {{ $notaDinas->from_user_nip_snapshot ?: $notaDinas->fromUser?->nip ?? '-' }}</div>
+                    <div class="name" style="max-width: 100%; word-wrap: break-word;">{{ $notaDinas->from_user_gelar_depan_snapshot ?: $notaDinas->fromUser?->gelar_depan ?? '' }} {{ $notaDinas->from_user_name_snapshot ?: $notaDinas->fromUser?->name ?? '-' }} {{ $notaDinas->from_user_gelar_belakang_snapshot ?: $notaDinas->fromUser?->gelar_belakang ?? '' }}</div>
+                    <div class="rank" style="max-width: 100%; word-wrap: break-word;">{{ $notaDinas->from_user_rank_name_snapshot ?: $notaDinas->fromUser?->rank?->name ?? '-' }} ({{ $notaDinas->from_user_rank_code_snapshot ?: $notaDinas->fromUser?->rank?->code ?? '-' }})</div>
+                    <div class="nip" style="max-width: 100%; word-wrap: break-word;">NIP. {{ $notaDinas->from_user_nip_snapshot ?: $notaDinas->fromUser?->nip ?? '-' }}</div>
                 </div>
             </div>
         </div>
