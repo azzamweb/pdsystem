@@ -97,6 +97,7 @@ use App\Http\Controllers\SptController;
 use App\Http\Controllers\SppdController;
 use App\Livewire\Rekap\Pegawai as RekapPegawai;
 use App\Livewire\Rekap\GlobalRekap;
+use App\Livewire\Dashboard;
 
 
 Route::get('/', function () {
@@ -113,7 +114,7 @@ Route::middleware('guest')->group(function () {
 Route::middleware(['auth', 'user.role'])->group(function () {
     Route::get('verify-email', VerifyEmail::class)->name('verification.notice');
     Route::get('confirm-password', ConfirmPassword::class)->name('password.confirm');
-    Route::view('dashboard', 'dashboard')->name('dashboard');
+    Route::get('dashboard', Dashboard::class)->name('dashboard');
     
     // Documentation Page
     Route::get('documentation', function () {
