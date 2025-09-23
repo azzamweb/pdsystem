@@ -130,7 +130,7 @@ class Dashboard extends Component
         $activities = collect();
 
         // Recent Nota Dinas
-        $notaDinasQuery = NotaDinas::with(['fromUser', 'toUser', 'unit'])
+        $notaDinasQuery = NotaDinas::with(['fromUser', 'toUser', 'requestingUnit'])
             ->orderBy('created_at', 'desc')
             ->limit(5);
 
@@ -152,7 +152,7 @@ class Dashboard extends Component
         }
 
         // Recent SPT
-        $sptQuery = Spt::with(['notaDinas.fromUser', 'notaDinas.toUser', 'notaDinas.unit'])
+        $sptQuery = Spt::with(['notaDinas.fromUser', 'notaDinas.toUser', 'notaDinas.requestingUnit'])
             ->orderBy('created_at', 'desc')
             ->limit(5);
 
@@ -176,7 +176,7 @@ class Dashboard extends Component
         }
 
         // Recent SPPD
-        $sppdQuery = Sppd::with(['spt.notaDinas.fromUser', 'spt.notaDinas.toUser', 'spt.notaDinas.unit'])
+        $sppdQuery = Sppd::with(['spt.notaDinas.fromUser', 'spt.notaDinas.toUser', 'spt.notaDinas.requestingUnit'])
             ->orderBy('created_at', 'desc')
             ->limit(5);
 
