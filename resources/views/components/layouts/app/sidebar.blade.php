@@ -70,7 +70,7 @@
                 @endif
             </flux:sidebar.group>
             @endif
-            <flux:sidebar.item icon="document-text" :href="" :current="" wire:navigate  tooltip="{{ __('Dokumentasi') }}">{{ __('Dokumentasi') }}</flux:sidebar.item>
+            <flux:sidebar.item icon="document-text" :href="route('documentation')" :current="request()->routeIs('documentation')" wire:navigate  tooltip="{{ __('Dokumentasi') }}">{{ __('Dokumentasi') }}</flux:sidebar.item>
             <flux:sidebar.spacer />
 
             {{-- <flux:sidebar.nav>

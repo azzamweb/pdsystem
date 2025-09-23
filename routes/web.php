@@ -115,6 +115,11 @@ Route::middleware(['auth', 'user.role'])->group(function () {
     Route::get('confirm-password', ConfirmPassword::class)->name('password.confirm');
     Route::view('dashboard', 'dashboard')->name('dashboard');
     
+    // Documentation Page
+    Route::get('documentation', function () {
+        return view('documentation');
+    })->name('documentation');
+    
     // Main Documents Page
     Route::get('documents', function () {
         return view('documents.main-page');
